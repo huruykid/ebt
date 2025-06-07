@@ -87,17 +87,17 @@ function transformFeatures(features: ArcGISFeature[]): TransformedStore[] {
   return features.map((feature: ArcGISFeature) => {
     const attrs = feature.attributes;
     
-    // Log address fields for debugging
+    // Log address fields for debugging with correct field names
     const addressInfo = {
-      Address: attrs.Address,
-      Address2: attrs.Address2,
+      Store_Street_Address: attrs.Store_Street_Address,
+      Additonal_Address: attrs.Additonal_Address, // Note: ArcGIS has a typo in their field name
       City: attrs.City,
       State: attrs.State,
-      Zip5: attrs.Zip5,
+      Zip_Code: attrs.Zip_Code,
       Zip4: attrs.Zip4
     };
     
-    if (!attrs.Address && !attrs.City) {
+    if (!attrs.Store_Street_Address && !attrs.City) {
       console.log(`Store with missing address data:`, {
         storeName: attrs.Store_Name,
         objectId: attrs.OBJECTID,
@@ -110,11 +110,11 @@ function transformFeatures(features: ArcGISFeature[]): TransformedStore[] {
       record_id: attrs.Record_ID?.toString() || '',
       store_name: attrs.Store_Name || 'Unknown Store',
       store_type: attrs.Store_Type || '',
-      store_street_address: attrs.Address || '',
-      additional_address: attrs.Address2 || '',
+      store_street_address: attrs.Store_Street_Address || '', // Fixed field mapping
+      additional_address: attrs.Additonal_Address || '', // Fixed field mapping (note the typo in ArcGIS)
       city: attrs.City || '',
       state: attrs.State || '',
-      zip_code: attrs.Zip5 || '',
+      zip_code: attrs.Zip_Code || '', // Fixed field mapping
       zip4: attrs.Zip4 || '',
       county: attrs.County || '',
       longitude: attrs.Longitude || 0,

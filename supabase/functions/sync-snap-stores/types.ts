@@ -4,11 +4,11 @@ export interface ArcGISFeature {
     OBJECTID: number;
     Store_Name: string;
     Store_Type: string;
-    Address: string;
-    Address2?: string;
+    Store_Street_Address: string; // Fixed field name
+    Additonal_Address?: string; // Fixed field name (note ArcGIS typo)
     City: string;
     State: string;
-    Zip5: string;
+    Zip_Code: string; // Fixed field name
     Zip4?: string;
     County: string;
     Longitude: number;
@@ -24,6 +24,7 @@ export interface ArcGISFeature {
 export interface ArcGISResponse {
   features: ArcGISFeature[];
   exceededTransferLimit?: boolean;
+  error?: any;
 }
 
 export interface TransformedStore {
