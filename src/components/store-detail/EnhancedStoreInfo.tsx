@@ -5,7 +5,6 @@ import { AddressCard } from './cards/AddressCard';
 import { ContactInfoCard } from './cards/ContactInfoCard';
 import { BusinessHoursCard } from './cards/BusinessHoursCard';
 import { GoogleReviewsCard } from './cards/GoogleReviewsCard';
-import { EbtSnapInfoCard } from './cards/EbtSnapInfoCard';
 import { StoreDetailsCard } from './cards/StoreDetailsCard';
 
 type Store = Tables<'snap_stores'>;
@@ -38,7 +37,6 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
       <ContactInfoCard googlePlacesData={googlePlacesData} />
       <BusinessHoursCard googlePlacesData={googlePlacesData} />
       <GoogleReviewsCard googlePlacesData={googlePlacesData} />
-      <EbtSnapInfoCard store={store} />
       <StoreDetailsCard store={store} googlePlacesData={googlePlacesData} />
     </div>
   );
