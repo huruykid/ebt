@@ -15,7 +15,7 @@ export async function clearExistingData(supabase: any): Promise<void> {
 }
 
 export async function insertStoresInBatches(supabase: any, stores: TransformedStore[]): Promise<number> {
-  const batchSize = 2000; // Increased batch size
+  const batchSize = 1000; // Smaller batch size for better reliability
   let insertedCount = 0;
   
   for (let i = 0; i < stores.length; i += batchSize) {
@@ -25,17 +25,28 @@ export async function insertStoresInBatches(supabase: any, stores: TransformedSt
     
     console.log(`Inserting batch ${batchNumber}/${totalBatches} (${batch.length} records)...`);
     
-    const { error: insertError } = await supabase
-      .from('snap_stores')
-      .insert(batch);
+    try {
+      const { error: insertError } = await supabase
+        .from('snap_stores')
+        .insert(batch);
 
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      throw new Error(`Failed to insert batch ${batchNumber}: ${insertError.message}`);
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw new Error(`Failed to insert batch ${batchNumber}: ${insertError.message}`);
+      }
+      
+      insertedCount += batch.length;
+      console.log(`Successfully inserted batch ${batchNumber}. Total inserted: ${insertedCount}`);
+      
+      // Small delay between batches to prevent overwhelming the database
+      if (i + batchSize < stores.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      
+    } catch (error) {
+      console.error(`Error inserting batch ${batchNumber}:`, error);
+      throw error;
     }
-    
-    insertedCount += batch.length;
-    console.log(`Successfully inserted batch ${batchNumber}. Total inserted: ${insertedCount}`);
   }
 
   return insertedCount;

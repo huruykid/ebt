@@ -18,33 +18,59 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all data from ArcGIS API with pagination
-    console.log('Fetching all data from ArcGIS with pagination...');
-    const stores = await fetchAllStores();
-    
-    console.log(`Total stores fetched: ${stores.length}`);
+    // Clear existing data first
+    await clearExistingData(supabase);
+    console.log('Cleared existing data');
 
-    if (stores.length === 0) {
-      console.log('No stores found in response');
-      return new Response(
-        JSON.stringify({ success: true, message: 'No data to sync' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Process stores in chunks to avoid memory issues
+    const CHUNK_SIZE = 10000; // Process 10k stores at a time
+    let totalProcessed = 0;
+    let offset = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      console.log(`Fetching chunk starting at offset ${offset}...`);
+      
+      try {
+        const chunk = await fetchAllStores(offset, CHUNK_SIZE);
+        
+        if (chunk.length === 0) {
+          console.log('No more stores found, ending sync');
+          hasMore = false;
+          break;
+        }
+
+        console.log(`Processing ${chunk.length} stores...`);
+        const insertedCount = await insertStoresInBatches(supabase, chunk);
+        totalProcessed += insertedCount;
+        
+        console.log(`Processed chunk. Total so far: ${totalProcessed}`);
+        
+        // If we got fewer stores than requested, we're at the end
+        if (chunk.length < CHUNK_SIZE) {
+          hasMore = false;
+        } else {
+          offset += CHUNK_SIZE;
+        }
+
+        // Add a small delay between chunks to prevent overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+      } catch (chunkError) {
+        console.error(`Error processing chunk at offset ${offset}:`, chunkError);
+        // Continue with next chunk instead of failing completely
+        offset += CHUNK_SIZE;
+        continue;
+      }
     }
 
-    // Clear existing data
-    await clearExistingData(supabase);
-
-    // Insert new data in batches
-    const insertedCount = await insertStoresInBatches(supabase, stores);
-
-    console.log(`Successfully synced ${insertedCount} SNAP stores`);
+    console.log(`Successfully synced ${totalProcessed} SNAP stores`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${insertedCount} SNAP stores`,
-        totalStores: insertedCount
+        message: `Successfully synced ${totalProcessed} SNAP stores`,
+        totalStores: totalProcessed
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
