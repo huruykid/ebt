@@ -76,7 +76,7 @@ async function fetchAllStores(): Promise<any[]> {
     // Reset empty batch counter when we get data
     consecutiveEmptyBatches = 0;
 
-    // Transform and add to collection
+    // Transform and add to collection - optimized for performance
     const transformedStores = features.map((feature: any) => {
       const attrs = feature.attributes;
       
@@ -173,8 +173,8 @@ Deno.serve(async (req) => {
       throw new Error(`Failed to clear existing data: ${deleteError.message}`);
     }
 
-    // Insert new data in batches of 1000
-    const batchSize = 1000;
+    // Insert new data in larger batches for better performance
+    const batchSize = 2000; // Increased batch size
     let insertedCount = 0;
     
     for (let i = 0; i < stores.length; i += batchSize) {
@@ -194,6 +194,7 @@ Deno.serve(async (req) => {
       }
       
       insertedCount += batch.length;
+      console.log(`Successfully inserted batch ${batchNumber}. Total inserted: ${insertedCount}`);
     }
 
     console.log(`Successfully synced ${insertedCount} SNAP stores`);
