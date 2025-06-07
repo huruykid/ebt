@@ -46,12 +46,12 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="h-48 bg-gradient-to-r from-green-400 to-blue-500 relative">
+      <div className="h-32 bg-gradient-to-r from-green-400 to-blue-500 relative">
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="text-center text-white">
-            <Camera className="h-10 w-10 mx-auto mb-2 opacity-70" />
-            <h3 className="text-lg font-semibold mb-1">No Photos Available</h3>
-            <p className="text-sm opacity-90">Photos will appear here when available</p>
+            <Camera className="h-8 w-8 mx-auto mb-1 opacity-70" />
+            <h3 className="text-base font-semibold mb-1">No Photos Available</h3>
+            <p className="text-xs opacity-90">Photos will appear here when available</p>
           </div>
         </div>
       </div>
@@ -60,11 +60,11 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (loading) {
     return (
-      <div className="h-48 bg-gray-100 relative">
+      <div className="h-32 bg-gray-100 relative">
         <div className="absolute inset-0 flex items-center justify-center animate-pulse">
           <div className="text-center text-gray-500">
-            <ImageIcon className="h-10 w-10 mx-auto mb-2" />
-            <p className="text-base font-medium">Loading Photos...</p>
+            <ImageIcon className="h-8 w-8 mx-auto mb-1" />
+            <p className="text-sm font-medium">Loading Photos...</p>
           </div>
         </div>
       </div>
@@ -73,12 +73,12 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (photoUrls.length === 0) {
     return (
-      <div className="h-48 bg-gradient-to-r from-gray-400 to-gray-600 relative">
+      <div className="h-32 bg-gradient-to-r from-gray-400 to-gray-600 relative">
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="text-center text-white">
-            <Camera className="h-10 w-10 mx-auto mb-2 opacity-70" />
-            <h3 className="text-lg font-semibold mb-1">Photos Unavailable</h3>
-            <p className="text-sm opacity-90">Could not load store photos</p>
+            <Camera className="h-8 w-8 mx-auto mb-1 opacity-70" />
+            <h3 className="text-base font-semibold mb-1">Photos Unavailable</h3>
+            <p className="text-xs opacity-90">Could not load store photos</p>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
   }
 
   return (
-    <div className="relative h-48 bg-black">
+    <div className="relative h-32 bg-black">
       <Carousel className="w-full h-full">
         <CarouselContent className="h-full">
           {photoUrls.map((url, index) => (
@@ -115,12 +115,12 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
       </Carousel>
       
       {/* Photo counter overlay */}
-      <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+      <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded-full text-xs">
         {photoUrls.length} of {photos.length} photos
       </div>
       
       {/* Google Places attribution */}
-      <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
+      <div className="absolute bottom-2 left-2 bg-black/50 text-white px-2 py-1 rounded-full text-xs">
         Powered by Google Places
       </div>
     </div>
