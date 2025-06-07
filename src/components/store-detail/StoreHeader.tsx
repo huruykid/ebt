@@ -1,0 +1,115 @@
+
+import React from 'react';
+import { Star, MapPin, Phone, Clock, Tag } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Store = Tables<'snap_stores'>;
+
+interface StoreHeaderProps {
+  store: Store;
+}
+
+export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
+  const formatAddress = () => {
+    const parts = [
+      store.store_street_address,
+      store.additional_address,
+      store.city,
+      store.state,
+      store.zip_code
+    ].filter(Boolean);
+    
+    return parts.join(', ');
+  };
+
+  const getStoreTypeColor = (type: string | null) => {
+    switch (type?.toLowerCase()) {
+      case 'supermarket':
+        return 'bg-green-100 text-green-800';
+      case 'convenience store':
+        return 'bg-blue-100 text-blue-800';
+      case 'grocery store':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      {/* Cover Photo Placeholder */}
+      <div className="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
+        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h3 className="text-lg font-semibold mb-2">Store Photos Coming Soon!</h3>
+            <p className="text-sm opacity-90">Google Places integration and user uploads in development</p>
+          </div>
+        </div>
+      </div>
+
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{store.store_name}</h1>
+            <div className="flex items-center gap-2 mb-3">
+              {/* Placeholder star rating */}
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className="h-5 w-5 text-gray-300" 
+                  />
+                ))}
+                <span className="ml-2 text-gray-600 text-sm">No reviews yet</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {store.store_type && (
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStoreTypeColor(store.store_type)}`}>
+                  {store.store_type}
+                </span>
+              )}
+              {store.incentive_program && (
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                  <Star className="h-3 w-3 inline mr-1" />
+                  {store.incentive_program}
+                </span>
+              )}
+              {/* Additional tags placeholder */}
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <Tag className="h-3 w-3 inline mr-1" />
+                EBT Accepted
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button variant="outline" size="sm">
+              Claim this Business
+            </Button>
+            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+              Report a Problem
+            </Button>
+          </div>
+        </div>
+
+        {/* Quick Info */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-gray-200">
+          <div className="flex items-center gap-2 text-gray-600">
+            <MapPin className="h-4 w-4" />
+            <span className="text-sm">{formatAddress() || 'Address not available'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <Phone className="h-4 w-4" />
+            <span className="text-sm">Phone number coming soon</span>
+          </div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <Clock className="h-4 w-4" />
+            <span className="text-sm">Hours coming soon</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

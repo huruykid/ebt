@@ -6,8 +6,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ArrowLeft, Star, Phone, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
+import { StoreHeader } from '@/components/store-detail/StoreHeader';
+import { ReviewSection } from '@/components/store-detail/ReviewSection';
+import { StoreMap } from '@/components/store-detail/StoreMap';
+import { StoreInfo } from '@/components/store-detail/StoreInfo';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -39,25 +43,6 @@ export default function StoreDetailPage() {
     },
     enabled: !!id,
   });
-
-  const formatAddress = (store: Store) => {
-    const parts = [
-      store.store_street_address,
-      store.additional_address,
-      store.city,
-      store.state,
-      store.zip_code
-    ].filter(Boolean);
-    
-    return parts.join(', ');
-  };
-
-  const openInMaps = () => {
-    if (store?.latitude && store?.longitude) {
-      const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
-      window.open(url, '_blank');
-    }
-  };
 
   if (isLoading) {
     return (
@@ -97,7 +82,7 @@ export default function StoreDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-neutral-100 p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <Button 
             onClick={() => navigate('/search')} 
             variant="outline" 
@@ -107,113 +92,24 @@ export default function StoreDetailPage() {
             Back to Search
           </Button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Store Info */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-gray-900">
-                    {store.store_name}
-                  </CardTitle>
-                  {store.store_type && (
-                    <div className="flex items-center gap-2">
-                      <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        {store.store_type}
-                      </span>
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {formatAddress(store) && (
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-gray-900 font-medium">Address</p>
-                        <p className="text-gray-600">{formatAddress(store)}</p>
-                        {(!store.store_street_address || !store.city) && (
-                          <p className="text-amber-600 text-sm mt-1">
-                            ⚠️ Address information may be incomplete
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
+          <div className="space-y-6">
+            {/* Store Header with Cover Photo */}
+            <StoreHeader store={store} />
 
-                  {store.incentive_program && (
-                    <div className="flex items-start gap-3">
-                      <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
-                      <div>
-                        <p className="text-gray-900 font-medium">Incentive Program</p>
-                        <p className="text-gray-600">{store.incentive_program}</p>
-                      </div>
-                    </div>
-                  )}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Reviews Section */}
+                <ReviewSection />
 
-                  {store.grantee_name && (
-                    <div>
-                      <p className="text-gray-900 font-medium">Operated by</p>
-                      <p className="text-gray-600">{store.grantee_name}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                {/* Map Section */}
+                <StoreMap store={store} />
+              </div>
 
-              {/* Placeholder for future features */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Store Images</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <p className="text-gray-500">Image upload and Google Places integration coming soon!</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {store.latitude && store.longitude && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Location</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Button onClick={openInMaps} className="w-full" variant="outline">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      View on Google Maps
-                    </Button>
-                    <div className="mt-4 text-sm text-gray-600">
-                      <p>Coordinates:</p>
-                      <p>{store.latitude}, {store.longitude}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Store Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {store.county && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">County</p>
-                      <p className="text-gray-900">{store.county}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Store ID</p>
-                    <p className="text-gray-900">{store.id}</p>
-                  </div>
-                  {store.record_id && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Record ID</p>
-                      <p className="text-gray-900">{store.record_id}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <StoreInfo store={store} />
+              </div>
             </div>
           </div>
         </div>
