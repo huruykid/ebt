@@ -6,6 +6,7 @@ import { SearchBar } from './SearchBar';
 import { StoreCard } from './StoreCard';
 import { StoreFilters } from './StoreFilters';
 import { LoadingSpinner } from './LoadingSpinner';
+import { SyncStoresButton } from './SyncStoresButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -75,7 +76,10 @@ export const StoreSearch: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Find SNAP Stores</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">Find SNAP Stores</h2>
+          <SyncStoresButton />
+        </div>
         <SearchBar 
           onSearch={handleSearch}
           placeholder="Search by store name, city, or zip code..."
