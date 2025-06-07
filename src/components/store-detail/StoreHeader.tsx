@@ -52,16 +52,6 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
 
   return (
     <Card className="overflow-hidden">
-      {/* Cover Photo Placeholder */}
-      <div className="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
-        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h3 className="text-lg font-semibold mb-2">Enhanced with Google Places!</h3>
-            <p className="text-sm opacity-90">Real photos, hours, and contact info now available</p>
-          </div>
-        </div>
-      </div>
-
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -112,43 +111,45 @@ export default function StoreDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-neutral-100 p-4">
-        <div className="max-w-6xl mx-auto">
-          <Button 
-            onClick={() => navigate('/search')} 
-            variant="outline" 
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Search
-          </Button>
+      <div className="min-h-screen bg-neutral-100">
+        {/* Store Photos at the top - full width */}
+        <StorePhotos 
+          photos={googlePlacesData?.photos} 
+          storeName={store.store_name} 
+        />
+        
+        <div className="p-4">
+          <div className="max-w-6xl mx-auto">
+            <Button 
+              onClick={() => navigate('/search')} 
+              variant="outline" 
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Search
+            </Button>
 
-          <div className="space-y-6">
-            {/* Store Header with Cover Photo */}
-            <StoreHeader store={store} googlePlacesData={googlePlacesData} />
+            <div className="space-y-6">
+              {/* Store Header without cover photo */}
+              <StoreHeader store={store} googlePlacesData={googlePlacesData} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Store Photos */}
-                <StorePhotos 
-                  photos={googlePlacesData?.photos} 
-                  storeName={store.store_name} 
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Reviews Section */}
+                  <ReviewSection />
 
-                {/* Reviews Section */}
-                <ReviewSection />
+                  {/* Map Section */}
+                  <StoreMap store={store} />
+                </div>
 
-                {/* Map Section */}
-                <StoreMap store={store} />
-              </div>
-
-              {/* Enhanced Sidebar */}
-              <div className="lg:col-span-1">
-                <EnhancedStoreInfo 
-                  store={store} 
-                  googlePlacesData={googlePlacesData} 
-                />
+                {/* Enhanced Sidebar */}
+                <div className="lg:col-span-1">
+                  <EnhancedStoreInfo 
+                    store={store} 
+                    googlePlacesData={googlePlacesData} 
+                  />
+                </div>
               </div>
             </div>
           </div>

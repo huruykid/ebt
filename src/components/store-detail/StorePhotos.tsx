@@ -31,7 +31,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
       setLoading(true);
       try {
         const urls = await Promise.all(
-          photos.slice(0, 5).map(photo => getGooglePlacesPhotoUrl(photo.photo_reference, 800))
+          photos.slice(0, 5).map(photo => getGooglePlacesPhotoUrl(photo.photo_reference, 1200))
         );
         setPhotoUrls(urls.filter(url => url !== null) as string[]);
       } catch (error) {
@@ -46,84 +46,83 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (!photos || photos.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center text-gray-500">
-              <Camera className="h-12 w-12 mx-auto mb-2" />
-              <p className="font-medium">No Photos Available</p>
-              <p className="text-sm">Photos will appear here when available</p>
-            </div>
+      <div className="h-80 bg-gradient-to-r from-green-400 to-blue-500 relative">
+        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+          <div className="text-center text-white">
+            <Camera className="h-16 w-16 mx-auto mb-4 opacity-70" />
+            <h3 className="text-2xl font-semibold mb-2">No Photos Available</h3>
+            <p className="text-lg opacity-90">Photos will appear here when available</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center animate-pulse">
-            <div className="text-center text-gray-500">
-              <ImageIcon className="h-12 w-12 mx-auto mb-2" />
-              <p className="font-medium">Loading Photos...</p>
-            </div>
+      <div className="h-80 bg-gray-100 relative">
+        <div className="absolute inset-0 flex items-center justify-center animate-pulse">
+          <div className="text-center text-gray-500">
+            <ImageIcon className="h-16 w-16 mx-auto mb-4" />
+            <p className="text-xl font-medium">Loading Photos...</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   if (photoUrls.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center text-gray-500">
-              <Camera className="h-12 w-12 mx-auto mb-2" />
-              <p className="font-medium">Photos Unavailable</p>
-              <p className="text-sm">Could not load store photos</p>
-            </div>
+      <div className="h-80 bg-gradient-to-r from-gray-400 to-gray-600 relative">
+        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+          <div className="text-center text-white">
+            <Camera className="h-16 w-16 mx-auto mb-4 opacity-70" />
+            <h3 className="text-2xl font-semibold mb-2">Photos Unavailable</h3>
+            <p className="text-lg opacity-90">Could not load store photos</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {photoUrls.map((url, index) => (
-              <CarouselItem key={index}>
-                <div className="aspect-video relative">
-                  <img
-                    src={url}
-                    alt={`${storeName} - Photo ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          {photoUrls.length > 1 && (
-            <>
-              <CarouselPrevious />
-              <CarouselNext />
-            </>
-          )}
-        </Carousel>
-        <div className="mt-2 text-center">
-          <p className="text-sm text-gray-500">
-            {photoUrls.length} of {photos.length} photos • Powered by Google Places
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="relative h-80 bg-black">
+      <Carousel className="w-full h-full">
+        <CarouselContent className="h-full">
+          {photoUrls.map((url, index) => (
+            <CarouselItem key={index} className="h-full">
+              <div className="relative h-full">
+                <img
+                  src={url}
+                  alt={`${storeName} - Photo ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                {/* Overlay gradient for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        {photoUrls.length > 1 && (
+          <>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+          </>
+        )}
+      </Carousel>
+      
+      {/* Photo counter overlay */}
+      <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+        {photoUrls.length} of {photos.length} photos
+      </div>
+      
+      {/* Google Places attribution */}
+      <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
+        Powered by Google Places
+      </div>
+    </div>
   );
 };
