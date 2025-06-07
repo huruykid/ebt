@@ -21,10 +21,13 @@ export default function StoreDetailPage() {
     queryFn: async () => {
       if (!id) throw new Error('Store ID is required');
       
+      const storeId = parseInt(id, 10);
+      if (isNaN(storeId)) throw new Error('Invalid store ID');
+      
       const { data, error } = await supabase
         .from('snap_stores')
         .select('*')
-        .eq('id', id)
+        .eq('id', storeId)
         .maybeSingle();
       
       if (error) {
