@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,9 @@ import { ArrowLeft } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StoreMap } from '@/components/store-detail/StoreMap';
-import { StoreInfo } from '@/components/store-detail/StoreInfo';
+import { StorePhotos } from '@/components/store-detail/StorePhotos';
+import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
+import { useGooglePlacesSearch, useGooglePlacesDetails } from '@/hooks/useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -43,6 +45,35 @@ export default function StoreDetailPage() {
     },
     enabled: !!id,
   });
+
+  // Create search query for Google Places
+  const searchQuery = useMemo(() => {
+    if (!store) return '';
+    
+    const parts = [
+      store.store_name,
+      store.store_street_address,
+      store.city,
+      store.state
+    ].filter(Boolean);
+    
+    return parts.join(' ');
+  }, [store]);
+
+  // Search for the store on Google Places
+  const { data: searchResults } = useGooglePlacesSearch(
+    searchQuery,
+    !!store && !!searchQuery
+  );
+
+  // Get the most likely match (first result for now)
+  const googlePlaceId = searchResults?.[0]?.place_id;
+
+  // Get detailed information from Google Places
+  const { data: googlePlacesData } = useGooglePlacesDetails(
+    googlePlaceId || '',
+    !!googlePlaceId
+  );
 
   if (isLoading) {
     return (
@@ -94,11 +125,17 @@ export default function StoreDetailPage() {
 
           <div className="space-y-6">
             {/* Store Header with Cover Photo */}
-            <StoreHeader store={store} />
+            <StoreHeader store={store} googlePlacesData={googlePlacesData} />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-6">
+                {/* Store Photos */}
+                <StorePhotos 
+                  photos={googlePlacesData?.photos} 
+                  storeName={store.store_name} 
+                />
+
                 {/* Reviews Section */}
                 <ReviewSection />
 
@@ -106,9 +143,12 @@ export default function StoreDetailPage() {
                 <StoreMap store={store} />
               </div>
 
-              {/* Sidebar */}
+              {/* Enhanced Sidebar */}
               <div className="lg:col-span-1">
-                <StoreInfo store={store} />
+                <EnhancedStoreInfo 
+                  store={store} 
+                  googlePlacesData={googlePlacesData} 
+                />
               </div>
             </div>
           </div>

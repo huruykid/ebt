@@ -1,17 +1,28 @@
 
 import React from 'react';
-import { Star, MapPin, Phone, Clock, Tag } from 'lucide-react';
+import { Star, MapPin, Phone, Clock, Tag, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
-interface StoreHeaderProps {
-  store: Store;
+interface GooglePlacesDetails {
+  formatted_phone_number?: string;
+  opening_hours?: {
+    open_now: boolean;
+  };
+  rating?: number;
+  user_ratings_total?: number;
+  website?: string;
 }
 
-export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
+interface StoreHeaderProps {
+  store: Store;
+  googlePlacesData?: GooglePlacesDetails | null;
+}
+
+export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
@@ -37,14 +48,16 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
     }
   };
 
+  const isOpen = googlePlacesData?.opening_hours?.open_now;
+
   return (
     <Card className="overflow-hidden">
       {/* Cover Photo Placeholder */}
       <div className="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="text-center text-white">
-            <h3 className="text-lg font-semibold mb-2">Store Photos Coming Soon!</h3>
-            <p className="text-sm opacity-90">Google Places integration and user uploads in development</p>
+            <h3 className="text-lg font-semibold mb-2">Enhanced with Google Places!</h3>
+            <p className="text-sm opacity-90">Real photos, hours, and contact info now available</p>
           </div>
         </div>
       </div>
@@ -54,15 +67,24 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{store.store_name}</h1>
             <div className="flex items-center gap-2 mb-3">
-              {/* Placeholder star rating */}
+              {/* Google rating if available, otherwise placeholder */}
               <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star 
                     key={star} 
-                    className="h-5 w-5 text-gray-300" 
+                    className={`h-5 w-5 ${
+                      googlePlacesData?.rating && star <= googlePlacesData.rating
+                        ? 'text-yellow-400 fill-current' 
+                        : 'text-gray-300'
+                    }`}
                   />
                 ))}
-                <span className="ml-2 text-gray-600 text-sm">No reviews yet</span>
+                <span className="ml-2 text-gray-600 text-sm">
+                  {googlePlacesData?.rating 
+                    ? `${googlePlacesData.rating.toFixed(1)} (${googlePlacesData.user_ratings_total || 0} reviews)`
+                    : 'No reviews yet'
+                  }
+                </span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -77,11 +99,19 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
                   {store.incentive_program}
                 </span>
               )}
-              {/* Additional tags placeholder */}
               <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 <Tag className="h-3 w-3 inline mr-1" />
                 EBT Accepted
               </span>
+              {isOpen !== undefined && (
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                  isOpen 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {isOpen ? 'Open Now' : 'Closed'}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-2">
@@ -102,11 +132,34 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
           </div>
           <div className="flex items-center gap-2 text-gray-600">
             <Phone className="h-4 w-4" />
-            <span className="text-sm">Phone number coming soon</span>
+            <span className="text-sm">
+              {googlePlacesData?.formatted_phone_number || 'Phone coming soon'}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-gray-600">
-            <Clock className="h-4 w-4" />
-            <span className="text-sm">Hours coming soon</span>
+            {googlePlacesData?.website ? (
+              <>
+                <Globe className="h-4 w-4" />
+                <a 
+                  href={googlePlacesData.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Visit Website
+                </a>
+              </>
+            ) : (
+              <>
+                <Clock className="h-4 w-4" />
+                <span className="text-sm">
+                  {isOpen !== undefined 
+                    ? (isOpen ? 'Open Now' : 'Closed') 
+                    : 'Hours coming soon'
+                  }
+                </span>
+              </>
+            )}
           </div>
         </div>
       </CardContent>
