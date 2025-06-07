@@ -46,12 +46,12 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="h-80 bg-gradient-to-r from-green-400 to-blue-500 relative">
+      <div className="h-64 bg-gradient-to-r from-green-400 to-blue-500 relative">
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="text-center text-white">
-            <Camera className="h-16 w-16 mx-auto mb-4 opacity-70" />
-            <h3 className="text-2xl font-semibold mb-2">No Photos Available</h3>
-            <p className="text-lg opacity-90">Photos will appear here when available</p>
+            <Camera className="h-12 w-12 mx-auto mb-3 opacity-70" />
+            <h3 className="text-xl font-semibold mb-2">No Photos Available</h3>
+            <p className="text-base opacity-90">Photos will appear here when available</p>
           </div>
         </div>
       </div>
@@ -60,11 +60,11 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (loading) {
     return (
-      <div className="h-80 bg-gray-100 relative">
+      <div className="h-64 bg-gray-100 relative">
         <div className="absolute inset-0 flex items-center justify-center animate-pulse">
           <div className="text-center text-gray-500">
-            <ImageIcon className="h-16 w-16 mx-auto mb-4" />
-            <p className="text-xl font-medium">Loading Photos...</p>
+            <ImageIcon className="h-12 w-12 mx-auto mb-3" />
+            <p className="text-lg font-medium">Loading Photos...</p>
           </div>
         </div>
       </div>
@@ -73,12 +73,12 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
 
   if (photoUrls.length === 0) {
     return (
-      <div className="h-80 bg-gradient-to-r from-gray-400 to-gray-600 relative">
+      <div className="h-64 bg-gradient-to-r from-gray-400 to-gray-600 relative">
         <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="text-center text-white">
-            <Camera className="h-16 w-16 mx-auto mb-4 opacity-70" />
-            <h3 className="text-2xl font-semibold mb-2">Photos Unavailable</h3>
-            <p className="text-lg opacity-90">Could not load store photos</p>
+            <Camera className="h-12 w-12 mx-auto mb-3 opacity-70" />
+            <h3 className="text-xl font-semibold mb-2">Photos Unavailable</h3>
+            <p className="text-base opacity-90">Could not load store photos</p>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ photos, storeName }) =
   }
 
   return (
-    <div className="relative h-80 bg-black">
+    <div className="relative h-64 bg-black">
       <Carousel className="w-full h-full">
         <CarouselContent className="h-full">
           {photoUrls.map((url, index) => (
