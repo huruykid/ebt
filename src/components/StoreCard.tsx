@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { MapPin, Store, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -35,13 +36,18 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
     }
   };
 
+  const hasCompleteAddress = store.store_street_address && store.city;
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <Link 
+            to={`/store/${store.id}`}
+            className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors"
+          >
             {store.store_name}
-          </h3>
+          </Link>
           {store.store_type && (
             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
               {store.store_type}
@@ -55,7 +61,14 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         {formatAddress() && (
           <div className="flex items-start gap-2 text-sm text-gray-600">
             <MapPin className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
-            <span>{formatAddress()}</span>
+            <div className="flex-1">
+              <span>{formatAddress()}</span>
+              {!hasCompleteAddress && (
+                <div className="text-amber-600 text-xs mt-1">
+                  ⚠️ Address may be incomplete
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -75,19 +88,27 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         )}
       </div>
 
-      {store.latitude && store.longitude && (
-        <div className="mt-4 pt-3 border-t border-gray-200">
+      <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+        <Link
+          to={`/store/${store.id}`}
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+        >
+          View Details
+          <ExternalLink className="h-3 w-3" />
+        </Link>
+        
+        {store.latitude && store.longitude && (
           <button
             onClick={() => {
               const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
               window.open(url, '_blank');
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-gray-600 hover:text-gray-800 font-medium"
           >
             View on Map →
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

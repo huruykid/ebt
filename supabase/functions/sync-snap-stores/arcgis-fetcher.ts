@@ -1,10 +1,10 @@
 
 import { ArcGISResponse, ArcGISFeature, TransformedStore } from './types.ts';
 
-export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promise<TransformedStore[]> {
+export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promise<TransformedStore[]> {
   const allStores: TransformedStore[] = [];
   let offset = startOffset;
-  const limit = 2000; // Use standard batch size for ArcGIS
+  const limit = 1000; // Smaller batches for better performance
   let recordsProcessed = 0;
   let hasMore = true;
   let consecutiveEmptyBatches = 0;
@@ -22,7 +22,6 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
       if (!response.ok) {
         console.error(`ArcGIS API error: ${response.status} ${response.statusText}`);
         
-        // If we get a 400 error, it might mean we've reached the end
         if (response.status === 400) {
           console.log('Got 400 error, likely reached end of data');
           break;
@@ -33,7 +32,6 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
 
       const jsonData: ArcGISResponse = await response.json();
       
-      // Check for ArcGIS-specific errors
       if (jsonData.error) {
         console.error('ArcGIS API returned error:', jsonData.error);
         break;
@@ -50,7 +48,12 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
         continue;
       }
 
-      // Transform and add to collection
+      // Log sample data for debugging
+      if (features.length > 0) {
+        const sampleFeature = features[0];
+        console.log('Sample feature attributes:', JSON.stringify(sampleFeature.attributes, null, 2));
+      }
+
       const transformedStores = transformFeatures(features);
       allStores.push(...transformedStores);
       recordsProcessed += features.length;
@@ -58,10 +61,8 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
       
       console.log(`Batch processed. Records in this chunk: ${transformedStores.length}, Total in chunk: ${allStores.length}`);
       
-      // Move to next batch
       offset += limit;
       
-      // If we got fewer records than the limit, we might be at the end
       if (features.length < limit) {
         console.log(`Batch returned ${features.length} < ${limit}, continuing to check for more...`);
       }
@@ -71,7 +72,6 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
       consecutiveEmptyBatches++;
       offset += limit;
       
-      // If we've had too many errors, stop
       if (consecutiveEmptyBatches >= 3) {
         console.log('Too many consecutive errors, stopping fetch');
         break;
@@ -86,6 +86,24 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 20000): Promi
 function transformFeatures(features: ArcGISFeature[]): TransformedStore[] {
   return features.map((feature: ArcGISFeature) => {
     const attrs = feature.attributes;
+    
+    // Log address fields for debugging
+    const addressInfo = {
+      Address: attrs.Address,
+      Address2: attrs.Address2,
+      City: attrs.City,
+      State: attrs.State,
+      Zip5: attrs.Zip5,
+      Zip4: attrs.Zip4
+    };
+    
+    if (!attrs.Address && !attrs.City) {
+      console.log(`Store with missing address data:`, {
+        storeName: attrs.Store_Name,
+        objectId: attrs.OBJECTID,
+        addressFields: addressInfo
+      });
+    }
     
     return {
       object_id: attrs.OBJECTID?.toString() || '',
