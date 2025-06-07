@@ -103,17 +103,21 @@ async function fetchAllStores(): Promise<any[]> {
 
     allStores.push(...transformedStores);
     
-    // More robust pagination logic
-    if (features.length < limit) {
-      // If we got fewer records than requested, we've likely reached the end
-      console.log(`Got ${features.length} records, less than limit ${limit}. Ending pagination.`);
-      hasMore = false;
+    // FIXED: Correct pagination logic
+    if (jsonData.exceededTransferLimit === true) {
+      // More records are definitely available, continue pagination
+      console.log('More records available, continuing pagination...');
+      offset += limit;
     } else if (jsonData.exceededTransferLimit === false) {
-      // If the API explicitly says no more records
+      // API explicitly says no more records
       console.log('API indicates no more records available.');
       hasMore = false;
+    } else if (features.length < limit) {
+      // Got fewer records than requested, likely at the end
+      console.log(`Got ${features.length} records, less than limit ${limit}. Ending pagination.`);
+      hasMore = false;
     } else {
-      // Continue to next batch
+      // Continue to next batch (fallback case)
       offset += limit;
     }
     
