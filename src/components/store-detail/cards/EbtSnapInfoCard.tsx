@@ -12,7 +12,11 @@ interface EbtSnapInfoCardProps {
 
 export const EbtSnapInfoCard: React.FC<EbtSnapInfoCardProps> = ({ store }) => {
   const participatesInRMP = store.incentive_program?.toLowerCase().includes('restaurant meals program') || 
-                           store.incentive_program?.toLowerCase().includes('rmp');
+                           store.incentive_program?.toLowerCase().includes('rmp') ||
+                           store.incentive_program?.toLowerCase().includes('restaurant meal program');
+
+  console.log('Store incentive program:', store.incentive_program);
+  console.log('Participates in RMP:', participatesInRMP);
 
   return (
     <Card>
@@ -51,9 +55,9 @@ export const EbtSnapInfoCard: React.FC<EbtSnapInfoCardProps> = ({ store }) => {
             {participatesInRMP ? (
               <li>• <span className="font-medium">Hot Meals:</span> Available at this location through RMP</li>
             ) : (
-              <li>• Hot Meals: Check with store for availability</li>
+              <li>• <span className="font-medium">Hot Meals:</span> Check with store for availability</li>
             )}
-            <li>• Double value programs: Check incentive details above</li>
+            <li>• <span className="font-medium">Double value programs:</span> Check incentive details above</li>
           </ul>
         </div>
       </CardContent>
