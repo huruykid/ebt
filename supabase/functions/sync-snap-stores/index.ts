@@ -42,7 +42,8 @@ async function fetchAllStores(): Promise<any[]> {
   while (hasMore) {
     console.log(`Fetching batch starting at offset ${offset}...`);
     
-    const arcgisUrl = `https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/snap_retailer_location_data/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson&resultOffset=${offset}&resultRecordCount=${limit}`;
+    // Use the REST API endpoint instead of GeoJSON to get proper pagination info
+    const arcgisUrl = `https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/snap_retailer_location_data/FeatureServer/0/query?outFields=*&where=1%3D1&f=json&resultOffset=${offset}&resultRecordCount=${limit}`;
     
     const response = await fetch(arcgisUrl);
     
@@ -50,10 +51,11 @@ async function fetchAllStores(): Promise<any[]> {
       throw new Error(`ArcGIS API error: ${response.status} ${response.statusText}`);
     }
 
-    const geoJsonData = await response.json();
-    const features = geoJsonData.features || [];
+    const jsonData: ArcGISResponse = await response.json();
+    const features = jsonData.features || [];
     
     console.log(`Fetched ${features.length} features in this batch`);
+    console.log(`Exceeded transfer limit: ${jsonData.exceededTransferLimit}`);
     
     if (features.length === 0) {
       hasMore = false;
@@ -62,34 +64,34 @@ async function fetchAllStores(): Promise<any[]> {
 
     // Transform and add to collection
     const transformedStores = features.map((feature: any) => {
-      const props = feature.properties;
-      const coords = feature.geometry?.coordinates;
+      const attrs = feature.attributes;
       
       return {
-        object_id: props.OBJECTID?.toString(),
-        record_id: props.Record_ID?.toString(),
-        store_name: props.Store_Name || 'Unknown Store',
-        store_type: props.Store_Type,
-        store_street_address: props.Address,
-        additional_address: props.Address2,
-        city: props.City,
-        state: props.State,
-        zip_code: props.Zip5,
-        zip4: props.Zip4,
-        county: props.County,
-        longitude: coords ? coords[0] : props.Longitude,
-        latitude: coords ? coords[1] : props.Latitude,
-        x: props.X,
-        y: props.Y,
-        grantee_name: props.Grantee_Name,
-        incentive_program: props.Incentive_Program,
+        object_id: attrs.OBJECTID?.toString(),
+        record_id: attrs.Record_ID?.toString(),
+        store_name: attrs.Store_Name || 'Unknown Store',
+        store_type: attrs.Store_Type,
+        store_street_address: attrs.Address,
+        additional_address: attrs.Address2,
+        city: attrs.City,
+        state: attrs.State,
+        zip_code: attrs.Zip5,
+        zip4: attrs.Zip4,
+        county: attrs.County,
+        longitude: attrs.Longitude,
+        latitude: attrs.Latitude,
+        x: attrs.X,
+        y: attrs.Y,
+        grantee_name: attrs.Grantee_Name,
+        incentive_program: attrs.Incentive_Program,
       };
     }).filter(store => store.store_name && store.store_name !== 'Unknown Store');
 
     allStores.push(...transformedStores);
     
-    // Check if we got fewer results than requested (indicates end of data)
-    if (features.length < limit) {
+    // Check if we've reached the end based on ArcGIS response
+    // If exceededTransferLimit is false or undefined, we've got all records
+    if (!jsonData.exceededTransferLimit || features.length < limit) {
       hasMore = false;
     } else {
       offset += limit;
@@ -100,8 +102,11 @@ async function fetchAllStores(): Promise<any[]> {
       console.log('Safety limit reached, stopping pagination');
       hasMore = false;
     }
+    
+    console.log(`Total stores collected so far: ${allStores.length}`);
   }
 
+  console.log(`Finished fetching. Total stores: ${allStores.length}`);
   return allStores;
 }
 
