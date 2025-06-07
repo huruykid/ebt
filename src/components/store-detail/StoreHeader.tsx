@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Star, MapPin, Phone, Clock, Tag, Globe } from 'lucide-react';
+import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Tables } from '@/integrations/supabase/types';
@@ -49,6 +49,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
   };
 
   const isOpen = googlePlacesData?.opening_hours?.open_now;
+  
+  // Check if store is enrolled in RMP (Restaurant Meals Program)
+  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
+                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
 
   return (
     <Card className="overflow-hidden">
@@ -93,6 +97,12 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                 <Tag className="h-3 w-3 inline mr-1" />
                 EBT Accepted
               </span>
+              {isRmpEnrolled && (
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                  <Utensils className="h-3 w-3 inline mr-1" />
+                  Hot Foods Accepted
+                </span>
+              )}
               {isOpen !== undefined && (
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                   isOpen 
