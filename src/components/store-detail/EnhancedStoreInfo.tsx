@@ -201,7 +201,17 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
             <span className="text-sm font-medium text-green-700">EBT/SNAP Accepted</span>
           </div>
           
-          {store.incentive_program && (
+          {participatesInRMP && (
+            <div className="flex items-start gap-3">
+              <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
+              <div>
+                <p className="text-gray-900 font-medium">Hot Meals Available</p>
+                <p className="text-gray-600">This location participates in the Restaurant Meals Program (RMP)</p>
+              </div>
+            </div>
+          )}
+
+          {store.incentive_program && !participatesInRMP && (
             <div className="flex items-start gap-3">
               <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
               <div>
@@ -215,7 +225,7 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
             <h4 className="font-medium text-blue-900 mb-2">EBT Usage Notes</h4>
             <ul className="text-sm text-blue-800 space-y-1">
               {participatesInRMP ? (
-                <li>• <span className="font-medium">Hot Meals Available:</span> This location participates in the Restaurant Meals Program (RMP)</li>
+                <li>• <span className="font-medium">Hot Meals:</span> Available at this location through RMP</li>
               ) : (
                 <li>• Hot Meals: Check with store for availability</li>
               )}
