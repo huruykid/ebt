@@ -53,6 +53,10 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
   const isBusinessOpen = googlePlacesData?.opening_hours?.open_now;
   const businessStatus = googlePlacesData?.business_status;
 
+  // Check if store participates in Restaurant Meals Program (RMP)
+  const participatesInRMP = store.incentive_program?.toLowerCase().includes('restaurant meals program') || 
+                           store.incentive_program?.toLowerCase().includes('rmp');
+
   return (
     <div className="space-y-6">
       {/* Address */}
@@ -210,8 +214,11 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">EBT Usage Notes</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Hot meal eligibility: Check with store</li>
-              <li>• Restaurant meal program: Check with store</li>
+              {participatesInRMP ? (
+                <li>• <span className="font-medium">Hot Meals Available:</span> This location participates in the Restaurant Meals Program (RMP)</li>
+              ) : (
+                <li>• Hot Meals: Check with store for availability</li>
+              )}
               <li>• Double value programs: Check incentive details above</li>
             </ul>
           </div>
