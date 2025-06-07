@@ -22,43 +22,56 @@ Deno.serve(async (req) => {
     await clearExistingData(supabase);
     console.log('Cleared existing data');
 
-    // Process stores in chunks to avoid memory issues
-    const CHUNK_SIZE = 10000; // Process 10k stores at a time
+    // Process stores in larger chunks but with more conservative approach
+    const CHUNK_SIZE = 20000; // Larger chunks to reduce API calls
     let totalProcessed = 0;
     let offset = 0;
     let hasMore = true;
+    let consecutiveEmptyChunks = 0;
 
-    while (hasMore) {
+    while (hasMore && consecutiveEmptyChunks < 3) {
       console.log(`Fetching chunk starting at offset ${offset}...`);
       
       try {
         const chunk = await fetchAllStores(offset, CHUNK_SIZE);
         
         if (chunk.length === 0) {
-          console.log('No more stores found, ending sync');
-          hasMore = false;
-          break;
+          console.log(`Empty chunk at offset ${offset}`);
+          consecutiveEmptyChunks++;
+          offset += CHUNK_SIZE;
+          continue;
         }
 
         console.log(`Processing ${chunk.length} stores...`);
         const insertedCount = await insertStoresInBatches(supabase, chunk);
         totalProcessed += insertedCount;
+        consecutiveEmptyChunks = 0; // Reset counter on successful chunk
         
         console.log(`Processed chunk. Total so far: ${totalProcessed}`);
         
-        // If we got fewer stores than requested, we're at the end
+        // If we got fewer stores than requested, we might be near the end
+        // but continue to make sure we get everything
         if (chunk.length < CHUNK_SIZE) {
-          hasMore = false;
-        } else {
-          offset += CHUNK_SIZE;
+          console.log(`Chunk size ${chunk.length} < ${CHUNK_SIZE}, might be near end`);
         }
+        
+        offset += CHUNK_SIZE;
 
         // Add a small delay between chunks to prevent overwhelming the API
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
         
       } catch (chunkError) {
         console.error(`Error processing chunk at offset ${offset}:`, chunkError);
-        // Continue with next chunk instead of failing completely
+        
+        // If it's a critical error, stop completely
+        if (chunkError.message.includes('CPU time limit exceeded') || 
+            chunkError.message.includes('Function invocation timed out')) {
+          console.log('Stopping due to timeout/CPU limit');
+          break;
+        }
+        
+        // For other errors, try to continue with next chunk
+        consecutiveEmptyChunks++;
         offset += CHUNK_SIZE;
         continue;
       }
@@ -70,7 +83,8 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         message: `Successfully synced ${totalProcessed} SNAP stores`,
-        totalStores: totalProcessed
+        totalStores: totalProcessed,
+        finalOffset: offset
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

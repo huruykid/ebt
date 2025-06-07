@@ -15,7 +15,7 @@ export async function clearExistingData(supabase: any): Promise<void> {
 }
 
 export async function insertStoresInBatches(supabase: any, stores: TransformedStore[]): Promise<number> {
-  const batchSize = 1000; // Smaller batch size for better reliability
+  const batchSize = 500; // More conservative batch size for better reliability
   let insertedCount = 0;
   
   for (let i = 0; i < stores.length; i += batchSize) {
@@ -40,7 +40,7 @@ export async function insertStoresInBatches(supabase: any, stores: TransformedSt
       
       // Small delay between batches to prevent overwhelming the database
       if (i + batchSize < stores.length) {
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       
     } catch (error) {
