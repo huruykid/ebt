@@ -21,12 +21,18 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
       const { data, error } = await supabase
         .from('snap_stores')
         .select('store_type')
-        .not('store_type', 'is', null);
+        .not('store_type', 'is', null)
+        .neq('store_type', '');
       
       if (error) throw error;
       
-      const uniqueTypes = [...new Set(data.map(item => item.store_type))].filter(Boolean);
-      return uniqueTypes.sort();
+      // Get unique types, filter out empty strings, and sort alphabetically
+      const uniqueTypes = [...new Set(data.map(item => item.store_type?.trim()))]
+        .filter(type => type && type.length > 0)
+        .sort((a, b) => a.localeCompare(b));
+      
+      console.log('Available store types:', uniqueTypes);
+      return uniqueTypes;
     },
   });
 
@@ -36,12 +42,18 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
       const { data, error } = await supabase
         .from('snap_stores')
         .select('incentive_program')
-        .not('incentive_program', 'is', null);
+        .not('incentive_program', 'is', null)
+        .neq('incentive_program', '');
       
       if (error) throw error;
       
-      const uniquePrograms = [...new Set(data.map(item => item.incentive_program))].filter(Boolean);
-      return uniquePrograms.sort();
+      // Get unique programs, filter out empty strings, and sort alphabetically
+      const uniquePrograms = [...new Set(data.map(item => item.incentive_program?.trim()))]
+        .filter(program => program && program.length > 0)
+        .sort((a, b) => a.localeCompare(b));
+      
+      console.log('Available incentive programs:', uniquePrograms);
+      return uniquePrograms;
     },
   });
 
@@ -93,6 +105,11 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
               </option>
             ))}
           </select>
+          {storeTypes && (
+            <div className="text-xs text-gray-500 mt-1">
+              {storeTypes.length} type{storeTypes.length !== 1 ? 's' : ''} available
+            </div>
+          )}
         </div>
 
         <div>
@@ -111,6 +128,11 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
               </option>
             ))}
           </select>
+          {incentivePrograms && (
+            <div className="text-xs text-gray-500 mt-1">
+              {incentivePrograms.length} program{incentivePrograms.length !== 1 ? 's' : ''} available
+            </div>
+          )}
         </div>
 
         <div className="flex items-end">
