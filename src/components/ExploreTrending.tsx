@@ -1,17 +1,22 @@
+
 import React, { useState } from 'react';
 import { Header } from './Header';
 import { SearchBar } from './SearchBar';
 import { CategoryTabs } from './CategoryTabs';
 import { RestaurantCard } from './RestaurantCard';
 import { BottomNavigation } from './BottomNavigation';
+import { useNavigate } from 'react-router-dom';
 
 export const ExploreTrending: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('trending');
+  const navigate = useNavigate();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     console.log('Searching for:', query);
+    // Navigate to search page with query
+    navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const handleCategoryChange = (categoryId: string) => {
@@ -25,6 +30,9 @@ export const ExploreTrending: React.FC = () => {
 
   const handleNavigate = (itemId: string) => {
     console.log('Navigate to:', itemId);
+    if (itemId === 'search') {
+      navigate('/search');
+    }
   };
 
   return (
