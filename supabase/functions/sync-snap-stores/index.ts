@@ -38,6 +38,7 @@ async function fetchAllStores(): Promise<any[]> {
   let offset = 0;
   const limit = 2000; // ArcGIS max per request
   let hasMore = true;
+  let consecutiveEmptyBatches = 0;
 
   while (hasMore) {
     console.log(`Fetching batch starting at offset ${offset}...`);
@@ -58,9 +59,22 @@ async function fetchAllStores(): Promise<any[]> {
     console.log(`Exceeded transfer limit: ${jsonData.exceededTransferLimit}`);
     
     if (features.length === 0) {
-      hasMore = false;
-      break;
+      consecutiveEmptyBatches++;
+      console.log(`Empty batch detected (${consecutiveEmptyBatches})`);
+      
+      // If we get 2 consecutive empty batches, we're likely at the end
+      if (consecutiveEmptyBatches >= 2) {
+        hasMore = false;
+        break;
+      }
+      
+      // Try next offset in case there's a gap
+      offset += limit;
+      continue;
     }
+
+    // Reset empty batch counter when we get data
+    consecutiveEmptyBatches = 0;
 
     // Transform and add to collection
     const transformedStores = features.map((feature: any) => {
@@ -89,16 +103,22 @@ async function fetchAllStores(): Promise<any[]> {
 
     allStores.push(...transformedStores);
     
-    // Check if we've reached the end based on ArcGIS response
-    // If exceededTransferLimit is false or undefined, we've got all records
-    if (!jsonData.exceededTransferLimit || features.length < limit) {
+    // More robust pagination logic
+    if (features.length < limit) {
+      // If we got fewer records than requested, we've likely reached the end
+      console.log(`Got ${features.length} records, less than limit ${limit}. Ending pagination.`);
+      hasMore = false;
+    } else if (jsonData.exceededTransferLimit === false) {
+      // If the API explicitly says no more records
+      console.log('API indicates no more records available.');
       hasMore = false;
     } else {
+      // Continue to next batch
       offset += limit;
     }
     
     // Safety check to prevent infinite loops
-    if (offset > 500000) {
+    if (offset > 1000000) { // Increased safety limit
       console.log('Safety limit reached, stopping pagination');
       hasMore = false;
     }
