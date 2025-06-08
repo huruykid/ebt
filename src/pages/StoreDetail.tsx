@@ -137,7 +137,7 @@ export default function StoreDetailPage() {
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">
                   {/* Reviews Section */}
-                  <ReviewSection />
+                  <ReviewSection store={store} />
 
                   {/* Map Section */}
                   <StoreMap store={store} />
