@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SearchBar } from './SearchBar';
 import { StoreCard } from './StoreCard';
@@ -24,6 +24,7 @@ export const StoreSearch: React.FC = () => {
     incentiveProgram: '',
     hasCoordinates: false
   });
+  const navigate = useNavigate();
 
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['stores', searchQuery, filters],
@@ -73,11 +74,20 @@ export const StoreSearch: React.FC = () => {
     setFilters(newFilters);
   };
 
+  const handleFindStoresClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Find SNAP Stores</h2>
+          <button 
+            onClick={handleFindStoresClick}
+            className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors cursor-pointer"
+          >
+            Find SNAP Stores
+          </button>
           <SyncStoresButton />
         </div>
         <SearchBar 
