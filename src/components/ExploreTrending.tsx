@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 export const ExploreTrending: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('trending');
+  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const navigate = useNavigate();
   const { latitude, longitude, error, loading } = useGeolocation();
 
@@ -22,9 +23,10 @@ export const ExploreTrending: React.FC = () => {
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
     setActiveCategory(categoryId);
-    console.log('Category changed to:', categoryId);
+    setSelectedStoreTypes(storeTypes || []);
+    console.log('Category changed to:', categoryId, 'Store types:', storeTypes);
   };
 
   const handleNavigate = (itemId: string) => {
@@ -53,7 +55,7 @@ export const ExploreTrending: React.FC = () => {
 
       <CategoryTabs 
         onCategoryChange={handleCategoryChange}
-        className="mt-4"
+        className="mt-4 px-3.5"
       />
 
       <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4 pb-20">
@@ -78,6 +80,8 @@ export const ExploreTrending: React.FC = () => {
               longitude={longitude}
               radius={10}
               limit={20}
+              category={activeCategory}
+              storeTypes={selectedStoreTypes}
             />
           </div>
         )}

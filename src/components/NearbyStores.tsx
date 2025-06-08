@@ -14,16 +14,20 @@ interface NearbyStoresProps {
   longitude: number;
   radius?: number; // in miles
   limit?: number;
+  category?: string;
+  storeTypes?: string[];
 }
 
 export const NearbyStores: React.FC<NearbyStoresProps> = ({ 
   latitude, 
   longitude, 
   radius = 10,
-  limit = 20 
+  limit = 20,
+  category = 'trending',
+  storeTypes = []
 }) => {
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['nearby-stores', latitude, longitude, radius, limit],
+    queryKey: ['nearby-stores', latitude, longitude, radius, limit, category, storeTypes],
     queryFn: async () => {
       // Calculate bounding box for rough filtering
       const latDelta = radius / 69; // Approximate miles to degrees
@@ -34,7 +38,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
       const minLon = longitude - lonDelta;
       const maxLon = longitude + lonDelta;
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('snap_stores')
         .select('*')
         .not('latitude', 'is', null)
@@ -42,8 +46,18 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
         .gte('latitude', minLat)
         .lte('latitude', maxLat)
         .gte('longitude', minLon)
-        .lte('longitude', maxLon)
-        .limit(limit * 2); // Get more results for better filtering
+        .lte('longitude', maxLon);
+
+      // Apply category filters
+      if (category !== 'trending' && storeTypes.length > 0) {
+        // Create an OR condition for store types
+        const typeFilters = storeTypes.map(type => `store_type.ilike.%${type}%`).join(',');
+        query = query.or(typeFilters);
+      }
+
+      query = query.limit(limit * 2); // Get more results for better filtering
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching nearby stores:', error);
@@ -51,7 +65,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
       }
 
       // Calculate actual distances and sort by distance
-      const storesWithDistance = (data || [])
+      let storesWithDistance = (data || [])
         .map(store => {
           const distance = calculateDistance(
             latitude,
@@ -61,11 +75,28 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
           );
           return { ...store, distance };
         })
-        .filter(store => store.distance <= radius)
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, limit);
+        .filter(store => store.distance <= radius);
 
-      return storesWithDistance;
+      // Apply trending logic or sort by distance
+      if (category === 'trending') {
+        // For trending, prioritize stores with incentive programs and then by proximity
+        storesWithDistance = storesWithDistance
+          .sort((a, b) => {
+            // First priority: stores with incentive programs
+            const aHasIncentive = a.incentive_program ? 1 : 0;
+            const bHasIncentive = b.incentive_program ? 1 : 0;
+            if (aHasIncentive !== bHasIncentive) {
+              return bHasIncentive - aHasIncentive;
+            }
+            // Second priority: distance
+            return a.distance - b.distance;
+          });
+      } else {
+        // For other categories, sort by distance
+        storesWithDistance = storesWithDistance.sort((a, b) => a.distance - b.distance);
+      }
+
+      return storesWithDistance.slice(0, limit);
     },
     enabled: !!(latitude && longitude),
   });
@@ -97,32 +128,29 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
   }
 
   if (!stores || stores.length === 0) {
+    const categoryText = category === 'trending' ? 'SNAP stores' : storeTypes.join(', ').toLowerCase();
     return (
       <div className="text-center py-8">
         <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">No SNAP stores found within {radius} miles of your location.</p>
-        <p className="text-sm text-gray-500 mt-2">Try expanding your search radius or check a different area.</p>
+        <p className="text-gray-600">No {categoryText} found within {radius} miles of your location.</p>
+        <p className="text-sm text-gray-500 mt-2">Try a different category or expand your search radius.</p>
       </div>
     );
   }
+
+  const categoryText = category === 'trending' ? 'Trending SNAP Stores' : 
+    storeTypes.length > 0 ? storeTypes.join(', ') : 'SNAP Stores';
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <MapPin className="h-5 w-5 text-blue-600" />
         <h2 className="text-xl font-semibold text-gray-800">
-          SNAP Stores Near You ({stores.length} found)
+          {categoryText} Near You ({stores.length} found)
         </h2>
       </div>
       {stores.map((store) => (
-        <div key={store.id} className="relative">
-          <StoreCard store={store} />
-          {store.distance && (
-            <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-              {store.distance.toFixed(1)} mi
-            </div>
-          )}
-        </div>
+        <StoreCard key={store.id} store={store} />
       ))}
     </div>
   );
