@@ -34,7 +34,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
           review_text,
           created_at,
           user_id,
-          profiles:user_id (
+          profiles!reviews_user_id_fkey (
             full_name
           )
         `)
