@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Navigation, Clock, Car } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -11,7 +12,37 @@ interface StoreMapProps {
   store: Store;
 }
 
+// Calculate distance between two points using Haversine formula
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// Estimate travel time (assuming average city driving speed of 25 mph)
+const estimateTravelTime = (distance: number): string => {
+  const avgSpeed = 25; // mph
+  const timeInHours = distance / avgSpeed;
+  const minutes = Math.round(timeInHours * 60);
+  
+  if (minutes < 60) {
+    return `${minutes} min`;
+  } else {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  }
+};
+
 export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
+  const { latitude: userLat, longitude: userLon, error: locationError } = useGeolocation();
+
   const openDirections = () => {
     if (store?.latitude && store?.longitude) {
       const url = `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`;
@@ -42,33 +73,87 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
     );
   }
 
+  // Calculate distance and travel time if user location is available
+  let distance: number | null = null;
+  let travelTime: string | null = null;
+  
+  if (userLat && userLon && !locationError) {
+    distance = calculateDistance(userLat, userLon, store.latitude, store.longitude);
+    travelTime = estimateTravelTime(distance);
+  }
+
+  const formatAddress = () => {
+    const parts = [
+      store.store_street_address,
+      store.additional_address,
+      store.city,
+      store.state,
+      store.zip_code
+    ].filter(Boolean);
+    
+    return parts.join(', ');
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Location & Directions</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Embedded map placeholder - will be replaced with Google Maps later */}
-        <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border">
-          <div className="text-center text-gray-500">
-            <MapPin className="h-12 w-12 mx-auto mb-2" />
-            <p className="font-medium">Interactive Google Map</p>
-            <p className="text-sm">Coming soon!</p>
+        {/* Enhanced location info */}
+        <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg p-6 mb-4">
+          <div className="flex items-start gap-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <MapPin className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 mb-2">Store Address</h3>
+              <p className="text-gray-700 mb-3">{formatAddress()}</p>
+              
+              {/* Distance and travel time info */}
+              {distance && travelTime && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Navigation className="h-4 w-4 text-green-600" />
+                    <span className="text-gray-600">
+                      <span className="font-medium text-gray-900">{distance.toFixed(1)} mi</span> away
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-orange-600" />
+                    <span className="text-gray-600">
+                      <span className="font-medium text-gray-900">{travelTime}</span> drive
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {locationError && (
+                <div className="text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md">
+                  💡 Enable location access to see distance and travel time
+                </div>
+              )}
+            </div>
           </div>
         </div>
         
-        <div className="flex gap-2">
-          <Button onClick={openDirections} className="flex-1">
-            <MapPin className="h-4 w-4 mr-2" />
+        {/* Action buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <Button onClick={openDirections} className="flex items-center gap-2">
+            <Car className="h-4 w-4" />
             Get Directions
           </Button>
-          <Button onClick={openInMaps} variant="outline" className="flex-1">
+          <Button onClick={openInMaps} variant="outline" className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
             View on Google Maps
           </Button>
         </div>
         
-        <div className="mt-4 text-sm text-gray-600">
-          <p><strong>Coordinates:</strong> {store.latitude}, {store.longitude}</p>
+        {/* Coordinates for reference */}
+        <div className="pt-4 border-t border-gray-200">
+          <div className="text-xs text-gray-500">
+            <strong>Coordinates:</strong> {store.latitude}, {store.longitude}
+          </div>
         </div>
       </CardContent>
     </Card>
