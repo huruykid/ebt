@@ -3,29 +3,28 @@ import React, { useState } from 'react';
 import { Header } from './Header';
 import { SearchBar } from './SearchBar';
 import { CategoryTabs } from './CategoryTabs';
-import { RestaurantCard } from './RestaurantCard';
 import { BottomNavigation } from './BottomNavigation';
+import { NearbyStores } from './NearbyStores';
+import { LocationPrompt } from './LocationPrompt';
+import { LoadingSpinner } from './LoadingSpinner';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
 
 export const ExploreTrending: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('trending');
   const navigate = useNavigate();
+  const { latitude, longitude, error, loading } = useGeolocation();
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     console.log('Searching for:', query);
-    // Navigate to search page with query
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const handleCategoryChange = (categoryId: string) => {
     setActiveCategory(categoryId);
     console.log('Category changed to:', categoryId);
-  };
-
-  const handleViewDetails = (restaurantId: string) => {
-    console.log('View details for restaurant:', restaurantId);
   };
 
   const handleNavigate = (itemId: string) => {
@@ -35,14 +34,20 @@ export const ExploreTrending: React.FC = () => {
     }
   };
 
+  const handleRequestLocation = () => {
+    // Trigger a page reload to re-request location permission
+    window.location.reload();
+  };
+
   return (
-    <div className="bg-neutral-100 flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto pt-3">
-      <div className="flex w-full flex-col items-stretch px-3.5">
+    <div className="bg-neutral-100 flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
+      <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
         <Header className="self-center flex w-full max-w-[335px] items-stretch gap-5 justify-between" />
         
         <SearchBar 
           onSearch={handleSearch}
           className="mt-4"
+          placeholder="Search stores, food, or location..."
         />
       </div>
 
@@ -51,24 +56,38 @@ export const ExploreTrending: React.FC = () => {
         className="mt-4"
       />
 
-      <main className="self-center flex h-[597px] w-full max-w-[336px] flex-col overflow-hidden items-center font-bold mt-4">
-        <section className="w-full">
-          <RestaurantCard
-            id="dolls-kitchen"
-            name="Dolls Kitchen"
-            address="4532 N. Blackstone Ave, Fresno, CA"
-            category="hot food, Soul food"
-            rating={4.2}
-            imageUrl="https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/25adcacf75cbb3b014b1012342e27801296f92b1?placeholderIfAbsent=true"
-            onViewDetails={handleViewDetails}
+      <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4 pb-20">
+        {loading && (
+          <div className="py-8">
+            <LoadingSpinner />
+            <p className="text-center text-gray-600 mt-4">Getting your location...</p>
+          </div>
+        )}
+
+        {error && !loading && (
+          <LocationPrompt 
+            onRequestLocation={handleRequestLocation} 
+            error={error}
           />
-          
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/fd328a0d4171d8484ce503d1336ae9cbbeba6743?placeholderIfAbsent=true"
-            alt="Additional restaurant content"
-            className="aspect-[1.57] object-contain w-full mt-[29px] rounded-lg"
+        )}
+
+        {latitude && longitude && !loading && (
+          <div className="w-full">
+            <NearbyStores 
+              latitude={latitude} 
+              longitude={longitude}
+              radius={10}
+              limit={20}
+            />
+          </div>
+        )}
+
+        {/* Fallback content when location is not available */}
+        {!latitude && !longitude && !loading && !error && (
+          <LocationPrompt 
+            onRequestLocation={handleRequestLocation}
           />
-        </section>
+        )}
       </main>
 
       <BottomNavigation onNavigate={handleNavigate} />

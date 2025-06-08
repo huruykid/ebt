@@ -7,7 +7,7 @@ import type { Tables } from '@/integrations/supabase/types';
 type Store = Tables<'snap_stores'>;
 
 interface StoreCardProps {
-  store: Store;
+  store: Store & { distance?: number };
 }
 
 export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
@@ -39,12 +39,19 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const hasCompleteAddress = store.store_street_address && store.city;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-      <div className="flex items-start justify-between mb-3">
+    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow relative">
+      {/* Distance badge */}
+      {store.distance !== undefined && (
+        <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+          {store.distance.toFixed(1)} mi
+        </div>
+      )}
+
+      <div className="flex items-start justify-between mb-3 pr-16">
         <div className="flex-1">
           <Link 
             to={`/store/${store.id}`}
-            className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors"
+            className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors block"
           >
             {store.store_name}
           </Link>
