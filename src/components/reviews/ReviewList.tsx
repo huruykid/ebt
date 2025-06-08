@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,7 +34,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
           review_text,
           created_at,
           user_id,
-          profiles!reviews_user_id_fkey (
+          profiles (
             full_name
           )
         `)
