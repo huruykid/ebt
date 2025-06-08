@@ -75,13 +75,13 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
   const hasActiveFilters = filters.storeType || filters.incentiveProgram || filters.hasCoordinates;
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700">Filters</h3>
+    <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-gray-900">Filter Results</h3>
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
           >
             Clear all
           </button>
@@ -90,13 +90,13 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Store Type
           </label>
           <select
             value={filters.storeType}
             onChange={(e) => handleFilterChange('storeType', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           >
             <option value="">All types</option>
             {storeTypes?.map((type) => (
@@ -113,13 +113,13 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Incentive Program
           </label>
           <select
             value={filters.incentiveProgram}
             onChange={(e) => handleFilterChange('incentiveProgram', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           >
             <option value="">All programs</option>
             {incentivePrograms?.map((program) => (
@@ -136,12 +136,12 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
         </div>
 
         <div className="flex items-end">
-          <label className="flex items-center space-x-2 text-sm text-gray-600">
+          <label className="flex items-center space-x-2 text-sm text-gray-700">
             <input
               type="checkbox"
               checked={filters.hasCoordinates}
               onChange={(e) => handleFilterChange('hasCoordinates', e.target.checked)}
-              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <span>Show on map only</span>
           </label>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SearchBar } from './SearchBar';
 import { StoreCard } from './StoreCard';
@@ -18,13 +18,22 @@ interface SearchFilters {
 }
 
 export const StoreSearch: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<SearchFilters>({
     storeType: '',
     incentiveProgram: '',
     hasCoordinates: false
   });
   const navigate = useNavigate();
+
+  // Update search query when URL parameter changes
+  useEffect(() => {
+    const queryParam = searchParams.get('q') || '';
+    setSearchQuery(queryParam);
+  }, [searchParams]);
 
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['stores', searchQuery, filters],
@@ -68,6 +77,12 @@ export const StoreSearch: React.FC = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    // Update URL to reflect the new search
+    if (query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query)}`, { replace: true });
+    } else {
+      navigate('/search', { replace: true });
+    }
   };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
@@ -94,7 +109,12 @@ export const StoreSearch: React.FC = () => {
           onSearch={handleSearch}
           placeholder="Search by store name, city, or zip code..."
           className="mb-4"
+          initialValue={searchQuery}
         />
+      </div>
+
+      {/* Make filters always visible and more prominent */}
+      <div className="mb-6">
         <StoreFilters 
           filters={filters}
           onFiltersChange={handleFiltersChange}
