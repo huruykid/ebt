@@ -38,6 +38,12 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       storeTypes: ['Fast Food Restaurant', 'Restaurant'] 
     },
     { 
+      id: 'hotmeals', 
+      name: 'Hot Meals (RMP)', 
+      icon: '', 
+      storeTypes: ['Restaurant', 'Fast Food Restaurant', 'Cafeteria'] 
+    },
+    { 
       id: 'bakery', 
       name: 'Bakery', 
       icon: 'https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/0e0eb0d8b84c0ff7b3c5f356798b854a2fead4f7?placeholderIfAbsent=true', 
@@ -92,6 +98,10 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             ) : category.id === 'grocery' ? (
               <div className="w-[31px] h-[31px] bg-green-100 rounded flex items-center justify-center mb-1">
                 <span className="text-green-600 font-bold text-xs">🏪</span>
+              </div>
+            ) : category.id === 'hotmeals' ? (
+              <div className="w-[31px] h-[31px] bg-orange-100 rounded flex items-center justify-center mb-1">
+                <span className="text-orange-600 font-bold text-xs">🍽️</span>
               </div>
             ) : category.id === 'dollar' ? (
               <div className="w-[31px] h-[31px] bg-black flex items-center justify-center mb-1 rounded">
