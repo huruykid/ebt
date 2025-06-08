@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
+import { StorePhoto } from './StorePhoto';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -37,84 +38,95 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   };
 
   const hasCompleteAddress = store.store_street_address && store.city;
+  const fullAddress = formatAddress();
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow relative">
-      {/* Distance badge */}
-      {store.distance !== undefined && (
-        <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-          {store.distance.toFixed(1)} mi
-        </div>
-      )}
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden">
+      {/* Store Photo */}
+      <StorePhoto 
+        storeName={store.store_name}
+        address={fullAddress}
+        className="w-full h-32 object-cover"
+      />
 
-      <div className="flex items-start justify-between mb-3 pr-16">
-        <div className="flex-1">
-          <Link 
-            to={`/store/${store.id}`}
-            className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors block"
-          >
-            {store.store_name}
-          </Link>
-          {store.store_type && (
-            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
-              {store.store_type}
-            </span>
+      {/* Card Content */}
+      <div className="p-6 relative">
+        {/* Distance badge */}
+        {store.distance !== undefined && (
+          <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+            {store.distance.toFixed(1)} mi
+          </div>
+        )}
+
+        <div className="flex items-start justify-between mb-3 pr-16">
+          <div className="flex-1">
+            <Link 
+              to={`/store/${store.id}`}
+              className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors block"
+            >
+              {store.store_name}
+            </Link>
+            {store.store_type && (
+              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
+                {store.store_type}
+              </span>
+            )}
+          </div>
+          <Store className="h-6 w-6 text-gray-400 ml-2" />
+        </div>
+
+        <div className="space-y-2">
+          {fullAddress && (
+            <div className="flex items-start gap-2 text-sm text-gray-600">
+              <MapPin className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
+              <div className="flex-1">
+                <span>{fullAddress}</span>
+                {!hasCompleteAddress && (
+                  <div className="text-amber-600 text-xs mt-1">
+                    ⚠️ Address may be incomplete
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {store.incentive_program && (
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium text-yellow-700">
+                {store.incentive_program}
+              </span>
+            </div>
+          )}
+
+          {store.grantee_name && (
+            <div className="text-sm text-gray-500">
+              <span className="font-medium">Operated by:</span> {store.grantee_name}
+            </div>
           )}
         </div>
-        <Store className="h-6 w-6 text-gray-400 ml-2" />
-      </div>
 
-      <div className="space-y-2">
-        {formatAddress() && (
-          <div className="flex items-start gap-2 text-sm text-gray-600">
-            <MapPin className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
-            <div className="flex-1">
-              <span>{formatAddress()}</span>
-              {!hasCompleteAddress && (
-                <div className="text-amber-600 text-xs mt-1">
-                  ⚠️ Address may be incomplete
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {store.incentive_program && (
-          <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-yellow-500" />
-            <span className="text-sm font-medium text-yellow-700">
-              {store.incentive_program}
-            </span>
-          </div>
-        )}
-
-        {store.grantee_name && (
-          <div className="text-sm text-gray-500">
-            <span className="font-medium">Operated by:</span> {store.grantee_name}
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
-        <Link
-          to={`/store/${store.id}`}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-        >
-          View Details
-          <ExternalLink className="h-3 w-3" />
-        </Link>
-        
-        {store.latitude && store.longitude && (
-          <button
-            onClick={() => {
-              const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
-              window.open(url, '_blank');
-            }}
-            className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+        <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+          <Link
+            to={`/store/${store.id}`}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
           >
-            View on Map →
-          </button>
-        )}
+            View Details
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+          
+          {store.latitude && store.longitude && (
+            <button
+              onClick={() => {
+                const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
+                window.open(url, '_blank');
+              }}
+              className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+            >
+              View on Map →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
