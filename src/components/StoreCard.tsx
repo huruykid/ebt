@@ -38,6 +38,31 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
     }
   };
 
+  const getStoreTypeIcon = (type: string | null) => {
+    const lowerType = type?.toLowerCase() || '';
+    
+    if (lowerType.includes('supermarket') || lowerType.includes('grocery') || lowerType.includes('supercenter')) {
+      return '🏪';
+    }
+    if (lowerType.includes('restaurant') || lowerType.includes('fast food')) {
+      return '🍔';
+    }
+    if (lowerType.includes('cafeteria')) {
+      return '🍽️';
+    }
+    if (lowerType.includes('bakery')) {
+      return '🥖';
+    }
+    if (lowerType.includes('convenience') || lowerType.includes('corner')) {
+      return '🏬';
+    }
+    if (lowerType.includes('dollar') || lowerType.includes('discount')) {
+      return '💵';
+    }
+    
+    return '🏪'; // Default icon
+  };
+
   const hasCompleteAddress = store.store_street_address && store.city;
   const fullAddress = formatAddress();
 
@@ -67,7 +92,8 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             </Link>
             <div className="flex items-center gap-2 flex-wrap">
               {store.store_type && (
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
+                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
+                  <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
                   {store.store_type}
                 </span>
               )}
