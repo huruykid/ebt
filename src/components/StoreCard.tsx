@@ -1,10 +1,11 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
+import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -14,6 +15,15 @@ interface StoreCardProps {
 }
 
 export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
+  const { trackStoreClick } = useStoreClickTracking();
+  const { latitude, longitude } = useGeolocation();
+
+  const handleStoreClick = () => {
+    if (latitude && longitude) {
+      trackStoreClick(store.id, latitude, longitude);
+    }
+  };
+
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
@@ -87,6 +97,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           <div className="flex-1">
             <Link 
               to={`/store/${store.id}`}
+              onClick={handleStoreClick}
               className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors block"
             >
               {store.store_name}
@@ -143,6 +154,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
           <Link
             to={`/store/${store.id}`}
+            onClick={handleStoreClick}
             className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
           >
             View Details

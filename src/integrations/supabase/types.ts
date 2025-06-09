@@ -172,6 +172,41 @@ export type Database = {
         }
         Relationships: []
       }
+      store_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          store_id: number
+          user_id: string | null
+          user_latitude: number
+          user_longitude: number
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          store_id: number
+          user_id?: string | null
+          user_latitude: number
+          user_longitude: number
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          store_id?: number
+          user_id?: string | null
+          user_latitude?: number
+          user_longitude?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_clicks_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       store_review_stats: {

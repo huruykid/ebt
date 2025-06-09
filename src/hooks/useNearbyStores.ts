@@ -69,7 +69,7 @@ export const useNearbyStores = ({
         return [];
       }
 
-      // Calculate actual distances and sort by distance
+      // Calculate actual distances and filter by radius
       let storesWithDistance = data
         .map(store => {
           const distance = calculateDistance(
@@ -84,18 +84,73 @@ export const useNearbyStores = ({
 
       // Apply trending logic or sort by distance
       if (category === 'trending') {
-        // For trending, prioritize stores with incentive programs and then by proximity
-        storesWithDistance = storesWithDistance
-          .sort((a, b) => {
-            // First priority: stores with incentive programs
+        // Get click data for trending analysis
+        const storeIds = storesWithDistance.map(store => store.id);
+        
+        if (storeIds.length > 0) {
+          // Get click counts for stores in the area within the last 30 days
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          const { data: clickData } = await supabase
+            .from('store_clicks')
+            .select('store_id, clicked_at, user_latitude, user_longitude')
+            .in('store_id', storeIds)
+            .gte('clicked_at', thirtyDaysAgo.toISOString());
+
+          // Calculate trending scores based on clicks in the user's area
+          const trendingScores = new Map<number, number>();
+          
+          clickData?.forEach(click => {
+            const clickDistance = calculateDistance(
+              latitude,
+              longitude,
+              click.user_latitude,
+              click.user_longitude
+            );
+            
+            // Only count clicks from users within a larger radius (25 miles)
+            if (clickDistance <= 25) {
+              // Weight recent clicks more heavily
+              const daysSinceClick = (Date.now() - new Date(click.clicked_at).getTime()) / (1000 * 60 * 60 * 24);
+              const recencyWeight = Math.max(0.1, 1 - (daysSinceClick / 30)); // Linear decay over 30 days
+              
+              const currentScore = trendingScores.get(click.store_id) || 0;
+              trendingScores.set(click.store_id, currentScore + recencyWeight);
+            }
+          });
+
+          // Sort by trending score, then by incentive programs, then by distance
+          storesWithDistance = storesWithDistance.sort((a, b) => {
+            const aScore = trendingScores.get(a.id) || 0;
+            const bScore = trendingScores.get(b.id) || 0;
+            
+            // First priority: trending score (click-based)
+            if (aScore !== bScore) {
+              return bScore - aScore;
+            }
+            
+            // Second priority: stores with incentive programs
             const aHasIncentive = a.incentive_program ? 1 : 0;
             const bHasIncentive = b.incentive_program ? 1 : 0;
             if (aHasIncentive !== bHasIncentive) {
               return bHasIncentive - aHasIncentive;
             }
-            // Second priority: distance
+            
+            // Third priority: distance
             return a.distance - b.distance;
           });
+        } else {
+          // Fallback to incentive programs + distance if no stores found
+          storesWithDistance = storesWithDistance.sort((a, b) => {
+            const aHasIncentive = a.incentive_program ? 1 : 0;
+            const bHasIncentive = b.incentive_program ? 1 : 0;
+            if (aHasIncentive !== bHasIncentive) {
+              return bHasIncentive - aHasIncentive;
+            }
+            return a.distance - b.distance;
+          });
+        }
       } else {
         // For other categories, sort by distance
         storesWithDistance = storesWithDistance.sort((a, b) => a.distance - b.distance);
