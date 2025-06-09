@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
+import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -90,7 +91,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             >
               {store.store_name}
             </Link>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
               {store.store_type && (
                 <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
                   <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
@@ -103,6 +104,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
                 </div>
               )}
             </div>
+            <StoreRatingDisplay storeId={store.id} className="mb-2" />
           </div>
           <Store className="h-6 w-6 text-gray-400 ml-2 flex-shrink-0" />
         </div>
