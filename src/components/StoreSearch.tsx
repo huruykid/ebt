@@ -57,9 +57,11 @@ export const StoreSearch: React.FC = () => {
         query = query.or(`store_name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,zip_code.ilike.%${searchQuery}%,state.ilike.%${searchQuery}%`);
       }
 
-      // Apply category filters (store types)
+      // Apply category filters (store types) - use partial matching like useNearbyStores
       if (selectedStoreTypes.length > 0 && activeCategory !== 'trending') {
-        query = query.in('store_type', selectedStoreTypes);
+        // Create an OR condition for store types using ilike for partial matching
+        const typeFilters = selectedStoreTypes.map(type => `store_type.ilike.%${type}%`).join(',');
+        query = query.or(typeFilters);
       }
 
       // Limit results for performance
