@@ -50,7 +50,7 @@ export const useNearbyStores = ({
         .lte('longitude', maxLon);
 
       // Apply category filters
-      if (category !== 'trending' && storeTypes.length > 0) {
+      if (category !== 'trending' && Array.isArray(storeTypes) && storeTypes.length > 0) {
         // Create an OR condition for store types
         const typeFilters = storeTypes.map(type => `store_type.ilike.%${type}%`).join(',');
         query = query.or(typeFilters);
@@ -65,8 +65,12 @@ export const useNearbyStores = ({
         throw error;
       }
 
+      if (!data || !Array.isArray(data)) {
+        return [];
+      }
+
       // Calculate actual distances and sort by distance
-      let storesWithDistance = (data || [])
+      let storesWithDistance = data
         .map(store => {
           const distance = calculateDistance(
             latitude,

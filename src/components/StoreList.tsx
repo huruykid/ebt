@@ -8,6 +8,10 @@ interface StoreListProps {
 }
 
 export const StoreList: React.FC<StoreListProps> = ({ stores }) => {
+  if (!stores || !Array.isArray(stores) || stores.length === 0) {
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       {stores.map((store) => (

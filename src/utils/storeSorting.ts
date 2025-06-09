@@ -3,7 +3,7 @@ import type { SortOption } from '@/components/SortDropdown';
 import type { StoreWithGoogleData } from '@/hooks/useStoreGoogleData';
 
 export const sortStores = (stores: StoreWithGoogleData[], sortBy: SortOption): StoreWithGoogleData[] => {
-  if (!stores) return [];
+  if (!stores || !Array.isArray(stores) || stores.length === 0) return [];
 
   const storesCopy = [...stores];
 

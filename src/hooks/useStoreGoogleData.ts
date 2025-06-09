@@ -21,7 +21,7 @@ export interface StoreWithGoogleData extends StoreWithDistance {
 export const useStoreGoogleData = (stores: StoreWithDistance[] | undefined) => {
   // Get Google Places data for the first 10 stores (to avoid hitting API limits)
   const storeQueries = useMemo(() => {
-    if (!stores) return [];
+    if (!stores || !Array.isArray(stores) || stores.length === 0) return [];
     return stores.slice(0, 10).map(store => {
       const searchQuery = [
         store.store_name,
@@ -55,7 +55,7 @@ export const useStoreGoogleData = (stores: StoreWithDistance[] | undefined) => {
 
   // Enhance stores with Google Places data
   const storesWithGoogleData = useMemo(() => {
-    if (!stores) return [];
+    if (!stores || !Array.isArray(stores)) return [];
     return stores.map(store => ({
       ...store,
       googleData: googlePlacesDataMap.get(store.id)
