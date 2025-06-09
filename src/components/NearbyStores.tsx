@@ -138,16 +138,34 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     );
   }
 
-  const categoryText = category === 'trending' ? 'Trending SNAP Stores' : 
-    storeTypes.length > 0 ? storeTypes.join(', ') : 'SNAP Stores';
+  const getHeaderText = () => {
+    if (category === 'trending') {
+      return `${stores.length} stores near you`;
+    }
+    const categoryName = storeTypes.length > 0 ? storeTypes.join(', ') : 'SNAP Stores';
+    return `${stores.length} ${categoryName.toLowerCase()} nearby`;
+  };
+
+  const getSubtext = () => {
+    const closestDistance = stores[0]?.distance;
+    if (closestDistance !== undefined) {
+      return `Starting ${closestDistance.toFixed(1)} mi away`;
+    }
+    return `Within ${radius} miles`;
+  };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-4">
-        <MapPin className="h-5 w-5 text-blue-600" />
-        <h2 className="text-xl font-semibold text-gray-800">
-          {categoryText} Near You ({stores.length} found)
-        </h2>
+      <div className="flex items-start gap-3 mb-4">
+        <MapPin className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {getHeaderText()}
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {getSubtext()}
+          </p>
+        </div>
       </div>
       {stores.map((store) => (
         <StoreCard key={store.id} store={store} />
