@@ -41,9 +41,7 @@ export const ExploreTrending: React.FC = () => {
       <div className="md:hidden bg-neutral-100 flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
           <div className="text-center mb-4">
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Find SNAP Stores
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Find SNAP / EBT Stores</h1>
             <p className="text-sm text-muted-foreground px-2">
               Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits in your area. 
               Save time and shop with confidence.
