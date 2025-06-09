@@ -1,32 +1,24 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SearchBar } from './SearchBar';
 import { StoreCard } from './StoreCard';
-import { StoreFilters } from './StoreFilters';
+import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
-interface SearchFilters {
-  storeType: string;
-  incentiveProgram: string;
-  hasCoordinates: boolean;
-}
-
 export const StoreSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [filters, setFilters] = useState<SearchFilters>({
-    storeType: '',
-    incentiveProgram: '',
-    hasCoordinates: false
-  });
+  const [activeCategory, setActiveCategory] = useState('trending');
+  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const navigate = useNavigate();
 
   // Update search query when URL parameter changes
@@ -36,7 +28,7 @@ export const StoreSearch: React.FC = () => {
   }, [searchParams]);
 
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['stores', searchQuery, filters],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes],
     queryFn: async () => {
       let query = supabase
         .from('snap_stores')
@@ -48,17 +40,9 @@ export const StoreSearch: React.FC = () => {
         query = query.or(`store_name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,zip_code.ilike.%${searchQuery}%,state.ilike.%${searchQuery}%`);
       }
 
-      // Apply filters
-      if (filters.storeType) {
-        query = query.eq('store_type', filters.storeType);
-      }
-
-      if (filters.incentiveProgram) {
-        query = query.eq('incentive_program', filters.incentiveProgram);
-      }
-
-      if (filters.hasCoordinates) {
-        query = query.not('latitude', 'is', null).not('longitude', 'is', null);
+      // Apply category filters (store types)
+      if (selectedStoreTypes.length > 0 && activeCategory !== 'trending') {
+        query = query.in('store_type', selectedStoreTypes);
       }
 
       // Limit results for performance
@@ -85,8 +69,10 @@ export const StoreSearch: React.FC = () => {
     }
   };
 
-  const handleFiltersChange = (newFilters: SearchFilters) => {
-    setFilters(newFilters);
+  const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
+    setActiveCategory(categoryId);
+    setSelectedStoreTypes(storeTypes || []);
+    console.log('Category changed to:', categoryId, 'Store types:', storeTypes);
   };
 
   const handleFindStoresClick = () => {
@@ -113,11 +99,10 @@ export const StoreSearch: React.FC = () => {
         />
       </div>
 
-      {/* Make filters always visible and more prominent */}
+      {/* Use CategoryTabs instead of StoreFilters */}
       <div className="mb-6">
-        <StoreFilters 
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
+        <CategoryTabs 
+          onCategoryChange={handleCategoryChange}
         />
       </div>
 
@@ -139,6 +124,11 @@ export const StoreSearch: React.FC = () => {
         <div className="space-y-4">
           <p className="text-sm text-gray-600 mb-4">
             Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+            {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
+              <span className="ml-2 text-blue-600">
+                • Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
+              </span>
+            )}
           </p>
           {stores.map((store) => (
             <StoreCard 
