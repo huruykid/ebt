@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
+import { FavoriteButton } from './FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -51,14 +52,17 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
       {/* Card Content */}
       <div className="p-6 relative">
-        {/* Distance badge */}
-        {store.distance !== undefined && (
-          <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-            {store.distance.toFixed(1)} mi
-          </div>
-        )}
+        {/* Distance badge and Favorite button */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          {store.distance !== undefined && (
+            <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+              {store.distance.toFixed(1)} mi
+            </div>
+          )}
+          <FavoriteButton storeId={store.id} variant="icon" />
+        </div>
 
-        <div className="flex items-start justify-between mb-3 pr-16">
+        <div className="flex items-start justify-between mb-3 pr-20">
           <div className="flex-1">
             <Link 
               to={`/store/${store.id}`}

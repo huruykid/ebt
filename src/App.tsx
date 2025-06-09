@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
 import StoreDetail from "./pages/StoreDetail";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,9 +28,8 @@ const AppContent = () => {
       case 'search':
         navigate('/search');
         break;
-      case 'wishlist':
-        // Navigate to wishlist page when implemented
-        console.log('Wishlist navigation - to be implemented');
+      case 'favorites':
+        navigate('/favorites');
         break;
       case 'profile':
         // Navigate to profile page when implemented
@@ -54,6 +54,7 @@ const AppContent = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/search" element={<StoreSearch />} />
           <Route path="/store/:id" element={<StoreDetail />} />
+          <Route path="/favorites" element={<Favorites />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

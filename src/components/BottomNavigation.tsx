@@ -26,7 +26,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
-    if (path === '/wishlist') return 'wishlist';
+    if (path === '/favorites') return 'favorites';
     if (path === '/profile') return 'profile';
     return 'home'; // default fallback
   };
@@ -36,7 +36,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   const navItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'search', label: 'Search', icon: Search },
-    { id: 'wishlist', label: 'Wishlist', icon: Heart },
+    { id: 'favorites', label: 'Favorites', icon: Heart },
     { id: 'profile', label: 'Profile', icon: User }
   ];
 

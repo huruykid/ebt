@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +13,7 @@ import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StoreMap } from '@/components/store-detail/StoreMap';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import { useGooglePlacesSearch, useGooglePlacesDetails } from '@/hooks/useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -120,14 +122,16 @@ export default function StoreDetailPage() {
         
         <div className="p-4">
           <div className="max-w-6xl mx-auto">
-            <Button 
-              onClick={() => navigate('/search')} 
-              variant="outline" 
-              className="mb-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Search
-            </Button>
+            <div className="flex items-center justify-between mb-4">
+              <Button 
+                onClick={() => navigate('/search')} 
+                variant="outline"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Search
+              </Button>
+              <FavoriteButton storeId={store.id} />
+            </div>
 
             <div className="space-y-6">
               {/* Store Header without cover photo */}
