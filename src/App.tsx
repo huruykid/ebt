@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { BottomNavigation } from "@/components/BottomNavigation";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
@@ -13,6 +14,53 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (itemId: string) => {
+    console.log('Navigate to:', itemId);
+    switch (itemId) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'search':
+        navigate('/search');
+        break;
+      case 'wishlist':
+        // Navigate to wishlist page when implemented
+        console.log('Wishlist navigation - to be implemented');
+        break;
+      case 'profile':
+        // Navigate to profile page when implemented
+        console.log('Profile navigation - to be implemented');
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Main content area with bottom padding to account for fixed nav */}
+      <div className="flex-1 pb-20">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/search" element={<StoreSearch />} />
+          <Route path="/store/:id" element={<StoreDetail />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      
+      {/* Fixed bottom navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <BottomNavigation onNavigate={handleNavigate} />
+      </div>
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -20,14 +68,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/search" element={<StoreSearch />} />
-            <Route path="/store/:id" element={<StoreDetail />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

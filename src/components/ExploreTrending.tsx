@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Header } from './Header';
 import { SearchBar } from './SearchBar';
 import { CategoryTabs } from './CategoryTabs';
-import { BottomNavigation } from './BottomNavigation';
 import { NearbyStores } from './NearbyStores';
 import { LocationPrompt } from './LocationPrompt';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -29,13 +28,6 @@ export const ExploreTrending: React.FC = () => {
     console.log('Category changed to:', categoryId, 'Store types:', storeTypes);
   };
 
-  const handleNavigate = (itemId: string) => {
-    console.log('Navigate to:', itemId);
-    if (itemId === 'search') {
-      navigate('/search');
-    }
-  };
-
   const handleRequestLocation = () => {
     // Trigger a page reload to re-request location permission
     window.location.reload();
@@ -58,7 +50,7 @@ export const ExploreTrending: React.FC = () => {
         className="mt-4 px-3.5"
       />
 
-      <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4 pb-20">
+      <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
         {loading && (
           <div className="py-8">
             <LoadingSpinner />
@@ -93,8 +85,6 @@ export const ExploreTrending: React.FC = () => {
           />
         )}
       </main>
-
-      <BottomNavigation onNavigate={handleNavigate} />
     </div>
   );
 };
