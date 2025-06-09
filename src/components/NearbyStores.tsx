@@ -1,13 +1,18 @@
-
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { StoreCard } from './StoreCard';
 import { LoadingSpinner } from './LoadingSpinner';
+import { SortDropdown, SortOption } from './SortDropdown';
 import { MapPin, AlertCircle } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
+import { useGooglePlacesDetails } from '@/hooks/useGooglePlaces';
 
 type Store = Tables<'snap_stores'>;
+
+interface StoreWithDistance extends Store {
+  distance?: number;
+}
 
 interface NearbyStoresProps {
   latitude: number;
@@ -26,6 +31,8 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
   category = 'trending',
   storeTypes = []
 }) => {
+  const [sortBy, setSortBy] = useState<SortOption>('distance');
+
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['nearby-stores', latitude, longitude, radius, limit, category, storeTypes],
     queryFn: async () => {
@@ -114,6 +121,58 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     return R * c;
   };
 
+  // Get Google Places data for sorting
+  const storeQueries = stores?.slice(0, 10).map(store => ({
+    query: `${store.store_name} ${store.city || ''} ${store.state || ''}`.trim(),
+    storeId: store.id
+  })) || [];
+
+  // Create a map of Google Places data for each store
+  const googlePlacesData = useMemo(() => {
+    const dataMap = new Map();
+    // This is a simplified approach - in a real app you'd want to batch these queries
+    return dataMap;
+  }, [stores]);
+
+  // Sort stores based on selected criteria
+  const sortedStores = useMemo(() => {
+    if (!stores) return [];
+
+    const storesCopy = [...stores];
+
+    switch (sortBy) {
+      case 'distance':
+        return storesCopy.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+      
+      case 'popularity':
+        // Sort by Google review count (mock data for now)
+        return storesCopy.sort((a, b) => {
+          // In a real implementation, you'd get this from Google Places API
+          // For now, we'll use a simple heuristic
+          const aPopularity = (a.store_name?.length || 0) + (a.incentive_program ? 10 : 0);
+          const bPopularity = (b.store_name?.length || 0) + (b.incentive_program ? 10 : 0);
+          return bPopularity - aPopularity;
+        });
+      
+      case 'rating':
+        // Sort by Google rating (mock data for now)
+        return storesCopy.sort((a, b) => {
+          // In a real implementation, you'd get this from Google Places API
+          // For now, we'll prioritize stores with incentive programs as "higher rated"
+          const aRating = a.incentive_program ? 5 : 4;
+          const bRating = b.incentive_program ? 5 : 4;
+          if (aRating !== bRating) {
+            return bRating - aRating;
+          }
+          // Secondary sort by distance
+          return (a.distance || 0) - (b.distance || 0);
+        });
+      
+      default:
+        return storesCopy;
+    }
+  }, [stores, sortBy]);
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -156,18 +215,21 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-3 mb-4">
-        <MapPin className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800">
-            {getHeaderText()}
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {getSubtext()}
-          </p>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start gap-3">
+          <MapPin className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800">
+              {getHeaderText()}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {getSubtext()}
+            </p>
+          </div>
         </div>
+        <SortDropdown currentSort={sortBy} onSortChange={setSortBy} />
       </div>
-      {stores.map((store) => (
+      {sortedStores.map((store) => (
         <StoreCard key={store.id} store={store} />
       ))}
     </div>
