@@ -54,7 +54,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       name: 'Bakery', 
       icon: '🥖',
       activeIcon: '🥖',
-      storeTypes: ['Bakery'] 
+      storeTypes: ['Bakery'],
+      namePatterns: ['Bakery', 'bakery', 'Bread', 'bread', 'Donut', 'donut', 'Pastry', 'pastry']
     },
     { 
       id: 'convenience', 
