@@ -22,6 +22,11 @@ export const ExploreTrending: React.FC = () => {
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
+  const handleLocationSearch = (lat: number, lng: number) => {
+    console.log('Location search:', lat, lng);
+    navigate('/search');
+  };
+
   const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
     setActiveCategory(categoryId);
     setSelectedStoreTypes(storeTypes || []);
@@ -40,6 +45,7 @@ export const ExploreTrending: React.FC = () => {
         <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
           <SearchBar 
             onSearch={handleSearch}
+            onLocationSearch={handleLocationSearch}
             className="mt-4"
             placeholder="Search stores, food, or location..."
           />
@@ -104,6 +110,7 @@ export const ExploreTrending: React.FC = () => {
               <div className="max-w-2xl mx-auto">
                 <SearchBar 
                   onSearch={handleSearch}
+                  onLocationSearch={handleLocationSearch}
                   placeholder="Search stores, food, or enter an address..."
                   className="text-lg"
                 />

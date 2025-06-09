@@ -19,6 +19,7 @@ export const StoreSearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState('trending');
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
+  const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
 
   // Update search query when URL parameter changes
@@ -28,12 +29,28 @@ export const StoreSearch: React.FC = () => {
   }, [searchParams]);
 
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, locationSearch],
     queryFn: async () => {
       let query = supabase
         .from('snap_stores')
         .select('*')
         .order('store_name');
+
+      // If location search is active, prioritize nearby stores
+      if (locationSearch) {
+        const { lat, lng } = locationSearch;
+        const radius = 25; // miles
+        const latDelta = radius / 69;
+        const lonDelta = radius / (69 * Math.cos(lat * Math.PI / 180));
+        
+        query = query
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .gte('latitude', lat - latDelta)
+          .lte('latitude', lat + latDelta)
+          .gte('longitude', lng - lonDelta)
+          .lte('longitude', lng + lonDelta);
+      }
 
       // Apply search query
       if (searchQuery.trim()) {
@@ -55,18 +72,52 @@ export const StoreSearch: React.FC = () => {
         throw error;
       }
       
-      return data || [];
+      let results = data || [];
+
+      // If location search is active, calculate distances and sort
+      if (locationSearch && results.length > 0) {
+        const { lat, lng } = locationSearch;
+        results = results
+          .map(store => ({
+            ...store,
+            distance: calculateDistance(lat, lng, store.latitude!, store.longitude!)
+          }))
+          .filter(store => store.distance <= 25)
+          .sort((a, b) => a.distance - b.distance);
+      }
+
+      return results;
     },
   });
 
+  // Calculate distance between two points using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    setLocationSearch(null); // Clear location search when doing text search
     // Update URL to reflect the new search
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query)}`, { replace: true });
     } else {
       navigate('/search', { replace: true });
     }
+  };
+
+  const handleLocationSearch = (latitude: number, longitude: number) => {
+    setLocationSearch({ lat: latitude, lng: longitude });
+    setSearchQuery(''); // Clear text search when doing location search
+    navigate('/search', { replace: true });
   };
 
   const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
@@ -93,6 +144,7 @@ export const StoreSearch: React.FC = () => {
         </div>
         <SearchBar 
           onSearch={handleSearch}
+          onLocationSearch={handleLocationSearch}
           placeholder="Search by store name, city, or zip code..."
           className="mb-4"
           initialValue={searchQuery}
@@ -124,6 +176,11 @@ export const StoreSearch: React.FC = () => {
         <div className="space-y-4">
           <p className="text-sm text-gray-600 mb-4">
             Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+            {locationSearch && (
+              <span className="ml-2 text-blue-600">
+                • Near your location
+              </span>
+            )}
             {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
               <span className="ml-2 text-blue-600">
                 • Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
