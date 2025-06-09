@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateDistance } from '@/utils/distanceUtils';
@@ -17,6 +16,7 @@ interface UseNearbyStoresProps {
   limit?: number;
   category?: string;
   storeTypes?: string[];
+  namePatterns?: string[];
 }
 
 export const useNearbyStores = ({
@@ -25,10 +25,11 @@ export const useNearbyStores = ({
   radius = 10,
   limit = 20,
   category = 'trending',
-  storeTypes = []
+  storeTypes = [],
+  namePatterns = []
 }: UseNearbyStoresProps) => {
   return useQuery({
-    queryKey: ['nearby-stores', latitude, longitude, radius, limit, category, storeTypes],
+    queryKey: ['nearby-stores', latitude, longitude, radius, limit, category, storeTypes, namePatterns],
     queryFn: async (): Promise<StoreWithDistance[]> => {
       // Calculate bounding box for rough filtering
       const latDelta = radius / 69; // Approximate miles to degrees
@@ -50,10 +51,24 @@ export const useNearbyStores = ({
         .lte('longitude', maxLon);
 
       // Apply category filters
-      if (category !== 'trending' && Array.isArray(storeTypes) && storeTypes.length > 0) {
-        // Create an OR condition for store types
-        const typeFilters = storeTypes.map(type => `store_type.ilike.%${type}%`).join(',');
-        query = query.or(typeFilters);
+      if (category !== 'trending' && (Array.isArray(storeTypes) && storeTypes.length > 0 || Array.isArray(namePatterns) && namePatterns.length > 0)) {
+        const filters = [];
+        
+        // Add store type filters
+        if (Array.isArray(storeTypes) && storeTypes.length > 0) {
+          const typeFilters = storeTypes.map(type => `store_type.ilike.%${type}%`);
+          filters.push(...typeFilters);
+        }
+        
+        // Add name pattern filters
+        if (Array.isArray(namePatterns) && namePatterns.length > 0) {
+          const nameFilters = namePatterns.map(pattern => `store_name.ilike.%${pattern}%`);
+          filters.push(...nameFilters);
+        }
+        
+        if (filters.length > 0) {
+          query = query.or(filters.join(','));
+        }
       }
 
       query = query.limit(limit * 2); // Get more results for better filtering

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -19,6 +18,7 @@ export const StoreSearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState('trending');
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
+  const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ export const StoreSearch: React.FC = () => {
   }, [searchParams]);
 
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, locationSearch],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch],
     queryFn: async () => {
       let query = supabase
         .from('snap_stores')
@@ -57,11 +57,25 @@ export const StoreSearch: React.FC = () => {
         query = query.or(`store_name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%,zip_code.ilike.%${searchQuery}%,state.ilike.%${searchQuery}%`);
       }
 
-      // Apply category filters (store types) - use partial matching like useNearbyStores
-      if (selectedStoreTypes.length > 0 && activeCategory !== 'trending') {
-        // Create an OR condition for store types using ilike for partial matching
-        const typeFilters = selectedStoreTypes.map(type => `store_type.ilike.%${type}%`).join(',');
-        query = query.or(typeFilters);
+      // Apply category filters (store types and name patterns)
+      if ((selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0) && activeCategory !== 'trending') {
+        const filters = [];
+        
+        // Add store type filters
+        if (selectedStoreTypes.length > 0) {
+          const typeFilters = selectedStoreTypes.map(type => `store_type.ilike.%${type}%`);
+          filters.push(...typeFilters);
+        }
+        
+        // Add name pattern filters
+        if (selectedNamePatterns.length > 0) {
+          const nameFilters = selectedNamePatterns.map(pattern => `store_name.ilike.%${pattern}%`);
+          filters.push(...nameFilters);
+        }
+        
+        if (filters.length > 0) {
+          query = query.or(filters.join(','));
+        }
       }
 
       // Limit results for performance
@@ -122,10 +136,11 @@ export const StoreSearch: React.FC = () => {
     navigate('/search', { replace: true });
   };
 
-  const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
+  const handleCategoryChange = (categoryId: string, storeTypes?: string[], namePatterns?: string[]) => {
     setActiveCategory(categoryId);
     setSelectedStoreTypes(storeTypes || []);
-    console.log('Category changed to:', categoryId, 'Store types:', storeTypes);
+    setSelectedNamePatterns(namePatterns || []);
+    console.log('Category changed to:', categoryId, 'Store types:', storeTypes, 'Name patterns:', namePatterns);
   };
 
   const handleFindStoresClick = () => {

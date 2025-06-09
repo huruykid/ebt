@@ -7,10 +7,11 @@ interface Category {
   icon: string;
   activeIcon?: string; // For colorful active state
   storeTypes?: string[]; // Map to actual store types in database
+  namePatterns?: string[]; // Additional name patterns to match
 }
 
 interface CategoryTabsProps {
-  onCategoryChange?: (categoryId: string, storeTypes?: string[]) => void;
+  onCategoryChange?: (categoryId: string, storeTypes?: string[], namePatterns?: string[]) => void;
   className?: string;
 }
 
@@ -67,7 +68,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       name: 'Dollar Stores', 
       icon: '💵',
       activeIcon: '💵',
-      storeTypes: ['Dollar Store', 'Discount Store'] 
+      storeTypes: ['Dollar Store', 'Discount Store'],
+      namePatterns: ['Dollar', 'dollar']
     }
   ];
 
@@ -75,7 +77,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     setActiveCategory(categoryId);
     const category = categories.find(c => c.id === categoryId);
     if (onCategoryChange) {
-      onCategoryChange(categoryId, category?.storeTypes);
+      onCategoryChange(categoryId, category?.storeTypes, category?.namePatterns);
     }
   };
 
