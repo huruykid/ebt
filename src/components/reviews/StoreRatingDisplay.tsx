@@ -31,7 +31,7 @@ export const StoreRatingDisplay: React.FC<StoreRatingDisplayProps> = ({
     return (
       <div className={`flex items-center gap-2 text-gray-500 ${className}`}>
         <StarRating rating={0} readonly size="sm" />
-        <span className="text-sm">No reviews yet</span>
+        <span className="text-sm">Be the first to review!</span>
       </div>
     );
   }

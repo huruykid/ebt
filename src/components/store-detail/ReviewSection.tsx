@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { ReviewList } from '@/components/reviews/ReviewList';
 import { StoreRatingDisplay } from '@/components/reviews/StoreRatingDisplay';
-import { Star, Plus } from 'lucide-react';
+import { Star, Edit } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -32,7 +32,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
             onClick={() => setShowReviewForm(!showReviewForm)}
             variant={showReviewForm ? "outline" : "default"}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Edit className="h-4 w-4 mr-2" />
             {showReviewForm ? 'Cancel' : 'Write Review'}
           </Button>
         </CardHeader>
