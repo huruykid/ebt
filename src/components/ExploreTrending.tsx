@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Header } from './Header';
 import { SearchBar } from './SearchBar';
 import { CategoryTabs } from './CategoryTabs';
 import { NearbyStores } from './NearbyStores';
@@ -39,8 +38,6 @@ export const ExploreTrending: React.FC = () => {
       {/* Mobile Layout */}
       <div className="md:hidden bg-neutral-100 flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
-          <Header className="self-center flex w-full max-w-[335px] items-stretch gap-5 justify-between" />
-          
           <SearchBar 
             onSearch={handleSearch}
             className="mt-4"
@@ -91,13 +88,6 @@ export const ExploreTrending: React.FC = () => {
 
       {/* Desktop Layout */}
       <div className="hidden md:block">
-        {/* Header */}
-        <div className="border-b bg-white">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <Header className="flex items-center justify-between" />
-          </div>
-        </div>
-
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
           <div className="max-w-7xl mx-auto px-6 py-12">
