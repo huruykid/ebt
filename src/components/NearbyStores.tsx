@@ -89,7 +89,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
         <div className="flex items-start gap-3">
           <MapPin className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-lg font-semibold text-gray-800">
               {getHeaderText()}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
