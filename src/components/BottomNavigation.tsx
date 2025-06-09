@@ -51,36 +51,38 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
       className={`flex w-full flex-col items-stretch text-[15px] font-normal whitespace-nowrap justify-center py-px border-[#979797] border-t bg-white ${className}`}
     >
       <div className="bg-blend-normal bg-white flex w-full flex-col items-stretch justify-center px-[34px] py-[15px] border-[#979797] border-t">
-        <nav className="flex items-center gap-10" role="navigation" aria-label="Main navigation">
-          {navItems.map((item) => {
-            const isActive = activeItem === item.id;
-            const IconComponent = item.icon;
-            
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`flex min-h-[54px] flex-col items-center justify-center transition-all duration-200 hover:opacity-80 ${
-                  isActive ? 'text-green-600' : 'text-[#757575]'
-                }`}
-                aria-label={`Navigate to ${item.label}`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <IconComponent 
-                  size={24} 
-                  strokeWidth={isActive ? 2.5 : 2}
-                  className={`mb-1 transition-all duration-200 ${
-                    isActive ? 'stroke-green-600' : 'stroke-[#757575]'
+        <nav className="flex items-center justify-center" role="navigation" aria-label="Main navigation">
+          <div className="flex items-center justify-between w-full max-w-xs">
+            {navItems.map((item) => {
+              const isActive = activeItem === item.id;
+              const IconComponent = item.icon;
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`flex flex-col items-center justify-center min-w-[60px] py-2 transition-all duration-200 hover:opacity-80 ${
+                    isActive ? 'text-green-600' : 'text-[#757575]'
                   }`}
-                />
-                <span className={`text-[10px] font-medium transition-colors duration-200 ${
-                  isActive ? 'text-green-600' : 'text-[#757575]'
-                }`}>
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
+                  aria-label={`Navigate to ${item.label}`}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <IconComponent 
+                    size={24} 
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={`mb-1 transition-all duration-200 ${
+                      isActive ? 'stroke-green-600' : 'stroke-[#757575]'
+                    }`}
+                  />
+                  <span className={`text-[10px] font-medium transition-colors duration-200 ${
+                    isActive ? 'text-green-600' : 'text-[#757575]'
+                  }`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </nav>
       </div>
     </footer>
