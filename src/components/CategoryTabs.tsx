@@ -5,6 +5,7 @@ interface Category {
   id: string;
   name: string;
   icon: string;
+  activeIcon?: string; // For colorful active state
   storeTypes?: string[]; // Map to actual store types in database
 }
 
@@ -23,42 +24,49 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     { 
       id: 'trending', 
       name: 'Trending', 
-      icon: 'https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/84a53db7192571e4f81ae7fea35d1049ed61331a?placeholderIfAbsent=true' 
+      icon: '🔥',
+      activeIcon: '🔥'
     },
     { 
       id: 'grocery', 
       name: 'Grocery Store', 
-      icon: '', 
+      icon: '🏪',
+      activeIcon: '🏪',
       storeTypes: ['Supermarket', 'Grocery Store', 'Supercenter'] 
     },
     { 
       id: 'fastfood', 
       name: 'Fast Food', 
-      icon: 'https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/25b026a8835e0580160584d741f3eb34bdd700ff?placeholderIfAbsent=true', 
+      icon: '🍔',
+      activeIcon: '🍔',
       storeTypes: ['Fast Food Restaurant', 'Restaurant'] 
     },
     { 
       id: 'hotmeals', 
       name: 'Hot Meals (RMP)', 
-      icon: '', 
+      icon: '🍽️',
+      activeIcon: '🍽️',
       storeTypes: ['Restaurant', 'Fast Food Restaurant', 'Cafeteria'] 
     },
     { 
       id: 'bakery', 
       name: 'Bakery', 
-      icon: 'https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/0e0eb0d8b84c0ff7b3c5f356798b854a2fead4f7?placeholderIfAbsent=true', 
+      icon: '🥖',
+      activeIcon: '🥖',
       storeTypes: ['Bakery'] 
     },
     { 
       id: 'convenience', 
       name: 'Corner Stores', 
-      icon: 'https://cdn.builder.io/api/v1/image/assets/107acf227ed0407ab298bbec90bffe3b/01efcd486066ad0e23741e85f7ef0e703475631b?placeholderIfAbsent=true', 
+      icon: '🏬',
+      activeIcon: '🏬',
       storeTypes: ['Convenience Store', 'Corner Store'] 
     },
     { 
       id: 'dollar', 
       name: 'Dollar Stores', 
-      icon: '', 
+      icon: '💵',
+      activeIcon: '💵',
       storeTypes: ['Dollar Store', 'Discount Store'] 
     }
   ];
@@ -78,41 +86,37 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         role="tablist"
         aria-label="Food categories"
       >
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => handleCategoryClick(category.id)}
-            className={`flex flex-col items-center min-w-[55px] px-2 py-2 transition-opacity hover:opacity-80 ${
-              activeCategory === category.id ? 'border-b-2 border-black' : ''
-            }`}
-            role="tab"
-            aria-selected={activeCategory === category.id}
-            aria-controls={`panel-${category.id}`}
-          >
-            {category.icon ? (
-              <img
-                src={category.icon}
-                alt={`${category.name} icon`}
-                className="w-[31px] h-[31px] object-contain mb-1"
-              />
-            ) : category.id === 'grocery' ? (
-              <div className="w-[31px] h-[31px] bg-green-100 rounded flex items-center justify-center mb-1">
-                <span className="text-green-600 font-bold text-xs">🏪</span>
+        {categories.map((category) => {
+          const isActive = activeCategory === category.id;
+          
+          return (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryClick(category.id)}
+              className={`flex flex-col items-center min-w-[55px] px-2 py-2 transition-all duration-200 hover:opacity-80 rounded-lg ${
+                isActive 
+                  ? 'bg-white shadow-sm border-2 border-primary/20 scale-105' 
+                  : 'hover:bg-white/50'
+              }`}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`panel-${category.id}`}
+            >
+              <div className={`w-[31px] h-[31px] flex items-center justify-center mb-1 transition-all duration-200 ${
+                isActive ? 'scale-110' : 'grayscale hover:grayscale-0'
+              }`}>
+                <span className="text-2xl">
+                  {isActive ? (category.activeIcon || category.icon) : category.icon}
+                </span>
               </div>
-            ) : category.id === 'hotmeals' ? (
-              <div className="w-[31px] h-[31px] bg-orange-100 rounded flex items-center justify-center mb-1">
-                <span className="text-orange-600 font-bold text-xs">🍽️</span>
-              </div>
-            ) : category.id === 'dollar' ? (
-              <div className="w-[31px] h-[31px] bg-black flex items-center justify-center mb-1 rounded">
-                <span className="text-white font-semibold text-xs">$1</span>
-              </div>
-            ) : null}
-            <span className="text-[10px] text-[#484848] font-bold text-center whitespace-nowrap">
-              {category.name}
-            </span>
-          </button>
-        ))}
+              <span className={`text-[10px] font-bold text-center whitespace-nowrap transition-colors duration-200 ${
+                isActive ? 'text-primary' : 'text-[#484848]'
+              }`}>
+                {category.name}
+              </span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
