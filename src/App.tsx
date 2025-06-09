@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
 import StoreDetail from "./pages/StoreDetail";
 import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,8 +32,7 @@ const AppContent = () => {
         navigate('/favorites');
         break;
       case 'profile':
-        // Navigate to profile page when implemented
-        console.log('Profile navigation - to be implemented');
+        navigate('/profile');
         break;
       default:
         break;
@@ -55,6 +54,7 @@ const AppContent = () => {
           <Route path="/search" element={<StoreSearch />} />
           <Route path="/store/:id" element={<StoreDetail />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
