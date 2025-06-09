@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
+import { ShareStore } from './ShareStore';
 import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -88,12 +89,13 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
       {/* Card Content */}
       <div className="p-6 relative">
-        {/* Favorite button - positioned independently */}
-        <div className="absolute top-4 right-4">
+        {/* Action buttons - positioned independently */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <ShareStore store={store} variant="icon" />
           <FavoriteButton storeId={store.id} variant="icon" />
         </div>
 
-        <div className="flex items-start justify-between mb-3 pr-12">
+        <div className="flex items-start justify-between mb-3 pr-20">
           <div className="flex-1">
             <Link 
               to={`/store/${store.id}`}

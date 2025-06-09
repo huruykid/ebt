@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +13,7 @@ import { StoreMap } from '@/components/store-detail/StoreMap';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { FavoriteButton } from '@/components/FavoriteButton';
+import { ShareStore } from '@/components/ShareStore';
 import { useGooglePlacesSearch, useGooglePlacesDetails } from '@/hooks/useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -130,7 +130,10 @@ export default function StoreDetailPage() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Search
               </Button>
-              <FavoriteButton storeId={store.id} />
+              <div className="flex gap-2">
+                <ShareStore store={store} />
+                <FavoriteButton storeId={store.id} />
+              </div>
             </div>
 
             <div className="space-y-6">
