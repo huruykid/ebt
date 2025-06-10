@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
+import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -58,8 +59,8 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
     <Card className="overflow-hidden">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <div>
-            <h1 className="heading-lg text-foreground mb-2">{store.store_name}</h1>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold text-foreground mb-2 truncate">{store.store_name}</h1>
             <div className="flex items-center gap-2 mb-3">
               {/* Google rating if available, otherwise placeholder */}
               <div className="flex items-center">
@@ -69,11 +70,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                     className={`h-5 w-5 ${
                       googlePlacesData?.rating && star <= googlePlacesData.rating
                         ? 'text-yellow-400 fill-current' 
-                        : 'text-muted'
+                        : 'text-gray-300 stroke-gray-400 stroke-2'
                     }`}
                   />
                 ))}
-                <span className="ml-2 text-muted-foreground body-sm">
+                <span className="ml-2 text-muted-foreground text-xs">
                   {googlePlacesData?.rating 
                     ? `${googlePlacesData.rating.toFixed(1)} (${googlePlacesData.user_ratings_total || 0} reviews)`
                     : 'No reviews yet'
@@ -114,7 +115,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 items-end">
+            <div className="flex items-center">
+              <FavoriteButton storeId={store.id} variant="icon" />
+            </div>
             <Button variant="outline" size="sm">
               Claim this Business
             </Button>
