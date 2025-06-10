@@ -7,7 +7,6 @@ import { StoreCard } from './StoreCard';
 import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
-import { ThemeToggle } from './ThemeToggle';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -22,15 +21,6 @@ export const StoreSearch: React.FC = () => {
   const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
-
-  // Apply dark mode by default to showcase Spotify design
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (!savedTheme) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    }
-  }, []);
 
   // Update search query when URL parameter changes
   useEffect(() => {
@@ -169,7 +159,6 @@ export const StoreSearch: React.FC = () => {
               Find SNAP Stores
             </button>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <SyncStoresButton />
             </div>
           </div>
