@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -79,7 +80,7 @@ export default function StoreDetailPage() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center">
           <LoadingSpinner />
         </div>
       </ProtectedRoute>
@@ -89,7 +90,7 @@ export default function StoreDetailPage() {
   if (error || !store) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-neutral-100 p-4">
+        <div className="min-h-screen bg-background p-4">
           <div className="max-w-4xl mx-auto">
             <Button 
               onClick={() => navigate('/search')} 
@@ -101,8 +102,8 @@ export default function StoreDetailPage() {
             </Button>
             <Card>
               <CardContent className="p-8 text-center">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Store Not Found</h2>
-                <p className="text-gray-600">The store you're looking for doesn't exist or may have been removed.</p>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Store Not Found</h2>
+                <p className="text-muted-foreground">The store you're looking for doesn't exist or may have been removed.</p>
               </CardContent>
             </Card>
           </div>
@@ -113,7 +114,7 @@ export default function StoreDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-neutral-100">
+      <div className="min-h-screen bg-background">
         {/* Store Photos at the top - full width */}
         <StorePhotos 
           photos={googlePlacesData?.photos} 

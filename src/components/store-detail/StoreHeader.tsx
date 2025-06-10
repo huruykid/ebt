@@ -38,13 +38,13 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
   const getStoreTypeColor = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
-        return 'bg-green-100 text-green-800';
+        return 'bg-primary/10 text-primary';
       case 'convenience store':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-secondary text-secondary-foreground';
       case 'grocery store':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-accent/10 text-accent-foreground';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -59,7 +59,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{store.store_name}</h1>
+            <h1 className="heading-lg text-foreground mb-2">{store.store_name}</h1>
             <div className="flex items-center gap-2 mb-3">
               {/* Google rating if available, otherwise placeholder */}
               <div className="flex items-center">
@@ -69,11 +69,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                     className={`h-5 w-5 ${
                       googlePlacesData?.rating && star <= googlePlacesData.rating
                         ? 'text-yellow-400 fill-current' 
-                        : 'text-gray-300'
+                        : 'text-muted'
                     }`}
                   />
                 ))}
-                <span className="ml-2 text-gray-600 text-sm">
+                <span className="ml-2 text-muted-foreground body-sm">
                   {googlePlacesData?.rating 
                     ? `${googlePlacesData.rating.toFixed(1)} (${googlePlacesData.user_ratings_total || 0} reviews)`
                     : 'No reviews yet'
@@ -83,31 +83,31 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
             </div>
             <div className="flex flex-wrap gap-2">
               {store.store_type && (
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getStoreTypeColor(store.store_type)}`}>
+                <span className={`inline-block px-3 py-1 rounded-spotify text-sm font-medium ${getStoreTypeColor(store.store_type)}`}>
                   {store.store_type}
                 </span>
               )}
               {store.incentive_program && (
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                <span className="inline-block px-3 py-1 rounded-spotify text-sm font-medium bg-primary/10 text-primary">
                   <Star className="h-3 w-3 inline mr-1" />
                   {store.incentive_program}
                 </span>
               )}
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              <span className="inline-block px-3 py-1 rounded-spotify text-sm font-medium bg-accent text-accent-foreground">
                 <Tag className="h-3 w-3 inline mr-1" />
                 EBT Accepted
               </span>
               {isRmpEnrolled && (
-                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                <span className="inline-block px-3 py-1 rounded-spotify text-sm font-medium bg-secondary text-secondary-foreground">
                   <Utensils className="h-3 w-3 inline mr-1" />
                   Hot Foods Accepted
                 </span>
               )}
               {isOpen !== undefined && (
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                <span className={`inline-block px-3 py-1 rounded-spotify text-sm font-medium ${
                   isOpen 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-primary/10 text-primary' 
+                    : 'bg-destructive/10 text-destructive'
                 }`}>
                   {isOpen ? 'Open Now' : 'Closed'}
                 </span>
@@ -118,25 +118,25 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
             <Button variant="outline" size="sm">
               Claim this Business
             </Button>
-            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
               Report a Problem
             </Button>
           </div>
         </div>
 
         {/* Quick Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-gray-200">
-          <div className="flex items-center gap-2 text-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-border">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" />
-            <span className="text-sm">{formatAddress() || 'Address not available'}</span>
+            <span className="body-sm">{formatAddress() || 'Address not available'}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Phone className="h-4 w-4" />
-            <span className="text-sm">
+            <span className="body-sm">
               {googlePlacesData?.formatted_phone_number || 'Phone coming soon'}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-muted-foreground">
             {googlePlacesData?.website ? (
               <>
                 <Globe className="h-4 w-4" />
@@ -144,7 +144,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                   href={googlePlacesData.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="body-sm text-primary hover:text-primary/80"
                 >
                   Visit Website
                 </a>
@@ -152,7 +152,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
             ) : (
               <>
                 <Clock className="h-4 w-4" />
-                <span className="text-sm">
+                <span className="body-sm">
                   {isOpen !== undefined 
                     ? (isOpen ? 'Open Now' : 'Closed') 
                     : 'Hours coming soon'

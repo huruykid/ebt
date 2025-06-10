@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Store, Star, ExternalLink } from 'lucide-react';
@@ -40,13 +41,13 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const getStoreTypeColor = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
-        return 'bg-green-100 text-green-800';
+        return 'bg-primary/10 text-primary';
       case 'convenience store':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-secondary text-secondary-foreground';
       case 'grocery store':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-accent/10 text-accent-foreground';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -79,7 +80,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const fullAddress = formatAddress();
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow overflow-hidden">
+    <div className="bg-card rounded-spotify-lg border border-border hover:shadow-lg transition-shadow overflow-hidden">
       {/* Store Photo */}
       <StorePhoto 
         storeName={store.store_name}
@@ -100,36 +101,36 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             <Link 
               to={`/store/${store.id}`}
               onClick={handleStoreClick}
-              className="text-lg font-semibold text-gray-900 mb-1 hover:text-blue-600 transition-colors block"
+              className="heading-sm text-foreground mb-1 hover:text-primary transition-colors block"
             >
               {store.store_name}
             </Link>
             <div className="flex items-center gap-2 flex-wrap mb-2">
               {store.store_type && (
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
+                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-spotify text-xs font-medium ${getStoreTypeColor(store.store_type)}`}>
                   <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
                   {store.store_type}
                 </span>
               )}
               {store.distance !== undefined && (
-                <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                <div className="bg-accent/10 text-accent-foreground px-2 py-1 rounded-spotify text-xs font-medium">
                   {store.distance.toFixed(1)} mi
                 </div>
               )}
             </div>
             <StoreRatingDisplay storeId={store.id} className="mb-2" />
           </div>
-          <Store className="h-6 w-6 text-gray-400 ml-2 flex-shrink-0" />
+          <Store className="h-6 w-6 text-muted-foreground ml-2 flex-shrink-0" />
         </div>
 
         <div className="space-y-2">
           {fullAddress && (
-            <div className="flex items-start gap-2 text-sm text-gray-600">
-              <MapPin className="h-4 w-4 mt-0.5 text-gray-400 flex-shrink-0" />
+            <div className="flex items-start gap-2 body-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 mt-0.5 text-muted flex-shrink-0" />
               <div className="flex-1">
                 <span>{fullAddress}</span>
                 {!hasCompleteAddress && (
-                  <div className="text-amber-600 text-xs mt-1">
+                  <div className="text-destructive caption mt-1">
                     ⚠️ Address may be incomplete
                   </div>
                 )}
@@ -139,25 +140,25 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
           {store.incentive_program && (
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-medium text-yellow-700">
+              <Star className="h-4 w-4 text-primary" />
+              <span className="body-sm font-medium text-primary">
                 {store.incentive_program}
               </span>
             </div>
           )}
 
           {store.grantee_name && (
-            <div className="text-sm text-gray-500">
+            <div className="body-sm text-muted-foreground">
               <span className="font-medium">Operated by:</span> {store.grantee_name}
             </div>
           )}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+        <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
           <Link
             to={`/store/${store.id}`}
             onClick={handleStoreClick}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+            className="body-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
           >
             View Details
             <ExternalLink className="h-3 w-3" />
@@ -169,7 +170,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
                 const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
                 window.open(url, '_blank');
               }}
-              className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+              className="body-sm text-muted-foreground hover:text-foreground font-medium"
             >
               View on Map →
             </button>
