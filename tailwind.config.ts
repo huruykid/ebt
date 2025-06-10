@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,46 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Spotify-specific color additions
+				spotify: {
+					green: '#1db954',
+					'green-dark': '#1ed760',
+					'green-light': '#1fdf64',
+					black: '#191414',
+					'dark-gray': '#121212',
+					'medium-gray': '#282828',
+					'light-gray': '#b3b3b3',
+					white: '#ffffff'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				// Spotify-style rounded corners
+				'spotify': '8px',
+				'spotify-lg': '12px',
+				'spotify-xl': '16px'
+			},
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				display: ['Inter', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				// Spotify-inspired typography scale
+				'display-xl': ['4rem', { lineHeight: '1.1', fontWeight: '700' }],
+				'display-lg': ['3.5rem', { lineHeight: '1.1', fontWeight: '700' }],
+				'display-md': ['3rem', { lineHeight: '1.2', fontWeight: '700' }],
+				'display-sm': ['2.5rem', { lineHeight: '1.2', fontWeight: '700' }],
+				'heading-xl': ['2rem', { lineHeight: '1.3', fontWeight: '600' }],
+				'heading-lg': ['1.75rem', { lineHeight: '1.3', fontWeight: '600' }],
+				'heading-md': ['1.5rem', { lineHeight: '1.4', fontWeight: '600' }],
+				'heading-sm': ['1.25rem', { lineHeight: '1.4', fontWeight: '600' }],
+				'body-lg': ['1.125rem', { lineHeight: '1.6', fontWeight: '400' }],
+				'body-md': ['1rem', { lineHeight: '1.6', fontWeight: '400' }],
+				'body-sm': ['0.875rem', { lineHeight: '1.5', fontWeight: '400' }],
+				'caption': ['0.75rem', { lineHeight: '1.4', fontWeight: '400' }],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +119,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				// Spotify-style animations
+				'pulse-spotify': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '.8' }
+				},
+				'slide-up': {
+					'0%': { transform: 'translateY(10px)', opacity: '0' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-spotify': 'pulse-spotify 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'slide-up': 'slide-up 0.3s ease-out'
 			}
 		}
 	},
