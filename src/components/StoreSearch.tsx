@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { StoreCard } from './StoreCard';
 import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
+import { Search, MapPin, Sparkles } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -148,71 +150,105 @@ export const StoreSearch: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="w-full max-w-4xl mx-auto p-4">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+        {/* Enhanced Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
             <button 
               onClick={handleFindStoresClick}
-              className="heading-lg text-foreground hover:text-primary transition-colors cursor-pointer"
+              className="heading-lg gradient-text hover:scale-105 transition-transform duration-300 cursor-pointer flex items-center gap-2"
             >
+              <Search className="h-8 w-8 text-primary animate-bounce-gentle" />
               Find SNAP Stores
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <SyncStoresButton />
             </div>
           </div>
-          <SearchBar 
-            onSearch={handleSearch}
-            onLocationSearch={handleLocationSearch}
-            placeholder="Search by store name, city, or zip code..."
-            className="mb-4"
-            initialValue={searchQuery}
-          />
+          
+          {/* Enhanced Search Bar Container */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-info/20 rounded-spotify-xl blur-lg"></div>
+            <div className="relative card-gradient border-2 border-primary/20 rounded-spotify-xl p-1">
+              <SearchBar 
+                onSearch={handleSearch}
+                onLocationSearch={handleLocationSearch}
+                placeholder="🔍 Search by store name, city, or zip code..."
+                className="border-0 bg-transparent"
+                initialValue={searchQuery}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Use CategoryTabs instead of StoreFilters */}
-        <div className="mb-6">
-          <CategoryTabs 
-            onCategoryChange={handleCategoryChange}
-          />
+        {/* Enhanced Category Tabs */}
+        <div className="mb-8">
+          <div className="card-gradient rounded-spotify-xl p-4 border-2 border-accent/20">
+            <CategoryTabs 
+              onCategoryChange={handleCategoryChange}
+            />
+          </div>
         </div>
 
-        {isLoading && <LoadingSpinner />}
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <div className="relative">
+              <LoadingSpinner />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-info rounded-full blur-lg opacity-20 animate-glow"></div>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="text-center py-8">
-            <p className="text-destructive">Error loading stores. Please try again.</p>
+            <div className="card-gradient rounded-spotify-xl p-6 border-2 border-destructive/20">
+              <p className="text-destructive font-semibold">⚠️ Error loading stores. Please try again.</p>
+            </div>
           </div>
         )}
 
         {stores && stores.length === 0 && !isLoading && (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">No stores found. Try adjusting your search or filters.</p>
+            <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-muted-foreground text-lg">No stores found. Try adjusting your search or filters.</p>
+            </div>
           </div>
         )}
 
         {stores && stores.length > 0 && (
-          <div className="space-y-4">
-            <p className="body-sm text-muted-foreground mb-4">
-              Found {stores.length} store{stores.length !== 1 ? 's' : ''}
-              {locationSearch && (
-                <span className="ml-2 text-primary">
-                  • Near your location
-                </span>
-              )}
-              {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
-                <span className="ml-2 text-primary">
-                  • Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
-                </span>
-              )}
-            </p>
-            {stores.map((store) => (
-              <StoreCard 
-                key={store.id}
-                store={store}
-              />
-            ))}
+          <div className="space-y-6">
+            {/* Enhanced Results Header */}
+            <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-success animate-bounce-gentle" />
+                <p className="body-md font-semibold text-success">
+                  Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+                </p>
+                {locationSearch && (
+                  <div className="flex items-center gap-1 ml-2">
+                    <MapPin className="h-4 w-4 text-info" />
+                    <span className="text-info font-medium">Near your location</span>
+                  </div>
+                )}
+                {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
+                  <span className="ml-2 px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
+                    Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            {/* Enhanced Store Grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+              {stores.map((store) => (
+                <StoreCard 
+                  key={store.id}
+                  store={store}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
