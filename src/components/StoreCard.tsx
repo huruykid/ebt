@@ -101,13 +101,13 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         )}
       </div>
 
-      {/* Card Content - Following the specified layout */}
-      <div className="p-6 space-y-3">
+      {/* Card Content - Mobile First Layout */}
+      <div className="p-4 sm:p-6 space-y-3">
         {/* Store Title */}
         <Link 
           to={`/store/${store.id}`}
           onClick={handleStoreClick}
-          className="heading-sm text-foreground hover:text-primary transition-colors block gradient-text font-bold"
+          className="heading-sm text-foreground hover:text-primary transition-colors block gradient-text font-bold line-clamp-1"
         >
           {store.store_name}
         </Link>
@@ -118,26 +118,24 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         {/* Store Type and EBT Tags */}
         <div className="flex items-center gap-2 flex-wrap">
           {store.store_type && (
-            <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 transition-all duration-200 hover:scale-105 ${getStoreTypeColor(store.store_type)}`}>
+            <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 transition-all duration-200 hover:scale-105 ${getStoreTypeColor(store.store_type)}`}>
               <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
               {store.store_type}
             </span>
           )}
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground border-accent/30">
+          <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground border-accent/30">
             EBT Accepted
           </span>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Link
-            to={`/store/${store.id}`}
-            onClick={handleStoreClick}
-            className="btn-spotify-outline body-sm flex items-center gap-2 px-4 py-2 rounded-spotify-lg font-semibold flex-1 justify-center"
-          >
-            Claim this Business
-          </Link>
-        </div>
+        <Link
+          to={`/store/${store.id}`}
+          onClick={handleStoreClick}
+          className="btn-spotify-outline body-sm flex items-center gap-2 px-3 sm:px-4 py-2 rounded-spotify-lg font-semibold w-full justify-center text-center"
+        >
+          Claim this Business
+        </Link>
         
         <button className="body-sm text-destructive hover:text-destructive/80 font-semibold hover:scale-105 transition-all duration-200 px-2 w-full text-left">
           Report a Problem
@@ -146,13 +144,13 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         {/* Separator */}
         <div className="border-t border-gradient-to-r from-primary/20 via-accent/20 to-info/20 my-3"></div>
 
-        {/* Address, Phone, Hours, Website */}
+        {/* Contact Information */}
         <div className="space-y-2">
           {fullAddress && (
             <div className="flex items-start gap-2 body-sm text-muted-foreground">
               <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-              <div className="flex-1">
-                <span>{fullAddress}</span>
+              <div className="flex-1 min-w-0">
+                <span className="break-words">{fullAddress}</span>
                 {!hasCompleteAddress && (
                   <div className="text-warning caption mt-1 flex items-center gap-1">
                     ⚠️ Address may be incomplete

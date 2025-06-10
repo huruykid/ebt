@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,7 +23,6 @@ interface StoreHeaderProps {
 }
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
-  // ... keep existing code (formatAddress function)
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
@@ -35,7 +35,6 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
     return parts.join(', ');
   };
 
-  // ... keep existing code (getStoreTypeColor function)
   const getStoreTypeColor = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
@@ -60,7 +59,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-foreground mb-2 truncate whitespace-nowrap overflow-hidden">{store.store_name}</h1>
+            <h1 className="text-xl font-bold text-foreground mb-2">{store.store_name}</h1>
             <div className="flex flex-col gap-1 mb-3">
               {/* Google rating if available, otherwise placeholder */}
               <div className="flex items-center">
