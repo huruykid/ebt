@@ -7,6 +7,7 @@ import { StoreCard } from './StoreCard';
 import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
+import { ThemeToggle } from './ThemeToggle';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -21,6 +22,15 @@ export const StoreSearch: React.FC = () => {
   const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
   const navigate = useNavigate();
+
+  // Apply dark mode by default to showcase Spotify design
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  }, []);
 
   // Update search query when URL parameter changes
   useEffect(() => {
@@ -148,70 +158,75 @@ export const StoreSearch: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <button 
-            onClick={handleFindStoresClick}
-            className="text-2xl font-bold text-gray-800 hover:text-blue-600 transition-colors cursor-pointer"
-          >
-            Find SNAP Stores
-          </button>
-          <SyncStoresButton />
+    <div className="min-h-screen bg-background">
+      <div className="w-full max-w-4xl mx-auto p-4">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <button 
+              onClick={handleFindStoresClick}
+              className="heading-lg text-foreground hover:text-primary transition-colors cursor-pointer"
+            >
+              Find SNAP Stores
+            </button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <SyncStoresButton />
+            </div>
+          </div>
+          <SearchBar 
+            onSearch={handleSearch}
+            onLocationSearch={handleLocationSearch}
+            placeholder="Search by store name, city, or zip code..."
+            className="mb-4"
+            initialValue={searchQuery}
+          />
         </div>
-        <SearchBar 
-          onSearch={handleSearch}
-          onLocationSearch={handleLocationSearch}
-          placeholder="Search by store name, city, or zip code..."
-          className="mb-4"
-          initialValue={searchQuery}
-        />
+
+        {/* Use CategoryTabs instead of StoreFilters */}
+        <div className="mb-6">
+          <CategoryTabs 
+            onCategoryChange={handleCategoryChange}
+          />
+        </div>
+
+        {isLoading && <LoadingSpinner />}
+
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-destructive">Error loading stores. Please try again.</p>
+          </div>
+        )}
+
+        {stores && stores.length === 0 && !isLoading && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No stores found. Try adjusting your search or filters.</p>
+          </div>
+        )}
+
+        {stores && stores.length > 0 && (
+          <div className="space-y-4">
+            <p className="body-sm text-muted-foreground mb-4">
+              Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+              {locationSearch && (
+                <span className="ml-2 text-primary">
+                  • Near your location
+                </span>
+              )}
+              {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
+                <span className="ml-2 text-primary">
+                  • Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
+                </span>
+              )}
+            </p>
+            {stores.map((store) => (
+              <StoreCard 
+                key={store.id}
+                store={store}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Use CategoryTabs instead of StoreFilters */}
-      <div className="mb-6">
-        <CategoryTabs 
-          onCategoryChange={handleCategoryChange}
-        />
-      </div>
-
-      {isLoading && <LoadingSpinner />}
-
-      {error && (
-        <div className="text-center py-8">
-          <p className="text-red-600">Error loading stores. Please try again.</p>
-        </div>
-      )}
-
-      {stores && stores.length === 0 && !isLoading && (
-        <div className="text-center py-8">
-          <p className="text-gray-600">No stores found. Try adjusting your search or filters.</p>
-        </div>
-      )}
-
-      {stores && stores.length > 0 && (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 mb-4">
-            Found {stores.length} store{stores.length !== 1 ? 's' : ''}
-            {locationSearch && (
-              <span className="ml-2 text-blue-600">
-                • Near your location
-              </span>
-            )}
-            {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
-              <span className="ml-2 text-blue-600">
-                • Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
-              </span>
-            )}
-          </p>
-          {stores.map((store) => (
-            <StoreCard 
-              key={store.id}
-              store={store}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };

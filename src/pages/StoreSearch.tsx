@@ -6,7 +6,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 export default function StoreSearchPage() {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-neutral-100">
+      <div className="min-h-screen bg-background">
         <StoreSearch />
       </div>
     </ProtectedRoute>
