@@ -101,7 +101,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         )}
       </div>
 
-      {/* Card Content */}
+      {/* Card Content - Following the specified layout */}
       <div className="p-6 space-y-3">
         {/* Store Title */}
         <Link 
@@ -112,7 +112,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           {store.store_name}
         </Link>
 
-        {/* Stars */}
+        {/* Star Rating */}
         <StoreRatingDisplay storeId={store.id} />
 
         {/* Store Type and EBT Tags */}
@@ -137,10 +137,11 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           >
             Claim this Business
           </Link>
-          <button className="body-sm text-destructive hover:text-destructive/80 font-semibold hover:scale-105 transition-all duration-200 px-2">
-            Report a Problem
-          </button>
         </div>
+        
+        <button className="body-sm text-destructive hover:text-destructive/80 font-semibold hover:scale-105 transition-all duration-200 px-2 w-full text-left">
+          Report a Problem
+        </button>
 
         {/* Separator */}
         <div className="border-t border-gradient-to-r from-primary/20 via-accent/20 to-info/20 my-3"></div>
@@ -177,7 +178,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           </div>
         </div>
 
-        {/* Bottom Actions - Add to Favorites and Share */}
+        {/* Add to Favorites and Share Store */}
         <div className="flex gap-2 pt-2">
           <FavoriteButton storeId={store.id} className="flex-1" />
           <ShareStore store={store} variant="button" />
