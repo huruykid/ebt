@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Store, Star, ExternalLink, Sparkles } from 'lucide-react';
+import { MapPin, Store, Star, ExternalLink, Sparkles, Phone, Clock, Globe } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
@@ -102,41 +102,51 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
       </div>
 
       {/* Card Content */}
-      <div className="p-6 relative">
-        {/* Action buttons - positioned independently */}
-        <div className="absolute top-4 right-4 flex gap-2">
-          <ShareStore store={store} variant="icon" />
-          <FavoriteButton storeId={store.id} variant="icon" />
+      <div className="p-6 space-y-3">
+        {/* Store Title */}
+        <Link 
+          to={`/store/${store.id}`}
+          onClick={handleStoreClick}
+          className="heading-sm text-foreground hover:text-primary transition-colors block gradient-text font-bold"
+        >
+          {store.store_name}
+        </Link>
+
+        {/* Stars */}
+        <StoreRatingDisplay storeId={store.id} />
+
+        {/* Store Type and EBT Tags */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {store.store_type && (
+            <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 transition-all duration-200 hover:scale-105 ${getStoreTypeColor(store.store_type)}`}>
+              <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
+              {store.store_type}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground border-accent/30">
+            EBT Accepted
+          </span>
         </div>
 
-        <div className="flex items-start justify-between mb-3 pr-20">
-          <div className="flex-1">
-            <Link 
-              to={`/store/${store.id}`}
-              onClick={handleStoreClick}
-              className="heading-sm text-foreground mb-1 hover:text-primary transition-colors block gradient-text font-bold"
-            >
-              {store.store_name}
-            </Link>
-            <div className="flex items-center gap-2 flex-wrap mb-2">
-              {store.store_type && (
-                <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 transition-all duration-200 hover:scale-105 ${getStoreTypeColor(store.store_type)}`}>
-                  <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
-                  {store.store_type}
-                </span>
-              )}
-              {store.distance !== undefined && (
-                <div className="bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 border-accent/30 animate-pulse-spotify">
-                  📍 {store.distance.toFixed(1)} mi
-                </div>
-              )}
-            </div>
-            <StoreRatingDisplay storeId={store.id} className="mb-2" />
-          </div>
-          <Store className="h-6 w-6 text-primary/60 ml-2 flex-shrink-0" />
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Link
+            to={`/store/${store.id}`}
+            onClick={handleStoreClick}
+            className="btn-spotify-outline body-sm flex items-center gap-2 px-4 py-2 rounded-spotify-lg font-semibold flex-1 justify-center"
+          >
+            Claim this Business
+          </Link>
+          <button className="body-sm text-destructive hover:text-destructive/80 font-semibold hover:scale-105 transition-all duration-200 px-2">
+            Report a Problem
+          </button>
         </div>
 
-        <div className="space-y-3">
+        {/* Separator */}
+        <div className="border-t border-gradient-to-r from-primary/20 via-accent/20 to-info/20 my-3"></div>
+
+        {/* Address, Phone, Hours, Website */}
+        <div className="space-y-2">
           {fullAddress && (
             <div className="flex items-start gap-2 body-sm text-muted-foreground">
               <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
@@ -151,44 +161,53 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             </div>
           )}
 
-          {store.incentive_program && (
-            <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-spotify border border-primary/20">
-              <Star className="h-4 w-4 text-primary animate-bounce-gentle" />
-              <span className="body-sm font-semibold text-primary">
-                {store.incentive_program}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 body-sm text-muted-foreground">
+            <Phone className="h-4 w-4 text-primary flex-shrink-0" />
+            <span>Phone coming soon</span>
+          </div>
 
-          {store.grantee_name && (
-            <div className="body-sm text-muted-foreground p-2 bg-muted/50 rounded-spotify">
-              <span className="font-semibold text-foreground">Operated by:</span> {store.grantee_name}
-            </div>
-          )}
+          <div className="flex items-center gap-2 body-sm text-muted-foreground">
+            <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+            <span>Hours coming soon</span>
+          </div>
+
+          <div className="flex items-center gap-2 body-sm text-muted-foreground">
+            <Globe className="h-4 w-4 text-primary flex-shrink-0" />
+            <span>Website coming soon</span>
+          </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-gradient-to-r from-primary/20 via-accent/20 to-info/20 flex items-center justify-between">
-          <Link
-            to={`/store/${store.id}`}
-            onClick={handleStoreClick}
-            className="btn-spotify-outline body-sm flex items-center gap-2 px-4 py-2 rounded-spotify-lg font-semibold"
-          >
-            View Details
-            <ExternalLink className="h-3 w-3" />
-          </Link>
-          
-          {store.latitude && store.longitude && (
-            <button
-              onClick={() => {
-                const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
-                window.open(url, '_blank');
-              }}
-              className="body-sm text-info hover:text-info/80 font-semibold hover:scale-105 transition-all duration-200"
-            >
-              View on Map →
-            </button>
-          )}
+        {/* Bottom Actions - Add to Favorites and Share */}
+        <div className="flex gap-2 pt-2">
+          <FavoriteButton storeId={store.id} className="flex-1" />
+          <ShareStore store={store} variant="button" />
         </div>
+
+        {/* Distance and Incentive Program Info */}
+        {(store.distance !== undefined || store.incentive_program) && (
+          <div className="space-y-2 pt-2 border-t border-muted/20">
+            {store.distance !== undefined && (
+              <div className="bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 border-accent/30 animate-pulse-spotify">
+                📍 {store.distance.toFixed(1)} mi away
+              </div>
+            )}
+            
+            {store.incentive_program && (
+              <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-spotify border border-primary/20">
+                <Star className="h-4 w-4 text-primary animate-bounce-gentle" />
+                <span className="body-sm font-semibold text-primary">
+                  {store.incentive_program}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {store.grantee_name && (
+          <div className="body-sm text-muted-foreground p-2 bg-muted/50 rounded-spotify">
+            <span className="font-semibold text-foreground">Operated by:</span> {store.grantee_name}
+          </div>
+        )}
       </div>
     </div>
   );
