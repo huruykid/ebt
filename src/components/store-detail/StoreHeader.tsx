@@ -1,9 +1,7 @@
-
 import React from 'react';
-import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils, Heart } from 'lucide-react';
+import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -24,6 +22,7 @@ interface StoreHeaderProps {
 }
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
+  // ... keep existing code (formatAddress function)
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
@@ -36,6 +35,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
     return parts.join(', ');
   };
 
+  // ... keep existing code (getStoreTypeColor function)
   const getStoreTypeColor = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
@@ -60,8 +60,8 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-foreground mb-2 truncate">{store.store_name}</h1>
-            <div className="flex items-center gap-2 mb-3">
+            <h1 className="text-xl font-bold text-foreground mb-2 truncate whitespace-nowrap overflow-hidden">{store.store_name}</h1>
+            <div className="flex flex-col gap-1 mb-3">
               {/* Google rating if available, otherwise placeholder */}
               <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -74,13 +74,17 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                     }`}
                   />
                 ))}
-                <span className="ml-2 text-muted-foreground text-xs">
-                  {googlePlacesData?.rating 
-                    ? `${googlePlacesData.rating.toFixed(1)} (${googlePlacesData.user_ratings_total || 0} reviews)`
-                    : 'No reviews yet'
-                  }
-                </span>
+                {googlePlacesData?.rating && (
+                  <span className="ml-2 text-muted-foreground text-xs">
+                    {googlePlacesData.rating.toFixed(1)} ({googlePlacesData.user_ratings_total || 0} reviews)
+                  </span>
+                )}
               </div>
+              {!googlePlacesData?.rating && (
+                <span className="text-muted-foreground text-xs">
+                  No reviews yet
+                </span>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               {store.store_type && (
@@ -116,9 +120,6 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
             </div>
           </div>
           <div className="flex flex-col gap-2 items-end">
-            <div className="flex items-center">
-              <FavoriteButton storeId={store.id} variant="icon" />
-            </div>
             <Button variant="outline" size="sm">
               Claim this Business
             </Button>
