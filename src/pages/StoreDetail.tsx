@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -42,6 +41,7 @@ export default function StoreDetailPage() {
         throw error;
       }
       
+      console.log('📦 Store data loaded:', data);
       return data;
     },
     enabled: !!id,
@@ -117,10 +117,11 @@ export default function StoreDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        {/* Store Photos at the top - full width */}
+        {/* Store Photos at the top - full width with Yelp integration */}
         <StorePhotos 
           photos={[]} // No photos from OSM, keeping interface for future enhancement
           storeName={store.store_name} 
+          store={store}
         />
         
         <div className="p-4">

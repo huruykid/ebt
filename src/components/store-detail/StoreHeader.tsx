@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,12 +24,24 @@ interface StoreHeaderProps {
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
   // Fetch Yelp data for this store
-  const { data: yelpData } = useYelpBusiness(
+  const { data: yelpData, isLoading: yelpLoading, error: yelpError } = useYelpBusiness(
     store.store_name,
     store.latitude || 0,
     store.longitude || 0,
     !!(store.latitude && store.longitude)
   );
+
+  // Add debugging logs
+  console.log('🏪 Store data:', { 
+    name: store.store_name, 
+    lat: store.latitude, 
+    lng: store.longitude 
+  });
+  console.log('📊 Yelp data state:', { 
+    data: yelpData, 
+    loading: yelpLoading, 
+    error: yelpError 
+  });
 
   const formatAddress = () => {
     const parts = [
@@ -71,6 +82,25 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
+        {/* Debug info - show loading state */}
+        {yelpLoading && (
+          <div className="mb-2 p-2 bg-blue-50 text-blue-700 text-sm rounded">
+            🔄 Loading Yelp data...
+          </div>
+        )}
+        
+        {yelpError && (
+          <div className="mb-2 p-2 bg-red-50 text-red-700 text-sm rounded">
+            ❌ Error loading Yelp data: {yelpError.message}
+          </div>
+        )}
+
+        {yelpData && (
+          <div className="mb-2 p-2 bg-green-50 text-green-700 text-sm rounded">
+            ✅ Yelp data loaded: {yelpData.name} (Rating: {yelpData.rating})
+          </div>
+        )}
+
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold text-foreground mb-2">{store.store_name}</h1>
@@ -96,7 +126,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
               </div>
               {!rating && (
                 <span className="text-muted-foreground text-xs">
-                  No reviews yet
+                  {yelpLoading ? 'Loading reviews...' : 'No reviews yet'}
                 </span>
               )}
             </div>
@@ -157,7 +187,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           <div className="flex items-center gap-2 text-muted-foreground">
             <Phone className="h-4 w-4 flex-shrink-0" />
             <span className="body-sm">
-              {phone || 'Phone coming soon'}
+              {phone || (yelpLoading ? 'Loading phone...' : 'Phone coming soon')}
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -179,7 +209,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
                 <span className="body-sm">
                   {isOpen !== undefined 
                     ? (isOpen ? 'Open Now' : 'Closed') 
-                    : 'Hours coming soon'
+                    : (yelpLoading ? 'Loading hours...' : 'Hours coming soon')
                   }
                 </span>
               </>

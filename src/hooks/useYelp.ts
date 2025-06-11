@@ -52,12 +52,16 @@ export const useYelpBusiness = (
   return useQuery({
     queryKey: ['yelp-business', cacheKey],
     queryFn: async (): Promise<YelpBusiness | null> => {
+      console.log('🔍 Fetching Yelp data for:', { storeName, latitude, longitude });
+      
       // Check cache first
       if (yelpCache.has(cacheKey)) {
+        console.log('📦 Using cached Yelp data for:', storeName);
         return yelpCache.get(cacheKey) || null;
       }
 
       try {
+        console.log('🌐 Making API call to yelp-search function...');
         const { data, error } = await supabase.functions.invoke('yelp-search', {
           body: {
             term: storeName,
@@ -70,22 +74,27 @@ export const useYelpBusiness = (
         });
 
         if (error) {
-          console.error('Error calling yelp-search function:', error);
+          console.error('❌ Error calling yelp-search function:', error);
           return null;
         }
 
+        console.log('✅ Yelp API response:', data);
+
         if (data && data.businesses && data.businesses.length > 0) {
           const business = data.businesses[0];
+          console.log('🏪 Found Yelp business:', business);
           
           // Cache the result
           yelpCache.set(cacheKey, business);
           
           return business;
+        } else {
+          console.log('❌ No businesses found in Yelp response');
         }
 
         return null;
       } catch (error) {
-        console.error('Error fetching Yelp data:', error);
+        console.error('💥 Error fetching Yelp data:', error);
         return null;
       }
     },
