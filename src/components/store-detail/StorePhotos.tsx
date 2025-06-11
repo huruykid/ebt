@@ -4,6 +4,8 @@ import { Camera, Upload, Image, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AddPhotoModal } from './modals/AddPhotoModal';
+import { ShareStore } from '@/components/ShareStore';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -39,6 +41,18 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
             <ArrowLeft className="h-4 w-4 text-foreground" />
           </Button>
         </div>
+
+        {/* Share and Favorite Buttons - Top Right */}
+        {store && (
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+            <div className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-md p-1">
+              <FavoriteButton storeId={store.id} variant="icon" />
+            </div>
+            <div className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-md">
+              <ShareStore store={store} variant="icon" />
+            </div>
+          </div>
+        )}
 
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-20">

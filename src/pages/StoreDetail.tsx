@@ -7,13 +7,11 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
-import { ShareStore } from '@/components/ShareStore';
-import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -93,14 +91,6 @@ export default function StoreDetailPage() {
         
         <div className="relative -mt-8 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Navigation Bar - Only Share and Favorite buttons now */}
-            <div className="flex items-center justify-end mb-6 bg-background/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border">
-              <div className="flex items-center gap-2">
-                <FavoriteButton storeId={store.id} variant="icon" />
-                <ShareStore store={store} />
-              </div>
-            </div>
-
             {/* Main Content */}
             <div className="space-y-6">
               {/* Store Header */}
