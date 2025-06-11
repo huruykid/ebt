@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
 import StoreDetail from "./pages/StoreDetail";
+import Mission from "./pages/Mission";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -27,6 +29,9 @@ const AppContent = () => {
         break;
       case 'search':
         navigate('/search');
+        break;
+      case 'mission':
+        navigate('/mission');
         break;
       case 'favorites':
         navigate('/favorites');
@@ -53,6 +58,7 @@ const AppContent = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/search" element={<StoreSearch />} />
           <Route path="/store/:id" element={<StoreDetail />} />
+          <Route path="/mission" element={<Mission />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

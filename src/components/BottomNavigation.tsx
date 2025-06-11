@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Home, Search, Heart, User } from 'lucide-react';
+import { Home, Search, Heart, User, Target } from 'lucide-react';
 
 interface NavItem {
   id: string;
@@ -26,6 +26,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
+    if (path === '/mission') return 'mission';
     if (path === '/favorites') return 'favorites';
     if (path === '/profile') return 'profile';
     return 'home'; // default fallback
@@ -36,6 +37,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   const navItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'search', label: 'Search', icon: Search },
+    { id: 'mission', label: 'Mission', icon: Target },
     { id: 'favorites', label: 'Favorites', icon: Heart },
     { id: 'profile', label: 'Profile', icon: User }
   ];
@@ -52,7 +54,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     >
       <div className="bg-blend-normal bg-white flex w-full flex-col items-stretch justify-center px-[34px] py-[15px] border-[#979797] border-t">
         <nav className="flex items-center justify-center" role="navigation" aria-label="Main navigation">
-          <div className="flex items-center justify-between w-full max-w-xs">
+          <div className="flex items-center justify-between w-full max-w-md">
             {navItems.map((item) => {
               const isActive = activeItem === item.id;
               const IconComponent = item.icon;
@@ -61,20 +63,20 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`flex flex-col items-center justify-center min-w-[60px] py-2 transition-all duration-200 hover:opacity-80 ${
+                  className={`flex flex-col items-center justify-center min-w-[50px] py-2 transition-all duration-200 hover:opacity-80 ${
                     isActive ? 'text-green-600' : 'text-[#757575]'
                   }`}
                   aria-label={`Navigate to ${item.label}`}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <IconComponent 
-                    size={24} 
+                    size={22} 
                     strokeWidth={isActive ? 2.5 : 2}
                     className={`mb-1 transition-all duration-200 ${
                       isActive ? 'stroke-green-600' : 'stroke-[#757575]'
                     }`}
                   />
-                  <span className={`text-[10px] font-medium transition-colors duration-200 ${
+                  <span className={`text-[9px] font-medium transition-colors duration-200 ${
                     isActive ? 'text-green-600' : 'text-[#757575]'
                   }`}>
                     {item.label}

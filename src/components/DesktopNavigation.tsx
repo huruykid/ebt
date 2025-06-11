@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, X, Home, Search, Heart, User } from 'lucide-react';
+import { Menu, X, Home, Search, Heart, User, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -20,6 +20,7 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
+    if (path === '/mission') return 'mission';
     if (path === '/favorites') return 'favorites';
     if (path === '/profile') return 'profile';
     return 'home'; // default fallback
@@ -30,6 +31,7 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'search', label: 'Search', icon: Search },
+    { id: 'mission', label: 'Mission', icon: Target },
     { id: 'favorites', label: 'Favorites', icon: Heart },
     { id: 'profile', label: 'Profile', icon: User }
   ];
