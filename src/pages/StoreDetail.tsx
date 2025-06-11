@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,8 +13,6 @@ import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { ShareStore } from '@/components/ShareStore';
-import { useNominatimSearch, useNominatimReverse } from '@/hooks/useNominatimSearch';
-import { convertNominatimToGooglePlaces } from '@/types/nominatimTypes';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -46,38 +45,6 @@ export default function StoreDetailPage() {
     },
     enabled: !!id,
   });
-
-  // Create search query for Nominatim
-  const searchQuery = useMemo(() => {
-    if (!store) return '';
-    
-    const parts = [
-      store.store_name,
-      store.store_street_address,
-      store.city,
-      store.state
-    ].filter(Boolean);
-    
-    return parts.join(' ');
-  }, [store]);
-
-  // Search for the store on Nominatim
-  const { data: searchResults } = useNominatimSearch(
-    searchQuery,
-    !!store && !!searchQuery
-  );
-
-  // Get detailed location information from Nominatim reverse geocoding
-  const { data: nominatimData } = useNominatimReverse(
-    store?.latitude || 0,
-    store?.longitude || 0,
-    !!(store?.latitude && store?.longitude)
-  );
-
-  // Convert Nominatim data to Google Places compatible format
-  const compatibleData = useMemo(() => {
-    return convertNominatimToGooglePlaces(nominatimData);
-  }, [nominatimData]);
 
   if (isLoading) {
     return (
@@ -117,9 +84,8 @@ export default function StoreDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        {/* Store Photos at the top - full width with Yelp integration */}
+        {/* Store Photos at the top - community-focused */}
         <StorePhotos 
-          photos={[]} // No photos from OSM, keeping interface for future enhancement
           storeName={store.store_name} 
           store={store}
         />
@@ -140,21 +106,18 @@ export default function StoreDetailPage() {
             </div>
 
             <div className="space-y-6">
-              {/* Store Header without cover photo */}
-              <StoreHeader store={store} googlePlacesData={compatibleData} />
+              {/* Store Header - community-focused */}
+              <StoreHeader store={store} />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content - Reviews Section taking full width */}
+                {/* Main Content - Reviews Section */}
                 <div className="lg:col-span-2">
                   <ReviewSection store={store} />
                 </div>
 
-                {/* Enhanced Sidebar */}
+                {/* Community Info Sidebar */}
                 <div className="lg:col-span-1">
-                  <EnhancedStoreInfo 
-                    store={store} 
-                    googlePlacesData={compatibleData} 
-                  />
+                  <EnhancedStoreInfo store={store} />
                 </div>
               </div>
             </div>
