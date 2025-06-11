@@ -30,9 +30,41 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
     !!(store?.latitude && store?.longitude)
   );
 
+  console.log('📸 StorePhotos - Yelp data:', yelpData);
+
   // Get all available photos from Yelp
-  const photos = yelpData?.photos || [];
+  // Yelp provides photos array + main image_url
+  const photos = React.useMemo(() => {
+    if (!yelpData) return [];
+    
+    const allPhotos = [];
+    
+    // Add main image first if it exists
+    if (yelpData.image_url) {
+      allPhotos.push(yelpData.image_url);
+    }
+    
+    // Add additional photos from photos array
+    if (yelpData.photos && Array.isArray(yelpData.photos)) {
+      // Filter out duplicates and add remaining photos
+      yelpData.photos.forEach(photo => {
+        if (!allPhotos.includes(photo)) {
+          allPhotos.push(photo);
+        }
+      });
+    }
+    
+    console.log('📸 All photos compiled:', allPhotos);
+    return allPhotos;
+  }, [yelpData]);
+
   const hasPhotos = photos.length > 0;
+
+  console.log('📸 StorePhotos render:', { 
+    hasPhotos, 
+    photosCount: photos.length, 
+    yelpDataExists: !!yelpData 
+  });
 
   const openImageDialog = (index: number) => {
     setSelectedImageIndex(index);
@@ -63,6 +95,13 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
                       src={photoUrl}
                       alt={`${storeName} - Image ${index + 1}`}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      onError={(e) => {
+                        console.error('❌ Image failed to load:', photoUrl);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                      onLoad={() => {
+                        console.log('✅ Image loaded successfully:', photoUrl);
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4">
