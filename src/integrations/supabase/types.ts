@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      badges: {
+        Row: {
+          badge_type: Database["public"]["Enums"]["badge_type"]
+          contributions_required: number | null
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          name: string
+          points_required: number | null
+        }
+        Insert: {
+          badge_type: Database["public"]["Enums"]["badge_type"]
+          contributions_required?: number | null
+          created_at?: string | null
+          description: string
+          icon?: string | null
+          id?: string
+          name: string
+          points_required?: number | null
+        }
+        Update: {
+          badge_type?: Database["public"]["Enums"]["badge_type"]
+          contributions_required?: number | null
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          points_required?: number | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -207,6 +240,76 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_points: {
+        Row: {
+          contribution_type: Database["public"]["Enums"]["contribution_type"]
+          created_at: string | null
+          description: string | null
+          id: string
+          points_earned: number
+          store_id: number | null
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          contribution_type: Database["public"]["Enums"]["contribution_type"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points_earned?: number
+          store_id?: number | null
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          contribution_type?: Database["public"]["Enums"]["contribution_type"]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points_earned?: number
+          store_id?: number | null
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       store_review_stats: {
@@ -225,12 +328,42 @@ export type Database = {
           },
         ]
       }
+      user_stats: {
+        Row: {
+          hours_count: number | null
+          photos_count: number | null
+          reviews_count: number | null
+          stores_contributed_to: number | null
+          total_contributions: number | null
+          total_points: number | null
+          user_id: string | null
+          verified_contributions: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      check_and_award_badges: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      badge_type:
+        | "neighborhood_scout"
+        | "snap_hero"
+        | "photo_contributor"
+        | "reviewer"
+        | "info_verifier"
+        | "community_helper"
+      contribution_type:
+        | "store_hours"
+        | "store_photo"
+        | "store_review"
+        | "store_tag"
+        | "contact_info"
+        | "report_incorrect_info"
+        | "verify_info"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -345,6 +478,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      badge_type: [
+        "neighborhood_scout",
+        "snap_hero",
+        "photo_contributor",
+        "reviewer",
+        "info_verifier",
+        "community_helper",
+      ],
+      contribution_type: [
+        "store_hours",
+        "store_photo",
+        "store_review",
+        "store_tag",
+        "contact_info",
+        "report_incorrect_info",
+        "verify_info",
+      ],
+    },
   },
 } as const

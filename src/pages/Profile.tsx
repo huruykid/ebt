@@ -1,25 +1,29 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { UserProfileInfo } from '@/components/profile/UserProfileInfo';
 import { UserReviews } from '@/components/profile/UserReviews';
 import { AccountSettings } from '@/components/profile/AccountSettings';
 import { AppPreferences } from '@/components/profile/AppPreferences';
 import { SupportLinks } from '@/components/profile/SupportLinks';
+import { PointsDisplay } from '@/components/gamification/PointsDisplay';
+import { UserBadges } from '@/components/gamification/UserBadges';
+import { useGameification } from '@/hooks/useGameification';
 import { useFavorites } from '@/hooks/useFavorites';
-import { User, Settings, MessageSquare, Heart, HelpCircle, LogOut } from 'lucide-react';
+import { User, Settings, MessageSquare, Heart, HelpCircle, LogOut, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
-type ProfileSection = 'info' | 'reviews' | 'settings' | 'preferences' | 'support';
+type ProfileSection = 'info' | 'reviews' | 'settings' | 'preferences' | 'support' | 'gamification';
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const { favorites } = useFavorites();
+  const { userStats, userBadges, allBadges } = useGameification();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState<ProfileSection>('info');
@@ -43,6 +47,7 @@ export default function ProfilePage() {
 
   const sectionItems = [
     { id: 'info' as ProfileSection, label: 'Profile Info', icon: User },
+    { id: 'gamification' as ProfileSection, label: 'Points & Badges', icon: Trophy },
     { id: 'reviews' as ProfileSection, label: 'My Reviews', icon: MessageSquare },
     { id: 'settings' as ProfileSection, label: 'Account Settings', icon: Settings },
     { id: 'preferences' as ProfileSection, label: 'App Preferences', icon: Settings },
@@ -53,6 +58,17 @@ export default function ProfilePage() {
     switch (activeSection) {
       case 'info':
         return <UserProfileInfo />;
+      case 'gamification':
+        return (
+          <div className="space-y-6">
+            <PointsDisplay userStats={userStats} />
+            <UserBadges 
+              userBadges={userBadges} 
+              allBadges={allBadges} 
+              userStats={userStats} 
+            />
+          </div>
+        );
       case 'reviews':
         return <UserReviews />;
       case 'settings':
@@ -95,6 +111,11 @@ export default function ProfilePage() {
                     <p className="text-gray-600">
                       {favorites.length} favorites saved
                     </p>
+                    {userStats && (
+                      <div className="mt-2">
+                        <PointsDisplay userStats={userStats} compact={true} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
