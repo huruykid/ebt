@@ -79,7 +79,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             
             {/* Rating and Review Count */}
             <div className="flex items-center gap-2 mt-1">
-              <StoreRatingDisplay storeId={store.id} showText={false} />
+              <StoreRatingDisplay storeId={store.id} />
               <span className="text-sm text-muted-foreground">No reviews yet</span>
             </div>
           </div>
@@ -144,8 +144,8 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
           {/* Favorites and Share - Bottom row */}
           <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
-            <FavoriteButton storeId={store.id} variant="minimal" />
-            <ShareStore store={store} variant="minimal" />
+            <FavoriteButton storeId={store.id} variant="icon" />
+            <ShareStore store={store} variant="icon" />
           </div>
 
           {/* Special Programs */}
