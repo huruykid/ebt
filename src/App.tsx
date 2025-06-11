@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { BottomNavigation } from "@/components/BottomNavigation";
-import { DesktopNavigation } from "@/components/DesktopNavigation";
+import { HeaderNavigation } from "@/components/HeaderNavigation";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
@@ -46,9 +46,9 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Desktop navigation - hamburger menu */}
-      <div className="hidden md:block fixed top-4 left-4 z-50">
-        <DesktopNavigation onNavigate={handleNavigate} />
+      {/* Header navigation - desktop and mobile */}
+      <div className="hidden md:block">
+        <HeaderNavigation onNavigate={handleNavigate} />
       </div>
 
       {/* Main content area with responsive bottom padding */}
