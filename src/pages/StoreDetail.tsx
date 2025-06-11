@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
-import { StoreMap } from '@/components/store-detail/StoreMap';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { ShareStore } from '@/components/ShareStore';
@@ -143,9 +142,6 @@ export default function StoreDetailPage() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Reviews Section */}
                   <ReviewSection store={store} />
-
-                  {/* Map Section */}
-                  <StoreMap store={store} />
                 </div>
 
                 {/* Enhanced Sidebar */}
