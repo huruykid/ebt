@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { StoreCard } from './StoreCard';
-import type { StoreWithGoogleData } from '@/hooks/useStoreGoogleData';
+import type { StoreWithLocationData } from '@/types/storeTypes';
 
 interface StoreListProps {
-  stores: StoreWithGoogleData[];
+  stores: StoreWithLocationData[];
 }
 
 export const StoreList: React.FC<StoreListProps> = ({ stores }) => {

@@ -14,6 +14,7 @@ import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { ShareStore } from '@/components/ShareStore';
 import { useNominatimSearch, useNominatimReverse } from '@/hooks/useNominatimSearch';
+import { convertNominatimToGooglePlaces } from '@/types/nominatimTypes';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -72,6 +73,11 @@ export default function StoreDetailPage() {
     store?.longitude || 0,
     !!(store?.latitude && store?.longitude)
   );
+
+  // Convert Nominatim data to Google Places compatible format
+  const compatibleData = useMemo(() => {
+    return convertNominatimToGooglePlaces(nominatimData);
+  }, [nominatimData]);
 
   if (isLoading) {
     return (
@@ -134,7 +140,7 @@ export default function StoreDetailPage() {
 
             <div className="space-y-6">
               {/* Store Header without cover photo */}
-              <StoreHeader store={store} googlePlacesData={nominatimData} />
+              <StoreHeader store={store} googlePlacesData={compatibleData} />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content - Reviews Section taking full width */}
@@ -146,7 +152,7 @@ export default function StoreDetailPage() {
                 <div className="lg:col-span-1">
                   <EnhancedStoreInfo 
                     store={store} 
-                    googlePlacesData={nominatimData} 
+                    googlePlacesData={compatibleData} 
                   />
                 </div>
               </div>
