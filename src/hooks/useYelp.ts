@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -44,8 +45,14 @@ export interface YelpSearchResponse {
   total: number;
 }
 
-// Cache for Yelp data to avoid repeat API calls
-const yelpCache = new Map<string, YelpBusiness>();
+// Enhanced cache with expiration to reduce API calls
+const yelpCache = new Map<string, { data: YelpBusiness | null; timestamp: number }>();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+// Function to check if cache is valid
+const isCacheValid = (timestamp: number): boolean => {
+  return Date.now() - timestamp < CACHE_DURATION;
+};
 
 // Function to generate multiple search terms including address
 const generateSearchTerms = (storeName: string, address?: string, city?: string): string[] => {
@@ -173,10 +180,11 @@ export const useYelpBusiness = (
         city 
       });
       
-      // Check cache first
-      if (yelpCache.has(cacheKey)) {
+      // Check cache first with expiration
+      const cached = yelpCache.get(cacheKey);
+      if (cached && isCacheValid(cached.timestamp)) {
         console.log('📦 Using cached Yelp data for:', storeName);
-        return yelpCache.get(cacheKey) || null;
+        return cached.data;
       }
 
       try {
@@ -205,6 +213,12 @@ export const useYelpBusiness = (
 
           if (searchError) {
             console.error('❌ Error calling yelp-search function:', searchError);
+            
+            // Check if it's a rate limit error
+            if (searchError.message?.includes('429') || searchError.message?.includes('rate limit')) {
+              console.warn('⚠️ Yelp API rate limit reached, stopping further requests');
+              break;
+            }
             continue;
           }
 
@@ -217,6 +231,10 @@ export const useYelpBusiness = (
             if (bestMatch) {
               business = bestMatch;
               console.log('🏪 Found best matching Yelp business:', business);
+              
+              // Use search result photos directly (no need for details API call)
+              business.photos = business.image_url ? [business.image_url] : [];
+              
               break;
             }
           }
@@ -224,47 +242,40 @@ export const useYelpBusiness = (
         
         if (!business) {
           console.log('❌ No suitable businesses found for any search terms');
-          return null;
         }
         
-        // Now get business details for more photos
-        try {
-          console.log('📸 Fetching business details for more photos...');
-          const { data: detailsData, error: detailsError } = await supabase.functions.invoke('yelp-business-details', {
-            body: {
-              business_id: business.id
-            }
-          });
-
-          if (!detailsError && detailsData && detailsData.photos) {
-            console.log('📸 Got additional photos from details API:', detailsData.photos);
-            business.photos = detailsData.photos;
-          } else {
-            console.log('📸 No additional photos available, using main image only');
-            // Fallback to just the main image
-            business.photos = business.image_url ? [business.image_url] : [];
-          }
-        } catch (detailsError) {
-          console.log('📸 Details API error, using main image only:', detailsError);
-          business.photos = business.image_url ? [business.image_url] : [];
-        }
-        
-        // Cache the result
-        yelpCache.set(cacheKey, business);
+        // Cache the result with timestamp
+        yelpCache.set(cacheKey, { 
+          data: business, 
+          timestamp: Date.now() 
+        });
         
         return business;
       } catch (error) {
         console.error('💥 Error fetching Yelp data:', error);
+        
+        // Cache null result to avoid repeated failures
+        yelpCache.set(cacheKey, { 
+          data: null, 
+          timestamp: Date.now() 
+        });
+        
         return null;
       }
     },
     enabled: enabled && !!storeName && !!latitude && !!longitude,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    retry: 1,
+    retry: (failureCount, error) => {
+      // Don't retry on rate limit errors
+      if (error?.message?.includes('429') || error?.message?.includes('rate limit')) {
+        return false;
+      }
+      return failureCount < 1; // Only retry once
+    },
   });
 };
 
-// Hook for lazy loading multiple stores
+// Hook for lazy loading multiple stores - optimized for API limits
 export const useYelpBusinessBatch = (
   stores: Array<{
     id: number;
@@ -279,14 +290,15 @@ export const useYelpBusinessBatch = (
     queryFn: async (): Promise<Map<number, YelpBusiness>> => {
       const results = new Map<number, YelpBusiness>();
       
-      // Process stores in small batches to respect rate limits
-      for (const store of stores.slice(0, 3)) { // Limit to 3 stores per batch
+      // Process only 2 stores per batch to respect rate limits
+      for (const store of stores.slice(0, 2)) {
         const cacheKey = `${store.store_name}-${store.latitude}-${store.longitude}`;
         
-        if (yelpCache.has(cacheKey)) {
-          const cached = yelpCache.get(cacheKey);
-          if (cached) {
-            results.set(store.id, cached);
+        // Check cache with expiration
+        const cached = yelpCache.get(cacheKey);
+        if (cached && isCacheValid(cached.timestamp)) {
+          if (cached.data) {
+            results.set(store.id, cached.data);
           }
           continue;
         }
@@ -305,14 +317,31 @@ export const useYelpBusinessBatch = (
 
           if (!error && data && data.businesses && data.businesses.length > 0) {
             const business = data.businesses[0];
-            yelpCache.set(cacheKey, business);
+            business.photos = business.image_url ? [business.image_url] : [];
+            
+            yelpCache.set(cacheKey, { 
+              data: business, 
+              timestamp: Date.now() 
+            });
             results.set(store.id, business);
+          } else {
+            // Cache null result
+            yelpCache.set(cacheKey, { 
+              data: null, 
+              timestamp: Date.now() 
+            });
           }
 
-          // Small delay between requests to respect rate limits
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // Longer delay between requests to respect rate limits
+          await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
           console.error(`Error fetching Yelp data for store ${store.id}:`, error);
+          
+          // Stop batch processing on rate limit
+          if (error?.message?.includes('429') || error?.message?.includes('rate limit')) {
+            console.warn('⚠️ Rate limit reached, stopping batch processing');
+            break;
+          }
         }
       }
 
@@ -320,6 +349,6 @@ export const useYelpBusinessBatch = (
     },
     enabled: enabled && stores.length > 0,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    retry: 1,
+    retry: false, // Don't retry batch operations
   });
 };
