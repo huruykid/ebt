@@ -13,7 +13,7 @@ export const StoreList: React.FC<StoreListProps> = ({ stores }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {stores.map((store) => (
         <StoreCard key={store.id} store={store} />
       ))}

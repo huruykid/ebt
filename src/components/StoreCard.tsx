@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Store, Star, ExternalLink, Sparkles, Phone, Clock, Globe } from 'lucide-react';
+import { MapPin, Star, Phone, Clock, Globe, ExternalLink } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
@@ -29,10 +29,8 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
-      store.additional_address,
       store.city,
-      store.state,
-      store.zip_code
+      store.state
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -41,172 +39,127 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const getStoreTypeColor = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
-        return 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary border-primary/30';
+        return 'bg-primary/10 text-primary border-primary/20';
       case 'convenience store':
-        return 'bg-gradient-to-r from-info/20 to-info/10 text-info border-info/30';
+        return 'bg-info/10 text-info border-info/20';
       case 'grocery store':
-        return 'bg-gradient-to-r from-success/20 to-success/10 text-success border-success/30';
+        return 'bg-success/10 text-success border-success/20';
       default:
-        return 'bg-gradient-to-r from-accent/20 to-accent/10 text-accent-foreground border-accent/30';
+        return 'bg-muted/50 text-muted-foreground border-muted/30';
     }
-  };
-
-  const getStoreTypeIcon = (type: string | null) => {
-    const lowerType = type?.toLowerCase() || '';
-    
-    if (lowerType.includes('supermarket') || lowerType.includes('grocery') || lowerType.includes('supercenter')) {
-      return '🏪';
-    }
-    if (lowerType.includes('restaurant') || lowerType.includes('fast food')) {
-      return '🍔';
-    }
-    if (lowerType.includes('cafeteria')) {
-      return '🍽️';
-    }
-    if (lowerType.includes('bakery')) {
-      return '🥖';
-    }
-    if (lowerType.includes('convenience') || lowerType.includes('corner')) {
-      return '🏬';
-    }
-    if (lowerType.includes('dollar') || lowerType.includes('discount')) {
-      return '💵';
-    }
-    
-    return '🏪'; // Default icon
   };
 
   const hasCompleteAddress = store.store_street_address && store.city;
   const fullAddress = formatAddress();
 
   return (
-    <div className="card-gradient hover-lift rounded-spotify-lg border-2 border-primary/10 hover:border-primary/30 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-      {/* Store Photo with overlay gradient */}
-      <div className="relative">
-        <StorePhoto 
-          storeName={store.store_name}
-          address={fullAddress}
-          className="w-full h-32 object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-        
-        {/* Special badge for incentive programs */}
-        {store.incentive_program && (
-          <div className="absolute top-2 left-2">
-            <div className="bg-gradient-to-r from-warning to-warning/80 text-warning-foreground px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-lg">
-              <Sparkles className="h-3 w-3" />
-              Special Program
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Card Content - Mobile First Layout */}
-      <div className="p-4 sm:p-6 space-y-3">
-        {/* Store Title */}
-        <Link 
-          to={`/store/${store.id}`}
-          onClick={handleStoreClick}
-          className="heading-sm text-foreground hover:text-primary transition-colors block gradient-text font-bold line-clamp-1"
-        >
-          {store.store_name}
-        </Link>
-
-        {/* Star Rating */}
-        <StoreRatingDisplay storeId={store.id} />
-
-        {/* Store Type and EBT Tags */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {store.store_type && (
-            <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 transition-all duration-200 hover:scale-105 ${getStoreTypeColor(store.store_type)}`}>
-              <span className="text-sm">{getStoreTypeIcon(store.store_type)}</span>
-              {store.store_type}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground border-accent/30">
-            EBT Accepted
-          </span>
+    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
+      {/* Yelp-style horizontal layout */}
+      <div className="flex">
+        {/* Store Photo - Left side */}
+        <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
+          <StorePhoto 
+            storeName={store.store_name}
+            address={fullAddress}
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        {/* Action Buttons */}
-        <Link
-          to={`/store/${store.id}`}
-          onClick={handleStoreClick}
-          className="btn-spotify-outline body-sm flex items-center gap-2 px-3 sm:px-4 py-2 rounded-spotify-lg font-semibold w-full justify-center text-center"
-        >
-          Claim this Business
-        </Link>
-        
-        <button className="body-sm text-destructive hover:text-destructive/80 font-semibold hover:scale-105 transition-all duration-200 px-2 w-full text-left">
-          Report a Problem
-        </button>
+        {/* Content - Right side */}
+        <div className="flex-1 p-4 min-w-0">
+          {/* Store Title and Rating */}
+          <div className="mb-2">
+            <Link 
+              to={`/store/${store.id}`}
+              onClick={handleStoreClick}
+              className="text-lg font-semibold text-foreground hover:text-primary transition-colors block truncate"
+            >
+              {store.store_name}
+            </Link>
+            
+            {/* Rating and Review Count */}
+            <div className="flex items-center gap-2 mt-1">
+              <StoreRatingDisplay storeId={store.id} showText={false} />
+              <span className="text-sm text-muted-foreground">No reviews yet</span>
+            </div>
+          </div>
 
-        {/* Separator */}
-        <div className="border-t border-gradient-to-r from-primary/20 via-accent/20 to-info/20 my-3"></div>
+          {/* Store Type and EBT Tags */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {store.store_type && (
+              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.store_type)}`}>
+                {store.store_type}
+              </span>
+            )}
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
+              EBT Accepted
+            </span>
+          </div>
 
-        {/* Contact Information */}
-        <div className="space-y-2">
-          {fullAddress && (
-            <div className="flex items-start gap-2 body-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <span className="break-words">{fullAddress}</span>
-                {!hasCompleteAddress && (
-                  <div className="text-warning caption mt-1 flex items-center gap-1">
-                    ⚠️ Address may be incomplete
-                  </div>
+          {/* Action Buttons */}
+          <div className="flex gap-2 mb-3">
+            <Link
+              to={`/store/${store.id}`}
+              onClick={handleStoreClick}
+              className="text-xs text-primary hover:text-primary/80 font-medium"
+            >
+              Claim this Business
+            </Link>
+            <span className="text-xs text-muted-foreground">•</span>
+            <button className="text-xs text-destructive hover:text-destructive/80 font-medium">
+              Report a Problem
+            </button>
+          </div>
+
+          {/* Separator */}
+          <div className="border-t border-border mb-3"></div>
+
+          {/* Contact Information - Yelp style */}
+          <div className="space-y-1 text-sm text-muted-foreground">
+            {fullAddress && (
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span className="truncate">{fullAddress}</span>
+                {store.distance !== undefined && (
+                  <span className="text-xs whitespace-nowrap">• {store.distance.toFixed(1)} mi</span>
                 )}
               </div>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 body-sm text-muted-foreground">
-            <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-            <span>Phone coming soon</span>
-          </div>
-
-          <div className="flex items-center gap-2 body-sm text-muted-foreground">
-            <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-            <span>Hours coming soon</span>
-          </div>
-
-          <div className="flex items-center gap-2 body-sm text-muted-foreground">
-            <Globe className="h-4 w-4 text-primary flex-shrink-0" />
-            <span>Website coming soon</span>
-          </div>
-        </div>
-
-        {/* Add to Favorites and Share Store */}
-        <div className="flex gap-2 pt-2">
-          <FavoriteButton storeId={store.id} className="flex-1" />
-          <ShareStore store={store} variant="button" />
-        </div>
-
-        {/* Distance and Incentive Program Info */}
-        {(store.distance !== undefined || store.incentive_program) && (
-          <div className="space-y-2 pt-2 border-t border-muted/20">
-            {store.distance !== undefined && (
-              <div className="bg-gradient-to-r from-accent/30 to-accent/20 text-accent-foreground px-3 py-1.5 rounded-spotify-lg text-xs font-semibold border-2 border-accent/30 animate-pulse-spotify">
-                📍 {store.distance.toFixed(1)} mi away
-              </div>
             )}
-            
-            {store.incentive_program && (
-              <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-primary/10 to-accent/10 rounded-spotify border border-primary/20">
-                <Star className="h-4 w-4 text-primary animate-bounce-gentle" />
-                <span className="body-sm font-semibold text-primary">
+
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 flex-shrink-0" />
+              <span>Phone coming soon</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 flex-shrink-0" />
+              <span>Hours coming soon</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 flex-shrink-0" />
+              <span>Website coming soon</span>
+            </div>
+          </div>
+
+          {/* Favorites and Share - Bottom row */}
+          <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
+            <FavoriteButton storeId={store.id} variant="minimal" />
+            <ShareStore store={store} variant="minimal" />
+          </div>
+
+          {/* Special Programs */}
+          {store.incentive_program && (
+            <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10">
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 text-primary" />
+                <span className="text-xs font-medium text-primary">
                   {store.incentive_program}
                 </span>
               </div>
-            )}
-          </div>
-        )}
-
-        {store.grantee_name && (
-          <div className="body-sm text-muted-foreground p-2 bg-muted/50 rounded-spotify">
-            <span className="font-semibold text-foreground">Operated by:</span> {store.grantee_name}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
