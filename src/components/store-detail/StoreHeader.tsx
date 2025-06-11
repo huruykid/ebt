@@ -128,14 +128,14 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           </div>
         </div>
 
-        {/* Quick Info */}
+        {/* Quick Info - Properly centered */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-border">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="h-4 w-4" />
+            <MapPin className="h-4 w-4 flex-shrink-0" />
             <span className="body-sm">{formatAddress() || 'Address not available'}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="h-4 w-4" />
+            <Phone className="h-4 w-4 flex-shrink-0" />
             <span className="body-sm">
               {googlePlacesData?.formatted_phone_number || 'Phone coming soon'}
             </span>
@@ -143,7 +143,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           <div className="flex items-center gap-2 text-muted-foreground">
             {googlePlacesData?.website ? (
               <>
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4 flex-shrink-0" />
                 <a 
                   href={googlePlacesData.website}
                   target="_blank"
@@ -155,7 +155,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
               </>
             ) : (
               <>
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 flex-shrink-0" />
                 <span className="body-sm">
                   {isOpen !== undefined 
                     ? (isOpen ? 'Open Now' : 'Closed') 
