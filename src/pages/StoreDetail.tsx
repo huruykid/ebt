@@ -107,12 +107,7 @@ export default function StoreDetailPage() {
               
               <div className="flex items-center gap-2">
                 <FavoriteButton storeId={store.id} variant="icon" />
-                <ShareStore store={store}>
-                  <Button variant="ghost" size="sm">
-                    <Share2 className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-2">Share</span>
-                  </Button>
-                </ShareStore>
+                <ShareStore store={store} />
               </div>
             </div>
 
