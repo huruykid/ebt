@@ -1,8 +1,6 @@
 
 import React from 'react';
 import type { Tables } from '@/integrations/supabase/types';
-import { ContactInfoCard } from './cards/ContactInfoCard';
-import { BusinessHoursCard } from './cards/BusinessHoursCard';
 import { StoreMap } from './StoreMap';
 import { AddressCard } from './cards/AddressCard';
 
@@ -17,8 +15,6 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({ store }) =
     <div className="space-y-4">
       <AddressCard store={store} />
       <StoreMap store={store} />
-      <ContactInfoCard store={store} />
-      <BusinessHoursCard store={store} />
     </div>
   );
 };
