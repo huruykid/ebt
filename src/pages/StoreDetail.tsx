@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -138,9 +139,8 @@ export default function StoreDetailPage() {
               <StoreHeader store={store} googlePlacesData={googlePlacesData} />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
-                  {/* Reviews Section */}
+                {/* Main Content - Reviews Section taking full width */}
+                <div className="lg:col-span-2">
                   <ReviewSection store={store} />
                 </div>
 
