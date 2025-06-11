@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SearchBar } from './SearchBar';
 import { CategoryTabs } from './CategoryTabs';
@@ -7,6 +8,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Search, Heart } from 'lucide-react';
+
 export const ExploreTrending: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -18,25 +20,31 @@ export const ExploreTrending: React.FC = () => {
     error,
     loading
   } = useGeolocation();
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     console.log('Searching for:', query);
     navigate(`/search?q=${encodeURIComponent(query)}`);
   };
+
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('Location search:', lat, lng);
     navigate('/search');
   };
+
   const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
     setActiveCategory(categoryId);
     setSelectedStoreTypes(storeTypes || []);
     console.log('Category changed to:', categoryId, 'Store types:', storeTypes);
   };
+
   const handleRequestLocation = () => {
     // Trigger a page reload to re-request location permission
     window.location.reload();
   };
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
       <div className="md:hidden bg-neutral-100 flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
@@ -105,48 +113,59 @@ export const ExploreTrending: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar - Categories */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg border p-6 sticky top-8">
-                <h3 className="font-semibold text-foreground mb-4">Store Categories</h3>
-                <CategoryTabs onCategoryChange={handleCategoryChange} className="flex-col space-y-2" />
-              </div>
-            </div>
-
-            {/* Main Content Area */}
-            <div className="lg:col-span-3">
-              {loading && <div className="text-center py-12">
-                  <LoadingSpinner />
-                  <p className="text-muted-foreground mt-4">Getting your location...</p>
-                </div>}
-
-              {error && !loading && <div className="bg-white rounded-lg border p-8">
-                  <LocationPrompt onRequestLocation={handleRequestLocation} error={error} />
-                </div>}
-
-              {latitude && longitude && !loading && <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-semibold text-foreground">
-                      Nearby Stores
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Showing results within 10 miles
-                    </p>
-                  </div>
-                  
-                  <NearbyStores latitude={latitude} longitude={longitude} radius={10} limit={20} category={activeCategory} storeTypes={selectedStoreTypes} />
-                </div>}
-
-              {!latitude && !longitude && !loading && !error && <div className="bg-white rounded-lg border p-8">
-                  <LocationPrompt onRequestLocation={handleRequestLocation} />
-                </div>}
-            </div>
+        {/* Category Tabs - Desktop (moved to top) */}
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
           </div>
         </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {loading && (
+            <div className="text-center py-12">
+              <LoadingSpinner />
+              <p className="text-muted-foreground mt-4">Getting your location...</p>
+            </div>
+          )}
+
+          {error && !loading && (
+            <div className="bg-white rounded-lg border p-8">
+              <LocationPrompt onRequestLocation={handleRequestLocation} error={error} />
+            </div>
+          )}
+
+          {latitude && longitude && !loading && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  Nearby Stores
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Showing results within 10 miles
+                </p>
+              </div>
+              
+              <NearbyStores 
+                latitude={latitude} 
+                longitude={longitude} 
+                radius={10} 
+                limit={20} 
+                category={activeCategory} 
+                storeTypes={selectedStoreTypes} 
+              />
+            </div>
+          )}
+
+          {!latitude && !longitude && !loading && !error && (
+            <div className="bg-white rounded-lg border p-8">
+              <LocationPrompt onRequestLocation={handleRequestLocation} />
+            </div>
+          )}
+        </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ExploreTrending;
