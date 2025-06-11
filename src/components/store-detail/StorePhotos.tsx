@@ -44,13 +44,9 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
         {/* Favorite and Share Buttons - Top Right */}
         {store && (
           <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm"
-            >
+            <div className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-md">
               <FavoriteButton storeId={store.id} variant="icon" />
-            </Button>
+            </div>
             <Button
               variant="secondary"
               size="icon"
@@ -127,3 +123,5 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
     </>
   );
 };
+
+export default StorePhotos;
