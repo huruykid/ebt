@@ -18,7 +18,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="space-y-2 sm:space-y-3">
