@@ -42,26 +42,36 @@ export const useGooglePlacesSearch = (query: string, enabled: boolean = true) =>
     queryFn: async (): Promise<GooglePlacesSearchResult[]> => {
       if (!query.trim()) return [];
 
-      const { data, error } = await supabase.functions.invoke('google-places', {
-        body: {
-          action: 'search',
-          query: query.trim()
+      try {
+        const { data, error } = await supabase.functions.invoke('google-places', {
+          body: {
+            action: 'search',
+            query: query.trim()
+          }
+        });
+
+        if (error) {
+          console.error('Google Places search error:', error);
+          // Return empty array instead of throwing to prevent cascading failures
+          return [];
         }
-      });
 
-      if (error) {
-        console.error('Google Places search error:', error);
-        throw error;
+        if (!data || !data.success) {
+          console.error('Google Places search failed:', data?.error || 'Unknown error');
+          // Return empty array instead of throwing to prevent cascading failures
+          return [];
+        }
+
+        return data.results || [];
+      } catch (error) {
+        console.error('Google Places search exception:', error);
+        // Return empty array instead of throwing to prevent cascading failures
+        return [];
       }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Google Places search failed');
-      }
-
-      return data.results || [];
     },
     enabled: enabled && !!query.trim(),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry failed requests to avoid API quota issues
   });
 };
 
@@ -71,26 +81,33 @@ export const useGooglePlacesDetails = (placeId: string, enabled: boolean = true)
     queryFn: async (): Promise<GooglePlacesDetails | null> => {
       if (!placeId) return null;
 
-      const { data, error } = await supabase.functions.invoke('google-places', {
-        body: {
-          action: 'details',
-          place_id: placeId
+      try {
+        const { data, error } = await supabase.functions.invoke('google-places', {
+          body: {
+            action: 'details',
+            place_id: placeId
+          }
+        });
+
+        if (error) {
+          console.error('Google Places details error:', error);
+          return null;
         }
-      });
 
-      if (error) {
-        console.error('Google Places details error:', error);
-        throw error;
+        if (!data || !data.success) {
+          console.error('Google Places details failed:', data?.error || 'Unknown error');
+          return null;
+        }
+
+        return data.result || null;
+      } catch (error) {
+        console.error('Google Places details exception:', error);
+        return null;
       }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Google Places details failed');
-      }
-
-      return data.result || null;
     },
     enabled: enabled && !!placeId,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    retry: false, // Don't retry failed requests to avoid API quota issues
   });
 };
 
@@ -104,8 +121,8 @@ export const getGooglePlacesPhotoUrl = async (photoReference: string, maxWidth: 
       }
     });
 
-    if (error || !data.success) {
-      console.error('Google Places photo error:', error || data.error);
+    if (error || !data || !data.success) {
+      console.error('Google Places photo error:', error || data?.error);
       return null;
     }
 
