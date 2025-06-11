@@ -62,7 +62,9 @@ export const useYelpBusiness = (
 
       try {
         console.log('🌐 Making API call to yelp-search function...');
-        const { data, error } = await supabase.functions.invoke('yelp-search', {
+        
+        // First, search for the business
+        const { data: searchData, error: searchError } = await supabase.functions.invoke('yelp-search', {
           body: {
             term: storeName,
             latitude,
@@ -73,16 +75,38 @@ export const useYelpBusiness = (
           }
         });
 
-        if (error) {
-          console.error('❌ Error calling yelp-search function:', error);
+        if (searchError) {
+          console.error('❌ Error calling yelp-search function:', searchError);
           return null;
         }
 
-        console.log('✅ Yelp API response:', data);
+        console.log('✅ Yelp search response:', searchData);
 
-        if (data && data.businesses && data.businesses.length > 0) {
-          const business = data.businesses[0];
+        if (searchData && searchData.businesses && searchData.businesses.length > 0) {
+          const business = searchData.businesses[0];
           console.log('🏪 Found Yelp business:', business);
+          
+          // Now get business details for more photos
+          try {
+            console.log('📸 Fetching business details for more photos...');
+            const { data: detailsData, error: detailsError } = await supabase.functions.invoke('yelp-business-details', {
+              body: {
+                business_id: business.id
+              }
+            });
+
+            if (!detailsError && detailsData && detailsData.photos) {
+              console.log('📸 Got additional photos from details API:', detailsData.photos);
+              business.photos = detailsData.photos;
+            } else {
+              console.log('📸 No additional photos available, using main image only');
+              // Fallback to just the main image
+              business.photos = business.image_url ? [business.image_url] : [];
+            }
+          } catch (detailsError) {
+            console.log('📸 Details API not available, using main image only');
+            business.photos = business.image_url ? [business.image_url] : [];
+          }
           
           // Cache the result
           yelpCache.set(cacheKey, business);

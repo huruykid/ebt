@@ -33,25 +33,17 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
   console.log('📸 StorePhotos - Yelp data:', yelpData);
 
   // Get all available photos from Yelp
-  // Yelp provides photos array + main image_url
   const photos = React.useMemo(() => {
     if (!yelpData) return [];
     
-    const allPhotos = [];
+    // Use the photos array from Yelp, which should now include multiple photos
+    let allPhotos = [];
     
-    // Add main image first if it exists
-    if (yelpData.image_url) {
-      allPhotos.push(yelpData.image_url);
-    }
-    
-    // Add additional photos from photos array
-    if (yelpData.photos && Array.isArray(yelpData.photos)) {
-      // Filter out duplicates and add remaining photos
-      yelpData.photos.forEach(photo => {
-        if (!allPhotos.includes(photo)) {
-          allPhotos.push(photo);
-        }
-      });
+    if (yelpData.photos && Array.isArray(yelpData.photos) && yelpData.photos.length > 0) {
+      allPhotos = [...yelpData.photos];
+    } else if (yelpData.image_url) {
+      // Fallback to main image if photos array is empty
+      allPhotos = [yelpData.image_url];
     }
     
     console.log('📸 All photos compiled:', allPhotos);
@@ -107,7 +99,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4">
                       <h3 className="text-base font-semibold text-white mb-1">{storeName}</h3>
                       <p className="text-xs text-white/90">
-                        Photo {index + 1} of {photos.length} from Yelp
+                        Photo {index + 1} of {photos.length} • Yelp
                       </p>
                     </div>
                   </div>
