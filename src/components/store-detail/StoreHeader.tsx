@@ -129,7 +129,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
                 <p className="font-semibold text-foreground">Address</p>
                 <button
                   onClick={openInMaps}
-                  className="text-foreground/80 hover:text-primary hover:underline transition-colors text-left"
+                  className="text-primary underline hover:text-primary/80 transition-colors text-left"
                 >
                   {formatAddress() || 'Address not available'}
                 </button>
