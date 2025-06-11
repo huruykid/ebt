@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Camera, Upload, Image, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -42,15 +41,23 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
           </Button>
         </div>
 
-        {/* Share and Favorite Buttons - Top Right */}
+        {/* Favorite and Share Buttons - Top Right */}
         {store && (
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-            <div className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-md p-1">
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm"
+            >
               <FavoriteButton storeId={store.id} variant="icon" />
-            </div>
-            <div className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm rounded-md">
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm"
+            >
               <ShareStore store={store} variant="icon" />
-            </div>
+            </Button>
           </div>
         )}
 
