@@ -27,7 +27,7 @@ interface NominatimSearchResult {
   };
 }
 
-interface NominatimReverseResult {
+export interface NominatimReverseResult {
   place_id: number;
   licence: string;
   osm_type: string;
