@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useYelpBusiness } from '@/hooks/useYelp';
@@ -22,12 +21,14 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Fetch Yelp data to get photos
+  // Fetch Yelp data to get photos with address information
   const { data: yelpData } = useYelpBusiness(
     store?.store_name || storeName,
     store?.latitude || 0,
     store?.longitude || 0,
-    !!(store?.latitude && store?.longitude)
+    !!(store?.latitude && store?.longitude),
+    store?.store_street_address || undefined,
+    store?.city || undefined
   );
 
   console.log('📸 StorePhotos - Yelp data:', yelpData);

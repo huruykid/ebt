@@ -41,43 +41,131 @@ export interface YelpSearchResponse {
 // Cache for Yelp data to avoid repeat API calls
 const yelpCache = new Map<string, YelpBusiness>();
 
-// Function to generate multiple search terms
-const generateSearchTerms = (storeName: string): string[] => {
-  const terms = [storeName];
+// Function to generate multiple search terms including address
+const generateSearchTerms = (storeName: string, address?: string, city?: string): string[] => {
+  const terms = [];
   
-  // Remove numbers/store IDs
+  // Original store name
+  terms.push(storeName);
+  
+  // Store name with address
+  if (address) {
+    terms.push(`${storeName} ${address}`);
+    if (city) {
+      terms.push(`${storeName} ${address} ${city}`);
+    }
+  }
+  
+  // Store name with city only
+  if (city) {
+    terms.push(`${storeName} ${city}`);
+  }
+  
+  // Remove numbers/store IDs from name
   const withoutNumbers = storeName.replace(/\s+\d+$/, '').trim();
   if (withoutNumbers !== storeName) {
     terms.push(withoutNumbers);
+    if (address) {
+      terms.push(`${withoutNumbers} ${address}`);
+    }
+    if (city) {
+      terms.push(`${withoutNumbers} ${city}`);
+    }
   }
   
   // Just the main brand name
   const mainBrand = storeName.split(' ')[0];
   if (mainBrand !== storeName && mainBrand.length > 2) {
     terms.push(mainBrand);
+    if (address) {
+      terms.push(`${mainBrand} ${address}`);
+    }
   }
   
   // For stores like "FOOD MAXX", try "FoodMaxx" variations
   if (storeName.includes(' ')) {
     const combined = storeName.replace(/\s+/g, '');
     terms.push(combined);
+    if (address) {
+      terms.push(`${combined} ${address}`);
+    }
   }
   
-  return terms;
+  return [...new Set(terms)]; // Remove duplicates
+};
+
+// Function to calculate similarity between strings (simple fuzzy matching)
+const calculateSimilarity = (str1: string, str2: string): number => {
+  const s1 = str1.toLowerCase().trim();
+  const s2 = str2.toLowerCase().trim();
+  
+  if (s1 === s2) return 1;
+  if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+  
+  // Simple word matching
+  const words1 = s1.split(/\s+/);
+  const words2 = s2.split(/\s+/);
+  const commonWords = words1.filter(word => 
+    words2.some(w => w.includes(word) || word.includes(w))
+  );
+  
+  return commonWords.length / Math.max(words1.length, words2.length);
+};
+
+// Function to find best match from Yelp results
+const findBestMatch = (
+  businesses: YelpBusiness[], 
+  storeName: string, 
+  address?: string
+): YelpBusiness | null => {
+  if (!businesses.length) return null;
+  
+  let bestMatch = businesses[0];
+  let bestScore = 0;
+  
+  for (const business of businesses) {
+    let score = calculateSimilarity(business.name, storeName);
+    
+    // Boost score if address matches
+    if (address && business.location?.address1) {
+      const addressSimilarity = calculateSimilarity(business.location.address1, address);
+      score += addressSimilarity * 0.3; // Address contributes 30% to score
+    }
+    
+    // Prefer closer businesses (distance boost)
+    const distanceBoost = 1 - (businesses.indexOf(business) * 0.1);
+    score += distanceBoost * 0.1;
+    
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = business;
+    }
+  }
+  
+  // Only return if we have a reasonable match (>40% similarity)
+  return bestScore > 0.4 ? bestMatch : null;
 };
 
 export const useYelpBusiness = (
   storeName: string,
   latitude: number,
   longitude: number,
-  enabled: boolean = false
+  enabled: boolean = false,
+  storeAddress?: string,
+  city?: string
 ) => {
   const cacheKey = `${storeName}-${latitude}-${longitude}`;
 
   return useQuery({
     queryKey: ['yelp-business', cacheKey],
     queryFn: async (): Promise<YelpBusiness | null> => {
-      console.log('🔍 Fetching Yelp data for:', { storeName, latitude, longitude });
+      console.log('🔍 Fetching Yelp data for:', { 
+        storeName, 
+        latitude, 
+        longitude, 
+        address: storeAddress,
+        city 
+      });
       
       // Check cache first
       if (yelpCache.has(cacheKey)) {
@@ -88,13 +176,13 @@ export const useYelpBusiness = (
       try {
         console.log('🌐 Making API call to yelp-search function...');
         
-        // Generate multiple search terms to try
-        const searchTerms = generateSearchTerms(storeName);
+        // Generate multiple search terms including address
+        const searchTerms = generateSearchTerms(storeName, storeAddress, city);
         console.log('🔍 Trying search terms:', searchTerms);
         
         let business = null;
         
-        // Try each search term until we find a match
+        // Try each search term until we find a good match
         for (const term of searchTerms) {
           console.log(`🔍 Searching for: "${term}"`);
           
@@ -103,8 +191,8 @@ export const useYelpBusiness = (
               term: term,
               latitude,
               longitude,
-              radius: '2000', // Increased radius to 2km
-              limit: '5', // Get more results to increase chances
+              radius: '3000', // 3km radius for broader search
+              limit: '10', // Get more results for better matching
               sort_by: 'distance'
             }
           });
@@ -117,34 +205,19 @@ export const useYelpBusiness = (
           console.log(`✅ Yelp search response for "${term}":`, searchData);
 
           if (searchData && searchData.businesses && searchData.businesses.length > 0) {
-            // Look for the closest match by name similarity and distance
-            const potentialMatches = searchData.businesses.filter(b => {
-              const nameLower = b.name.toLowerCase();
-              const termLower = term.toLowerCase();
-              const storeNameLower = storeName.toLowerCase();
-              
-              // Check if business name contains our search term or vice versa
-              return nameLower.includes(termLower) || 
-                     termLower.includes(nameLower) ||
-                     nameLower.includes(storeNameLower) ||
-                     storeNameLower.includes(nameLower);
-            });
+            // Use fuzzy matching to find the best result
+            const bestMatch = findBestMatch(searchData.businesses, storeName, storeAddress);
             
-            if (potentialMatches.length > 0) {
-              business = potentialMatches[0]; // Take the first (closest) match
-              console.log('🏪 Found matching Yelp business:', business);
-              break;
-            } else if (searchData.businesses.length > 0) {
-              // If no name match, take the closest business as a fallback
-              business = searchData.businesses[0];
-              console.log('🏪 Using closest Yelp business as fallback:', business);
+            if (bestMatch) {
+              business = bestMatch;
+              console.log('🏪 Found best matching Yelp business:', business);
               break;
             }
           }
         }
         
         if (!business) {
-          console.log('❌ No businesses found for any search terms');
+          console.log('❌ No suitable businesses found for any search terms');
           return null;
         }
         

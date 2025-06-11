@@ -23,19 +23,23 @@ interface StoreHeaderProps {
 }
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
-  // Fetch Yelp data for this store
+  // Fetch Yelp data for this store with address information
   const { data: yelpData, isLoading: yelpLoading, error: yelpError } = useYelpBusiness(
     store.store_name,
     store.latitude || 0,
     store.longitude || 0,
-    !!(store.latitude && store.longitude)
+    !!(store.latitude && store.longitude),
+    store.store_street_address || undefined,
+    store.city || undefined
   );
 
   // Add debugging logs
   console.log('🏪 Store data:', { 
     name: store.store_name, 
     lat: store.latitude, 
-    lng: store.longitude 
+    lng: store.longitude,
+    address: store.store_street_address,
+    city: store.city
   });
   console.log('📊 Yelp data state:', { 
     data: yelpData, 
