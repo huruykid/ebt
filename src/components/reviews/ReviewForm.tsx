@@ -85,7 +85,6 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
         <StarRating 
           rating={rating} 
           onRatingChange={setRating}
-          interactive
         />
       </div>
       
