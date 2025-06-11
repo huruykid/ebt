@@ -41,6 +41,31 @@ export interface YelpSearchResponse {
 // Cache for Yelp data to avoid repeat API calls
 const yelpCache = new Map<string, YelpBusiness>();
 
+// Function to generate multiple search terms
+const generateSearchTerms = (storeName: string): string[] => {
+  const terms = [storeName];
+  
+  // Remove numbers/store IDs
+  const withoutNumbers = storeName.replace(/\s+\d+$/, '').trim();
+  if (withoutNumbers !== storeName) {
+    terms.push(withoutNumbers);
+  }
+  
+  // Just the main brand name
+  const mainBrand = storeName.split(' ')[0];
+  if (mainBrand !== storeName && mainBrand.length > 2) {
+    terms.push(mainBrand);
+  }
+  
+  // For stores like "FOOD MAXX", try "FoodMaxx" variations
+  if (storeName.includes(' ')) {
+    const combined = storeName.replace(/\s+/g, '');
+    terms.push(combined);
+  }
+  
+  return terms;
+};
+
 export const useYelpBusiness = (
   storeName: string,
   latitude: number,
@@ -63,60 +88,92 @@ export const useYelpBusiness = (
       try {
         console.log('🌐 Making API call to yelp-search function...');
         
-        // First, search for the business
-        const { data: searchData, error: searchError } = await supabase.functions.invoke('yelp-search', {
-          body: {
-            term: storeName,
-            latitude,
-            longitude,
-            radius: '1000',
-            limit: '1',
-            sort_by: 'distance'
-          }
-        });
+        // Generate multiple search terms to try
+        const searchTerms = generateSearchTerms(storeName);
+        console.log('🔍 Trying search terms:', searchTerms);
+        
+        let business = null;
+        
+        // Try each search term until we find a match
+        for (const term of searchTerms) {
+          console.log(`🔍 Searching for: "${term}"`);
+          
+          const { data: searchData, error: searchError } = await supabase.functions.invoke('yelp-search', {
+            body: {
+              term: term,
+              latitude,
+              longitude,
+              radius: '2000', // Increased radius to 2km
+              limit: '5', // Get more results to increase chances
+              sort_by: 'distance'
+            }
+          });
 
-        if (searchError) {
-          console.error('❌ Error calling yelp-search function:', searchError);
+          if (searchError) {
+            console.error('❌ Error calling yelp-search function:', searchError);
+            continue;
+          }
+
+          console.log(`✅ Yelp search response for "${term}":`, searchData);
+
+          if (searchData && searchData.businesses && searchData.businesses.length > 0) {
+            // Look for the closest match by name similarity and distance
+            const potentialMatches = searchData.businesses.filter(b => {
+              const nameLower = b.name.toLowerCase();
+              const termLower = term.toLowerCase();
+              const storeNameLower = storeName.toLowerCase();
+              
+              // Check if business name contains our search term or vice versa
+              return nameLower.includes(termLower) || 
+                     termLower.includes(nameLower) ||
+                     nameLower.includes(storeNameLower) ||
+                     storeNameLower.includes(nameLower);
+            });
+            
+            if (potentialMatches.length > 0) {
+              business = potentialMatches[0]; // Take the first (closest) match
+              console.log('🏪 Found matching Yelp business:', business);
+              break;
+            } else if (searchData.businesses.length > 0) {
+              // If no name match, take the closest business as a fallback
+              business = searchData.businesses[0];
+              console.log('🏪 Using closest Yelp business as fallback:', business);
+              break;
+            }
+          }
+        }
+        
+        if (!business) {
+          console.log('❌ No businesses found for any search terms');
           return null;
         }
-
-        console.log('✅ Yelp search response:', searchData);
-
-        if (searchData && searchData.businesses && searchData.businesses.length > 0) {
-          const business = searchData.businesses[0];
-          console.log('🏪 Found Yelp business:', business);
-          
-          // Now get business details for more photos
-          try {
-            console.log('📸 Fetching business details for more photos...');
-            const { data: detailsData, error: detailsError } = await supabase.functions.invoke('yelp-business-details', {
-              body: {
-                business_id: business.id
-              }
-            });
-
-            if (!detailsError && detailsData && detailsData.photos) {
-              console.log('📸 Got additional photos from details API:', detailsData.photos);
-              business.photos = detailsData.photos;
-            } else {
-              console.log('📸 No additional photos available, using main image only');
-              // Fallback to just the main image
-              business.photos = business.image_url ? [business.image_url] : [];
+        
+        // Now get business details for more photos
+        try {
+          console.log('📸 Fetching business details for more photos...');
+          const { data: detailsData, error: detailsError } = await supabase.functions.invoke('yelp-business-details', {
+            body: {
+              business_id: business.id
             }
-          } catch (detailsError) {
-            console.log('📸 Details API not available, using main image only');
+          });
+
+          if (!detailsError && detailsData && detailsData.photos) {
+            console.log('📸 Got additional photos from details API:', detailsData.photos);
+            business.photos = detailsData.photos;
+          } else {
+            console.log('📸 No additional photos available, using main image only');
+            // Fallback to just the main image
             business.photos = business.image_url ? [business.image_url] : [];
           }
-          
-          // Cache the result
-          yelpCache.set(cacheKey, business);
-          
-          return business;
-        } else {
-          console.log('❌ No businesses found in Yelp response');
+        } catch (detailsError) {
+          console.log('📸 Details API error, using main image only:', detailsError);
+          business.photos = business.image_url ? [business.image_url] : [];
         }
-
-        return null;
+        
+        // Cache the result
+        yelpCache.set(cacheKey, business);
+        
+        return business;
       } catch (error) {
         console.error('💥 Error fetching Yelp data:', error);
         return null;
