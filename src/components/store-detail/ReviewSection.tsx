@@ -20,25 +20,28 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5" />
-              Reviews
-            </CardTitle>
-            <StoreRatingDisplay storeId={store.id} className="mt-2" />
+        <CardHeader className="pb-4">
+          <div className="flex flex-row items-start justify-between">
+            <div className="space-y-3">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Star className="h-5 w-5" />
+                Reviews
+              </CardTitle>
+              <StoreRatingDisplay storeId={store.id} />
+            </div>
+            <Button 
+              onClick={() => setShowReviewForm(!showReviewForm)}
+              variant={showReviewForm ? "outline" : "default"}
+              className="flex-shrink-0"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              {showReviewForm ? 'Cancel' : 'Write Review'}
+            </Button>
           </div>
-          <Button 
-            onClick={() => setShowReviewForm(!showReviewForm)}
-            variant={showReviewForm ? "outline" : "default"}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            {showReviewForm ? 'Cancel' : 'Write Review'}
-          </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {showReviewForm && (
-            <div className="mb-6">
+            <div className="mb-6 p-4 bg-muted/30 rounded-lg border">
               <ReviewForm 
                 storeId={store.id} 
                 onSuccess={() => setShowReviewForm(false)}
