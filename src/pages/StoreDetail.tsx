@@ -116,16 +116,16 @@ export default function StoreDetailPage() {
               {/* Store Header */}
               <StoreHeader store={store} />
 
-              {/* Content Grid - Responsive Layout */}
+              {/* Content Grid - Mobile-first responsive layout */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Main Content - Reviews (takes more space on desktop) */}
-                <div className="xl:col-span-2 order-2 xl:order-1">
+                {/* Reviews Section - First on mobile, second column on desktop */}
+                <div className="xl:col-span-2 order-1">
                   <ReviewSection store={store} />
                 </div>
 
-                {/* Sidebar - Store Info (appears first on mobile) */}
-                <div className="xl:col-span-1 order-1 xl:order-2">
-                  <div className="sticky top-4">
+                {/* Store Info - Second on mobile, third column on desktop */}
+                <div className="xl:col-span-1 order-2">
+                  <div className="xl:sticky xl:top-4">
                     <EnhancedStoreInfo store={store} />
                   </div>
                 </div>

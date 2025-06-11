@@ -24,15 +24,19 @@ export const AddressCard: React.FC<AddressCardProps> = ({ store }) => {
     return parts.join(', ');
   };
 
+  const openInMaps = () => {
+    const address = encodeURIComponent(formatAddress());
+    const url = `https://www.google.com/maps/search/?api=1&query=${address}`;
+    window.open(url, '_blank');
+  };
+
   const openDirections = () => {
     if (store.latitude && store.longitude) {
       const url = `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`;
       window.open(url, '_blank');
     } else {
       // Fallback to address search
-      const address = encodeURIComponent(formatAddress());
-      const url = `https://www.google.com/maps/search/?api=1&query=${address}`;
-      window.open(url, '_blank');
+      openInMaps();
     }
   };
 
@@ -47,9 +51,12 @@ export const AddressCard: React.FC<AddressCardProps> = ({ store }) => {
       <CardContent className="pt-0">
         {formatAddress() ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <button
+              onClick={openInMaps}
+              className="text-sm text-muted-foreground leading-relaxed hover:text-primary hover:underline transition-colors text-left w-full"
+            >
               {formatAddress()}
-            </p>
+            </button>
             
             {(!store.store_street_address || !store.city) && (
               <div className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-md border border-amber-200">
