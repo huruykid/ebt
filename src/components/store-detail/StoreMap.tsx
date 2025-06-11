@@ -4,6 +4,7 @@ import { MapPin, Navigation, Clock, Car } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useNominatimReverse } from '@/hooks/useNominatimSearch';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -42,6 +43,13 @@ const estimateTravelTime = (distance: number): string => {
 
 export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
   const { latitude: userLat, longitude: userLon, error: locationError } = useGeolocation();
+  
+  // Get enhanced address information from OSM if coordinates are available
+  const { data: osmData } = useNominatimReverse(
+    store?.latitude || 0,
+    store?.longitude || 0,
+    !!(store?.latitude && store?.longitude)
+  );
 
   const openDirections = () => {
     if (store?.latitude && store?.longitude) {
@@ -52,7 +60,8 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
 
   const openInMaps = () => {
     if (store?.latitude && store?.longitude) {
-      const url = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
+      // Use OpenStreetMap for viewing
+      const url = `https://www.openstreetmap.org/?mlat=${store.latitude}&mlon=${store.longitude}&zoom=16`;
       window.open(url, '_blank');
     }
   };
@@ -83,6 +92,19 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
   }
 
   const formatAddress = () => {
+    // Use OSM data if available, otherwise fall back to store data
+    if (osmData?.address) {
+      const parts = [
+        osmData.address.house_number,
+        osmData.address.road,
+        osmData.address.city || osmData.address.suburb,
+        osmData.address.state,
+        osmData.address.postcode
+      ].filter(Boolean);
+      return parts.join(', ');
+    }
+    
+    // Fallback to original store data
     const parts = [
       store.store_street_address,
       store.additional_address,
@@ -145,7 +167,7 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
           </Button>
           <Button onClick={openInMaps} variant="outline" className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
-            View on Google Maps
+            View on OpenStreetMap
           </Button>
         </div>
         

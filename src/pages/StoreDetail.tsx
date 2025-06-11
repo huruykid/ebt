@@ -13,7 +13,7 @@ import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { ShareStore } from '@/components/ShareStore';
-import { useGooglePlacesSearch, useGooglePlacesDetails } from '@/hooks/useGooglePlaces';
+import { useNominatimSearch, useNominatimReverse } from '@/hooks/useNominatimSearch';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -46,7 +46,7 @@ export default function StoreDetailPage() {
     enabled: !!id,
   });
 
-  // Create search query for Google Places
+  // Create search query for Nominatim
   const searchQuery = useMemo(() => {
     if (!store) return '';
     
@@ -60,19 +60,17 @@ export default function StoreDetailPage() {
     return parts.join(' ');
   }, [store]);
 
-  // Search for the store on Google Places
-  const { data: searchResults } = useGooglePlacesSearch(
+  // Search for the store on Nominatim
+  const { data: searchResults } = useNominatimSearch(
     searchQuery,
     !!store && !!searchQuery
   );
 
-  // Get the most likely match (first result for now)
-  const googlePlaceId = searchResults?.[0]?.place_id;
-
-  // Get detailed information from Google Places
-  const { data: googlePlacesData } = useGooglePlacesDetails(
-    googlePlaceId || '',
-    !!googlePlaceId
+  // Get detailed location information from Nominatim reverse geocoding
+  const { data: nominatimData } = useNominatimReverse(
+    store?.latitude || 0,
+    store?.longitude || 0,
+    !!(store?.latitude && store?.longitude)
   );
 
   if (isLoading) {
@@ -115,7 +113,7 @@ export default function StoreDetailPage() {
       <div className="min-h-screen bg-background">
         {/* Store Photos at the top - full width */}
         <StorePhotos 
-          photos={googlePlacesData?.photos} 
+          photos={[]} // No photos from OSM, keeping interface for future enhancement
           storeName={store.store_name} 
         />
         
@@ -136,7 +134,7 @@ export default function StoreDetailPage() {
 
             <div className="space-y-6">
               {/* Store Header without cover photo */}
-              <StoreHeader store={store} googlePlacesData={googlePlacesData} />
+              <StoreHeader store={store} googlePlacesData={nominatimData} />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Content - Reviews Section taking full width */}
@@ -148,7 +146,7 @@ export default function StoreDetailPage() {
                 <div className="lg:col-span-1">
                   <EnhancedStoreInfo 
                     store={store} 
-                    googlePlacesData={googlePlacesData} 
+                    googlePlacesData={nominatimData} 
                   />
                 </div>
               </div>

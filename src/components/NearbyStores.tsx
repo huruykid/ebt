@@ -5,7 +5,7 @@ import { SortDropdown, SortOption } from './SortDropdown';
 import { StoreList } from './StoreList';
 import { MapPin, AlertCircle } from 'lucide-react';
 import { useNearbyStores } from '@/hooks/useNearbyStores';
-import { useStoreGoogleData } from '@/hooks/useStoreGoogleData';
+import { useStoreLocationData } from '@/hooks/useStoreLocationData';
 import { sortStores } from '@/utils/storeSorting';
 
 interface NearbyStoresProps {
@@ -36,12 +36,12 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     storeTypes
   });
 
-  const storesWithGoogleData = useStoreGoogleData(stores);
+  const storesWithLocationData = useStoreLocationData(stores);
 
   // Sort stores based on selected criteria
   const sortedStores = useMemo(() => {
-    return sortStores(storesWithGoogleData, sortBy);
-  }, [storesWithGoogleData, sortBy]);
+    return sortStores(storesWithLocationData, sortBy);
+  }, [storesWithLocationData, sortBy]);
 
   if (isLoading) {
     return <LoadingSpinner />;
