@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -31,6 +30,13 @@ export interface YelpBusiness {
   }>;
   phone: string;
   display_phone: string;
+  location?: {
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    zip_code: string;
+  };
 }
 
 export interface YelpSearchResponse {
