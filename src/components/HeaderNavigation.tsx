@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, Heart, User, Target } from 'lucide-react';
@@ -109,8 +108,15 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
                 </span>
               </div>
             ) : (
-              <div className="hidden md:block text-sm text-gray-600">
-                Guest Mode
+              <div className="hidden md:flex items-center gap-3">
+                <span className="text-sm text-gray-600">Guest Mode</span>
+                <Button
+                  onClick={handleAuthClick}
+                  variant="outline"
+                  size="sm"
+                >
+                  Sign In
+                </Button>
               </div>
             )}
           </div>
