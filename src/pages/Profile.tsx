@@ -29,8 +29,8 @@ export default function ProfilePage() {
     try {
       await signOut();
       toast({
-        title: "Signed out successfully",
-        description: "You have been signed out of your account."
+        title: "✅ You've been signed out",
+        description: "Come back anytime! Your favorites will be waiting."
       });
       navigate('/');
     } catch (error) {
