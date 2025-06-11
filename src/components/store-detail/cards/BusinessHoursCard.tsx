@@ -1,22 +1,17 @@
 
 import React from 'react';
-import { Clock, Plus } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { AddHoursModal } from '../modals/AddHoursModal';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
 interface BusinessHoursCardProps {
-  store?: Store;
+  store: Store;
 }
 
 export const BusinessHoursCard: React.FC<BusinessHoursCardProps> = ({ store }) => {
-  const handleAddHours = () => {
-    // TODO: Implement community hours submission
-    console.log('Community hours submission coming soon');
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -32,15 +27,7 @@ export const BusinessHoursCard: React.FC<BusinessHoursCardProps> = ({ store }) =
           <p className="text-sm text-muted-foreground mb-4">
             Help the community by sharing the store hours
           </p>
-          <Button 
-            onClick={handleAddHours}
-            size="sm" 
-            variant="outline"
-            className="w-full"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Store Hours
-          </Button>
+          <AddHoursModal store={store} />
         </div>
       </CardContent>
     </Card>

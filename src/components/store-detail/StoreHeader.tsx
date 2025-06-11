@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StoreRatingDisplay } from '@/components/reviews/StoreRatingDisplay';
+import { AddPhoneModal } from './modals/AddPhoneModal';
+import { AddHoursModal } from './modals/AddHoursModal';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -113,29 +115,29 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
             </div>
           </div>
 
-          {/* Quick Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-border">
+          {/* Quick Info Grid with Better Contrast */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-border bg-muted/30 rounded-lg p-4">
             <div className="flex items-start gap-3 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+              <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-medium text-foreground">Address</p>
-                <p className="text-muted-foreground">{formatAddress() || 'Address not available'}</p>
+                <p className="font-semibold text-foreground">Address</p>
+                <p className="text-foreground/80">{formatAddress() || 'Address not available'}</p>
               </div>
             </div>
             
             <div className="flex items-start gap-3 text-sm">
-              <Phone className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-foreground">Phone</p>
-                <p className="text-muted-foreground">Community can add</p>
+              <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-foreground mb-2">Phone</p>
+                <AddPhoneModal store={store} />
               </div>
             </div>
             
             <div className="flex items-start gap-3 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-foreground">Hours</p>
-                <p className="text-muted-foreground">Community can add</p>
+              <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-foreground mb-2">Hours</p>
+                <AddHoursModal store={store} />
               </div>
             </div>
           </div>

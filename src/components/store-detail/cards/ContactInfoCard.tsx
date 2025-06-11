@@ -1,19 +1,17 @@
 
 import React from 'react';
-import { Phone, Globe, Plus } from 'lucide-react';
+import { Phone, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { AddPhoneModal } from '../modals/AddPhoneModal';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Store = Tables<'snap_stores'>;
 
 interface ContactInfoCardProps {
-  // Remove Google Places dependency
+  store: Store;
 }
 
-export const ContactInfoCard: React.FC<ContactInfoCardProps> = () => {
-  const handleAddContact = () => {
-    // TODO: Implement community contact info submission
-    console.log('Community contact info submission coming soon');
-  };
-
+export const ContactInfoCard: React.FC<ContactInfoCardProps> = ({ store }) => {
   return (
     <Card>
       <CardHeader>
@@ -29,15 +27,7 @@ export const ContactInfoCard: React.FC<ContactInfoCardProps> = () => {
           <p className="text-sm text-muted-foreground mb-4">
             Help the community by sharing contact details
           </p>
-          <Button 
-            onClick={handleAddContact}
-            size="sm" 
-            variant="outline"
-            className="w-full"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Contact Info
-          </Button>
+          <AddPhoneModal store={store} />
         </div>
       </CardContent>
     </Card>

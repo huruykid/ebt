@@ -17,7 +17,7 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({ store }) =
     <div className="space-y-4">
       <AddressCard store={store} />
       <StoreMap store={store} />
-      <ContactInfoCard />
+      <ContactInfoCard store={store} />
       <BusinessHoursCard store={store} />
     </div>
   );
