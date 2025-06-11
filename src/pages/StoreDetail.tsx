@@ -93,18 +93,8 @@ export default function StoreDetailPage() {
         
         <div className="relative -mt-8 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Navigation Bar */}
-            <div className="flex items-center justify-between mb-6 bg-background/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border">
-              <Button 
-                onClick={() => navigate('/search')} 
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Back to Search</span>
-              </Button>
-              
+            {/* Navigation Bar - Only Share and Favorite buttons now */}
+            <div className="flex items-center justify-end mb-6 bg-background/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border">
               <div className="flex items-center gap-2">
                 <FavoriteButton storeId={store.id} variant="icon" />
                 <ShareStore store={store} />

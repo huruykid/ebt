@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Camera, Upload, Image } from 'lucide-react';
+import { Camera, Upload, Image, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { AddPhotoModal } from './modals/AddPhotoModal';
 import type { Tables } from '@/integrations/supabase/types';
@@ -14,6 +15,7 @@ interface StorePhotosProps {
 
 export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) => {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleAddPhoto = () => {
     if (!store) {
@@ -26,6 +28,18 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) =>
   return (
     <>
       <div className="relative h-[40vh] min-h-[300px] max-h-[500px] bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 overflow-hidden">
+        {/* Navigation Button - Top Left */}
+        <div className="absolute top-4 left-4 z-20">
+          <Button 
+            onClick={() => navigate('/search')} 
+            variant="secondary"
+            size="icon"
+            className="bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm"
+          >
+            <ArrowLeft className="h-4 w-4 text-foreground" />
+          </Button>
+        </div>
+
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-20">
           <div 
