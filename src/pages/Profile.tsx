@@ -82,7 +82,7 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <Card className="mb-6">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="text-lg font-semibold bg-green-600 text-white">
@@ -98,11 +98,11 @@ export default function ProfilePage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                   <Button
                     variant="outline"
                     onClick={() => navigate('/favorites')}
-                    className="flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 w-full sm:w-auto"
                   >
                     <Heart className="h-4 w-4" />
                     View Favorites
@@ -110,7 +110,7 @@ export default function ProfilePage() {
                   <Button
                     onClick={handleSignOut}
                     variant="outline"
-                    className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                    className="flex items-center justify-center gap-2 text-red-600 border-red-200 hover:bg-red-50 w-full sm:w-auto"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out
