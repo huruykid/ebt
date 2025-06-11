@@ -27,6 +27,12 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
     return parts.join(', ');
   };
 
+  const openInMaps = () => {
+    const address = encodeURIComponent(formatAddress());
+    const url = `https://www.google.com/maps/search/?api=1&query=${address}`;
+    window.open(url, '_blank');
+  };
+
   const getStoreTypeIcon = (type: string | null) => {
     switch (type?.toLowerCase()) {
       case 'supermarket':
@@ -121,7 +127,12 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-semibold text-foreground">Address</p>
-                <p className="text-foreground/80">{formatAddress() || 'Address not available'}</p>
+                <button
+                  onClick={openInMaps}
+                  className="text-foreground/80 hover:text-primary hover:underline transition-colors text-left"
+                >
+                  {formatAddress() || 'Address not available'}
+                </button>
               </div>
             </div>
             
