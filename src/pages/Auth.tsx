@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ShoppingCart, Heart, MapPin } from 'lucide-react';
+import { ShoppingCart, Heart, MapPin, Users } from 'lucide-react';
 
 export const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,14 +12,14 @@ export const Auth: React.FC = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, isGuest, continueAsGuest } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (user || isGuest) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [user, isGuest, navigate]);
 
   // Autofocus email field on page load
   useEffect(() => {
@@ -61,6 +61,11 @@ export const Auth: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestAccess = () => {
+    continueAsGuest();
+    toast.success('👋 Welcome! You can browse stores as a guest.');
   };
 
   return (
@@ -169,13 +174,24 @@ export const Auth: React.FC = () => {
               </div>
             </div>
             
-            <Button
-              onClick={() => setIsLogin(!isLogin)}
-              variant="outline"
-              className="mt-4 w-full border-green-200 text-green-700 hover:bg-green-50 py-3 rounded-lg transition-all duration-200"
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </Button>
+            <div className="space-y-3 mt-4">
+              <Button
+                onClick={() => setIsLogin(!isLogin)}
+                variant="outline"
+                className="w-full border-green-200 text-green-700 hover:bg-green-50 py-3 rounded-lg transition-all duration-200"
+              >
+                {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              </Button>
+
+              <Button
+                onClick={handleGuestAccess}
+                variant="outline"
+                className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Continue as Guest
+              </Button>
+            </div>
           </div>
         </div>
       </div>

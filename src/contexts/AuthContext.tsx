@@ -7,9 +7,11 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isGuest: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,15 +28,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
+    // Check if user was previously in guest mode
+    const guestMode = localStorage.getItem('guest_mode');
+    if (guestMode === 'true') {
+      setIsGuest(true);
+      setLoading(false);
+      return;
+    }
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
+        setIsGuest(false);
         setLoading(false);
+        
+        // Clear guest mode when user signs in
+        if (session?.user) {
+          localStorage.removeItem('guest_mode');
+        }
       }
     );
 
@@ -73,16 +90,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    setIsGuest(false);
+    localStorage.removeItem('guest_mode');
     await supabase.auth.signOut();
+  };
+
+  const continueAsGuest = () => {
+    setIsGuest(true);
+    setLoading(false);
+    localStorage.setItem('guest_mode', 'true');
   };
 
   const value = {
     user,
     session,
     loading,
+    isGuest,
     signUp,
     signIn,
-    signOut
+    signOut,
+    continueAsGuest
   };
 
   return (

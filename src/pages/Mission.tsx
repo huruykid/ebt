@@ -1,4 +1,3 @@
-
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ export default function Mission() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAuth={false}>
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto p-6">
           <div className="text-center mb-8">

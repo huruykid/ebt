@@ -3,17 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { SearchBar } from './SearchBar';
 import { StoreCard } from './StoreCard';
 import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
-import { Search, MapPin, Sparkles } from 'lucide-react';
+import { Search, MapPin, Sparkles, Users } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
 export const StoreSearch: React.FC = () => {
+  const { user, isGuest } = useAuth();
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
@@ -163,6 +165,12 @@ export const StoreSearch: React.FC = () => {
               Find SNAP Stores
             </button>
             <div className="flex items-center gap-3">
+              {isGuest && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
+                  <Users className="h-4 w-4" />
+                  Guest Mode
+                </div>
+              )}
               <SyncStoresButton />
             </div>
           </div>

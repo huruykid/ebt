@@ -1,21 +1,23 @@
 
 import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAuth?: boolean; // Allow some routes to be accessible to guests
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAuth = false }) => {
+  const { user, loading, isGuest } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isGuest && requireAuth) {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, isGuest, navigate, requireAuth]);
 
   if (loading) {
     return (
@@ -28,7 +30,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  // For routes that require authentication, block guests
+  if (requireAuth && !user && !loading) {
     return null;
   }
 

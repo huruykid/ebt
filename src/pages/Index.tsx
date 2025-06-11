@@ -4,7 +4,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function Index() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAuth={false}>
       <ExploreTrending />
     </ProtectedRoute>
   );

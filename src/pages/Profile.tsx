@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -76,7 +75,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireAuth={true}>
       <div className="min-h-screen bg-neutral-100 p-4">
         <div className="max-w-6xl mx-auto">
           {/* Profile Header */}
