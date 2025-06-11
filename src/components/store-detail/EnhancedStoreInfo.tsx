@@ -1,11 +1,9 @@
 
 import React from 'react';
 import type { Tables } from '@/integrations/supabase/types';
-import { AddressCard } from './cards/AddressCard';
 import { ContactInfoCard } from './cards/ContactInfoCard';
 import { BusinessHoursCard } from './cards/BusinessHoursCard';
 import { GoogleReviewsCard } from './cards/GoogleReviewsCard';
-import { StoreDetailsCard } from './cards/StoreDetailsCard';
 
 type Store = Tables<'snap_stores'>;
 
@@ -33,11 +31,9 @@ export const EnhancedStoreInfo: React.FC<EnhancedStoreInfoProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <AddressCard store={store} />
       <ContactInfoCard googlePlacesData={googlePlacesData} />
       <BusinessHoursCard googlePlacesData={googlePlacesData} />
       <GoogleReviewsCard googlePlacesData={googlePlacesData} />
-      <StoreDetailsCard store={store} googlePlacesData={googlePlacesData} />
     </div>
   );
 };
