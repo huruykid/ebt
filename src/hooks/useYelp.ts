@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface YelpBusiness {
   id: string;
@@ -40,8 +41,6 @@ export interface YelpSearchResponse {
 // Cache for Yelp data to avoid repeat API calls
 const yelpCache = new Map<string, YelpBusiness>();
 
-const YELP_API_KEY = 'YOUR_YELP_API_KEY'; // This should be in Supabase secrets
-
 export const useYelpBusiness = (
   storeName: string,
   latitude: number,
@@ -59,34 +58,23 @@ export const useYelpBusiness = (
       }
 
       try {
-        // Search for business by name and location
-        const searchParams = new URLSearchParams({
-          term: storeName,
-          latitude: latitude.toString(),
-          longitude: longitude.toString(),
-          radius: '1000', // 1km radius
-          limit: '1',
-          sort_by: 'distance'
+        const { data, error } = await supabase.functions.invoke('yelp-search', {
+          body: {
+            term: storeName,
+            latitude,
+            longitude,
+            radius: '1000',
+            limit: '1',
+            sort_by: 'distance'
+          }
         });
 
-        const response = await fetch(
-          `https://api.yelp.com/v3/businesses/search?${searchParams}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${YELP_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (!response.ok) {
-          console.error('Yelp API error:', response.status);
+        if (error) {
+          console.error('Error calling yelp-search function:', error);
           return null;
         }
 
-        const data: YelpSearchResponse = await response.json();
-        
-        if (data.businesses && data.businesses.length > 0) {
+        if (data && data.businesses && data.businesses.length > 0) {
           const business = data.businesses[0];
           
           // Cache the result
@@ -135,32 +123,21 @@ export const useYelpBusinessBatch = (
         }
 
         try {
-          const searchParams = new URLSearchParams({
-            term: store.store_name,
-            latitude: store.latitude.toString(),
-            longitude: store.longitude.toString(),
-            radius: '1000',
-            limit: '1',
-            sort_by: 'distance'
+          const { data, error } = await supabase.functions.invoke('yelp-search', {
+            body: {
+              term: store.store_name,
+              latitude: store.latitude,
+              longitude: store.longitude,
+              radius: '1000',
+              limit: '1',
+              sort_by: 'distance'
+            }
           });
 
-          const response = await fetch(
-            `https://api.yelp.com/v3/businesses/search?${searchParams}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${YELP_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          if (response.ok) {
-            const data: YelpSearchResponse = await response.json();
-            if (data.businesses && data.businesses.length > 0) {
-              const business = data.businesses[0];
-              yelpCache.set(cacheKey, business);
-              results.set(store.id, business);
-            }
+          if (!error && data && data.businesses && data.businesses.length > 0) {
+            const business = data.businesses[0];
+            yelpCache.set(cacheKey, business);
+            results.set(store.id, business);
           }
 
           // Small delay between requests to respect rate limits
