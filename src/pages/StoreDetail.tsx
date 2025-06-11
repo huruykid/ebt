@@ -7,12 +7,13 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Share2 } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { ShareStore } from '@/components/ShareStore';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -84,40 +85,54 @@ export default function StoreDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        {/* Store Photos at the top - community-focused */}
+        {/* Hero Section with Photos */}
         <StorePhotos 
           storeName={store.store_name} 
           store={store}
         />
         
-        <div className="p-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
+        <div className="relative -mt-8 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Navigation Bar */}
+            <div className="flex items-center justify-between mb-6 bg-background/80 backdrop-blur-sm rounded-lg p-4 shadow-sm border">
               <Button 
                 onClick={() => navigate('/search')} 
-                variant="outline"
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Search
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Back to Search</span>
               </Button>
-              <div className="flex gap-2">
-                <ShareStore store={store} />
+              
+              <div className="flex items-center gap-2">
+                <FavoriteButton storeId={store.id} variant="icon" />
+                <ShareStore store={store}>
+                  <Button variant="ghost" size="sm">
+                    <Share2 className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">Share</span>
+                  </Button>
+                </ShareStore>
               </div>
             </div>
 
+            {/* Main Content */}
             <div className="space-y-6">
-              {/* Store Header - community-focused */}
+              {/* Store Header */}
               <StoreHeader store={store} />
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content - Reviews Section */}
-                <div className="lg:col-span-2">
+              {/* Content Grid - Responsive Layout */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                {/* Main Content - Reviews (takes more space on desktop) */}
+                <div className="xl:col-span-2 order-2 xl:order-1">
                   <ReviewSection store={store} />
                 </div>
 
-                {/* Community Info Sidebar */}
-                <div className="lg:col-span-1">
-                  <EnhancedStoreInfo store={store} />
+                {/* Sidebar - Store Info (appears first on mobile) */}
+                <div className="xl:col-span-1 order-1 xl:order-2">
+                  <div className="sticky top-4">
+                    <EnhancedStoreInfo store={store} />
+                  </div>
                 </div>
               </div>
             </div>
