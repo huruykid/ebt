@@ -3,6 +3,7 @@ import React from 'react';
 import { Star, MapPin, Phone, Clock, Tag, Globe, Utensils } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useYelpBusiness } from '@/hooks/useYelp';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -23,6 +24,14 @@ interface StoreHeaderProps {
 }
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesData }) => {
+  // Fetch Yelp data for this store
+  const { data: yelpData } = useYelpBusiness(
+    store.store_name,
+    store.latitude || 0,
+    store.longitude || 0,
+    !!(store.latitude && store.longitude)
+  );
+
   const formatAddress = () => {
     const parts = [
       store.store_street_address,
@@ -48,7 +57,12 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
     }
   };
 
-  const isOpen = googlePlacesData?.opening_hours?.open_now;
+  // Prefer Yelp data over Google Places data
+  const rating = yelpData?.rating || googlePlacesData?.rating;
+  const reviewCount = yelpData?.review_count || googlePlacesData?.user_ratings_total || 0;
+  const phone = yelpData?.display_phone || googlePlacesData?.formatted_phone_number;
+  const website = yelpData?.url || googlePlacesData?.website;
+  const isOpen = yelpData?.hours?.[0]?.is_open_now ?? googlePlacesData?.opening_hours?.open_now;
   
   // Check if store is enrolled in RMP (Restaurant Meals Program)
   const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
@@ -61,25 +75,26 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold text-foreground mb-2">{store.store_name}</h1>
             <div className="flex flex-col gap-1 mb-3">
-              {/* Google rating if available, otherwise placeholder */}
+              {/* Yelp/Google rating */}
               <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star 
                     key={star} 
                     className={`h-5 w-5 ${
-                      googlePlacesData?.rating && star <= googlePlacesData.rating
+                      rating && star <= rating
                         ? 'text-yellow-400 fill-current' 
                         : 'text-gray-300 stroke-gray-400 stroke-2'
                     }`}
                   />
                 ))}
-                {googlePlacesData?.rating && (
+                {rating && (
                   <span className="ml-2 text-muted-foreground text-xs">
-                    {googlePlacesData.rating.toFixed(1)} ({googlePlacesData.user_ratings_total || 0} reviews)
+                    {rating.toFixed(1)} ({reviewCount} reviews)
+                    {yelpData && <span className="text-primary ml-1">• Yelp</span>}
                   </span>
                 )}
               </div>
-              {!googlePlacesData?.rating && (
+              {!rating && (
                 <span className="text-muted-foreground text-xs">
                   No reviews yet
                 </span>
@@ -89,6 +104,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
               {store.store_type && (
                 <span className={`inline-block px-3 py-1 rounded-spotify text-sm font-medium ${getStoreTypeColor(store.store_type)}`}>
                   {store.store_type}
+                </span>
+              )}
+              {yelpData?.categories && yelpData.categories.length > 0 && (
+                <span className="inline-block px-3 py-1 rounded-spotify text-sm font-medium bg-secondary/20 text-secondary-foreground">
+                  {yelpData.categories[0].title}
                 </span>
               )}
               {store.incentive_program && (
@@ -128,7 +148,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           </div>
         </div>
 
-        {/* Quick Info - Properly centered */}
+        {/* Quick Info - Enhanced with Yelp data */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-t border-border">
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4 flex-shrink-0" />
@@ -137,20 +157,20 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, googlePlacesDat
           <div className="flex items-center gap-2 text-muted-foreground">
             <Phone className="h-4 w-4 flex-shrink-0" />
             <span className="body-sm">
-              {googlePlacesData?.formatted_phone_number || 'Phone coming soon'}
+              {phone || 'Phone coming soon'}
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
-            {googlePlacesData?.website ? (
+            {website ? (
               <>
                 <Globe className="h-4 w-4 flex-shrink-0" />
                 <a 
-                  href={googlePlacesData.website}
+                  href={website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="body-sm text-primary hover:text-primary/80"
                 >
-                  Visit Website
+                  {yelpData ? 'View on Yelp' : 'Visit Website'}
                 </a>
               </>
             ) : (

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { StoreCard } from './StoreCard';
+import { EnhancedStoreCard } from './EnhancedStoreCard';
 import type { StoreWithLocationData } from '@/types/storeTypes';
 
 interface StoreListProps {
@@ -15,7 +15,7 @@ export const StoreList: React.FC<StoreListProps> = ({ stores }) => {
   return (
     <div className="space-y-3">
       {stores.map((store) => (
-        <StoreCard key={store.id} store={store} />
+        <EnhancedStoreCard key={store.id} store={store} />
       ))}
     </div>
   );
