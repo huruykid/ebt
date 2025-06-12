@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { StarRating } from './StarRating';
+import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
@@ -21,6 +22,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
   const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
@@ -65,49 +67,54 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    
     submitReviewMutation.mutate();
   };
 
-  if (!user) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Please sign in to leave a review</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-2">Your Rating</label>
-        <StarRating 
-          rating={rating} 
-          onRatingChange={setRating}
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="review-text" className="block text-sm font-medium mb-2">
-          Your Review (Optional)
-        </label>
-        <Textarea
-          id="review-text"
-          placeholder="Share your experience with this store..."
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
-          rows={4}
-        />
-      </div>
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">Your Rating</label>
+          <StarRating 
+            rating={rating} 
+            onRatingChange={setRating}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="review-text" className="block text-sm font-medium mb-2">
+            Your Review (Optional)
+          </label>
+          <Textarea
+            id="review-text"
+            placeholder="Share your experience with this store..."
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+            rows={4}
+          />
+        </div>
 
-      <Button 
-        type="submit" 
-        disabled={rating === 0 || submitReviewMutation.isPending}
-        className="w-full"
-      >
-        {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
-      </Button>
-    </form>
+        <Button 
+          type="submit" 
+          disabled={rating === 0 || submitReviewMutation.isPending}
+          className="w-full"
+        >
+          {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
+        </Button>
+      </form>
+
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="leave a review"
+        description="Create an account or sign in to share your experience and help the community discover great stores."
+      />
+    </>
   );
 };

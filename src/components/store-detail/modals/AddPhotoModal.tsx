@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Camera } from 'lucide-react';
+import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
@@ -22,6 +23,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
   const { trackContribution } = useContributionTracking();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -39,7 +41,12 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
   };
 
   const uploadPhotos = async () => {
-    if (!user || selectedFiles.length === 0) return;
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (selectedFiles.length === 0) return;
 
     setUploading(true);
     
@@ -75,78 +82,87 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Camera className="h-5 w-5" />
-            Add Photos to {store.store_name}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* File Input */}
-          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileSelect}
-              className="hidden"
-              id="photo-upload"
-            />
-            <label htmlFor="photo-upload" className="cursor-pointer">
-              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Click to select photos or drag and drop
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Max 5 photos, JPG, PNG, GIF up to 10MB each
-              </p>
-            </label>
-          </div>
-
-          {/* Selected Files */}
-          {selectedFiles.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Selected Photos ({selectedFiles.length}/5)</h4>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                    <span className="text-sm truncate">{file.name}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Camera className="h-5 w-5" />
+              Add Photos to {store.store_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* File Input */}
+            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+                id="photo-upload"
+              />
+              <label htmlFor="photo-upload" className="cursor-pointer">
+                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Click to select photos or drag and drop
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Max 5 photos, JPG, PNG, GIF up to 10MB each
+                </p>
+              </label>
             </div>
-          )}
 
-          {/* Upload Button */}
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={uploadPhotos} 
-              disabled={selectedFiles.length === 0 || uploading}
-              className="flex-1"
-            >
-              {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo(s)`}
-            </Button>
-          </div>
+            {/* Selected Files */}
+            {selectedFiles.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Selected Photos ({selectedFiles.length}/5)</h4>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                      <span className="text-sm truncate">{file.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Points Info */}
-          <div className="text-center text-xs text-muted-foreground">
-            Earn 10 points for each photo uploaded
+            {/* Upload Button */}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                onClick={uploadPhotos} 
+                disabled={selectedFiles.length === 0 || uploading}
+                className="flex-1"
+              >
+                {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo(s)`}
+              </Button>
+            </div>
+
+            {/* Points Info */}
+            <div className="text-center text-xs text-muted-foreground">
+              Earn 10 points for each photo uploaded
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="upload photos"
+        description="Create an account or sign in to upload photos and help the community discover great stores. You'll earn points for each photo!"
+      />
+    </>
   );
 };
