@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { StoreRatingDisplay } from '@/components/reviews/StoreRatingDisplay';
 import { AddPhoneModal } from './modals/AddPhoneModal';
 import { AddHoursModal } from './modals/AddHoursModal';
 import { ReportIssueModal } from './modals/ReportIssueModal';
+import { ClaimBusinessModal } from './modals/ClaimBusinessModal';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -82,9 +84,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               </div>
               
               <div className="flex flex-col gap-2 sm:items-end">
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                  Claim Business
-                </Button>
+                <ClaimBusinessModal store={store}>
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                    Claim Business
+                  </Button>
+                </ClaimBusinessModal>
                 <ReportIssueModal store={store}>
                   <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive w-full sm:w-auto">
                     Report Issue
