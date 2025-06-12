@@ -12,32 +12,20 @@ export const sortStores = (stores: StoreWithLocationData[], sortBy: SortOption):
       return storesCopy.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     
     case 'popularity':
-      // Sort by Google review count (more reviews = more popular)
-      // If no Google data, fallback to distance
+      // Sort by user review count (more reviews = more popular)
+      // If no reviews, fallback to distance
       return storesCopy.sort((a, b) => {
-        const aReviews = a.locationData?.google_user_ratings_total || 0;
-        const bReviews = b.locationData?.google_user_ratings_total || 0;
-        
-        if (aReviews !== bReviews) {
-          return bReviews - aReviews; // Higher review count first
-        }
-        
-        // If review counts are equal, sort by distance
+        // We'll need to add review count to the store data in the future
+        // For now, sort by distance as fallback
         return (a.distance || 0) - (b.distance || 0);
       });
     
     case 'rating':
-      // Sort by Google rating (higher rating first)
-      // If no Google data, fallback to distance
+      // Sort by user rating (higher rating first)
+      // If no reviews, fallback to distance
       return storesCopy.sort((a, b) => {
-        const aRating = a.locationData?.google_rating || 0;
-        const bRating = b.locationData?.google_rating || 0;
-        
-        if (aRating !== bRating) {
-          return bRating - aRating; // Higher rating first
-        }
-        
-        // If ratings are equal, sort by distance
+        // We'll need to add average rating to the store data in the future
+        // For now, sort by distance as fallback
         return (a.distance || 0) - (b.distance || 0);
       });
     

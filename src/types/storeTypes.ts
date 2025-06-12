@@ -11,6 +11,9 @@ export interface StoreWithDistance extends Store {
 
 export interface StoreWithLocationData extends StoreWithDistance {
   locationData?: LocationData;
+  // Add our internal review data
+  reviewCount?: number;
+  averageRating?: number;
 }
 
 export interface StoreWithYelpData extends StoreWithLocationData {
