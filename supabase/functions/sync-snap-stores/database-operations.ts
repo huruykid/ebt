@@ -5,7 +5,21 @@ import { TransformedStore } from './types.ts';
 export async function clearExistingData(supabase: any): Promise<void> {
   console.log('Clearing existing data...');
   
-  // First, clear favorites table to avoid foreign key constraint issues
+  // Clear tables in order to avoid foreign key constraint issues
+  console.log('Clearing store_clicks that reference stores...');
+  const { error: clicksError } = await supabase
+    .from('store_clicks')
+    .delete()
+    .gte('clicked_at', '1900-01-01'); // Delete all store_clicks records
+
+  if (clicksError) {
+    console.warn('Warning: Could not clear store_clicks:', clicksError.message);
+    // Continue anyway - this might not be critical
+  } else {
+    console.log('Successfully cleared store_clicks');
+  }
+  
+  // Clear favorites table to avoid foreign key constraint issues
   console.log('Clearing favorites that reference stores...');
   const { error: favoritesError } = await supabase
     .from('favorites')
