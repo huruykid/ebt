@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Utensils } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -18,6 +19,10 @@ interface StoreDetailsCardProps {
 export const StoreDetailsCard: React.FC<StoreDetailsCardProps> = ({ store, googlePlacesData }) => {
   const businessStatus = googlePlacesData?.business_status;
 
+  // Check if store accepts hot foods (RMP)
+  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
+                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+
   return (
     <Card>
       <CardHeader>
@@ -32,6 +37,15 @@ export const StoreDetailsCard: React.FC<StoreDetailsCardProps> = ({ store, googl
             </span>
           </div>
         )}
+
+        {/* Hot Foods Acceptance */}
+        <div className="flex items-center gap-2">
+          <Utensils className="h-4 w-4 text-blue-500" />
+          <span className="text-sm font-medium">Hot Foods:</span>
+          <Badge variant={isRmpEnrolled ? "default" : "outline"} className={isRmpEnrolled ? "bg-blue-100 text-blue-800" : ""}>
+            {isRmpEnrolled ? "Accepted" : "Not Available"}
+          </Badge>
+        </div>
 
         {store.grantee_name && (
           <div>

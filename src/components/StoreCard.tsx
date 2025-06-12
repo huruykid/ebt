@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Phone, Clock, Globe, ExternalLink } from 'lucide-react';
+import { MapPin, Star, Phone, Clock, Globe, ExternalLink, Utensils } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
@@ -52,6 +52,10 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const hasCompleteAddress = store.store_street_address && store.city;
   const fullAddress = formatAddress();
 
+  // Check if store accepts hot foods (RMP)
+  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
+                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
       {/* Yelp-style horizontal layout */}
@@ -94,6 +98,12 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
               EBT Accepted
             </span>
+            {isRmpEnrolled && (
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                <Utensils className="h-3 w-3 mr-1" />
+                Hot Foods
+              </span>
+            )}
           </div>
 
           {/* Action Buttons */}
