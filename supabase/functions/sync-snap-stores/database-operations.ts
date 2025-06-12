@@ -10,7 +10,7 @@ export async function clearExistingData(supabase: any): Promise<void> {
   const { error: favoritesError } = await supabase
     .from('favorites')
     .delete()
-    .neq('id', 0); // Delete all favorites records
+    .gte('created_at', '1900-01-01'); // Delete all favorites records using a date condition
 
   if (favoritesError) {
     console.warn('Warning: Could not clear favorites:', favoritesError.message);
@@ -24,7 +24,7 @@ export async function clearExistingData(supabase: any): Promise<void> {
   const { error: deleteError } = await supabase
     .from('snap_stores')
     .delete()
-    .neq('id', 0); // Delete all records
+    .gte('id', 0); // Delete all records using a condition that matches all
 
   if (deleteError) {
     throw new Error(`Failed to clear existing data: ${deleteError.message}`);
