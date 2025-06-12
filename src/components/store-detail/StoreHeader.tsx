@@ -20,10 +20,10 @@ interface StoreHeaderProps {
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
   const formatAddress = () => {
     const parts = [
-      store.store_street_address,
-      store.city,
-      store.state,
-      store.zip_code
+      store.Store_Street_Address,
+      store.City,
+      store.State,
+      store.Zip_Code
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -63,11 +63,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
     }
   };
 
-  const StoreTypeIcon = getStoreTypeIcon(store.store_type);
+  const StoreTypeIcon = getStoreTypeIcon(store.Store_Type);
 
   // Check if store accepts hot foods (RMP)
-  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
-                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+  const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
+                       store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
@@ -78,7 +78,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 leading-tight">
-                  {store.store_name}
+                  {store.Store_Name}
                 </h1>
                 <StoreRatingDisplay storeId={store.id} className="mb-3" />
               </div>
@@ -99,10 +99,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
 
             {/* Store Badges */}
             <div className="flex flex-wrap gap-2">
-              {store.store_type && (
-                <Badge variant="secondary" className={`${getStoreTypeColor(store.store_type)} border`}>
+              {store.Store_Type && (
+                <Badge variant="secondary" className={`${getStoreTypeColor(store.Store_Type)} border`}>
                   <StoreTypeIcon className="h-3 w-3 mr-1" />
-                  {store.store_type}
+                  {store.Store_Type}
                 </Badge>
               )}
               
@@ -111,10 +111,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
                 EBT Accepted
               </Badge>
               
-              {store.incentive_program && (
+              {store.Incentive_Program && (
                 <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                   <Star className="h-3 w-3 mr-1" />
-                  {store.incentive_program}
+                  {store.Incentive_Program}
                 </Badge>
               )}
               
@@ -160,13 +160,13 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
           </div>
 
           {/* EBT Information */}
-          {store.incentive_program && (
+          {store.Incentive_Program && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <h3 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
                 <Star className="h-4 w-4" />
                 Incentive Program Available
               </h3>
-              <p className="text-green-800 text-sm">{store.incentive_program}</p>
+              <p className="text-green-800 text-sm">{store.Incentive_Program}</p>
             </div>
           )}
         </div>

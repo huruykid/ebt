@@ -28,10 +28,10 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
   // Only fetch Yelp data once the card is in view
   const { data: yelpData, isLoading: yelpLoading } = useYelpBusiness(
-    store.store_name,
-    store.latitude || 0,
-    store.longitude || 0,
-    hasIntersected && !!(store.latitude && store.longitude)
+    store.Store_Name || '',
+    store.Latitude || 0,
+    store.Longitude || 0,
+    hasIntersected && !!(store.Latitude && store.Longitude)
   );
 
   const handleStoreClick = () => {
@@ -42,9 +42,9 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
   const formatAddress = () => {
     const parts = [
-      store.store_street_address,
-      store.city,
-      store.state
+      store.Store_Street_Address,
+      store.City,
+      store.State
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -63,12 +63,12 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
     }
   };
 
-  const hasCompleteAddress = store.store_street_address && store.city;
+  const hasCompleteAddress = store.Store_Street_Address && store.City;
   const fullAddress = formatAddress();
 
   // Check if store accepts hot foods (RMP)
-  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
-                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+  const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
+                       store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
   return (
     <div ref={ref} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -78,7 +78,7 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
           {yelpData?.image_url ? (
             <img 
               src={yelpData.image_url}
-              alt={store.store_name}
+              alt={store.Store_Name || ''}
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -86,7 +86,7 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
             <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
               <div className="text-center text-gray-500">
                 <MapPin className="h-6 w-6 mx-auto mb-1" />
-                <span className="text-xs font-medium">{store.store_name}</span>
+                <span className="text-xs font-medium">{store.Store_Name}</span>
               </div>
             </div>
           )}
@@ -101,7 +101,7 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
               onClick={handleStoreClick}
               className="text-lg font-semibold text-foreground hover:text-primary transition-colors block truncate"
             >
-              {store.store_name}
+              {store.Store_Name}
             </Link>
             
             {/* Yelp Rating or Placeholder */}
@@ -134,9 +134,9 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
           {/* Store Type and EBT Tags */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {store.store_type && (
-              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.store_type)}`}>
-                {store.store_type}
+            {store.Store_Type && (
+              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.Store_Type)}`}>
+                {store.Store_Type}
               </span>
             )}
             {yelpData?.categories && yelpData.categories.length > 0 && (
@@ -204,12 +204,12 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
           </div>
 
           {/* Special Programs */}
-          {store.incentive_program && (
+          {store.Incentive_Program && (
             <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10">
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-primary" />
                 <span className="text-xs font-medium text-primary">
-                  {store.incentive_program}
+                  {store.Incentive_Program}
                 </span>
               </div>
             </div>

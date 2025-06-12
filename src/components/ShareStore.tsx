@@ -31,8 +31,8 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
   const storeUrl = `${window.location.origin}/store/${store.id}`;
   
   const shareData = {
-    title: `${store.store_name} - SNAP/EBT Store`,
-    text: `Check out this SNAP/EBT store: ${store.store_name}${store.city ? ` in ${store.city}` : ''}`,
+    title: `${store.Store_Name} - SNAP/EBT Store`,
+    text: `Check out this SNAP/EBT store: ${store.Store_Name}${store.City ? ` in ${store.City}` : ''}`,
     url: storeUrl
   };
 

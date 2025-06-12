@@ -13,11 +13,11 @@ interface StoreInfoProps {
 export const StoreInfo: React.FC<StoreInfoProps> = ({ store }) => {
   const formatAddress = () => {
     const parts = [
-      store.store_street_address,
-      store.additional_address,
-      store.city,
-      store.state,
-      store.zip_code
+      store.Store_Street_Address,
+      store.Additional_Address,
+      store.City,
+      store.State,
+      store.Zip_Code
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -36,7 +36,7 @@ export const StoreInfo: React.FC<StoreInfoProps> = ({ store }) => {
               <MapPin className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-gray-900">{formatAddress()}</p>
-                {(!store.store_street_address || !store.city) && (
+                {(!store.Store_Street_Address || !store.City) && (
                   <p className="text-amber-600 text-sm mt-1">
                     ⚠️ Address information may be incomplete
                   </p>
@@ -60,12 +60,12 @@ export const StoreInfo: React.FC<StoreInfoProps> = ({ store }) => {
             <span className="text-sm font-medium text-green-700">EBT/SNAP Accepted</span>
           </div>
           
-          {store.incentive_program && (
+          {store.Incentive_Program && (
             <div className="flex items-start gap-3">
               <Star className="h-5 w-5 text-yellow-500 mt-0.5" />
               <div>
                 <p className="text-gray-900 font-medium">Incentive Program</p>
-                <p className="text-gray-600">{store.incentive_program}</p>
+                <p className="text-gray-600">{store.Incentive_Program}</p>
               </div>
             </div>
           )}
@@ -88,17 +88,17 @@ export const StoreInfo: React.FC<StoreInfoProps> = ({ store }) => {
           <CardTitle>Store Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {store.grantee_name && (
+          {store.Grantee_Name && (
             <div>
               <p className="text-sm font-medium text-gray-500">Operated by</p>
-              <p className="text-gray-900">{store.grantee_name}</p>
+              <p className="text-gray-900">{store.Grantee_Name}</p>
             </div>
           )}
           
-          {store.county && (
+          {store.County && (
             <div>
               <p className="text-sm font-medium text-gray-500">County</p>
-              <p className="text-gray-900">{store.county}</p>
+              <p className="text-gray-900">{store.County}</p>
             </div>
           )}
           
@@ -107,10 +107,10 @@ export const StoreInfo: React.FC<StoreInfoProps> = ({ store }) => {
             <p className="text-gray-900">{store.id}</p>
           </div>
           
-          {store.record_id && (
+          {store.Record_ID && (
             <div>
               <p className="text-sm font-medium text-gray-500">Record ID</p>
-              <p className="text-gray-900">{store.record_id}</p>
+              <p className="text-gray-900">{store.Record_ID}</p>
             </div>
           )}
 

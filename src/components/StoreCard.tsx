@@ -28,9 +28,9 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
   const formatAddress = () => {
     const parts = [
-      store.store_street_address,
-      store.city,
-      store.state
+      store.Store_Street_Address,
+      store.City,
+      store.State
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -49,12 +49,12 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
     }
   };
 
-  const hasCompleteAddress = store.store_street_address && store.city;
+  const hasCompleteAddress = store.Store_Street_Address && store.City;
   const fullAddress = formatAddress();
 
   // Check if store accepts hot foods (RMP)
-  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
-                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+  const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
+                       store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -63,7 +63,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         {/* Store Photo - Left side */}
         <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
           <StorePhoto 
-            storeName={store.store_name}
+            storeName={store.Store_Name || ''}
             address={fullAddress}
             className="w-full h-full object-cover"
           />
@@ -78,7 +78,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
               onClick={handleStoreClick}
               className="text-lg font-semibold text-foreground hover:text-primary transition-colors block truncate"
             >
-              {store.store_name}
+              {store.Store_Name}
             </Link>
             
             {/* Rating and Review Count */}
@@ -90,9 +90,9 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
           {/* Store Type and EBT Tags */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {store.store_type && (
-              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.store_type)}`}>
-                {store.store_type}
+            {store.Store_Type && (
+              <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.Store_Type)}`}>
+                {store.Store_Type}
               </span>
             )}
             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
@@ -159,12 +159,12 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           </div>
 
           {/* Special Programs */}
-          {store.incentive_program && (
+          {store.Incentive_Program && (
             <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10">
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-primary" />
                 <span className="text-xs font-medium text-primary">
-                  {store.incentive_program}
+                  {store.Incentive_Program}
                 </span>
               </div>
             </div>

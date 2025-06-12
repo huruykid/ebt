@@ -46,27 +46,27 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
   
   // Get enhanced address information from OSM if coordinates are available
   const { data: osmData } = useNominatimReverse(
-    store?.latitude || 0,
-    store?.longitude || 0,
-    !!(store?.latitude && store?.longitude)
+    store?.Latitude || 0,
+    store?.Longitude || 0,
+    !!(store?.Latitude && store?.Longitude)
   );
 
   const openDirections = () => {
-    if (store?.latitude && store?.longitude) {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`;
+    if (store?.Latitude && store?.Longitude) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${store.Latitude},${store.Longitude}`;
       window.open(url, '_blank');
     }
   };
 
   const openInMaps = () => {
-    if (store?.latitude && store?.longitude) {
+    if (store?.Latitude && store?.Longitude) {
       // Use OpenStreetMap for viewing
-      const url = `https://www.openstreetmap.org/?mlat=${store.latitude}&mlon=${store.longitude}&zoom=16`;
+      const url = `https://www.openstreetmap.org/?mlat=${store.Latitude}&mlon=${store.Longitude}&zoom=16`;
       window.open(url, '_blank');
     }
   };
 
-  if (!store?.latitude || !store?.longitude) {
+  if (!store?.Latitude || !store?.Longitude) {
     return (
       <Card>
         <CardHeader>
@@ -87,7 +87,7 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
   let travelTime: string | null = null;
   
   if (userLat && userLon && !locationError) {
-    distance = calculateDistance(userLat, userLon, store.latitude, store.longitude);
+    distance = calculateDistance(userLat, userLon, store.Latitude, store.Longitude);
     travelTime = estimateTravelTime(distance);
   }
 
@@ -106,11 +106,11 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
     
     // Fallback to original store data
     const parts = [
-      store.store_street_address,
-      store.additional_address,
-      store.city,
-      store.state,
-      store.zip_code
+      store.Store_Street_Address,
+      store.Additional_Address,
+      store.City,
+      store.State,
+      store.Zip_Code
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -174,7 +174,7 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
         {/* Coordinates for reference */}
         <div className="pt-4 border-t border-gray-200">
           <div className="text-xs text-gray-500">
-            <strong>Coordinates:</strong> {store.latitude}, {store.longitude}
+            <strong>Coordinates:</strong> {store.Latitude}, {store.Longitude}
           </div>
         </div>
       </CardContent>

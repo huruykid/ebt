@@ -27,10 +27,10 @@ export const useStoreLocationData = (stores: StoreWithDistance[] | undefined) =>
     if (!stores || !Array.isArray(stores) || stores.length === 0) return [];
     return stores.slice(0, 5).map(store => {
       const searchQuery = [
-        store.store_name,
-        store.store_street_address,
-        store.city,
-        store.state
+        store.Store_Name,
+        store.Store_Street_Address,
+        store.City,
+        store.State
       ].filter(Boolean).join(' ');
       return { query: searchQuery, storeId: store.id };
     });
@@ -48,7 +48,7 @@ export const useStoreLocationData = (stores: StoreWithDistance[] | undefined) =>
 
   // Create a map of location data for each store
   const locationDataMap = useMemo(() => {
-    const dataMap = new Map<number, LocationData>();
+    const dataMap = new Map<string, LocationData>();
     searchQueries.forEach(({ storeId }, index) => {
       const queryResult = queryResults[index];
       // Only process if the query was successful and has data

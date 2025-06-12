@@ -20,8 +20,8 @@ export const StoreDetailsCard: React.FC<StoreDetailsCardProps> = ({ store, googl
   const businessStatus = googlePlacesData?.business_status;
 
   // Check if store accepts hot foods (RMP)
-  const isRmpEnrolled = store.incentive_program?.toLowerCase().includes('rmp') || 
-                       store.incentive_program?.toLowerCase().includes('restaurant meals program');
+  const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
+                       store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
   return (
     <Card>
@@ -47,17 +47,17 @@ export const StoreDetailsCard: React.FC<StoreDetailsCardProps> = ({ store, googl
           </Badge>
         </div>
 
-        {store.grantee_name && (
+        {store.Grantee_Name && (
           <div>
             <p className="text-sm font-medium text-gray-500">Operated by</p>
-            <p className="text-gray-900">{store.grantee_name}</p>
+            <p className="text-gray-900">{store.Grantee_Name}</p>
           </div>
         )}
         
-        {store.county && (
+        {store.County && (
           <div>
             <p className="text-sm font-medium text-gray-500">County</p>
-            <p className="text-gray-900">{store.county}</p>
+            <p className="text-gray-900">{store.County}</p>
           </div>
         )}
         
