@@ -22,15 +22,19 @@ Deno.serve(async (req) => {
     await clearExistingData(supabase);
     console.log('Cleared existing data');
 
-    // Process stores in larger chunks but with more conservative approach
-    const CHUNK_SIZE = 20000; // Larger chunks to reduce API calls
+    // Process stores with more aggressive fetching to ensure we get all 264k+ records
+    const CHUNK_SIZE = 10000; // Smaller chunks for better reliability
     let totalProcessed = 0;
     let offset = 0;
     let hasMore = true;
     let consecutiveEmptyChunks = 0;
+    const maxEmptyChunks = 5; // Increased tolerance for empty chunks
 
-    while (hasMore && consecutiveEmptyChunks < 3) {
+    console.log('Target: ~264,290 records from USDA');
+
+    while (hasMore && consecutiveEmptyChunks < maxEmptyChunks) {
       console.log(`Fetching chunk starting at offset ${offset}...`);
+      console.log(`Progress: ${totalProcessed} records processed so far`);
       
       try {
         const chunk = await fetchAllStores(offset, CHUNK_SIZE);
@@ -38,27 +42,32 @@ Deno.serve(async (req) => {
         if (chunk.length === 0) {
           console.log(`Empty chunk at offset ${offset}`);
           consecutiveEmptyChunks++;
-          offset += CHUNK_SIZE;
-          continue;
+          
+          // Try a few more offsets before giving up
+          if (consecutiveEmptyChunks < maxEmptyChunks) {
+            offset += CHUNK_SIZE;
+            continue;
+          } else {
+            console.log(`Reached ${maxEmptyChunks} consecutive empty chunks, stopping`);
+            break;
+          }
         }
 
-        console.log(`Processing ${chunk.length} stores...`);
+        console.log(`Processing ${chunk.length} stores from offset ${offset}...`);
         const insertedCount = await insertStoresInBatches(supabase, chunk);
         totalProcessed += insertedCount;
         consecutiveEmptyChunks = 0; // Reset counter on successful chunk
         
-        console.log(`Processed chunk. Total so far: ${totalProcessed}`);
+        console.log(`Batch completed. Inserted: ${insertedCount}, Total so far: ${totalProcessed}`);
         
-        // If we got fewer stores than requested, we might be near the end
-        // but continue to make sure we get everything
-        if (chunk.length < CHUNK_SIZE) {
-          console.log(`Chunk size ${chunk.length} < ${CHUNK_SIZE}, might be near end`);
-        }
+        // Progress indicator
+        const progressPercent = Math.round((totalProcessed / 264290) * 100);
+        console.log(`Progress: ${progressPercent}% of expected 264,290 records`);
         
         offset += CHUNK_SIZE;
 
         // Add a small delay between chunks to prevent overwhelming the API
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 100));
         
       } catch (chunkError) {
         console.error(`Error processing chunk at offset ${offset}:`, chunkError);
@@ -73,17 +82,32 @@ Deno.serve(async (req) => {
         // For other errors, try to continue with next chunk
         consecutiveEmptyChunks++;
         offset += CHUNK_SIZE;
+        
+        if (consecutiveEmptyChunks >= maxEmptyChunks) {
+          console.log('Too many consecutive errors, stopping');
+          break;
+        }
+        
         continue;
       }
     }
 
-    console.log(`Successfully synced ${totalProcessed} SNAP stores`);
+    console.log(`Sync completed. Total stores processed: ${totalProcessed}`);
+    console.log(`Expected: 264,290 | Actual: ${totalProcessed} | Coverage: ${Math.round((totalProcessed / 264290) * 100)}%`);
+
+    // If we got significantly fewer records than expected, log a warning
+    if (totalProcessed < 200000) {
+      console.warn(`WARNING: Only synced ${totalProcessed} out of expected 264,290 records`);
+      console.warn('This may indicate API limits, network issues, or data access restrictions');
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
         message: `Successfully synced ${totalProcessed} SNAP stores`,
         totalStores: totalProcessed,
+        expectedStores: 264290,
+        coveragePercent: Math.round((totalProcessed / 264290) * 100),
         finalOffset: offset
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

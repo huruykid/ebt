@@ -12,11 +12,15 @@ export async function clearExistingData(supabase: any): Promise<void> {
   if (deleteError) {
     throw new Error(`Failed to clear existing data: ${deleteError.message}`);
   }
+  
+  console.log('Successfully cleared existing data');
 }
 
 export async function insertStoresInBatches(supabase: any, stores: TransformedStore[]): Promise<number> {
-  const batchSize = 500; // More conservative batch size for better reliability
+  const batchSize = 1000; // Optimized batch size for Supabase
   let insertedCount = 0;
+  
+  console.log(`Starting batch insert of ${stores.length} stores...`);
   
   for (let i = 0; i < stores.length; i += batchSize) {
     const batch = stores.slice(i, i + batchSize);
@@ -40,7 +44,7 @@ export async function insertStoresInBatches(supabase: any, stores: TransformedSt
       
       // Small delay between batches to prevent overwhelming the database
       if (i + batchSize < stores.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
     } catch (error) {
@@ -49,5 +53,6 @@ export async function insertStoresInBatches(supabase: any, stores: TransformedSt
     }
   }
 
+  console.log(`Completed batch insert. Total records inserted: ${insertedCount}`);
   return insertedCount;
 }

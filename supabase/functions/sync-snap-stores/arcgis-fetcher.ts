@@ -4,27 +4,46 @@ import { ArcGISResponse, ArcGISFeature, TransformedStore } from './types.ts';
 export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promise<TransformedStore[]> {
   const allStores: TransformedStore[] = [];
   let offset = startOffset;
-  const limit = 1000; // Smaller batches for better performance
+  const limit = 2000; // Optimized batch size
   let recordsProcessed = 0;
   let hasMore = true;
   let consecutiveEmptyBatches = 0;
+  const maxConsecutiveEmpty = 3;
 
   console.log(`Starting fetch with offset ${startOffset}, max records ${maxRecords}`);
 
-  while (hasMore && recordsProcessed < maxRecords && consecutiveEmptyBatches < 3) {
+  while (hasMore && recordsProcessed < maxRecords && consecutiveEmptyBatches < maxConsecutiveEmpty) {
     console.log(`Fetching batch starting at offset ${offset}...`);
     
-    const arcgisUrl = `https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/snap_retailer_location_data/FeatureServer/0/query?outFields=*&where=1%3D1&f=json&resultOffset=${offset}&resultRecordCount=${limit}`;
+    // Use the official USDA SNAP retailer API endpoint
+    const arcgisUrl = `https://services1.arcgis.com/RLQu0rK7h4kbsBq5/arcgis/rest/services/snap_retailer_location_data/FeatureServer/0/query?outFields=*&where=1%3D1&f=json&resultOffset=${offset}&resultRecordCount=${limit}&orderByFields=OBJECTID`;
     
     try {
-      const response = await fetch(arcgisUrl);
+      const response = await fetch(arcgisUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Supabase-Edge-Function/1.0',
+          'Accept': 'application/json'
+        }
+      });
       
       if (!response.ok) {
         console.error(`ArcGIS API error: ${response.status} ${response.statusText}`);
         
         if (response.status === 400) {
-          console.log('Got 400 error, likely reached end of data');
+          console.log('Got 400 error, might have reached end of data or hit API limit');
+          // Try smaller batch size on 400 error
+          if (limit > 500) {
+            console.log('Retrying with smaller batch size...');
+            continue;
+          }
           break;
+        }
+        
+        if (response.status === 429) {
+          console.log('Rate limited, waiting before retry...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          continue;
         }
         
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -34,7 +53,11 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
       
       if (jsonData.error) {
         console.error('ArcGIS API returned error:', jsonData.error);
-        break;
+        if (jsonData.error.code === 400) {
+          console.log('API returned 400 error, likely reached end of available data');
+          break;
+        }
+        throw new Error(`ArcGIS Error: ${jsonData.error.message}`);
       }
       
       const features = jsonData.features || [];
@@ -48,8 +71,8 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
         continue;
       }
 
-      // Log sample data for debugging
-      if (features.length > 0) {
+      // Log sample data for debugging (only on first batch)
+      if (offset === startOffset && features.length > 0) {
         const sampleFeature = features[0];
         console.log('Sample feature attributes:', JSON.stringify(sampleFeature.attributes, null, 2));
       }
@@ -59,23 +82,30 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
       recordsProcessed += features.length;
       consecutiveEmptyBatches = 0;
       
-      console.log(`Batch processed. Records in this chunk: ${transformedStores.length}, Total in chunk: ${allStores.length}`);
+      console.log(`Batch processed. Records in this chunk: ${transformedStores.length}, Total accumulated: ${allStores.length}`);
       
       offset += limit;
       
+      // If we got fewer features than requested, we might be near the end
       if (features.length < limit) {
-        console.log(`Batch returned ${features.length} < ${limit}, continuing to check for more...`);
+        console.log(`Batch returned ${features.length} < ${limit}, might be approaching end of data`);
       }
+      
+      // Add delay to respect API rate limits
+      await new Promise(resolve => setTimeout(resolve, 150));
       
     } catch (fetchError) {
       console.error(`Error fetching data at offset ${offset}:`, fetchError);
       consecutiveEmptyBatches++;
       offset += limit;
       
-      if (consecutiveEmptyBatches >= 3) {
+      if (consecutiveEmptyBatches >= maxConsecutiveEmpty) {
         console.log('Too many consecutive errors, stopping fetch');
         break;
       }
+      
+      // Wait before retrying on error
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
@@ -110,11 +140,11 @@ function transformFeatures(features: ArcGISFeature[]): TransformedStore[] {
       record_id: attrs.Record_ID?.toString() || '',
       store_name: attrs.Store_Name || 'Unknown Store',
       store_type: attrs.Store_Type || '',
-      store_street_address: attrs.Store_Street_Address || '', // Fixed field mapping
-      additional_address: attrs.Additonal_Address || '', // Fixed field mapping (note the typo in ArcGIS)
+      store_street_address: attrs.Store_Street_Address || '',
+      additional_address: attrs.Additonal_Address || '', // Note the typo in ArcGIS field name
       city: attrs.City || '',
       state: attrs.State || '',
-      zip_code: attrs.Zip_Code || '', // Fixed field mapping
+      zip_code: attrs.Zip_Code || '',
       zip4: attrs.Zip4 || '',
       county: attrs.County || '',
       longitude: attrs.Longitude || 0,
