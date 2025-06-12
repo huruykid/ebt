@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -233,22 +232,18 @@ export const StoreSearch: React.FC = () => {
 
         {stores && stores.length > 0 && (
           <div className="space-y-6">
-            {/* Enhanced Results Header with Sort */}
+            {/* Enhanced Results Header with Sort - removed store count */}
             <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-success animate-bounce-gentle" />
-                  <p className="body-md font-semibold text-success">
-                    Found {stores.length} store{stores.length !== 1 ? 's' : ''}
-                  </p>
                   {locationSearch && (
-                    <div className="flex items-center gap-1 ml-2">
+                    <div className="flex items-center gap-1">
                       <MapPin className="h-4 w-4 text-info" />
                       <span className="text-info font-medium">Near your location</span>
                     </div>
                   )}
                   {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
-                    <span className="ml-2 px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
+                    <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
                       Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
                     </span>
                   )}
