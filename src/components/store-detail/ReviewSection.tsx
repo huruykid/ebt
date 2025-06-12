@@ -47,7 +47,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
     },
   });
 
-  const handleReviewSubmitted = () => {
+  const handleReviewSuccess = () => {
     refetch();
     setShowReviewForm(false);
   };
@@ -65,8 +65,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
           {showReviewForm ? (
             <ReviewForm 
               storeId={parseInt(store.id)}
-              onSubmitted={handleReviewSubmitted}
-              onCancel={() => setShowReviewForm(false)}
+              onSuccess={handleReviewSuccess}
             />
           ) : (
             <>
@@ -89,7 +88,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
                 </div>
               )}
 
-              <ReviewList reviews={reviews} />
+              <ReviewList storeId={parseInt(store.id)} />
             </>
           )}
         </CardContent>

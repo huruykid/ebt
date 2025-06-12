@@ -19,11 +19,9 @@ interface UserReview {
   review_text: string | null;
   created_at: string;
   store_id: number;
-  snap_stores: {
-    Store_Name: string;
-    City: string;
-    State: string;
-  } | null;
+  store_name: string | null;
+  city: string | null;
+  state: string | null;
 }
 
 export const UserReviews: React.FC = () => {
@@ -37,25 +35,38 @@ export const UserReviews: React.FC = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await supabase
+      // First get the reviews
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from('reviews')
-        .select(`
-          id,
-          rating,
-          review_text,
-          created_at,
-          store_id,
-          snap_stores!inner (
-            Store_Name,
-            City,
-            State
-          )
-        `)
+        .select('id, rating, review_text, created_at, store_id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as UserReview[];
+      if (reviewsError) throw reviewsError;
+      
+      if (!reviewsData || reviewsData.length === 0) {
+        return [];
+      }
+
+      // Get store details for each review
+      const storeIds = reviewsData.map(review => review.store_id.toString());
+      const { data: storesData, error: storesError } = await supabase
+        .from('snap_stores')
+        .select('id, Store_Name, City, State')
+        .in('id', storeIds);
+
+      if (storesError) {
+        console.error('Error fetching stores:', storesError);
+        // Continue without store data if there's an error
+      }
+
+      // Combine reviews with store data
+      return reviewsData.map(review => ({
+        ...review,
+        store_name: storesData?.find(store => store.id === review.store_id.toString())?.Store_Name || null,
+        city: storesData?.find(store => store.id === review.store_id.toString())?.City || null,
+        state: storesData?.find(store => store.id === review.store_id.toString())?.State || null,
+      })) as UserReview[];
     },
     enabled: !!user,
   });
@@ -143,16 +154,18 @@ export const UserReviews: React.FC = () => {
                       </span>
                     </div>
                     
-                    {review.snap_stores && (
+                    {review.store_name && (
                       <button
                         onClick={() => navigate(`/store/${review.store_id}`)}
                         className="flex items-center gap-2 text-green-600 hover:text-green-700 mb-2"
                       >
                         <Store className="h-4 w-4" />
-                        <span className="font-medium">{review.snap_stores.Store_Name}</span>
-                        <span className="text-gray-500">
-                          • {review.snap_stores.City}, {review.snap_stores.State}
-                        </span>
+                        <span className="font-medium">{review.store_name}</span>
+                        {review.city && review.state && (
+                          <span className="text-gray-500">
+                            • {review.city}, {review.state}
+                          </span>
+                        )}
                       </button>
                     )}
                   </div>
