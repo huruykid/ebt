@@ -44,21 +44,21 @@ export type Database = {
       }
       favorites: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
-          store_id: number
+          store_id: string
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
-          store_id: number
+          store_id: string
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
-          store_id?: number
+          store_id?: string
           user_id?: string
         }
         Relationships: [
@@ -129,103 +129,92 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "snap_stores"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       snap_stores: {
         Row: {
-          additional_address: string | null
-          city: string | null
-          county: string | null
-          created_at: string | null
-          grantee_name: string | null
-          id: number
-          incentive_program: string | null
-          latitude: number | null
-          longitude: number | null
-          object_id: string | null
-          record_id: string | null
-          state: string | null
-          store_name: string
-          store_street_address: string | null
-          store_type: string | null
-          x: number | null
-          y: number | null
-          zip_code: string | null
-          zip4: string | null
+          Additional_Address: string | null
+          City: string | null
+          County: string | null
+          Grantee_Name: string | null
+          id: string
+          Incentive_Program: string | null
+          Latitude: number | null
+          Longitude: number | null
+          ObjectId: string | null
+          Record_ID: string | null
+          State: string | null
+          Store_Name: string | null
+          Store_Street_Address: string | null
+          Store_Type: string | null
+          X: string | null
+          Y: string | null
+          Zip_Code: string | null
+          Zip4: string | null
         }
         Insert: {
-          additional_address?: string | null
-          city?: string | null
-          county?: string | null
-          created_at?: string | null
-          grantee_name?: string | null
-          id?: number
-          incentive_program?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          object_id?: string | null
-          record_id?: string | null
-          state?: string | null
-          store_name: string
-          store_street_address?: string | null
-          store_type?: string | null
-          x?: number | null
-          y?: number | null
-          zip_code?: string | null
-          zip4?: string | null
+          Additional_Address?: string | null
+          City?: string | null
+          County?: string | null
+          Grantee_Name?: string | null
+          id?: string
+          Incentive_Program?: string | null
+          Latitude?: number | null
+          Longitude?: number | null
+          ObjectId?: string | null
+          Record_ID?: string | null
+          State?: string | null
+          Store_Name?: string | null
+          Store_Street_Address?: string | null
+          Store_Type?: string | null
+          X?: string | null
+          Y?: string | null
+          Zip_Code?: string | null
+          Zip4?: string | null
         }
         Update: {
-          additional_address?: string | null
-          city?: string | null
-          county?: string | null
-          created_at?: string | null
-          grantee_name?: string | null
-          id?: number
-          incentive_program?: string | null
-          latitude?: number | null
-          longitude?: number | null
-          object_id?: string | null
-          record_id?: string | null
-          state?: string | null
-          store_name?: string
-          store_street_address?: string | null
-          store_type?: string | null
-          x?: number | null
-          y?: number | null
-          zip_code?: string | null
-          zip4?: string | null
+          Additional_Address?: string | null
+          City?: string | null
+          County?: string | null
+          Grantee_Name?: string | null
+          id?: string
+          Incentive_Program?: string | null
+          Latitude?: number | null
+          Longitude?: number | null
+          ObjectId?: string | null
+          Record_ID?: string | null
+          State?: string | null
+          Store_Name?: string | null
+          Store_Street_Address?: string | null
+          Store_Type?: string | null
+          X?: string | null
+          Y?: string | null
+          Zip_Code?: string | null
+          Zip4?: string | null
         }
         Relationships: []
       }
       store_clicks: {
         Row: {
-          clicked_at: string
+          clicked_at: string | null
           id: string
-          store_id: number
+          store_id: string
           user_id: string | null
           user_latitude: number
           user_longitude: number
         }
         Insert: {
-          clicked_at?: string
+          clicked_at?: string | null
           id?: string
-          store_id: number
+          store_id: string
           user_id?: string | null
           user_latitude: number
           user_longitude: number
         }
         Update: {
-          clicked_at?: string
+          clicked_at?: string | null
           id?: string
-          store_id?: number
+          store_id?: string
           user_id?: string | null
           user_latitude?: number
           user_longitude?: number
@@ -300,15 +289,7 @@ export type Database = {
           user_id?: string
           verified?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_points_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "snap_stores"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -318,15 +299,7 @@ export type Database = {
           review_count: number | null
           store_id: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "snap_stores"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_stats: {
         Row: {
