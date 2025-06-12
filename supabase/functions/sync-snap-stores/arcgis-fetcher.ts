@@ -1,14 +1,13 @@
-
 import { ArcGISResponse, ArcGISFeature, TransformedStore } from './types.ts';
 
-export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promise<TransformedStore[]> {
+export async function fetchAllStores(startOffset = 0, maxRecords = 5000): Promise<TransformedStore[]> {
   const allStores: TransformedStore[] = [];
   let offset = startOffset;
-  const limit = 2000; // Optimized batch size
+  const limit = 1000; // Smaller batch size for reliability
   let recordsProcessed = 0;
   let hasMore = true;
   let consecutiveEmptyBatches = 0;
-  const maxConsecutiveEmpty = 3;
+  const maxConsecutiveEmpty = 2; // Reduced for faster detection
 
   console.log(`Starting fetch with offset ${startOffset}, max records ${maxRecords}`);
 
@@ -32,11 +31,6 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
         
         if (response.status === 400) {
           console.log('Got 400 error, might have reached end of data or hit API limit');
-          // Try smaller batch size on 400 error
-          if (limit > 500) {
-            console.log('Retrying with smaller batch size...');
-            continue;
-          }
           break;
         }
         
@@ -71,12 +65,6 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
         continue;
       }
 
-      // Log sample data for debugging (only on first batch)
-      if (offset === startOffset && features.length > 0) {
-        const sampleFeature = features[0];
-        console.log('Sample feature attributes:', JSON.stringify(sampleFeature.attributes, null, 2));
-      }
-
       const transformedStores = transformFeatures(features);
       allStores.push(...transformedStores);
       recordsProcessed += features.length;
@@ -91,8 +79,8 @@ export async function fetchAllStores(startOffset = 0, maxRecords = 10000): Promi
         console.log(`Batch returned ${features.length} < ${limit}, might be approaching end of data`);
       }
       
-      // Add delay to respect API rate limits
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Reduced delay for faster processing
+      await new Promise(resolve => setTimeout(resolve, 100));
       
     } catch (fetchError) {
       console.error(`Error fetching data at offset ${offset}:`, fetchError);

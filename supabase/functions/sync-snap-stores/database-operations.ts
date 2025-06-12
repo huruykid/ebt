@@ -48,7 +48,7 @@ export async function clearExistingData(supabase: any): Promise<void> {
 }
 
 export async function insertStoresInBatches(supabase: any, stores: TransformedStore[]): Promise<number> {
-  const batchSize = 1000; // Optimized batch size for Supabase
+  const batchSize = 500; // Reduced batch size for better reliability
   let insertedCount = 0;
   
   console.log(`Starting batch insert of ${stores.length} stores...`);

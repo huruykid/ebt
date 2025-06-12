@@ -18,23 +18,32 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Clear existing data first
-    await clearExistingData(supabase);
-    console.log('Cleared existing data');
+    // Get URL parameters to support resuming from a specific offset
+    const url = new URL(req.url);
+    const startOffset = parseInt(url.searchParams.get('offset') || '0');
+    const shouldClear = url.searchParams.get('clear') !== 'false';
 
-    // Process stores with more aggressive fetching to ensure we get all 264k+ records
-    const CHUNK_SIZE = 10000; // Smaller chunks for better reliability
+    // Clear existing data only if this is a fresh start
+    if (shouldClear && startOffset === 0) {
+      await clearExistingData(supabase);
+      console.log('Cleared existing data');
+    }
+
+    // Optimized parameters for better performance
+    const CHUNK_SIZE = 5000; // Smaller chunks to avoid CPU timeout
+    const MAX_RECORDS_PER_INVOCATION = 50000; // Limit per function call
     let totalProcessed = 0;
-    let offset = 0;
+    let offset = startOffset;
     let hasMore = true;
     let consecutiveEmptyChunks = 0;
-    const maxEmptyChunks = 5; // Increased tolerance for empty chunks
+    const maxEmptyChunks = 3; // Reduced for faster detection
 
-    console.log('Target: ~264,290 records from USDA');
+    console.log(`Target: ~264,290 records from USDA`);
+    console.log(`Starting from offset: ${offset}`);
 
-    while (hasMore && consecutiveEmptyChunks < maxEmptyChunks) {
+    while (hasMore && consecutiveEmptyChunks < maxEmptyChunks && totalProcessed < MAX_RECORDS_PER_INVOCATION) {
       console.log(`Fetching chunk starting at offset ${offset}...`);
-      console.log(`Progress: ${totalProcessed} records processed so far`);
+      console.log(`Progress: ${startOffset + totalProcessed} total records processed so far`);
       
       try {
         const chunk = await fetchAllStores(offset, CHUNK_SIZE);
@@ -42,31 +51,25 @@ Deno.serve(async (req) => {
         if (chunk.length === 0) {
           console.log(`Empty chunk at offset ${offset}`);
           consecutiveEmptyChunks++;
-          
-          // Try a few more offsets before giving up
-          if (consecutiveEmptyChunks < maxEmptyChunks) {
-            offset += CHUNK_SIZE;
-            continue;
-          } else {
-            console.log(`Reached ${maxEmptyChunks} consecutive empty chunks, stopping`);
-            break;
-          }
+          offset += CHUNK_SIZE;
+          continue;
         }
 
         console.log(`Processing ${chunk.length} stores from offset ${offset}...`);
         const insertedCount = await insertStoresInBatches(supabase, chunk);
         totalProcessed += insertedCount;
-        consecutiveEmptyChunks = 0; // Reset counter on successful chunk
+        consecutiveEmptyChunks = 0;
         
-        console.log(`Batch completed. Inserted: ${insertedCount}, Total so far: ${totalProcessed}`);
+        console.log(`Batch completed. Inserted: ${insertedCount}, Total this session: ${totalProcessed}`);
         
         // Progress indicator
-        const progressPercent = Math.round((totalProcessed / 264290) * 100);
-        console.log(`Progress: ${progressPercent}% of expected 264,290 records`);
+        const totalSoFar = startOffset + totalProcessed;
+        const progressPercent = Math.round((totalSoFar / 264290) * 100);
+        console.log(`Progress: ${progressPercent}% of expected 264,290 records (${totalSoFar} total)`);
         
         offset += CHUNK_SIZE;
 
-        // Add a small delay between chunks to prevent overwhelming the API
+        // Add a small delay between chunks
         await new Promise(resolve => setTimeout(resolve, 100));
         
       } catch (chunkError) {
@@ -79,36 +82,32 @@ Deno.serve(async (req) => {
           break;
         }
         
-        // For other errors, try to continue with next chunk
         consecutiveEmptyChunks++;
         offset += CHUNK_SIZE;
-        
-        if (consecutiveEmptyChunks >= maxEmptyChunks) {
-          console.log('Too many consecutive errors, stopping');
-          break;
-        }
-        
         continue;
       }
     }
 
-    console.log(`Sync completed. Total stores processed: ${totalProcessed}`);
-    console.log(`Expected: 264,290 | Actual: ${totalProcessed} | Coverage: ${Math.round((totalProcessed / 264290) * 100)}%`);
-
-    // If we got significantly fewer records than expected, log a warning
-    if (totalProcessed < 200000) {
-      console.warn(`WARNING: Only synced ${totalProcessed} out of expected 264,290 records`);
-      console.warn('This may indicate API limits, network issues, or data access restrictions');
-    }
-
+    const finalOffset = offset;
+    const grandTotal = startOffset + totalProcessed;
+    
+    console.log(`Session completed. Records processed this session: ${totalProcessed}`);
+    console.log(`Grand total processed: ${grandTotal} | Next offset: ${finalOffset}`);
+    
+    // Determine if more data is available
+    const needsContinuation = grandTotal < 264290 && consecutiveEmptyChunks < maxEmptyChunks && totalProcessed === MAX_RECORDS_PER_INVOCATION;
+    
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${totalProcessed} SNAP stores`,
-        totalStores: totalProcessed,
+        message: `Successfully synced ${totalProcessed} SNAP stores this session`,
+        sessionStores: totalProcessed,
+        totalStores: grandTotal,
         expectedStores: 264290,
-        coveragePercent: Math.round((totalProcessed / 264290) * 100),
-        finalOffset: offset
+        coveragePercent: Math.round((grandTotal / 264290) * 100),
+        nextOffset: finalOffset,
+        needsContinuation,
+        continuationUrl: needsContinuation ? `${url.origin}${url.pathname}?offset=${finalOffset}&clear=false` : null
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
