@@ -31,13 +31,13 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
       value: 'popularity' as SortOption,
       label: 'Most Popular',
       icon: Users,
-      description: 'Most Google reviews'
+      description: 'Most reviews'
     },
     {
       value: 'rating' as SortOption,
       label: 'Best Rated',
       icon: Star,
-      description: 'Highest Google stars'
+      description: 'Highest rated'
     }
   ];
 
