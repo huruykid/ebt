@@ -3,7 +3,24 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { TransformedStore } from './types.ts';
 
 export async function clearExistingData(supabase: any): Promise<void> {
-  console.log('Clearing existing store data...');
+  console.log('Clearing existing data...');
+  
+  // First, clear favorites table to avoid foreign key constraint issues
+  console.log('Clearing favorites that reference stores...');
+  const { error: favoritesError } = await supabase
+    .from('favorites')
+    .delete()
+    .neq('id', 0); // Delete all favorites records
+
+  if (favoritesError) {
+    console.warn('Warning: Could not clear favorites:', favoritesError.message);
+    // Continue anyway - this might not be critical
+  } else {
+    console.log('Successfully cleared favorites');
+  }
+  
+  // Now clear the stores table
+  console.log('Clearing stores data...');
   const { error: deleteError } = await supabase
     .from('snap_stores')
     .delete()
