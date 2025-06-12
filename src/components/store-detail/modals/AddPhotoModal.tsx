@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -65,9 +64,9 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
 
       await Promise.all(uploadPromises);
       
-      // Track contribution for each photo
+      // Track contribution for each photo - convert store.id to number since it's a bigint in user_points table
       selectedFiles.forEach(() => {
-        trackContribution('store_photo', store.id);
+        trackContribution('store_photo', parseInt(store.id));
       });
 
       toast.success(`${selectedFiles.length} photo(s) uploaded successfully!`);
@@ -88,7 +87,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5" />
-              Add Photos to {store.store_name}
+              Add Photos to {store.Store_Name}
             </DialogTitle>
           </DialogHeader>
           

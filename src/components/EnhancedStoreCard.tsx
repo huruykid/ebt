@@ -36,7 +36,8 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
   const handleStoreClick = () => {
     if (latitude && longitude) {
-      trackStoreClick(store.id, latitude, longitude);
+      // Convert store.id to number for tracking
+      trackStoreClick(parseInt(store.id), latitude, longitude);
     }
   };
 
@@ -199,7 +200,7 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
           {/* Favorites and Share */}
           <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
-            <FavoriteButton storeId={store.id} variant="icon" />
+            <FavoriteButton storeId={parseInt(store.id)} variant="icon" />
             <ShareStore store={store} variant="icon" />
           </div>
 

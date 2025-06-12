@@ -20,14 +20,14 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
     queryFn: async () => {
       const { data, error } = await supabase
         .from('snap_stores')
-        .select('store_type')
-        .not('store_type', 'is', null)
-        .neq('store_type', '');
+        .select('Store_Type')
+        .not('Store_Type', 'is', null)
+        .neq('Store_Type', '');
       
       if (error) throw error;
       
       // Get unique types, filter out empty strings, and sort alphabetically
-      const uniqueTypes = [...new Set(data.map(item => item.store_type?.trim()))]
+      const uniqueTypes = [...new Set(data.map(item => item.Store_Type?.trim()))]
         .filter(type => type && type.length > 0)
         .sort((a, b) => a.localeCompare(b));
       
@@ -41,14 +41,14 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
     queryFn: async () => {
       const { data, error } = await supabase
         .from('snap_stores')
-        .select('incentive_program')
-        .not('incentive_program', 'is', null)
-        .neq('incentive_program', '');
+        .select('Incentive_Program')
+        .not('Incentive_Program', 'is', null)
+        .neq('Incentive_Program', '');
       
       if (error) throw error;
       
       // Get unique programs, filter out empty strings, and sort alphabetically
-      const uniquePrograms = [...new Set(data.map(item => item.incentive_program?.trim()))]
+      const uniquePrograms = [...new Set(data.map(item => item.Incentive_Program?.trim()))]
         .filter(program => program && program.length > 0)
         .sort((a, b) => a.localeCompare(b));
       

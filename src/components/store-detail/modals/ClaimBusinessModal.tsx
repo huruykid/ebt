@@ -55,7 +55,7 @@ export const ClaimBusinessModal: React.FC<ClaimBusinessModalProps> = ({ children
       const { error } = await supabase.functions.invoke('send-claim-business', {
         body: {
           storeId: store.id.toString(),
-          storeName: store.store_name,
+          storeName: store.Store_Name,
           ...data,
         },
       });
@@ -92,7 +92,7 @@ export const ClaimBusinessModal: React.FC<ClaimBusinessModalProps> = ({ children
         <AlertDialogHeader>
           <AlertDialogTitle>Claim Your Business</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you the owner or manager of {store.store_name}? Claim your business to manage your listing, respond to reviews, and update store information.
+            Are you the owner or manager of {store.Store_Name}? Claim your business to manage your listing, respond to reviews, and update store information.
           </AlertDialogDescription>
         </AlertDialogHeader>
 

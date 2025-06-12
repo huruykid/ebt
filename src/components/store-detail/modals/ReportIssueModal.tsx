@@ -67,7 +67,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({ store, child
       const { error } = await supabase.functions.invoke('send-report-issue', {
         body: {
           storeId: store.id.toString(),
-          storeName: store.store_name,
+          storeName: store.Store_Name,
           issueType: data.issueType,
           description: data.description,
           userEmail: data.contactEmail || user?.email,
@@ -119,7 +119,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({ store, child
             Report Issue
           </DialogTitle>
           <DialogDescription>
-            Help us improve by reporting any issues with {store.store_name}.
+            Help us improve by reporting any issues with {store.Store_Name}.
           </DialogDescription>
         </DialogHeader>
         

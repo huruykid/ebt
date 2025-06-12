@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Star, Phone, Clock, Globe, ExternalLink, Utensils } from 'lucide-react';
@@ -22,7 +21,8 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
   const handleStoreClick = () => {
     if (latitude && longitude) {
-      trackStoreClick(store.id, latitude, longitude);
+      // Convert store.id to number for tracking
+      trackStoreClick(parseInt(store.id), latitude, longitude);
     }
   };
 
@@ -83,7 +83,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             
             {/* Rating and Review Count */}
             <div className="flex items-center gap-2 mt-1">
-              <StoreRatingDisplay storeId={store.id} />
+              <StoreRatingDisplay storeId={parseInt(store.id)} />
               <span className="text-sm text-muted-foreground">No reviews yet</span>
             </div>
           </div>
@@ -154,7 +154,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
           {/* Favorites and Share - Bottom row */}
           <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
-            <FavoriteButton storeId={store.id} variant="icon" />
+            <FavoriteButton storeId={parseInt(store.id)} variant="icon" />
             <ShareStore store={store} variant="icon" />
           </div>
 

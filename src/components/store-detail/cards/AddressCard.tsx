@@ -14,11 +14,11 @@ interface AddressCardProps {
 export const AddressCard: React.FC<AddressCardProps> = ({ store }) => {
   const formatAddress = () => {
     const parts = [
-      store.store_street_address,
-      store.additional_address,
-      store.city,
-      store.state,
-      store.zip_code
+      store.Store_Street_Address,
+      store.Additional_Address,
+      store.City,
+      store.State,
+      store.Zip_Code
     ].filter(Boolean);
     
     return parts.join(', ');
@@ -31,8 +31,8 @@ export const AddressCard: React.FC<AddressCardProps> = ({ store }) => {
   };
 
   const openDirections = () => {
-    if (store.latitude && store.longitude) {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`;
+    if (store.Latitude && store.Longitude) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${store.Latitude},${store.Longitude}`;
       window.open(url, '_blank');
     } else {
       // Fallback to address search
@@ -58,7 +58,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ store }) => {
               {formatAddress()}
             </button>
             
-            {(!store.store_street_address || !store.city) && (
+            {(!store.Store_Street_Address || !store.City) && (
               <div className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-md border border-amber-200">
                 ⚠️ Address information may be incomplete
               </div>

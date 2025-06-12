@@ -1,11 +1,14 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ReviewForm } from '@/components/reviews/ReviewForm';
-import { ReviewList } from '@/components/reviews/ReviewList';
+import { ReviewList } from './ReviewList';
+import { ReviewForm } from './ReviewForm';
 import { StoreRatingDisplay } from '@/components/reviews/StoreRatingDisplay';
-import { Star, Edit, MessageSquare } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -15,49 +18,81 @@ interface ReviewSectionProps {
 }
 
 export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
+  const { user } = useAuth();
   const [showReviewForm, setShowReviewForm] = useState(false);
 
+  // Fetch reviews for this store
+  const { data: reviews = [], refetch } = useQuery({
+    queryKey: ['store-reviews', store.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          *,
+          profiles:user_id (
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('store_id', parseInt(store.id))
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching reviews:', error);
+        throw error;
+      }
+
+      return data || [];
+    },
+  });
+
+  const handleReviewSubmitted = () => {
+    refetch();
+    setShowReviewForm(false);
+  };
+
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader className="p-4 sm:p-6 pb-4">
-        <div className="flex flex-col space-y-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Community Reviews
-            </CardTitle>
-            <Button 
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              variant={showReviewForm ? "outline" : "default"}
-              size="sm"
-              className="flex-shrink-0"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              {showReviewForm ? 'Cancel' : 'Write Review'}
-            </Button>
+            <CardTitle>Community Reviews</CardTitle>
+            <StoreRatingDisplay storeId={parseInt(store.id)} showCount />
           </div>
-          
-          {/* Rating Overview */}
-          <div className="bg-muted/30 rounded-lg p-4">
-            <StoreRatingDisplay storeId={store.id} />
-            <p className="text-sm text-muted-foreground mt-2">
-              Share your experience to help the community
-            </p>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="p-4 sm:p-6 pt-0">
-        {showReviewForm && (
-          <div className="mb-6 p-4 bg-background border border-border rounded-lg shadow-sm animate-fade-in">
+        </CardHeader>
+        <CardContent>
+          {showReviewForm ? (
             <ReviewForm 
-              storeId={store.id} 
-              onSuccess={() => setShowReviewForm(false)}
+              storeId={parseInt(store.id)}
+              onSubmitted={handleReviewSubmitted}
+              onCancel={() => setShowReviewForm(false)}
             />
-          </div>
-        )}
-        <ReviewList storeId={store.id} />
-      </CardContent>
-    </Card>
+          ) : (
+            <>
+              {user ? (
+                <Button 
+                  onClick={() => setShowReviewForm(true)}
+                  className="w-full mb-6"
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  Write a Review
+                </Button>
+              ) : (
+                <div className="text-center py-4 mb-6 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Sign in to write a review and help the community
+                  </p>
+                  <Button variant="outline" asChild>
+                    <Link to="/auth">Sign In</Link>
+                  </Button>
+                </div>
+              )}
+
+              <ReviewList reviews={reviews} />
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };

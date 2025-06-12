@@ -44,8 +44,8 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store }) => {
     // TODO: Save phone number to database
     console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
     
-    // Track the contribution
-    trackContribution('contact_info', store.id);
+    // Track the contribution - convert store.id to number since it's a bigint in user_points table
+    trackContribution('contact_info', parseInt(store.id));
     
     // Reset and close
     setPhoneNumber('');
@@ -68,7 +68,7 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store }) => {
               Add Phone Number
             </DialogTitle>
             <DialogDescription>
-              Help the community by adding the phone number for {store.store_name}. 
+              Help the community by adding the phone number for {store.Store_Name}. 
               You'll earn 15 points for this contribution.
             </DialogDescription>
           </DialogHeader>

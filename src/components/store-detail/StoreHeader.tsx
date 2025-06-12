@@ -80,7 +80,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 leading-tight">
                   {store.Store_Name}
                 </h1>
-                <StoreRatingDisplay storeId={store.id} className="mb-3" />
+                <StoreRatingDisplay storeId={parseInt(store.id)} className="mb-3" />
               </div>
               
               <div className="flex flex-col gap-2 sm:items-end">

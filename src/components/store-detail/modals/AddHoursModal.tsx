@@ -68,8 +68,8 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
     // TODO: Save hours to database
     console.log('Adding hours:', hours, 'for store:', store.id);
     
-    // Track the contribution
-    trackContribution('store_hours', store.id);
+    // Track the contribution - convert store.id to number since it's a bigint in user_points table
+    trackContribution('store_hours', parseInt(store.id));
     
     // Close modal
     setIsOpen(false);
@@ -91,7 +91,7 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
               Add Store Hours
             </DialogTitle>
             <DialogDescription>
-              Help the community by adding the operating hours for {store.store_name}. 
+              Help the community by adding the operating hours for {store.Store_Name}. 
               You'll earn 20 points for this contribution.
             </DialogDescription>
           </DialogHeader>
