@@ -9,6 +9,8 @@ import { StoreCard } from './StoreCard';
 import { CategoryTabs } from './CategoryTabs';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SyncStoresButton } from './SyncStoresButton';
+import { SortDropdown, type SortOption } from './SortDropdown';
+import { sortStores } from '@/utils/storeSorting';
 import { Search, MapPin, Sparkles, Users } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -24,6 +26,7 @@ export const StoreSearch: React.FC = () => {
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('distance');
   const navigate = useNavigate();
 
   // Update search query when URL parameter changes
@@ -151,6 +154,9 @@ export const StoreSearch: React.FC = () => {
     navigate('/');
   };
 
+  // Sort the stores based on the selected option
+  const sortedStores = stores ? sortStores(stores, sortBy) : [];
+
   return (
     <div className="min-h-screen">
       <div className="w-full max-w-4xl mx-auto p-4">
@@ -227,30 +233,36 @@ export const StoreSearch: React.FC = () => {
 
         {stores && stores.length > 0 && (
           <div className="space-y-6">
-            {/* Enhanced Results Header */}
+            {/* Enhanced Results Header with Sort */}
             <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-success animate-bounce-gentle" />
-                <p className="body-md font-semibold text-success">
-                  Found {stores.length} store{stores.length !== 1 ? 's' : ''}
-                </p>
-                {locationSearch && (
-                  <div className="flex items-center gap-1 ml-2">
-                    <MapPin className="h-4 w-4 text-info" />
-                    <span className="text-info font-medium">Near your location</span>
-                  </div>
-                )}
-                {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
-                  <span className="ml-2 px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
-                    Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
-                  </span>
-                )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-success animate-bounce-gentle" />
+                  <p className="body-md font-semibold text-success">
+                    Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+                  </p>
+                  {locationSearch && (
+                    <div className="flex items-center gap-1 ml-2">
+                      <MapPin className="h-4 w-4 text-info" />
+                      <span className="text-info font-medium">Near your location</span>
+                    </div>
+                  )}
+                  {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
+                    <span className="ml-2 px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
+                      Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
+                    </span>
+                  )}
+                </div>
+                <SortDropdown 
+                  currentSort={sortBy} 
+                  onSortChange={setSortBy} 
+                />
               </div>
             </div>
             
             {/* Enhanced Store Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-              {stores.map((store) => (
+              {sortedStores.map((store) => (
                 <StoreCard 
                   key={store.id}
                   store={store}
