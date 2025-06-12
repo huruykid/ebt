@@ -10,7 +10,7 @@ export const useStoreClickTracking = () => {
       const { error } = await supabase
         .from('store_clicks')
         .insert({
-          store_id: storeId,
+          store_id: storeId.toString(),
           user_latitude: userLatitude,
           user_longitude: userLongitude,
           user_id: user?.id || null,

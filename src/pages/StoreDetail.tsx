@@ -25,8 +25,7 @@ export default function StoreDetailPage() {
     queryFn: async () => {
       if (!id) throw new Error('Store ID is required');
       
-      const storeId = parseInt(id, 10);
-      if (isNaN(storeId)) throw new Error('Invalid store ID');
+      const storeId = id; // Keep as string since database id is string
       
       const { data, error } = await supabase
         .from('snap_stores')
@@ -85,7 +84,7 @@ export default function StoreDetailPage() {
       <div className="min-h-screen bg-background">
         {/* Hero Section with Photos */}
         <StorePhotos 
-          storeName={store.store_name} 
+          storeName={store.Store_Name} 
           store={store}
         />
         

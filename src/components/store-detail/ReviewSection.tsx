@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ReviewList } from './ReviewList';
-import { ReviewForm } from './ReviewForm';
+import { ReviewList } from '@/components/reviews/ReviewList';
+import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { StoreRatingDisplay } from '@/components/reviews/StoreRatingDisplay';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -57,7 +58,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Community Reviews</CardTitle>
-            <StoreRatingDisplay storeId={parseInt(store.id)} showCount />
+            <StoreRatingDisplay storeId={parseInt(store.id)} />
           </div>
         </CardHeader>
         <CardContent>

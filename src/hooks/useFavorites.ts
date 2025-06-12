@@ -34,7 +34,7 @@ export const useFavorites = () => {
 
   // Check if a store is favorited
   const isFavorited = (storeId: number) => {
-    return favorites.some(fav => fav.store_id === storeId);
+    return favorites.some(fav => fav.store_id === storeId.toString());
   };
 
   // Add to favorites
@@ -46,7 +46,7 @@ export const useFavorites = () => {
         .from('favorites')
         .insert({
           user_id: user.id,
-          store_id: storeId,
+          store_id: storeId.toString(),
         });
 
       if (error) throw error;
@@ -70,7 +70,7 @@ export const useFavorites = () => {
         .from('favorites')
         .delete()
         .eq('user_id', user.id)
-        .eq('store_id', storeId);
+        .eq('store_id', storeId.toString());
 
       if (error) throw error;
     },

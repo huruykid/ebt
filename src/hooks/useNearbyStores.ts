@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateDistance } from '@/utils/distanceUtils';
@@ -43,12 +44,12 @@ export const useNearbyStores = ({
       let query = supabase
         .from('snap_stores')
         .select('*')
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .gte('latitude', minLat)
-        .lte('latitude', maxLat)
-        .gte('longitude', minLon)
-        .lte('longitude', maxLon);
+        .not('Latitude', 'is', null)
+        .not('Longitude', 'is', null)
+        .gte('Latitude', minLat)
+        .lte('Latitude', maxLat)
+        .gte('Longitude', minLon)
+        .lte('Longitude', maxLon);
 
       // Apply category filters
       if (category !== 'trending' && (Array.isArray(storeTypes) && storeTypes.length > 0 || Array.isArray(namePatterns) && namePatterns.length > 0)) {
@@ -56,13 +57,13 @@ export const useNearbyStores = ({
         
         // Add store type filters
         if (Array.isArray(storeTypes) && storeTypes.length > 0) {
-          const typeFilters = storeTypes.map(type => `store_type.ilike.%${type}%`);
+          const typeFilters = storeTypes.map(type => `Store_Type.ilike.%${type}%`);
           filters.push(...typeFilters);
         }
         
         // Add name pattern filters
         if (Array.isArray(namePatterns) && namePatterns.length > 0) {
-          const nameFilters = namePatterns.map(pattern => `store_name.ilike.%${pattern}%`);
+          const nameFilters = namePatterns.map(pattern => `Store_Name.ilike.%${pattern}%`);
           filters.push(...nameFilters);
         }
         
@@ -90,8 +91,8 @@ export const useNearbyStores = ({
           const distance = calculateDistance(
             latitude,
             longitude,
-            store.latitude!,
-            store.longitude!
+            store.Latitude!,
+            store.Longitude!
           );
           return { ...store, distance };
         })
@@ -100,7 +101,7 @@ export const useNearbyStores = ({
       // Apply trending logic or sort by distance
       if (category === 'trending') {
         // Get click data for trending analysis
-        const storeIds = storesWithDistance.map(store => store.id);
+        const storeIds = storesWithDistance.map(store => parseInt(store.id));
         
         if (storeIds.length > 0) {
           // Get click counts for stores in the area within the last 30 days
@@ -110,7 +111,7 @@ export const useNearbyStores = ({
           const { data: clickData } = await supabase
             .from('store_clicks')
             .select('store_id, clicked_at, user_latitude, user_longitude')
-            .in('store_id', storeIds)
+            .in('store_id', storeIds.map(id => id.toString()))
             .gte('clicked_at', thirtyDaysAgo.toISOString());
 
           // Calculate trending scores based on clicks in the user's area
@@ -120,8 +121,8 @@ export const useNearbyStores = ({
             const clickDistance = calculateDistance(
               latitude,
               longitude,
-              click.user_latitude,
-              click.user_longitude
+              parseFloat(click.user_latitude.toString()),
+              parseFloat(click.user_longitude.toString())
             );
             
             // Only count clicks from users within a larger radius (25 miles)
@@ -130,15 +131,16 @@ export const useNearbyStores = ({
               const daysSinceClick = (Date.now() - new Date(click.clicked_at).getTime()) / (1000 * 60 * 60 * 24);
               const recencyWeight = Math.max(0.1, 1 - (daysSinceClick / 30)); // Linear decay over 30 days
               
-              const currentScore = trendingScores.get(click.store_id) || 0;
-              trendingScores.set(click.store_id, currentScore + recencyWeight);
+              const storeIdNum = parseInt(click.store_id);
+              const currentScore = trendingScores.get(storeIdNum) || 0;
+              trendingScores.set(storeIdNum, currentScore + recencyWeight);
             }
           });
 
           // Sort by trending score, then by incentive programs, then by distance
           storesWithDistance = storesWithDistance.sort((a, b) => {
-            const aScore = trendingScores.get(a.id) || 0;
-            const bScore = trendingScores.get(b.id) || 0;
+            const aScore = trendingScores.get(parseInt(a.id)) || 0;
+            const bScore = trendingScores.get(parseInt(b.id)) || 0;
             
             // First priority: trending score (click-based)
             if (aScore !== bScore) {
@@ -146,8 +148,8 @@ export const useNearbyStores = ({
             }
             
             // Second priority: stores with incentive programs
-            const aHasIncentive = a.incentive_program ? 1 : 0;
-            const bHasIncentive = b.incentive_program ? 1 : 0;
+            const aHasIncentive = a.Incentive_Program ? 1 : 0;
+            const bHasIncentive = b.Incentive_Program ? 1 : 0;
             if (aHasIncentive !== bHasIncentive) {
               return bHasIncentive - aHasIncentive;
             }
@@ -158,8 +160,8 @@ export const useNearbyStores = ({
         } else {
           // Fallback to incentive programs + distance if no stores found
           storesWithDistance = storesWithDistance.sort((a, b) => {
-            const aHasIncentive = a.incentive_program ? 1 : 0;
-            const bHasIncentive = b.incentive_program ? 1 : 0;
+            const aHasIncentive = a.Incentive_Program ? 1 : 0;
+            const bHasIncentive = b.Incentive_Program ? 1 : 0;
             if (aHasIncentive !== bHasIncentive) {
               return bHasIncentive - aHasIncentive;
             }

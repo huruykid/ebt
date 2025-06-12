@@ -20,9 +20,9 @@ interface UserReview {
   created_at: string;
   store_id: number;
   snap_stores: {
-    store_name: string;
-    city: string;
-    state: string;
+    Store_Name: string;
+    City: string;
+    State: string;
   } | null;
 }
 
@@ -45,10 +45,10 @@ export const UserReviews: React.FC = () => {
           review_text,
           created_at,
           store_id,
-          snap_stores (
-            store_name,
-            city,
-            state
+          snap_stores!inner (
+            Store_Name,
+            City,
+            State
           )
         `)
         .eq('user_id', user.id)
@@ -149,9 +149,9 @@ export const UserReviews: React.FC = () => {
                         className="flex items-center gap-2 text-green-600 hover:text-green-700 mb-2"
                       >
                         <Store className="h-4 w-4" />
-                        <span className="font-medium">{review.snap_stores.store_name}</span>
+                        <span className="font-medium">{review.snap_stores.Store_Name}</span>
                         <span className="text-gray-500">
-                          • {review.snap_stores.city}, {review.snap_stores.state}
+                          • {review.snap_stores.City}, {review.snap_stores.State}
                         </span>
                       </button>
                     )}
