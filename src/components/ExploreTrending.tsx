@@ -5,6 +5,9 @@ import { CategoryTabs } from './CategoryTabs';
 import { NearbyStores } from './NearbyStores';
 import { LocationPrompt } from './LocationPrompt';
 import { LoadingSpinner } from './LoadingSpinner';
+import { FeaturedStoreTypes } from './FeaturedStoreTypes';
+import { SearchSuggestions } from './SearchSuggestions';
+import { EbtInfoSection } from './EbtInfoSection';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Search, Heart } from 'lucide-react';
@@ -43,6 +46,35 @@ export const ExploreTrending: React.FC = () => {
     window.location.reload();
   };
 
+  // Component for no-location experience
+  const NoLocationExperience = () => (
+    <div className="space-y-8">
+      {/* Featured Store Types */}
+      <FeaturedStoreTypes onCategorySelect={handleSearch} />
+      
+      {/* Search Suggestions */}
+      <SearchSuggestions onSearchSuggestion={handleSearch} />
+      
+      {/* EBT Information */}
+      <EbtInfoSection />
+      
+      {/* Optional Location Prompt */}
+      <div className="bg-muted/50 rounded-lg p-6 text-center">
+        <h3 className="font-medium mb-2">Want personalized results?</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Enable location to see stores near you with accurate distances and directions.
+        </p>
+        <button
+          onClick={handleRequestLocation}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          <MapPin className="h-4 w-4" />
+          Enable Location
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
@@ -62,18 +94,20 @@ export const ExploreTrending: React.FC = () => {
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
 
         <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
-          {loading && <div className="py-8">
+          {loading && (
+            <div className="py-8">
               <LoadingSpinner />
               <p className="text-center text-gray-600 mt-4">Getting your location...</p>
-            </div>}
+            </div>
+          )}
 
-          {error && !loading && <LocationPrompt onRequestLocation={handleRequestLocation} error={error} />}
-
-          {latitude && longitude && !loading && <div className="w-full">
+          {latitude && longitude && !loading && (
+            <div className="w-full">
               <NearbyStores latitude={latitude} longitude={longitude} radius={10} limit={20} category={activeCategory} storeTypes={selectedStoreTypes} />
-            </div>}
+            </div>
+          )}
 
-          {!latitude && !longitude && !loading && !error && <LocationPrompt onRequestLocation={handleRequestLocation} />}
+          {(!latitude && !longitude && !loading) && <NoLocationExperience />}
         </main>
       </div>
 
@@ -113,7 +147,7 @@ export const ExploreTrending: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Tabs - Desktop (moved to top) */}
+        {/* Category Tabs - Desktop */}
         <div className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
@@ -126,12 +160,6 @@ export const ExploreTrending: React.FC = () => {
             <div className="text-center py-12">
               <LoadingSpinner />
               <p className="text-muted-foreground mt-4">Getting your location...</p>
-            </div>
-          )}
-
-          {error && !loading && (
-            <div className="bg-white rounded-lg border p-8">
-              <LocationPrompt onRequestLocation={handleRequestLocation} error={error} />
             </div>
           )}
 
@@ -157,11 +185,7 @@ export const ExploreTrending: React.FC = () => {
             </div>
           )}
 
-          {!latitude && !longitude && !loading && !error && (
-            <div className="bg-white rounded-lg border p-8">
-              <LocationPrompt onRequestLocation={handleRequestLocation} />
-            </div>
-          )}
+          {(!latitude && !longitude && !loading) && <NoLocationExperience />}
         </div>
       </div>
     </div>
