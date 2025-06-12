@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -234,7 +235,7 @@ export const StoreSearch: React.FC = () => {
           <div className="space-y-6">
             {/* Enhanced Results Header with Sort - removed store count */}
             <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-2">
                   {locationSearch && (
                     <div className="flex items-center gap-1">
@@ -248,10 +249,12 @@ export const StoreSearch: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <SortDropdown 
-                  currentSort={sortBy} 
-                  onSortChange={setSortBy} 
-                />
+                <div className="flex justify-center sm:justify-end">
+                  <SortDropdown 
+                    currentSort={sortBy} 
+                    onSortChange={setSortBy} 
+                  />
+                </div>
               </div>
             </div>
             
