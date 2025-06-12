@@ -69,6 +69,9 @@ const AuthInterface = () => {
             title: "Welcome back!",
             description: "You've been signed in successfully."
           });
+          // Clear the form on successful sign in
+          setEmail('');
+          setPassword('');
         }
       }
     } catch (error) {
@@ -183,14 +186,26 @@ const AuthInterface = () => {
 };
 
 export default function ProfilePage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading, isGuest } = useAuth();
   const { favorites } = useFavorites();
   const { userStats, userBadges, allBadges } = useGameification();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState<ProfileSection>('info');
 
-  // Show auth interface for non-authenticated users
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth interface for non-authenticated users (including guests)
   if (!user) {
     return <AuthInterface />;
   }

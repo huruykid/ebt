@@ -31,34 +31,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
-    // Check if user was previously in guest mode
-    const guestMode = localStorage.getItem('guest_mode');
-    if (guestMode === 'true') {
-      setIsGuest(true);
-      setLoading(false);
-      return;
-    }
-
-    // Set up auth state listener
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
-        setIsGuest(false);
-        setLoading(false);
         
-        // Clear guest mode when user signs in
+        // Clear guest mode when user successfully signs in
         if (session?.user) {
+          setIsGuest(false);
           localStorage.removeItem('guest_mode');
+          console.log('User authenticated, clearing guest mode');
+        } else if (event === 'SIGNED_OUT') {
+          // Only set guest mode if explicitly signed out and guest mode was previously set
+          const wasGuest = localStorage.getItem('guest_mode') === 'true';
+          setIsGuest(wasGuest);
         }
+        
+        setLoading(false);
       }
     );
 
-    // Check for existing session
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        // If we have a valid session, clear any guest mode
+        setSession(session);
+        setUser(session?.user);
+        setIsGuest(false);
+        localStorage.removeItem('guest_mode');
+        console.log('Existing session found, clearing guest mode');
+      } else {
+        // Only check for guest mode if no valid session
+        const guestMode = localStorage.getItem('guest_mode');
+        if (guestMode === 'true') {
+          setIsGuest(true);
+          console.log('No session, setting guest mode');
+        }
+      }
       setLoading(false);
     });
 
@@ -86,6 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password
     });
+    
+    // Clear guest mode immediately on successful sign in
+    if (!error) {
+      setIsGuest(false);
+      localStorage.removeItem('guest_mode');
+      console.log('Sign in successful, clearing guest mode');
+    }
+    
     return { error };
   };
 
@@ -99,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsGuest(true);
     setLoading(false);
     localStorage.setItem('guest_mode', 'true');
+    console.log('Continuing as guest');
   };
 
   const value = {
