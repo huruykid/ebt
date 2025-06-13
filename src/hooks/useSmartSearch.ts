@@ -2,6 +2,13 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Store = Tables<'snap_stores'>;
+
+interface StoreWithDistance extends Store {
+  distance?: number;
+}
 
 interface SmartSearchResult {
   id: string;
@@ -35,7 +42,7 @@ export const useSmartSearch = () => {
 
   const { data: results, isLoading, error } = useQuery({
     queryKey: ['smart-search', searchParams],
-    queryFn: async (): Promise<SmartSearchResult[]> => {
+    queryFn: async (): Promise<StoreWithDistance[]> => {
       if (!searchParams.searchText.trim() && !searchParams.city?.trim() && !searchParams.zipCode?.trim()) {
         return [];
       }
@@ -56,7 +63,30 @@ export const useSmartSearch = () => {
       console.log('Smart search results:', data?.length || 0, 'stores found');
       console.log('Search params:', searchParams);
       
-      return data || [];
+      // Convert the raw results to the correct format
+      const convertedResults: StoreWithDistance[] = (data || []).map((result: SmartSearchResult) => ({
+        id: result.id,
+        Store_Name: result.store_name,
+        Store_Street_Address: result.store_street_address,
+        City: result.city,
+        State: result.state,
+        Zip_Code: result.zip_code,
+        Store_Type: result.store_type,
+        Latitude: result.latitude,
+        Longitude: result.longitude,
+        // Map other required fields with defaults
+        Additional_Address: null,
+        Zip4: null,
+        County: null,
+        Record_ID: null,
+        ObjectId: null,
+        Grantee_Name: null,
+        X: null,
+        Y: null,
+        Incentive_Program: null
+      }));
+      
+      return convertedResults;
     },
     enabled: !!(searchParams.searchText.trim() || searchParams.city?.trim() || searchParams.zipCode?.trim())
   });

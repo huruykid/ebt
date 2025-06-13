@@ -9,6 +9,13 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useSmartSearch } from '@/hooks/useSmartSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Store = Tables<'snap_stores'>;
+
+interface StoreWithDistance extends Store {
+  distance?: number;
+}
 
 export const StoreSearch: React.FC = () => {
   const navigate = useNavigate();
@@ -91,7 +98,8 @@ export const StoreSearch: React.FC = () => {
     handleCategoryChange(categoryId, storeTypes, namePatterns);
   };
 
-  const currentStores = searchMode === 'smart' ? smartResults : stores;
+  // Use the correct types for the current stores and loading states
+  const currentStores: StoreWithDistance[] = searchMode === 'smart' ? (smartResults || []) : (stores || []);
   const isLoading = searchMode === 'smart' ? smartLoading : (categoryLoading || locationLoading);
   const error = searchMode === 'smart' ? smartError : categoryError;
 
@@ -133,7 +141,7 @@ export const StoreSearch: React.FC = () => {
               </div>
             )}
 
-            {!isLoading && !error && smartResults && smartResults.length === 0 && (
+            {!isLoading && !error && currentStores.length === 0 && (
               <div className="text-center py-8">
                 <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
                   <div className="text-6xl mb-4">🔍</div>
@@ -149,12 +157,12 @@ export const StoreSearch: React.FC = () => {
               </div>
             )}
 
-            {!isLoading && smartResults && smartResults.length > 0 && (
+            {!isLoading && currentStores.length > 0 && (
               <div className="space-y-6">
                 <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      Found {smartResults.length} stores
+                      Found {currentStores.length} stores
                       {searchParams.city && ` in ${searchParams.city}`}
                       {searchParams.zipCode && ` (${searchParams.zipCode})`}
                     </p>
@@ -172,30 +180,10 @@ export const StoreSearch: React.FC = () => {
                 </div>
                 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-                  {smartResults.map((store) => (
+                  {currentStores.map((store) => (
                     <StoreCard 
                       key={store.id}
-                      store={{
-                        id: store.id,
-                        Store_Name: store.store_name,
-                        Store_Street_Address: store.store_street_address,
-                        City: store.city,
-                        State: store.state,
-                        Zip_Code: store.zip_code,
-                        Store_Type: store.store_type,
-                        Latitude: store.latitude,
-                        Longitude: store.longitude,
-                        // Map other required fields with defaults
-                        Additional_Address: null,
-                        Zip4: null,
-                        County: null,
-                        Record_ID: null,
-                        ObjectId: null,
-                        Grantee_Name: null,
-                        X: null,
-                        Y: null,
-                        Incentive_Program: null
-                      }}
+                      store={store}
                     />
                   ))}
                 </div>
