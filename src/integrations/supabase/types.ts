@@ -320,6 +320,59 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
+      }
+      smart_store_search: {
+        Args: {
+          search_text?: string
+          search_city?: string
+          search_zip?: string
+          similarity_threshold?: number
+          result_limit?: number
+        }
+        Returns: {
+          id: string
+          store_name: string
+          store_street_address: string
+          city: string
+          state: string
+          zip_code: string
+          store_type: string
+          latitude: number
+          longitude: number
+          similarity_score: number
+        }[]
+      }
     }
     Enums: {
       badge_type:
