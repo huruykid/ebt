@@ -16,19 +16,21 @@ import { Label } from '@/components/ui/label';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
+import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
 interface AddHoursModalProps {
   store: Store;
+  onHoursAdded?: (hours: Record<string, { open: string; close: string; closed: boolean }>) => void;
 }
 
 const daysOfWeek = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
 ];
 
-export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
+export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdded }) => {
   const { user } = useAuth();
   const [hours, setHours] = useState<Record<string, { open: string; close: string; closed: boolean }>>({
     Monday: { open: '09:00', close: '18:00', closed: false },
@@ -41,6 +43,7 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { trackContribution } = useContributionTracking();
 
   const handleDayToggle = (day: string) => {
@@ -57,7 +60,7 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -65,14 +68,31 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
       return;
     }
     
-    // TODO: Save hours to database
-    console.log('Adding hours:', hours, 'for store:', store.id);
+    setIsSubmitting(true);
     
-    // Track the contribution - convert store.id to number since it's a bigint in user_points table
-    trackContribution('store_hours', parseInt(store.id));
-    
-    // Close modal
-    setIsOpen(false);
+    try {
+      // TODO: Save hours to database when backend is ready
+      console.log('Adding hours:', hours, 'for store:', store.id);
+      
+      // Track the contribution - convert store.id to number since it's a bigint in user_points table
+      trackContribution('store_hours', parseInt(store.id));
+      
+      // Update the frontend immediately
+      if (onHoursAdded) {
+        onHoursAdded(hours);
+      }
+      
+      // Show success message
+      toast.success('Store hours added successfully!');
+      
+      // Close modal
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error adding hours:', error);
+      toast.error('Failed to add store hours. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -131,11 +151,11 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store }) => {
               ))}
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit">
-                Add Store Hours
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Adding Hours...' : 'Add Store Hours'}
               </Button>
             </DialogFooter>
           </form>

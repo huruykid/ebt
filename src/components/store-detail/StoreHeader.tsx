@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,9 @@ interface StoreHeaderProps {
 }
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
+  const [addedHours, setAddedHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
+  const [phoneAdded, setPhoneAdded] = useState(false);
+
   const formatAddress = () => {
     const parts = [
       store.Store_Street_Address,
@@ -68,6 +71,23 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
   // Check if store accepts hot foods (RMP)
   const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
                        store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
+
+  const handleHoursAdded = (hours: Record<string, { open: string; close: string; closed: boolean }>) => {
+    setAddedHours(hours);
+  };
+
+  const formatHours = (hours: Record<string, { open: string; close: string; closed: boolean }>) => {
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayHours = hours[today];
+    
+    if (!todayHours) return 'Hours available';
+    
+    if (todayHours.closed) {
+      return 'Closed today';
+    }
+    
+    return `${todayHours.open} - ${todayHours.close}`;
+  };
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
@@ -146,7 +166,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-foreground mb-2">Phone</p>
-                <AddPhoneModal store={store} />
+                {phoneAdded ? (
+                  <p className="text-green-600 text-sm">✓ Phone number added</p>
+                ) : (
+                  <AddPhoneModal store={store} />
+                )}
               </div>
             </div>
             
@@ -154,7 +178,14 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-foreground mb-2">Hours</p>
-                <AddHoursModal store={store} />
+                {addedHours ? (
+                  <div>
+                    <p className="text-green-600 text-sm mb-1">✓ Hours added</p>
+                    <p className="text-muted-foreground text-xs">{formatHours(addedHours)}</p>
+                  </div>
+                ) : (
+                  <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
+                )}
               </div>
             </div>
           </div>
