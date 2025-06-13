@@ -69,8 +69,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       name: 'Dollar Stores', 
       icon: '💵',
       activeIcon: '💵',
-      storeTypes: ['Dollar Store', 'Discount Store'],
-      namePatterns: ['Dollar', 'dollar']
+      storeTypes: ['Dollar Store', 'Discount Store', 'Other'],
+      namePatterns: ['Dollar', 'dollar', '99', 'Cent', 'cent', 'Discount', 'discount', 'Family Dollar', 'Dollar Tree', 'Dollar General', '99 Cent']
     }
   ];
 
