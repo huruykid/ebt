@@ -72,15 +72,17 @@ export const useStoreSearch = () => {
         query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
       }
 
-      // Apply category filters
+      // Apply category filters - combine store types AND name patterns
       if ((selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0) && activeCategory !== 'trending') {
         const filters = [];
         
+        // Add store type filters
         if (selectedStoreTypes.length > 0) {
           const typeFilters = selectedStoreTypes.map(type => `Store_Type.ilike.%${type}%`);
           filters.push(...typeFilters);
         }
         
+        // Add name pattern filters
         if (selectedNamePatterns.length > 0) {
           const nameFilters = selectedNamePatterns.map(pattern => `Store_Name.ilike.%${pattern}%`);
           filters.push(...nameFilters);
@@ -114,6 +116,7 @@ export const useStoreSearch = () => {
           .sort((a, b) => a.distance - b.distance);
       }
 
+      console.log('Search results for category:', activeCategory, 'Store types:', selectedStoreTypes, 'Name patterns:', selectedNamePatterns, 'Results:', results.length);
       return results;
     },
   });
