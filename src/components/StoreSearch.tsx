@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryTabs } from './CategoryTabs';
 import { SearchHeader } from './store-search/SearchHeader';
 import { SearchResults } from './store-search/SearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 export const StoreSearch: React.FC = () => {
   const navigate = useNavigate();
+  const { latitude, longitude, loading: locationLoading } = useGeolocation();
   const {
     searchQuery,
     setSearchQuery,
@@ -22,6 +24,13 @@ export const StoreSearch: React.FC = () => {
     error,
     handleCategoryChange,
   } = useStoreSearch();
+
+  // Automatically set location search when geolocation is available
+  useEffect(() => {
+    if (latitude && longitude && !locationSearch && !searchQuery.trim()) {
+      setLocationSearch({ lat: latitude, lng: longitude });
+    }
+  }, [latitude, longitude, locationSearch, searchQuery, setLocationSearch]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -60,7 +69,7 @@ export const StoreSearch: React.FC = () => {
 
         <SearchResults
           stores={stores}
-          isLoading={isLoading}
+          isLoading={isLoading || locationLoading}
           error={error}
           locationSearch={locationSearch}
           activeCategory={activeCategory}
