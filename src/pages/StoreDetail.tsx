@@ -82,6 +82,20 @@ export default function StoreDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
+        {/* Back Button */}
+        <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <Button 
+              onClick={() => navigate(-1)} 
+              variant="ghost" 
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Search
+            </Button>
+          </div>
+        </div>
+
         {/* Hero Section with Photos */}
         <StorePhotos 
           storeName={store.Store_Name} 

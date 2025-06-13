@@ -110,18 +110,18 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
       <DropdownMenuTrigger asChild>
         {triggerButton}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-popover border-border">
+      <DropdownMenuContent align="end" className="w-48">
         {navigator.share && (
           <>
-            <DropdownMenuItem onClick={handleNativeShare} className="text-popover-foreground">
+            <DropdownMenuItem onClick={handleNativeShare}>
               <Share className="h-4 w-4 mr-2" />
               Share via device
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-border" />
+            <DropdownMenuSeparator />
           </>
         )}
         
-        <DropdownMenuItem onClick={handleCopyUrl} className="text-popover-foreground">
+        <DropdownMenuItem onClick={handleCopyUrl}>
           {copied ? (
             <Check className="h-4 w-4 mr-2 text-primary" />
           ) : (
@@ -130,19 +130,19 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
           {copied ? 'Copied!' : 'Copy link'}
         </DropdownMenuItem>
         
-        <DropdownMenuSeparator className="bg-border" />
+        <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={() => handleSocialShare('facebook')} className="text-popover-foreground">
+        <DropdownMenuItem onClick={() => handleSocialShare('facebook')}>
           <Facebook className="h-4 w-4 mr-2" />
           Share on Facebook
         </DropdownMenuItem>
         
-        <DropdownMenuItem onClick={() => handleSocialShare('twitter')} className="text-popover-foreground">
+        <DropdownMenuItem onClick={() => handleSocialShare('twitter')}>
           <Twitter className="h-4 w-4 mr-2" />
           Share on Twitter
         </DropdownMenuItem>
         
-        <DropdownMenuItem onClick={() => handleSocialShare('sms')} className="text-popover-foreground">
+        <DropdownMenuItem onClick={() => handleSocialShare('sms')}>
           <MessageCircle className="h-4 w-4 mr-2" />
           Share via SMS
         </DropdownMenuItem>
