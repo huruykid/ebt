@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Camera, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ type Store = Tables<'snap_stores'>;
 interface StorePhotosProps {
   storeName: string;
   store: Store;
+  onHoursAdded?: (hours: Record<string, { open: string; close: string; closed: boolean }>) => void;
 }
 
 // Improved store images with more variety and better matching
@@ -84,7 +84,7 @@ const hashString = (str: string): number => {
   return hash;
 };
 
-export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store }) => {
+export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHoursAdded }) => {
   const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
   
   const defaultImageId = getDefaultStoreImage(store.Store_Type, store.Store_Name);

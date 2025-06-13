@@ -16,22 +16,25 @@ import { Label } from '@/components/ui/label';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
+import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
 interface AddPhoneModalProps {
   store: Store;
+  onPhoneAdded?: (phoneNumber: string) => void;
 }
 
-export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store }) => {
+export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdded }) => {
   const { user } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { trackContribution } = useContributionTracking();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -41,15 +44,32 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store }) => {
     
     if (!phoneNumber.trim()) return;
 
-    // TODO: Save phone number to database
-    console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
-    
-    // Track the contribution - convert store.id to number since it's a bigint in user_points table
-    trackContribution('contact_info', parseInt(store.id));
-    
-    // Reset and close
-    setPhoneNumber('');
-    setIsOpen(false);
+    setIsSubmitting(true);
+
+    try {
+      // TODO: Save phone number to database when backend is ready
+      console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
+      
+      // Track the contribution - convert store.id to number since it's a bigint in user_points table
+      trackContribution('contact_info', parseInt(store.id));
+      
+      // Update the frontend immediately
+      if (onPhoneAdded) {
+        onPhoneAdded(phoneNumber);
+      }
+      
+      // Show success message
+      toast.success('Phone number added successfully!');
+      
+      // Reset and close
+      setPhoneNumber('');
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Error adding phone number:', error);
+      toast.error('Failed to add phone number. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -87,11 +107,11 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store }) => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!phoneNumber.trim()}>
-                Add Phone Number
+              <Button type="submit" disabled={!phoneNumber.trim() || isSubmitting}>
+                {isSubmitting ? 'Adding...' : 'Add Phone Number'}
               </Button>
             </DialogFooter>
           </form>

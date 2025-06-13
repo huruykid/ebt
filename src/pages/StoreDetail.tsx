@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
+import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -19,6 +20,7 @@ type Store = Tables<'snap_stores'>;
 export default function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [storeHours, setStoreHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
 
   const { data: store, isLoading, error } = useQuery({
     queryKey: ['store', id],
@@ -100,6 +102,7 @@ export default function StoreDetailPage() {
         <StorePhotos 
           storeName={store.Store_Name} 
           store={store}
+          onHoursAdded={setStoreHours}
         />
         
         <div className="relative -mt-8 z-10">
@@ -116,10 +119,11 @@ export default function StoreDetailPage() {
                   <ReviewSection store={store} />
                 </div>
 
-                {/* Store Info - Second on mobile, third column on desktop */}
-                <div className="xl:col-span-1 order-2">
-                  <div className="xl:sticky xl:top-4">
+                {/* Store Info and Hours - Second on mobile, third column on desktop */}
+                <div className="xl:col-span-1 order-2 space-y-6">
+                  <div className="xl:sticky xl:top-4 space-y-6">
                     <EnhancedStoreInfo store={store} />
+                    {storeHours && <StoreHoursCard hours={storeHours} />}
                   </div>
                 </div>
               </div>

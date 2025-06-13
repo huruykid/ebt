@@ -19,7 +19,7 @@ interface StoreHeaderProps {
 
 export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
   const [addedHours, setAddedHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
-  const [phoneAdded, setPhoneAdded] = useState(false);
+  const [addedPhone, setAddedPhone] = useState<string | null>(null);
 
   const formatAddress = () => {
     const parts = [
@@ -76,7 +76,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
     setAddedHours(hours);
   };
 
-  const formatHours = (hours: Record<string, { open: string; close: string; closed: boolean }>) => {
+  const handlePhoneAdded = (phoneNumber: string) => {
+    setAddedPhone(phoneNumber);
+  };
+
+  const formatTodayHours = (hours: Record<string, { open: string; close: string; closed: boolean }>) => {
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     const todayHours = hours[today];
     
@@ -166,10 +170,13 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-foreground mb-2">Phone</p>
-                {phoneAdded ? (
-                  <p className="text-green-600 text-sm">✓ Phone number added</p>
+                {addedPhone ? (
+                  <div>
+                    <p className="text-green-600 text-sm mb-1">✓ Phone number added</p>
+                    <p className="text-muted-foreground text-xs">{addedPhone}</p>
+                  </div>
                 ) : (
-                  <AddPhoneModal store={store} />
+                  <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
                 )}
               </div>
             </div>
@@ -181,7 +188,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
                 {addedHours ? (
                   <div>
                     <p className="text-green-600 text-sm mb-1">✓ Hours added</p>
-                    <p className="text-muted-foreground text-xs">{formatHours(addedHours)}</p>
+                    <p className="text-muted-foreground text-xs">{formatTodayHours(addedHours)}</p>
                   </div>
                 ) : (
                   <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
@@ -204,4 +211,4 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
       </CardContent>
     </Card>
   );
-}
+};
