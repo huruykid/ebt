@@ -51,23 +51,7 @@ export const useStoreSearch = () => {
         .select('*')
         .order('Store_Name');
 
-      // If location search is active, prioritize nearby stores
-      if (locationSearch) {
-        const { lat, lng } = locationSearch;
-        const radius = 25; // miles
-        const latDelta = radius / 69;
-        const lonDelta = radius / (69 * Math.cos(lat * Math.PI / 180));
-        
-        query = query
-          .not('Latitude', 'is', null)
-          .not('Longitude', 'is', null)
-          .gte('Latitude', lat - latDelta)
-          .lte('Latitude', lat + latDelta)
-          .gte('Longitude', lng - lonDelta)
-          .lte('Longitude', lng + lonDelta);
-      }
-
-      // Apply search query
+      // Apply search query first
       if (searchQuery.trim()) {
         query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
       }
@@ -91,9 +75,19 @@ export const useStoreSearch = () => {
         if (filters.length > 0) {
           query = query.or(filters.join(','));
         }
+
+        console.log('Applied category filters:', filters);
       }
 
-      query = query.limit(100);
+      // If location search is active, we'll filter by distance after getting results
+      // But first ensure we have latitude/longitude data
+      if (locationSearch) {
+        query = query
+          .not('Latitude', 'is', null)
+          .not('Longitude', 'is', null);
+      }
+
+      query = query.limit(500); // Increased limit to get more results before distance filtering
 
       const { data, error } = await query;
       
@@ -104,7 +98,7 @@ export const useStoreSearch = () => {
       
       let results = data || [];
 
-      // If location search is active, calculate distances and sort
+      // If location search is active, calculate distances and filter by radius
       if (locationSearch && results.length > 0) {
         const { lat, lng } = locationSearch;
         results = results
@@ -112,11 +106,12 @@ export const useStoreSearch = () => {
             ...store,
             distance: calculateDistance(lat, lng, store.Latitude!, store.Longitude!)
           }))
-          .filter(store => store.distance <= 25)
+          .filter(store => store.distance <= 50) // Increased radius to 50 miles for category searches
           .sort((a, b) => a.distance - b.distance);
       }
 
       console.log('Search results for category:', activeCategory, 'Store types:', selectedStoreTypes, 'Name patterns:', selectedNamePatterns, 'Results:', results.length);
+      console.log('Sample results:', results.slice(0, 3).map(r => ({ name: r.Store_Name, type: r.Store_Type })));
       return results;
     },
   });
