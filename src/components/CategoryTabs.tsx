@@ -49,33 +49,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       excludePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Dollar']
     },
     { 
-      id: 'dollar', 
-      name: 'Dollar Stores', 
-      icon: '💵',
-      activeIcon: '💵',
-      storeTypes: ['Dollar Store', 'Discount Store'],
-      namePatterns: ['Dollar General', 'Family Dollar', 'Dollar Tree', '99 Cent'],
-      excludePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug Store']
-    },
-    { 
-      id: 'pharmacy', 
-      name: 'Pharmacy', 
-      icon: '💊',
-      activeIcon: '💊',
-      storeTypes: ['Pharmacy', 'Drug Store'],
-      namePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug Store', 'Duane Reade'],
-      excludePatterns: ['Dollar', 'Market']
-    },
-    { 
-      id: 'farmers', 
-      name: 'Farmers Markets', 
-      icon: '🥕',
-      activeIcon: '🥕',
-      storeTypes: ['Farmers Market', 'Market'],
-      namePatterns: ['Farmers Market', 'Farmer\'s Market', 'Farm Market', 'Produce Market', 'Community Market'],
-      excludePatterns: ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market', 'CVS', 'Walgreens', 'Dollar']
-    },
-    { 
       id: 'hotmeals', 
       name: 'Hot Meals (RMP)', 
       icon: '🍽️',

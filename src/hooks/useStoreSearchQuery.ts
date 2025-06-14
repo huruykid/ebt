@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { buildBaseQuery } from '@/utils/searchQueryBuilder';
 import { calculateDistance } from '@/utils/distanceCalculation';
 import { 
-  applyFarmersMarketExclusion, 
   applyGroceryExclusion, 
   applyLocationFiltering 
 } from '@/utils/storeFiltering';
@@ -60,44 +59,25 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       });
 
       // Apply category-specific exclusions AFTER getting results
-      if (activeCategory === 'farmers' && results.length > 0) {
-        console.log('🥕 Applying farmers market exclusions...');
-        const beforeExclusion = results.length;
-        results = applyFarmersMarketExclusion(results);
-        console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
-      } else if (activeCategory === 'grocery' && results.length > 0) {
+      if (activeCategory === 'grocery' && results.length > 0) {
         console.log('🏪 Applying grocery exclusions...');
         const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
         console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
-      } else if (activeCategory === 'dollar' && results.length > 0) {
-        console.log('💵 Applying dollar store exclusions...');
+      } else if (activeCategory === 'convenience' && results.length > 0) {
+        console.log('🏬 Applying convenience store exclusions...');
         const beforeExclusion = results.length;
-        // Filter out CVS, Walgreens, and pharmacies from dollar store results
+        // Filter out CVS, Walgreens, and pharmacies from convenience store results
         results = results.filter(store => {
           const storeName = store.Store_Name?.toLowerCase() || '';
           const storeType = store.Store_Type?.toLowerCase() || '';
-          const excludePatterns = ['cvs', 'walgreens', 'rite aid', 'pharmacy', 'drug store'];
+          const excludePatterns = ['cvs', 'walgreens', 'rite aid', 'dollar'];
           const shouldExclude = excludePatterns.some(pattern => 
             storeName.includes(pattern) || storeType.includes(pattern)
           );
           return !shouldExclude;
         });
-        console.log(`💵 Dollar store filtering: ${beforeExclusion} → ${results.length} stores`);
-      } else if (activeCategory === 'pharmacy' && results.length > 0) {
-        console.log('💊 Applying pharmacy exclusions...');
-        const beforeExclusion = results.length;
-        // Filter out dollar stores from pharmacy results
-        results = results.filter(store => {
-          const storeName = store.Store_Name?.toLowerCase() || '';
-          const storeType = store.Store_Type?.toLowerCase() || '';
-          const excludePatterns = ['dollar general', 'family dollar', 'dollar tree'];
-          const shouldExclude = excludePatterns.some(pattern => 
-            storeName.includes(pattern) || storeType.includes(pattern)
-          );
-          return !shouldExclude;
-        });
-        console.log(`💊 Pharmacy filtering: ${beforeExclusion} → ${results.length} stores`);
+        console.log(`🏬 Convenience store filtering: ${beforeExclusion} → ${results.length} stores`);
       }
 
       // Apply location filtering if active (this should be AFTER category filtering)
