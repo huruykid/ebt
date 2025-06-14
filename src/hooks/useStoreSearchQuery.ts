@@ -95,7 +95,41 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       }
 
       // Fallback to original logic for non-location searches
-      results = data || [];
+      // Transform the data to match StoreWithDistance type
+      if (data && Array.isArray(data)) {
+        results = data.map(store => {
+          // Handle both formats - some queries return the correct format already
+          if ('Store_Name' in store) {
+            return store as StoreWithDistance;
+          } else {
+            // Transform from database format to StoreWithDistance format
+            const storeData = store as any;
+            return {
+              id: storeData.id,
+              Store_Name: storeData.store_name || storeData.Store_Name,
+              Store_Street_Address: storeData.store_street_address || storeData.Store_Street_Address,
+              City: storeData.city || storeData.City,
+              State: storeData.state || storeData.State,
+              Zip_Code: storeData.zip_code || storeData.Zip_Code,
+              Store_Type: storeData.store_type || storeData.Store_Type,
+              Latitude: storeData.latitude || storeData.Latitude,
+              Longitude: storeData.longitude || storeData.Longitude,
+              Additional_Address: storeData.additional_address || storeData.Additional_Address || null,
+              Zip4: storeData.zip4 || storeData.Zip4 || null,
+              County: storeData.county || storeData.County || null,
+              Record_ID: storeData.record_id || storeData.Record_ID || null,
+              ObjectId: storeData.object_id || storeData.ObjectId || null,
+              Grantee_Name: storeData.grantee_name || storeData.Grantee_Name || null,
+              X: storeData.x || storeData.X || null,
+              Y: storeData.y || storeData.Y || null,
+              Incentive_Program: storeData.incentive_program || storeData.Incentive_Program || null,
+              distance: storeData.distance_miles || storeData.distance
+            } as StoreWithDistance;
+          }
+        });
+      } else {
+        results = [];
+      }
       
       console.log('📊 Non-location search results:', {
         totalResults: results.length,
