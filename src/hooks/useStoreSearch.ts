@@ -64,7 +64,7 @@ export const useStoreSearch = () => {
         throw error;
       }
       
-      let results = data || [];
+      let results: StoreWithDistance[] = data || [];
       console.log('📊 Initial database results:', {
         totalResults: results.length,
         category: activeCategory,
@@ -105,7 +105,7 @@ export const useStoreSearch = () => {
         sampleResults: results.slice(0, 3).map(r => ({ 
           name: r.Store_Name, 
           type: r.Store_Type,
-          distance: r.distance?.toFixed(1)
+          distance: r.distance ? r.distance.toFixed(1) + ' miles' : 'no distance calculated'
         }))
       });
 
