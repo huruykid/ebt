@@ -22,6 +22,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   className = ""
 }) => {
   const [activeCategory, setActiveCategory] = useState('trending');
+  const [showRmpExplanation, setShowRmpExplanation] = useState(false);
 
   const categories: Category[] = [
     { 
@@ -120,9 +121,29 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         })}
       </nav>
       
-      {/* RMP State Warning */}
+      {/* Mobile RMP Explanation Toggle - only show on mobile */}
       {activeCategory === 'hotmeals' && (
-        <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl text-sm shadow-lg">
+        <div className="mt-3 md:hidden">
+          <button
+            onClick={() => setShowRmpExplanation(!showRmpExplanation)}
+            className="text-xs text-blue-600 hover:text-blue-800 underline font-medium transition-colors duration-200"
+          >
+            What's this?
+          </button>
+          
+          {showRmpExplanation && (
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                RMP allows eligible SNAP recipients to buy prepared meals at participating restaurants in select states.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* RMP State Warning - desktop version */}
+      {activeCategory === 'hotmeals' && (
+        <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl text-sm shadow-lg hidden md:block">
           <p className="text-amber-800 mb-2">
             <strong>Restaurant Meals Program (RMP):</strong> Your state may not have RMP available. 
             This program is only available in certain states and for eligible SNAP recipients (elderly, disabled, or homeless).
