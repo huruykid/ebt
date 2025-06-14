@@ -1,10 +1,9 @@
 
 import { useQuery } from '@tanstack/react-query';
-import { buildBaseQuery } from '@/utils/searchQueryBuilder';
+import { buildLocationAwareQuery } from '@/utils/searchQueryBuilder';
 import { calculateDistance } from '@/utils/distanceCalculation';
 import { 
-  applyGroceryExclusion, 
-  applyLocationFiltering 
+  applyGroceryExclusion
 } from '@/utils/storeFiltering';
 import { CATEGORY_EXCLUSIONS } from '@/constants/storeSearchConstants';
 import type { StoreWithDistance, SearchParams } from '@/types/storeSearchTypes';
@@ -25,17 +24,14 @@ export const useStoreSearchQuery = (params: SearchParams) => {
     queryFn: async (): Promise<StoreWithDistance[]> => {
       console.log('🔍 Starting store search with params:', params);
 
-      // For category searches, don't use exclusion patterns in the query - apply them after
-      const excludePatterns = activeCategory === 'trending' ? CATEGORY_EXCLUSIONS[activeCategory] || [] : [];
-
-      // Build the query without exclusion patterns for category searches
-      const query = buildBaseQuery(
+      // Use the new location-aware query builder
+      const query = buildLocationAwareQuery(
         searchQuery,
         activeCategory,
         selectedStoreTypes,
         selectedNamePatterns,
         locationSearch,
-        excludePatterns
+        radius
       );
 
       const { data, error } = await query;
@@ -46,7 +42,57 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       }
       
       let results: StoreWithDistance[] = data || [];
-      console.log('📊 Initial database results:', {
+      
+      // For location-aware queries, the results already include distance and are pre-filtered
+      if (locationSearch && data && data.length > 0 && 'distance_miles' in data[0]) {
+        console.log('📊 Location-aware results received:', {
+          totalResults: results.length,
+          category: activeCategory,
+          radius: radius,
+          sampleResults: results.slice(0, 3).map(r => ({ 
+            name: r.store_name || r.Store_Name, 
+            type: r.store_type || r.Store_Type,
+            distance: r.distance_miles ? r.distance_miles.toFixed(1) + ' miles' : 'unknown'
+          }))
+        });
+
+        // Convert the RPC result format to our expected format
+        results = results.map(store => ({
+          id: store.id,
+          Store_Name: store.store_name || store.Store_Name,
+          Store_Street_Address: store.store_street_address || store.Store_Street_Address,
+          City: store.city || store.City,
+          State: store.state || store.State,
+          Zip_Code: store.zip_code || store.Zip_Code,
+          Store_Type: store.store_type || store.Store_Type,
+          Latitude: store.latitude || store.Latitude,
+          Longitude: store.longitude || store.Longitude,
+          distance: store.distance_miles,
+          // Map other required fields with defaults
+          Additional_Address: store.Additional_Address || null,
+          Zip4: store.Zip4 || null,
+          County: store.County || null,
+          Record_ID: store.Record_ID || null,
+          ObjectId: store.ObjectId || null,
+          Grantee_Name: store.Grantee_Name || null,
+          X: store.X || null,
+          Y: store.Y || null,
+          Incentive_Program: store.Incentive_Program || null
+        }));
+
+        // Only apply exclusions for location-based searches (not in the database query)
+        if (activeCategory === 'grocery' && results.length > 0) {
+          console.log('🏪 Applying grocery exclusions to location results...');
+          const beforeExclusion = results.length;
+          results = applyGroceryExclusion(results);
+          console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
+        }
+
+        return results;
+      }
+
+      // Fallback to original logic for non-location searches
+      console.log('📊 Non-location search results:', {
         totalResults: results.length,
         category: activeCategory,
         radius: radius,
@@ -58,38 +104,36 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         }))
       });
 
-      // Apply category-specific exclusions AFTER getting results
+      // Apply category-specific exclusions for non-location searches
+      const excludePatterns = activeCategory === 'trending' ? CATEGORY_EXCLUSIONS[activeCategory] || [] : [];
+      
       if (activeCategory === 'grocery' && results.length > 0) {
         console.log('🏪 Applying grocery exclusions...');
         const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
         console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
-      } else if (activeCategory === 'convenience' && results.length > 0) {
-        console.log('🏬 Applying convenience store exclusions...');
-        const beforeExclusion = results.length;
-        // Filter out CVS, Walgreens, and pharmacies from convenience store results
-        results = results.filter(store => {
-          const storeName = store.Store_Name?.toLowerCase() || '';
-          const storeType = store.Store_Type?.toLowerCase() || '';
-          const excludePatterns = ['cvs', 'walgreens', 'rite aid', 'dollar'];
-          const shouldExclude = excludePatterns.some(pattern => 
-            storeName.includes(pattern) || storeType.includes(pattern)
-          );
-          return !shouldExclude;
-        });
-        console.log(`🏬 Convenience store filtering: ${beforeExclusion} → ${results.length} stores`);
       }
 
-      // Apply location filtering if active (this should be AFTER category filtering)
+      // Apply location filtering for non-location searches if location is provided
       if (locationSearch && results.length > 0) {
-        console.log(`📍 Applying location filtering with ${radius} mile radius...`);
+        console.log(`📍 Applying fallback location filtering with ${radius} mile radius...`);
         const beforeLocationFilter = results.length;
-        results = applyLocationFiltering(results, locationSearch, radius, calculateDistance);
-        console.log(`📍 Location filtering: ${beforeLocationFilter} → ${results.length} stores within ${radius} miles`);
-      } else if (locationSearch) {
-        console.log('⚠️ No results to filter by location');
-      } else {
-        console.log('🌍 No location search active');
+        
+        results = results
+          .filter(store => store.Latitude && store.Longitude)
+          .map(store => {
+            const distance = calculateDistance(
+              locationSearch.lat,
+              locationSearch.lng,
+              store.Latitude!,
+              store.Longitude!
+            );
+            return { ...store, distance };
+          })
+          .filter(store => store.distance! <= radius)
+          .sort((a, b) => a.distance! - b.distance!);
+          
+        console.log(`📍 Fallback location filtering: ${beforeLocationFilter} → ${results.length} stores within ${radius} miles`);
       }
 
       console.log('✅ Final search results:', {

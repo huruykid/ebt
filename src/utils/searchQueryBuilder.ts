@@ -39,7 +39,63 @@ export const buildNamePatternFilters = (selectedNamePatterns: string[]): string[
 };
 
 /**
- * Build the base Supabase query with search and category filters
+ * Build location-aware base query that prioritizes location filtering first
+ */
+export const buildLocationAwareQuery = (
+  searchQuery: string,
+  activeCategory: string,
+  selectedStoreTypes: string[],
+  selectedNamePatterns: string[],
+  locationSearch: { lat: number; lng: number } | null,
+  radius: number = 10,
+  excludePatterns: string[] = []
+) => {
+  // If we have location, use the optimized nearby stores function first
+  if (locationSearch) {
+    console.log('🎯 Using location-aware search with radius:', radius);
+    
+    // For location-based searches, use broader category filters to get more results
+    let storeTypeFilters: string[] = [];
+    
+    if (activeCategory === 'grocery') {
+      // More inclusive grocery store types
+      storeTypeFilters = [
+        'Supermarket',
+        'Grocery Store', 
+        'Supercenter',
+        'Convenience Store', // Include convenience stores that might sell groceries
+        'Specialty Store'
+      ];
+    } else if (activeCategory === 'convenience') {
+      storeTypeFilters = [
+        'Convenience Store',
+        'Gas Station',
+        'Specialty Store'
+      ];
+    } else if (activeCategory === 'hotmeals') {
+      storeTypeFilters = [
+        'Restaurant Meals Program',
+        'Restaurant',
+        'Fast Food'
+      ];
+    }
+    
+    // Use the optimized nearby stores function
+    return supabase.rpc('get_nearby_stores', {
+      user_lat: locationSearch.lat,
+      user_lng: locationSearch.lng,
+      radius_miles: radius,
+      store_types: storeTypeFilters.length > 0 ? storeTypeFilters : null,
+      result_limit: 200 // Increased limit for better results
+    });
+  }
+  
+  // Fallback to original query for non-location searches
+  return buildBaseQuery(searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, excludePatterns);
+};
+
+/**
+ * Build the base Supabase query with search and category filters (for non-location searches)
  */
 export const buildBaseQuery = (
   searchQuery: string,
@@ -71,8 +127,8 @@ export const buildBaseQuery = (
   // Apply category filters with simplified logic
   if (activeCategory === 'grocery') {
     console.log('🏪 Applying grocery filters');
-    // Search for grocery stores and supermarkets
-    query = query.or(`Store_Type.ilike.%supermarket%,Store_Type.ilike.%grocery%,Store_Type.ilike.%supercenter%,Store_Name.ilike.%market%`);
+    // More inclusive grocery search
+    query = query.or(`Store_Type.ilike.%supermarket%,Store_Type.ilike.%grocery%,Store_Type.ilike.%supercenter%,Store_Type.ilike.%market%,Store_Name.ilike.%market%,Store_Name.ilike.%food%`);
   } else if (activeCategory === 'convenience') {
     console.log('🏬 Applying convenience store filters');
     // Search for convenience stores
