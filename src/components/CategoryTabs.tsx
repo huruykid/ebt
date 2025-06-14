@@ -77,7 +77,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   return (
     <div className={`overflow-x-auto ${className}`}>
       <nav 
-        className="rounded bg-neutral-100 flex items-center justify-center gap-[30px] px-4 py-2 min-w-max"
+        className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
         role="tablist"
         aria-label="Food categories"
       >
@@ -88,24 +88,30 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             <button
               key={category.id}
               onClick={() => handleCategoryClick(category.id)}
-              className={`flex flex-col items-center justify-center min-w-[55px] px-2 py-2 transition-all duration-200 hover:opacity-80 rounded-lg ${
+              className={`flex flex-col items-center justify-center min-w-[80px] px-4 py-4 transition-all duration-300 hover:opacity-80 rounded-2xl hover:scale-110 ${
                 isActive 
-                  ? 'bg-white shadow-sm border-2 border-primary/20 scale-105' 
-                  : 'hover:bg-white/50'
+                  ? 'bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary/30 scale-110 transform' 
+                  : 'hover:bg-white/70 hover:shadow-lg'
               }`}
               role="tab"
               aria-selected={isActive}
               aria-controls={`panel-${category.id}`}
             >
-              <div className={`w-[31px] h-[31px] flex items-center justify-center mb-1 transition-all duration-200 ${
-                isActive ? 'scale-110' : 'grayscale hover:grayscale-0'
+              <div className={`w-12 h-12 flex items-center justify-center mb-2 transition-all duration-300 rounded-full ${
+                isActive 
+                  ? 'scale-125 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg' 
+                  : 'hover:scale-110 hover:bg-primary/5'
               }`}>
-                <span className="text-2xl">
+                <span className={`transition-all duration-300 ${
+                  isActive ? 'text-4xl drop-shadow-lg' : 'text-3xl grayscale hover:grayscale-0'
+                }`}>
                   {isActive ? (category.activeIcon || category.icon) : category.icon}
                 </span>
               </div>
-              <span className={`text-[10px] font-bold text-center whitespace-nowrap transition-colors duration-200 ${
-                isActive ? 'text-primary' : 'text-[#484848]'
+              <span className={`text-xs font-bold text-center whitespace-nowrap transition-all duration-300 ${
+                isActive 
+                  ? 'text-primary scale-110 drop-shadow-sm' 
+                  : 'text-[#484848] hover:text-primary/80'
               }`}>
                 {category.name}
               </span>
@@ -116,7 +122,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       
       {/* RMP State Warning */}
       {activeCategory === 'hotmeals' && (
-        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+        <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl text-sm shadow-lg">
           <p className="text-amber-800 mb-2">
             <strong>Restaurant Meals Program (RMP):</strong> Your state may not have RMP available. 
             This program is only available in certain states and for eligible SNAP recipients (elderly, disabled, or homeless).
@@ -125,7 +131,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline font-medium"
+            className="text-blue-600 hover:text-blue-800 underline font-medium transition-colors duration-200"
           >
             Learn more about RMP eligibility and participating states →
           </a>
