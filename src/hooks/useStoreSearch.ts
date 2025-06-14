@@ -2,8 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { sortStores } from '@/utils/storeSorting';
+import { calculateDistance } from '@/utils/distanceCalculation';
+import { 
+  applyFarmersMarketExclusion, 
+  applyGroceryExclusion, 
+  applyLocationFiltering 
+} from '@/utils/storeFiltering';
+import { buildBaseQuery } from '@/utils/searchQueryBuilder';
 import type { SortOption } from '@/components/SortDropdown';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -31,98 +37,16 @@ export const useStoreSearch = () => {
     setSearchQuery(queryParam);
   }, [searchParams]);
 
-  // Calculate distance between two points using Haversine formula
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 3959; // Earth's radius in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius],
     queryFn: async (): Promise<StoreWithDistance[]> => {
-      let query = supabase
-        .from('snap_stores')
-        .select('*')
-        .order('Store_Name');
-
-      console.log('Query parameters:', {
+      const query = buildBaseQuery(
         searchQuery,
         activeCategory,
         selectedStoreTypes,
         selectedNamePatterns,
-        locationSearch,
-        radius
-      });
-
-      // Apply search query first
-      if (searchQuery.trim()) {
-        query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
-      }
-
-      // Apply category filters for non-trending categories
-      if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
-        const filters = [];
-        
-        // Add store type filters
-        if (selectedStoreTypes.length > 0) {
-          selectedStoreTypes.forEach(type => {
-            filters.push(`Store_Type.ilike.%${type}%`);
-          });
-        }
-        
-        // Improved name pattern filters for farmers markets
-        if (selectedNamePatterns.length > 0) {
-          console.log('Applying name patterns:', selectedNamePatterns);
-          selectedNamePatterns.forEach(pattern => {
-            // For farmers market patterns, be more specific
-            if (pattern.toLowerCase().includes('farmer')) {
-              // Match variations of farmers market
-              filters.push(`Store_Name.ilike.%farmers market%`);
-              filters.push(`Store_Name.ilike.%farmer's market%`);
-              filters.push(`Store_Name.ilike.%farm market%`);
-              filters.push(`Store_Type.ilike.%farmers market%`);
-              filters.push(`Store_Type.ilike.%farmer's market%`);
-              filters.push(`Store_Type.ilike.%farm market%`);
-            } else {
-              // For other patterns, use the original logic
-              const words = pattern.split(' ');
-              if (words.length > 1) {
-                words.forEach(word => {
-                  if (word.length > 2) {
-                    filters.push(`Store_Name.ilike.%${word}%`);
-                    filters.push(`Store_Type.ilike.%${word}%`);
-                  }
-                });
-              } else {
-                filters.push(`Store_Name.ilike.%${pattern}%`);
-                filters.push(`Store_Type.ilike.%${pattern}%`);
-              }
-            }
-          });
-        }
-        
-        if (filters.length > 0) {
-          console.log('Applied filters:', filters);
-          query = query.or(filters.join(','));
-        }
-      }
-
-      // If location search is active, we'll filter by distance after getting results
-      // But first ensure we have latitude/longitude data
-      if (locationSearch) {
-        query = query
-          .not('Latitude', 'is', null)
-          .not('Longitude', 'is', null);
-      }
-
-      query = query.limit(1000); // Increased limit to get more results before distance filtering
+        locationSearch
+      );
 
       const { data, error } = await query;
       
@@ -134,57 +58,18 @@ export const useStoreSearch = () => {
       let results = data || [];
       console.log('Initial results before filtering:', results.length);
 
-      // Apply exclude patterns AFTER getting initial results
+      // Apply category-specific exclusions
       if (activeCategory === 'farmers' && results.length > 0) {
-        const beforeExclusion = results.length;
-        const excludePatterns = ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'];
-        results = results.filter(store => {
-          const storeName = store.Store_Name?.toLowerCase() || '';
-          const storeType = store.Store_Type?.toLowerCase() || '';
-          const shouldExclude = excludePatterns.some(pattern => 
-            storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
-          );
-          return !shouldExclude;
-        });
-        
-        console.log('Farmers market results:', {
-          beforeExclusion,
-          afterExclusion: results.length,
-          excludePatterns,
-          sampleResults: results.slice(0, 5).map(r => ({ name: r.Store_Name, type: r.Store_Type }))
-        });
+        results = applyFarmersMarketExclusion(results);
       }
 
-      // If grocery category, exclude farmers markets
       if (activeCategory === 'grocery' && results.length > 0) {
-        const excludePatterns = ['Farmers Market', 'Farm Market', 'Flea Market', 'Farmer\'s Market'];
-        results = results.filter(store => {
-          const storeName = store.Store_Name?.toLowerCase() || '';
-          const storeType = store.Store_Type?.toLowerCase() || '';
-          return !excludePatterns.some(pattern => 
-            storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
-          );
-        });
+        results = applyGroceryExclusion(results);
       }
 
-      // If location search is active, calculate distances and filter by radius
+      // Apply location filtering if active
       if (locationSearch && results.length > 0) {
-        const { lat, lng } = locationSearch;
-        const beforeLocationFilter = results.length;
-        results = results
-          .map(store => ({
-            ...store,
-            distance: calculateDistance(lat, lng, store.Latitude!, store.Longitude!)
-          }))
-          .filter(store => store.distance <= radius)
-          .sort((a, b) => a.distance - b.distance);
-        
-        console.log('Location filtering:', {
-          beforeLocationFilter,
-          afterLocationFilter: results.length,
-          radius,
-          location: { lat, lng }
-        });
+        results = applyLocationFiltering(results, locationSearch, radius, calculateDistance);
       }
 
       console.log('Final search results:', {
