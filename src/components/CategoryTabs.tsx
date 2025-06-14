@@ -33,21 +33,24 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       name: 'Grocery Store', 
       icon: '🏪',
       activeIcon: '🏪',
-      storeTypes: ['Supermarket', 'Grocery Store', 'Supercenter'] 
+      storeTypes: ['Supermarket', 'Grocery Store', 'Supercenter'],
+      namePatterns: ['Market', 'mart', 'Food', 'Grocery']
     },
     { 
       id: 'fastfood', 
       name: 'Fast Food', 
       icon: '🍔',
       activeIcon: '🍔',
-      storeTypes: ['Fast Food Restaurant', 'Restaurant'] 
+      storeTypes: ['Fast Food Restaurant', 'Restaurant'],
+      namePatterns: ['McDonald', 'Burger', 'Taco', 'KFC', 'Subway', 'Pizza']
     },
     { 
       id: 'hotmeals', 
       name: 'Hot Meals (RMP)', 
       icon: '🍽️',
       activeIcon: '🍽️',
-      storeTypes: ['Restaurant', 'Fast Food Restaurant', 'Cafeteria'] 
+      storeTypes: ['Restaurant Meals Program', 'Restaurant'],
+      namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill']
     },
     { 
       id: 'bakery', 
@@ -55,14 +58,15 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '🥖',
       activeIcon: '🥖',
       storeTypes: ['Bakery'],
-      namePatterns: ['Bakery', 'bakery', 'Bread', 'bread', 'Donut', 'donut', 'Pastry', 'pastry']
+      namePatterns: ['Bakery', 'Bread', 'Donut', 'Pastry', 'Cake']
     },
     { 
       id: 'convenience', 
       name: 'Corner Stores', 
       icon: '🏬',
       activeIcon: '🏬',
-      storeTypes: ['Convenience Store', 'Corner Store'] 
+      storeTypes: ['Convenience Store', 'Corner Store'],
+      namePatterns: ['7-Eleven', '7 Eleven', 'Circle K', 'Wawa', 'Sheetz']
     },
     { 
       id: 'dollar', 
@@ -70,7 +74,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '💵',
       activeIcon: '💵',
       storeTypes: ['Dollar Store', 'Discount Store', 'Other'],
-      namePatterns: ['Dollar', 'dollar', '99', 'Cent', 'cent', 'Discount', 'discount', 'Family Dollar', 'Dollar Tree', 'Dollar General', '99 Cent']
+      namePatterns: ['Dollar', '99', 'Cent', 'Discount', 'Family Dollar', 'Dollar Tree', 'Dollar General', '99 Cent']
     }
   ];
 
@@ -78,7 +82,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     setActiveCategory(categoryId);
     const category = categories.find(c => c.id === categoryId);
     if (onCategoryChange) {
-      onCategoryChange(categoryId, category?.storeTypes, category?.namePatterns);
+      onCategoryChange(categoryId, category?.storeTypes || [], category?.namePatterns || []);
     }
   };
 

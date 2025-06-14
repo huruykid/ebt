@@ -52,25 +52,36 @@ export const useStoreSearch = () => {
         .select('*')
         .order('Store_Name');
 
+      console.log('Query parameters:', {
+        searchQuery,
+        activeCategory,
+        selectedStoreTypes,
+        selectedNamePatterns,
+        locationSearch,
+        radius
+      });
+
       // Apply search query first
       if (searchQuery.trim()) {
         query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
       }
 
-      // Apply category filters - combine store types AND name patterns
-      if ((selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0) && activeCategory !== 'trending') {
+      // Apply category filters for non-trending categories
+      if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
         const filters = [];
         
         // Add store type filters
         if (selectedStoreTypes.length > 0) {
-          const typeFilters = selectedStoreTypes.map(type => `Store_Type.ilike.%${type}%`);
-          filters.push(...typeFilters);
+          selectedStoreTypes.forEach(type => {
+            filters.push(`Store_Type.ilike.%${type}%`);
+          });
         }
         
         // Add name pattern filters
         if (selectedNamePatterns.length > 0) {
-          const nameFilters = selectedNamePatterns.map(pattern => `Store_Name.ilike.%${pattern}%`);
-          filters.push(...nameFilters);
+          selectedNamePatterns.forEach(pattern => {
+            filters.push(`Store_Name.ilike.%${pattern}%`);
+          });
         }
         
         if (filters.length > 0) {
@@ -88,7 +99,7 @@ export const useStoreSearch = () => {
           .not('Longitude', 'is', null);
       }
 
-      query = query.limit(500); // Increased limit to get more results before distance filtering
+      query = query.limit(1000); // Increased limit to get more results before distance filtering
 
       const { data, error } = await query;
       
@@ -111,8 +122,17 @@ export const useStoreSearch = () => {
           .sort((a, b) => a.distance - b.distance);
       }
 
-      console.log('Search results for category:', activeCategory, 'Store types:', selectedStoreTypes, 'Name patterns:', selectedNamePatterns, 'Results:', results.length);
-      console.log('Sample results:', results.slice(0, 3).map(r => ({ name: r.Store_Name, type: r.Store_Type })));
+      console.log('Final search results:', {
+        category: activeCategory,
+        storeTypes: selectedStoreTypes,
+        namePatterns: selectedNamePatterns,
+        totalResults: results.length,
+        sampleResults: results.slice(0, 3).map(r => ({ 
+          name: r.Store_Name, 
+          type: r.Store_Type 
+        }))
+      });
+
       return results;
     },
   });
@@ -120,11 +140,12 @@ export const useStoreSearch = () => {
   // Sort the stores based on the selected option
   const sortedStores = stores ? sortStores(stores, sortBy) : [];
 
-  const handleCategoryChange = (categoryId: string, storeTypes?: string[], namePatterns?: string[]) => {
+  const handleCategoryChange = (categoryId: string, storeTypes: string[] = [], namePatterns: string[] = []) => {
+    console.log('Category change called with:', { categoryId, storeTypes, namePatterns });
+    
     setActiveCategory(categoryId);
-    setSelectedStoreTypes(storeTypes || []);
-    setSelectedNamePatterns(namePatterns || []);
-    console.log('Category changed to:', categoryId, 'Store types:', storeTypes, 'Name patterns:', namePatterns);
+    setSelectedStoreTypes(storeTypes);
+    setSelectedNamePatterns(namePatterns);
   };
 
   return {
