@@ -8,6 +8,7 @@ interface Category {
   activeIcon?: string; // For colorful active state
   storeTypes?: string[]; // Map to actual store types in database
   namePatterns?: string[]; // Additional name patterns to match
+  showStateWarning?: boolean; // For RMP state-specific warning
 }
 
 interface CategoryTabsProps {
@@ -37,30 +38,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       namePatterns: ['Market', 'mart', 'Food', 'Grocery']
     },
     { 
-      id: 'fastfood', 
-      name: 'Fast Food', 
-      icon: '🍔',
-      activeIcon: '🍔',
-      storeTypes: ['Fast Food Restaurant', 'Restaurant'],
-      namePatterns: ['McDonald', 'Burger', 'Taco', 'KFC', 'Subway', 'Pizza']
-    },
-    { 
-      id: 'hotmeals', 
-      name: 'Hot Meals (RMP)', 
-      icon: '🍽️',
-      activeIcon: '🍽️',
-      storeTypes: ['Restaurant Meals Program', 'Restaurant'],
-      namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill']
-    },
-    { 
-      id: 'bakery', 
-      name: 'Bakery', 
-      icon: '🥖',
-      activeIcon: '🥖',
-      storeTypes: ['Bakery'],
-      namePatterns: ['Bakery', 'Bread', 'Donut', 'Pastry', 'Cake']
-    },
-    { 
       id: 'convenience', 
       name: 'Corner Stores', 
       icon: '🏬',
@@ -75,12 +52,44 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       activeIcon: '💵',
       storeTypes: ['Dollar Store', 'Discount Store', 'Other'],
       namePatterns: ['Dollar', '99', 'Cent', 'Discount', 'Family Dollar', 'Dollar Tree', 'Dollar General', '99 Cent']
+    },
+    { 
+      id: 'pharmacy', 
+      name: 'Pharmacy', 
+      icon: '💊',
+      activeIcon: '💊',
+      storeTypes: ['Pharmacy', 'Drug Store'],
+      namePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug', 'Duane Reade']
+    },
+    { 
+      id: 'farmers', 
+      name: 'Farmers Markets', 
+      icon: '🥕',
+      activeIcon: '🥕',
+      storeTypes: ['Farmers Market', 'Market'],
+      namePatterns: ['Farmers Market', 'Farm Market', 'Produce Market']
+    },
+    { 
+      id: 'hotmeals', 
+      name: 'Hot Meals (RMP)', 
+      icon: '🍽️',
+      activeIcon: '🍽️',
+      storeTypes: ['Restaurant Meals Program', 'Restaurant'],
+      namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill'],
+      showStateWarning: true
     }
   ];
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
     const category = categories.find(c => c.id === categoryId);
+    
+    // Show RMP state warning if applicable
+    if (category?.showStateWarning) {
+      // You can add a toast notification here or handle the warning in the parent component
+      console.log('RMP category selected - may need state warning');
+    }
+    
     if (onCategoryChange) {
       onCategoryChange(categoryId, category?.storeTypes || [], category?.namePatterns || []);
     }
@@ -125,6 +134,24 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
           );
         })}
       </nav>
+      
+      {/* RMP State Warning */}
+      {activeCategory === 'hotmeals' && (
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+          <p className="text-amber-800 mb-2">
+            <strong>Restaurant Meals Program (RMP):</strong> Your state may not have RMP available. 
+            This program is only available in certain states and for eligible SNAP recipients (elderly, disabled, or homeless).
+          </p>
+          <a 
+            href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline font-medium"
+          >
+            Learn more about RMP eligibility and participating states →
+          </a>
+        </div>
+      )}
     </div>
   );
 };
