@@ -34,17 +34,16 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h1>
         <p className="text-muted-foreground">
-          Search with fuzzy matching - try "domino fresno" or "chickn 90015"
+          Search by store name/type and location with fuzzy matching
         </p>
       </div>
 
       <SmartSearchBar
         onSearch={handleSmartSearch}
-        placeholder="Try: 'domino fresno', 'chickn 90015', or 'tacc bell'"
         initialSearchText={searchQuery}
       />
 
