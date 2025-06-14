@@ -77,10 +77,24 @@ export const useStoreSearch = () => {
           });
         }
         
-        // Add name pattern filters
+        // Add name pattern filters - more flexible matching
         if (selectedNamePatterns.length > 0) {
           selectedNamePatterns.forEach(pattern => {
-            filters.push(`Store_Name.ilike.%${pattern}%`);
+            // Split multi-word patterns and create more flexible matching
+            const words = pattern.split(' ');
+            if (words.length > 1) {
+              // For multi-word patterns like "Farmers Market", match each word
+              words.forEach(word => {
+                if (word.length > 2) { // Skip very short words
+                  filters.push(`Store_Name.ilike.%${word}%`);
+                  filters.push(`Store_Type.ilike.%${word}%`);
+                }
+              });
+            } else {
+              // Single word pattern
+              filters.push(`Store_Name.ilike.%${pattern}%`);
+              filters.push(`Store_Type.ilike.%${pattern}%`);
+            }
           });
         }
         
@@ -110,15 +124,18 @@ export const useStoreSearch = () => {
       
       let results = data || [];
 
-      // Apply exclude patterns for specific categories (like farmers markets)
+      // Apply exclude patterns AFTER getting initial results
       if (activeCategory === 'farmers' && results.length > 0) {
         const excludePatterns = ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'];
         results = results.filter(store => {
           const storeName = store.Store_Name?.toLowerCase() || '';
+          const storeType = store.Store_Type?.toLowerCase() || '';
           return !excludePatterns.some(pattern => 
-            storeName.includes(pattern.toLowerCase())
+            storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
           );
         });
+        
+        console.log('Farmers market results after exclusion:', results.length);
       }
 
       // If grocery category, exclude farmers markets
@@ -126,8 +143,9 @@ export const useStoreSearch = () => {
         const excludePatterns = ['Farmers Market', 'Farm Market', 'Flea Market', 'Farmer\'s Market'];
         results = results.filter(store => {
           const storeName = store.Store_Name?.toLowerCase() || '';
+          const storeType = store.Store_Type?.toLowerCase() || '';
           return !excludePatterns.some(pattern => 
-            storeName.includes(pattern.toLowerCase())
+            storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
           );
         });
       }
