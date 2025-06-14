@@ -1,43 +1,39 @@
 
 import React, { useState } from 'react';
-import { useNearbyStores } from '@/hooks/useNearbyStores';
+import { useOptimizedNearbyStores } from '@/hooks/useOptimizedNearbyStores';
 import { StoreList } from './StoreList';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SortDropdown, type SortOption } from './SortDropdown';
 import { RadiusDropdown } from './RadiusDropdown';
 import { sortStores } from '@/utils/storeSorting';
-import { MapPin, Zap } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
-interface NearbyStoresProps {
+interface OptimizedNearbyStoresProps {
   latitude: number;
   longitude: number;
   radius?: number;
   limit?: number;
   category?: string;
   storeTypes?: string[];
-  useOptimized?: boolean;
 }
 
-export const NearbyStores: React.FC<NearbyStoresProps> = ({
+export const OptimizedNearbyStores: React.FC<OptimizedNearbyStoresProps> = ({
   latitude,
   longitude,
   radius: initialRadius = 10,
-  limit = 20,
+  limit = 50,
   category = 'trending',
-  storeTypes = [],
-  useOptimized = true
+  storeTypes = []
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [radius, setRadius] = useState(initialRadius);
   
-  const { data: stores, isLoading, error } = useNearbyStores({
+  const { data: stores, isLoading, error } = useOptimizedNearbyStores({
     latitude,
     longitude,
     radius,
     limit,
-    category,
-    storeTypes,
-    useOptimized
+    storeTypes
   });
 
   if (isLoading) {
@@ -90,13 +86,10 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
         </div>
       </div>
 
-      {/* Performance indicator when using optimized search */}
-      {useOptimized && (
-        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground py-1">
-          <Zap className="h-3 w-3" />
-          <span>Optimized database search</span>
-        </div>
-      )}
+      {/* Performance indicator */}
+      <div className="text-xs text-muted-foreground text-center py-1">
+        ⚡ Optimized search results
+      </div>
 
       {/* Store list */}
       <StoreList stores={sortedStores} />

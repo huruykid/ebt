@@ -301,6 +301,15 @@ export type Database = {
         }
         Relationships: []
       }
+      store_type_stats: {
+        Row: {
+          incentive_stores: number | null
+          State: string | null
+          store_count: number | null
+          Store_Type: string | null
+        }
+        Relationships: []
+      }
       user_stats: {
         Row: {
           hours_count: number | null
@@ -319,6 +328,27 @@ export type Database = {
       check_and_award_badges: {
         Args: { p_user_id: string }
         Returns: undefined
+      }
+      get_nearby_stores: {
+        Args: {
+          user_lat: number
+          user_lng: number
+          radius_miles?: number
+          store_types?: string[]
+          result_limit?: number
+        }
+        Returns: {
+          id: string
+          store_name: string
+          store_street_address: string
+          city: string
+          state: string
+          zip_code: string
+          store_type: string
+          latitude: number
+          longitude: number
+          distance_miles: number
+        }[]
       }
       gtrgm_compress: {
         Args: { "": unknown }

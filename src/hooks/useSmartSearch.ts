@@ -47,6 +47,8 @@ export const useSmartSearch = () => {
         return [];
       }
 
+      console.log('Using optimized smart_store_search function with params:', searchParams);
+
       const { data, error } = await supabase.rpc('smart_store_search', {
         search_text: searchParams.searchText || '',
         search_city: searchParams.city || '',
@@ -56,11 +58,11 @@ export const useSmartSearch = () => {
       });
 
       if (error) {
-        console.error('Smart search error:', error);
+        console.error('Optimized smart search error:', error);
         throw error;
       }
 
-      console.log('Smart search results:', data?.length || 0, 'stores found');
+      console.log('Optimized smart search results:', data?.length || 0, 'stores found');
       console.log('Search params:', searchParams);
       
       // Convert the raw results to the correct format
@@ -88,10 +90,13 @@ export const useSmartSearch = () => {
       
       return convertedResults;
     },
-    enabled: !!(searchParams.searchText.trim() || searchParams.city?.trim() || searchParams.zipCode?.trim())
+    enabled: !!(searchParams.searchText.trim() || searchParams.city?.trim() || searchParams.zipCode?.trim()),
+    staleTime: 3 * 60 * 1000, // 3 minutes cache for search results
+    cacheTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const performSearch = (params: SmartSearchParams) => {
+    console.log('Performing optimized smart search:', params);
     setSearchParams(params);
   };
 
