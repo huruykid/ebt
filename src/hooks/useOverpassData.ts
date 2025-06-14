@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 
 interface OverpassElement {
@@ -187,7 +186,7 @@ export const useOverpassData = ({
 
         // Address information
         const addressParts = [
-          tags['addr:housenumber'] || tags.addr_housenumber,
+          tags['addr:housenumber'],
           tags['addr:street'] || tags.addr_street,
           tags['addr:city'],
           tags['addr:postcode']

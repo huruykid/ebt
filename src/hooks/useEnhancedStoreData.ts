@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { useOverpassData } from './useOverpassData';
 import { useYelpBusiness } from './useYelp';
 import type { Tables } from '@/integrations/supabase/types';
