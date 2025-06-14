@@ -50,35 +50,38 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           category: activeCategory,
           radius: radius,
           sampleResults: results.slice(0, 3).map(r => ({ 
-            name: r.store_name || r.Store_Name, 
-            type: r.store_type || r.Store_Type,
-            distance: r.distance_miles ? r.distance_miles.toFixed(1) + ' miles' : 'unknown'
+            name: r.Store_Name || (r as any).store_name, 
+            type: r.Store_Type || (r as any).store_type,
+            distance: (r as any).distance_miles ? (r as any).distance_miles.toFixed(1) + ' miles' : 'unknown'
           }))
         });
 
         // Convert the RPC result format to our expected format
-        results = results.map(store => ({
-          id: store.id,
-          Store_Name: store.store_name || store.Store_Name,
-          Store_Street_Address: store.store_street_address || store.Store_Street_Address,
-          City: store.city || store.City,
-          State: store.state || store.State,
-          Zip_Code: store.zip_code || store.Zip_Code,
-          Store_Type: store.store_type || store.Store_Type,
-          Latitude: store.latitude || store.Latitude,
-          Longitude: store.longitude || store.Longitude,
-          distance: store.distance_miles,
-          // Map other required fields with defaults
-          Additional_Address: store.Additional_Address || null,
-          Zip4: store.Zip4 || null,
-          County: store.County || null,
-          Record_ID: store.Record_ID || null,
-          ObjectId: store.ObjectId || null,
-          Grantee_Name: store.Grantee_Name || null,
-          X: store.X || null,
-          Y: store.Y || null,
-          Incentive_Program: store.Incentive_Program || null
-        }));
+        results = results.map(store => {
+          const storeData = store as any; // Type assertion to handle the mixed format
+          return {
+            id: storeData.id,
+            Store_Name: storeData.Store_Name || storeData.store_name,
+            Store_Street_Address: storeData.Store_Street_Address || storeData.store_street_address,
+            City: storeData.City || storeData.city,
+            State: storeData.State || storeData.state,
+            Zip_Code: storeData.Zip_Code || storeData.zip_code,
+            Store_Type: storeData.Store_Type || storeData.store_type,
+            Latitude: storeData.Latitude || storeData.latitude,
+            Longitude: storeData.Longitude || storeData.longitude,
+            distance: storeData.distance || storeData.distance_miles,
+            // Map other required fields with defaults
+            Additional_Address: storeData.Additional_Address || null,
+            Zip4: storeData.Zip4 || null,
+            County: storeData.County || null,
+            Record_ID: storeData.Record_ID || null,
+            ObjectId: storeData.ObjectId || null,
+            Grantee_Name: storeData.Grantee_Name || null,
+            X: storeData.X || null,
+            Y: storeData.Y || null,
+            Incentive_Program: storeData.Incentive_Program || null
+          };
+        });
 
         // Only apply exclusions for location-based searches (not in the database query)
         if (activeCategory === 'grocery' && results.length > 0) {
