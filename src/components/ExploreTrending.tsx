@@ -10,7 +10,8 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { EbtInfoSection } from './EbtInfoSection';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Search, Heart } from 'lucide-react';
+import { MapPin, Search, Heart, Navigation } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -36,6 +37,12 @@ export const ExploreTrending: React.FC = () => {
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('Location search:', lat, lng);
     navigate('/search');
+  };
+
+  const handleCurrentLocationSearch = () => {
+    if (latitude && longitude) {
+      handleLocationSearch(latitude, longitude);
+    }
   };
 
   const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
@@ -92,6 +99,19 @@ export const ExploreTrending: React.FC = () => {
           </div>
           
           <SmartSearchBar onSearch={handleSmartSearch} className="mt-4" />
+          
+          {/* Current Location Search Button - Mobile */}
+          {latitude && longitude && (
+            <Button
+              onClick={handleCurrentLocationSearch}
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={loading}
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Search near your current location
+            </Button>
+          )}
         </div>
 
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
@@ -127,8 +147,22 @@ export const ExploreTrending: React.FC = () => {
               </p>
               
               {/* Search Bar - Desktop */}
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-2xl mx-auto space-y-4">
                 <SmartSearchBar onSearch={handleSmartSearch} className="text-lg" />
+                
+                {/* Current Location Search Button - Desktop */}
+                {latitude && longitude && (
+                  <Button
+                    onClick={handleCurrentLocationSearch}
+                    variant="outline"
+                    size="lg"
+                    disabled={loading}
+                    className="w-full sm:w-auto"
+                  >
+                    <Navigation className="h-4 w-4 mr-2" />
+                    Search near your current location
+                  </Button>
+                )}
               </div>
 
               {/* Quick Stats */}

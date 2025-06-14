@@ -2,6 +2,8 @@
 import React from 'react';
 import { SmartSearchBar } from '@/components/SmartSearchBar';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { Button } from '@/components/ui/button';
+import { Navigation } from 'lucide-react';
 
 interface SearchHeaderProps {
   searchQuery: string;
@@ -42,22 +44,27 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
         </p>
       </div>
 
-      <SmartSearchBar
-        onSearch={handleSmartSearch}
-        initialSearchText={searchQuery}
-      />
+      <div className="space-y-4">
+        <SmartSearchBar
+          onSearch={handleSmartSearch}
+          initialSearchText={searchQuery}
+        />
 
-      {latitude && longitude && (
-        <div className="text-center">
-          <button
-            onClick={handleLocationSearch}
-            disabled={locationLoading}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            📍 Or search near your current location
-          </button>
-        </div>
-      )}
+        {latitude && longitude && (
+          <div className="text-center">
+            <Button
+              onClick={handleLocationSearch}
+              disabled={locationLoading}
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Search near your current location
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
