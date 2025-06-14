@@ -7,6 +7,7 @@ import { CategorySearchResults } from './CategorySearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useSmartSearch } from '@/hooks/useSmartSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { FarmersMarketAnalyzer } from '@/components/FarmersMarketAnalyzer';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -117,6 +118,11 @@ export const SearchContainer: React.FC = () => {
         onLocationSearch={handleLocationSearch}
         onSmartSearch={handleSmartSearch}
       />
+
+      {/* Temporary: Farmers Market Analysis */}
+      <div className="mb-6">
+        <FarmersMarketAnalyzer />
+      </div>
 
       {/* Smart Search Results */}
       {searchMode === 'smart' && (
