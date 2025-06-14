@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Info } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -119,6 +120,25 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             </button>
           );
         })}
+
+        {/* Inline RMP Info - Desktop */}
+        {activeCategory === 'hotmeals' && (
+          <div className="hidden md:flex items-center gap-2 ml-4 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+            <div className="text-xs">
+              <span className="text-blue-800 font-medium">RMP:</span>
+              <span className="text-blue-700 ml-1">State-specific program.</span>
+              <a 
+                href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium"
+              >
+                Learn more →
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
       
       {/* Mobile RMP Explanation Toggle - only show on mobile */}
@@ -138,24 +158,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               </p>
             </div>
           )}
-        </div>
-      )}
-      
-      {/* RMP State Warning - desktop version */}
-      {activeCategory === 'hotmeals' && (
-        <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl text-sm shadow-lg hidden md:block">
-          <p className="text-amber-800 mb-2">
-            <strong>Restaurant Meals Program (RMP):</strong> Your state may not have RMP available. 
-            This program is only available in certain states and for eligible SNAP recipients (elderly, disabled, or homeless).
-          </p>
-          <a 
-            href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline font-medium transition-colors duration-200"
-          >
-            Learn more about RMP eligibility and participating states →
-          </a>
         </div>
       )}
     </div>
