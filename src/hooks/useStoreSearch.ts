@@ -23,6 +23,7 @@ export const useStoreSearch = () => {
   const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [radius, setRadius] = useState(10);
 
   // Update search query when URL parameter changes
   useEffect(() => {
@@ -44,7 +45,7 @@ export const useStoreSearch = () => {
   };
 
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius],
     queryFn: async (): Promise<StoreWithDistance[]> => {
       let query = supabase
         .from('snap_stores')
@@ -106,7 +107,7 @@ export const useStoreSearch = () => {
             ...store,
             distance: calculateDistance(lat, lng, store.Latitude!, store.Longitude!)
           }))
-          .filter(store => store.distance <= 50) // Increased radius to 50 miles for category searches
+          .filter(store => store.distance <= radius) // Use dynamic radius
           .sort((a, b) => a.distance - b.distance);
       }
 
@@ -136,6 +137,8 @@ export const useStoreSearch = () => {
     setLocationSearch,
     sortBy,
     setSortBy,
+    radius,
+    setRadius,
     stores: sortedStores,
     isLoading,
     error,

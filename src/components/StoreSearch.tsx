@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryTabs } from './CategoryTabs';
@@ -32,6 +31,8 @@ export const StoreSearch: React.FC = () => {
     setLocationSearch,
     sortBy,
     setSortBy,
+    radius,
+    setRadius,
     stores,
     isLoading: categoryLoading,
     error: categoryError,
@@ -203,6 +204,8 @@ export const StoreSearch: React.FC = () => {
             selectedStoreTypes={selectedStoreTypes}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            radius={radius}
+            onRadiusChange={setRadius}
           />
         )}
       </div>

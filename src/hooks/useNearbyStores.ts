@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateDistance } from '@/utils/distanceUtils';
@@ -96,7 +95,7 @@ export const useNearbyStores = ({
           );
           return { ...store, distance };
         })
-        .filter(store => store.distance <= radius);
+        .filter(store => store.distance <= radius); // Use the dynamic radius parameter
 
       // Apply trending logic or sort by distance
       if (category === 'trending') {

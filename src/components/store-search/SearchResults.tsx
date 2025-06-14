@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { MapPin } from 'lucide-react';
 import { StoreCard } from '@/components/StoreCard';
-import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { SortDropdown, type SortOption } from '@/components/SortDropdown';
+import { RadiusDropdown } from '@/components/RadiusDropdown';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -13,7 +13,7 @@ interface StoreWithDistance extends Store {
 }
 
 interface SearchResultsProps {
-  stores: StoreWithDistance[] | undefined;
+  stores: StoreWithDistance[];
   isLoading: boolean;
   error: Error | null;
   locationSearch: { lat: number; lng: number } | null;
@@ -21,6 +21,8 @@ interface SearchResultsProps {
   selectedStoreTypes: string[];
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
+  radius?: number;
+  onRadiusChange?: (radius: number) => void;
 }
 
 export const SearchResults: React.FC<SearchResultsProps> = ({
@@ -32,14 +34,13 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   selectedStoreTypes,
   sortBy,
   onSortChange,
+  radius = 10,
+  onRadiusChange
 }) => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <div className="relative">
-          <LoadingSpinner />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-info rounded-full blur-lg opacity-20 animate-glow"></div>
-        </div>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -54,40 +55,47 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     );
   }
 
-  if (stores && stores.length === 0) {
+  if (stores.length === 0) {
     return (
       <div className="text-center py-8">
         <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
-          <div className="text-6xl mb-4">🔍</div>
-          <p className="text-muted-foreground text-lg">No stores found. Try adjusting your search or filters.</p>
+          <div className="text-6xl mb-4">📍</div>
+          <p className="text-muted-foreground text-lg">
+            {locationSearch 
+              ? `No stores found within ${radius} miles of your location.`
+              : "No stores found. Try searching by location or adjusting your filters."
+            }
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Try expanding your search radius or different search terms
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!stores || stores.length === 0) {
-    return null;
-  }
-
   return (
     <div className="space-y-6">
-      {/* Enhanced Results Header with Sort */}
+      {/* Search Summary and Controls */}
       <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2">
-            {locationSearch && (
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-info" />
-                <span className="text-info font-medium">Near your location</span>
-              </div>
-            )}
-            {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
-              <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-semibold rounded-spotify-lg border border-primary/30">
-                Filtered by: {activeCategory.replace(/([A-Z])/g, ' $1').trim()}
-              </span>
-            )}
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+              {locationSearch && ` within ${radius} miles`}
+              {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
+                <span> in {activeCategory}</span>
+              )}
+            </p>
           </div>
-          <div className="flex justify-center sm:justify-end">
+          
+          <div className="flex items-center gap-4">
+            {locationSearch && onRadiusChange && (
+              <RadiusDropdown 
+                value={radius} 
+                onChange={onRadiusChange}
+              />
+            )}
             <SortDropdown 
               currentSort={sortBy} 
               onSortChange={onSortChange} 
@@ -95,8 +103,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
           </div>
         </div>
       </div>
-      
-      {/* Enhanced Store Grid */}
+
+      {/* Store Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
         {stores.map((store) => (
           <StoreCard 

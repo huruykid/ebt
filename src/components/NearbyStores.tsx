@@ -4,6 +4,7 @@ import { useNearbyStores } from '@/hooks/useNearbyStores';
 import { StoreList } from './StoreList';
 import { LoadingSpinner } from './LoadingSpinner';
 import { SortDropdown, type SortOption } from './SortDropdown';
+import { RadiusDropdown } from './RadiusDropdown';
 import { sortStores } from '@/utils/storeSorting';
 import { MapPin } from 'lucide-react';
 
@@ -19,12 +20,13 @@ interface NearbyStoresProps {
 export const NearbyStores: React.FC<NearbyStoresProps> = ({
   latitude,
   longitude,
-  radius = 10,
+  radius: initialRadius = 10,
   limit = 20,
   category = 'trending',
   storeTypes = []
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [radius, setRadius] = useState(initialRadius);
   
   const { data: stores, isLoading, error } = useNearbyStores({
     latitude,
@@ -55,7 +57,10 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     return (
       <div className="text-center py-8">
         <div className="text-6xl mb-4">📍</div>
-        <p className="text-muted-foreground">No stores found in this area.</p>
+        <p className="text-muted-foreground">No stores found within {radius} miles.</p>
+        <div className="mt-4">
+          <RadiusDropdown value={radius} onChange={setRadius} />
+        </div>
       </div>
     );
   }
@@ -65,18 +70,21 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Header with sort dropdown */}
-      <div className="flex items-center justify-between">
+      {/* Header with sort dropdown and radius selector */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           <h3 className="font-semibold text-foreground">
-            {stores.length} store{stores.length !== 1 ? 's' : ''} found
+            {stores.length} store{stores.length !== 1 ? 's' : ''} found within {radius} miles
           </h3>
         </div>
-        <SortDropdown 
-          currentSort={sortBy} 
-          onSortChange={setSortBy} 
-        />
+        <div className="flex items-center gap-4">
+          <RadiusDropdown value={radius} onChange={setRadius} />
+          <SortDropdown 
+            currentSort={sortBy} 
+            onSortChange={setSortBy} 
+          />
+        </div>
       </div>
 
       {/* Store list */}
