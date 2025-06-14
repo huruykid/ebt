@@ -72,13 +72,17 @@ export const buildBaseQuery = (
     locationSearch
   });
 
-  // Apply search query first
+  // Apply search query first if provided
   if (searchQuery.trim()) {
     query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
   }
 
-  // Apply category filters for non-trending categories
-  if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
+  // Apply category filters - be more aggressive for farmers markets
+  if (activeCategory === 'farmers') {
+    console.log('🥕 Applying farmers market filters');
+    // Search for any store that could be a farmers market
+    query = query.or(`Store_Name.ilike.%farmer%,Store_Name.ilike.%market%,Store_Type.ilike.%farmer%,Store_Type.ilike.%market%`);
+  } else if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
     const filters = [
       ...buildStoreTypeFilters(selectedStoreTypes),
       ...buildNamePatternFilters(selectedNamePatterns)
@@ -90,21 +94,14 @@ export const buildBaseQuery = (
     }
   }
 
-  // If location search is active, ensure we have latitude/longitude data
-  if (locationSearch) {
-    query = query
-      .not('Latitude', 'is', null)
-      .not('Longitude', 'is', null);
-  }
+  // Ensure we have coordinates for all results
+  query = query
+    .not('Latitude', 'is', null)
+    .not('Longitude', 'is', null)
+    .not('Store_Name', 'is', null)
+    .neq('Store_Name', '');
 
-  // For farmers markets, always ensure we have coordinates
-  if (activeCategory === 'farmers') {
-    query = query
-      .not('Latitude', 'is', null)
-      .not('Longitude', 'is', null);
-  }
-
-  query = query.limit(1000); // Increased limit to get more results before distance filtering
+  query = query.limit(2000); // Increased limit to search more broadly
 
   return query;
 };
