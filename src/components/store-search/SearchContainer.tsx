@@ -67,13 +67,22 @@ export const SearchContainer: React.FC = () => {
 
   const handleSmartSearch = (searchText: string, city?: string, zipCode?: string) => {
     setSearchMode('smart');
-    performSmartSearch({
+    
+    // Include user location in smart search if available
+    const searchParams = {
       searchText,
       city,
       zipCode,
       similarityThreshold: 0.3,
-      limit: 50
-    });
+      limit: 50,
+      ...(latitude && longitude && {
+        userLatitude: latitude,
+        userLongitude: longitude,
+        radius: radius
+      })
+    };
+    
+    performSmartSearch(searchParams);
     
     // Update URL to reflect the search
     const params = new URLSearchParams();
