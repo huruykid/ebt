@@ -5,9 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Mail, Shield } from 'lucide-react';
 import { format } from 'date-fns';
+import { UserStoreContributions } from './UserStoreContributions';
+import { useUserStores } from '@/hooks/useUserStores';
 
 export const UserProfileInfo: React.FC = () => {
   const { user } = useAuth();
+  const { data: userStores, isLoading: storesLoading } = useUserStores();
 
   if (!user) return null;
 
@@ -54,6 +57,23 @@ export const UserProfileInfo: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Store Contributions Section */}
+      {storesLoading ? (
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded w-1/2"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-muted rounded"></div>
+                <div className="h-3 bg-muted rounded w-3/4"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <UserStoreContributions stores={userStores || []} />
+      )}
     </div>
   );
 };
