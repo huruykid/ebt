@@ -120,10 +120,12 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             </button>
           );
         })}
+      </nav>
 
-        {/* Inline RMP Info - Desktop */}
-        {activeCategory === 'hotmeals' && (
-          <div className="hidden md:flex items-center gap-2 ml-4 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+      {/* Desktop RMP Info - positioned outside nav to avoid layout disruption */}
+      {activeCategory === 'hotmeals' && (
+        <div className="hidden md:flex justify-center mt-3">
+          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
             <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
             <div className="text-xs">
               <span className="text-blue-800 font-medium">RMP:</span>
@@ -138,8 +140,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               </a>
             </div>
           </div>
-        )}
-      </nav>
+        </div>
+      )}
       
       {/* Mobile RMP Explanation Toggle - only show on mobile */}
       {activeCategory === 'hotmeals' && (
