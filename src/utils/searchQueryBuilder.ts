@@ -2,9 +2,9 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Build search filters for store types with exclusion patterns
+ * Build search filters for store types
  */
-export const buildStoreTypeFilters = (selectedStoreTypes: string[], excludePatterns: string[] = []): string[] => {
+export const buildStoreTypeFilters = (selectedStoreTypes: string[]): string[] => {
   const filters: string[] = [];
   selectedStoreTypes.forEach(type => {
     filters.push(`Store_Type.ilike.%${type}%`);
@@ -13,9 +13,9 @@ export const buildStoreTypeFilters = (selectedStoreTypes: string[], excludePatte
 };
 
 /**
- * Build search filters for name patterns with exclusion patterns
+ * Build search filters for name patterns
  */
-export const buildNamePatternFilters = (selectedNamePatterns: string[], excludePatterns: string[] = []): string[] => {
+export const buildNamePatternFilters = (selectedNamePatterns: string[]): string[] => {
   const filters: string[] = [];
   
   console.log('Applying name patterns:', selectedNamePatterns);
@@ -50,21 +50,6 @@ export const buildNamePatternFilters = (selectedNamePatterns: string[], excludeP
 };
 
 /**
- * Build exclusion filters to remove unwanted matches
- */
-export const buildExclusionFilters = (excludePatterns: string[]): string => {
-  if (excludePatterns.length === 0) return '';
-  
-  const exclusions: string[] = [];
-  excludePatterns.forEach(pattern => {
-    exclusions.push(`Store_Name.not.ilike.%${pattern}%`);
-    exclusions.push(`Store_Type.not.ilike.%${pattern}%`);
-  });
-  
-  return exclusions.join(',');
-};
-
-/**
  * Build the base Supabase query with search and category filters
  */
 export const buildBaseQuery = (
@@ -94,39 +79,41 @@ export const buildBaseQuery = (
     query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
   }
 
-  // Apply category filters with better matching logic
+  // Apply category filters with simplified logic
   if (activeCategory === 'farmers') {
     console.log('🥕 Applying farmers market filters');
-    // Search for any store that could be a farmers market
+    // Cast a wide net first, then filter with exclusions
     query = query.or(`Store_Name.ilike.%farmer%,Store_Name.ilike.%market%,Store_Type.ilike.%farmer%,Store_Type.ilike.%market%`);
   } else if (activeCategory === 'pharmacy') {
     console.log('💊 Applying pharmacy filters');
-    // Search for pharmacies and drug stores, including major chains
-    query = query.or(`Store_Name.ilike.%CVS%,Store_Name.ilike.%Walgreens%,Store_Name.ilike.%Rite Aid%,Store_Name.ilike.%pharmacy%,Store_Type.ilike.%pharmacy%,Store_Type.ilike.%drug store%`);
+    // Search for pharmacies and drug stores
+    query = query.or(`Store_Name.ilike.%CVS%,Store_Name.ilike.%Walgreens%,Store_Name.ilike.%Rite Aid%,Store_Name.ilike.%pharmacy%,Store_Type.ilike.%pharmacy%,Store_Type.ilike.%drug%`);
   } else if (activeCategory === 'dollar') {
     console.log('💵 Applying dollar store filters');
-    // Search specifically for dollar stores, excluding pharmacies
-    query = query.or(`Store_Name.ilike.%Dollar General%,Store_Name.ilike.%Family Dollar%,Store_Name.ilike.%Dollar Tree%,Store_Name.ilike.%99 cent%,Store_Type.ilike.%dollar%,Store_Type.ilike.%discount%`);
+    // Search specifically for dollar stores
+    query = query.or(`Store_Name.ilike.%Dollar%,Store_Type.ilike.%dollar%,Store_Type.ilike.%discount%`);
+  } else if (activeCategory === 'grocery') {
+    console.log('🏪 Applying grocery filters');
+    // Search for grocery stores and supermarkets
+    query = query.or(`Store_Type.ilike.%supermarket%,Store_Type.ilike.%grocery%,Store_Type.ilike.%supercenter%,Store_Name.ilike.%market%`);
+  } else if (activeCategory === 'convenience') {
+    console.log('🏬 Applying convenience store filters');
+    // Search for convenience stores
+    query = query.or(`Store_Type.ilike.%convenience%,Store_Name.ilike.%7-eleven%,Store_Name.ilike.%circle k%,Store_Name.ilike.%wawa%`);
+  } else if (activeCategory === 'hotmeals') {
+    console.log('🍽️ Applying hot meals (RMP) filters');
+    // Search for restaurants and places that might serve hot meals
+    query = query.or(`Store_Type.ilike.%restaurant%,Store_Name.ilike.%restaurant%,Store_Name.ilike.%cafe%,Store_Name.ilike.%diner%`);
   } else if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
     const filters = [
-      ...buildStoreTypeFilters(selectedStoreTypes, excludePatterns),
-      ...buildNamePatternFilters(selectedNamePatterns, excludePatterns)
+      ...buildStoreTypeFilters(selectedStoreTypes),
+      ...buildNamePatternFilters(selectedNamePatterns)
     ];
     
     if (filters.length > 0) {
       console.log('Applied filters:', filters);
       query = query.or(filters.join(','));
     }
-  }
-
-  // Apply exclusion filters to remove unwanted matches
-  if (excludePatterns.length > 0) {
-    console.log('Applying exclusion patterns:', excludePatterns);
-    excludePatterns.forEach(pattern => {
-      query = query
-        .not('Store_Name', 'ilike', `%${pattern}%`)
-        .not('Store_Type', 'ilike', `%${pattern}%`);
-    });
   }
 
   // Ensure we have coordinates for all results
@@ -136,7 +123,7 @@ export const buildBaseQuery = (
     .not('Store_Name', 'is', null)
     .neq('Store_Name', '');
 
-  query = query.limit(2000); // Increased limit to search more broadly
+  query = query.limit(2000);
 
   return query;
 };
