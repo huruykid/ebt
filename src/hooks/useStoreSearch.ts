@@ -40,6 +40,15 @@ export const useStoreSearch = () => {
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius],
     queryFn: async (): Promise<StoreWithDistance[]> => {
+      console.log('🔍 Starting store search with params:', {
+        searchQuery,
+        activeCategory,
+        selectedStoreTypes,
+        selectedNamePatterns,
+        locationSearch,
+        radius
+      });
+
       const query = buildBaseQuery(
         searchQuery,
         activeCategory,
@@ -56,30 +65,47 @@ export const useStoreSearch = () => {
       }
       
       let results = data || [];
-      console.log('Initial results before filtering:', results.length);
+      console.log('📊 Initial database results:', {
+        totalResults: results.length,
+        category: activeCategory,
+        sampleResults: results.slice(0, 3).map(r => ({ 
+          name: r.Store_Name, 
+          type: r.Store_Type,
+          coordinates: { lat: r.Latitude, lng: r.Longitude }
+        }))
+      });
 
       // Apply category-specific exclusions
       if (activeCategory === 'farmers' && results.length > 0) {
+        console.log('🥕 Applying farmers market exclusions...');
         results = applyFarmersMarketExclusion(results);
       }
 
       if (activeCategory === 'grocery' && results.length > 0) {
+        console.log('🏪 Applying grocery exclusions...');
         results = applyGroceryExclusion(results);
       }
 
       // Apply location filtering if active
       if (locationSearch && results.length > 0) {
+        console.log('📍 Applying location filtering...');
         results = applyLocationFiltering(results, locationSearch, radius, calculateDistance);
+      } else if (locationSearch) {
+        console.log('⚠️ No results to filter by location');
+      } else {
+        console.log('🌍 No location search active');
       }
 
-      console.log('Final search results:', {
+      console.log('✅ Final search results:', {
         category: activeCategory,
         storeTypes: selectedStoreTypes,
         namePatterns: selectedNamePatterns,
+        locationActive: !!locationSearch,
         totalResults: results.length,
         sampleResults: results.slice(0, 3).map(r => ({ 
           name: r.Store_Name, 
-          type: r.Store_Type 
+          type: r.Store_Type,
+          distance: r.distance?.toFixed(1)
         }))
       });
 
@@ -91,7 +117,7 @@ export const useStoreSearch = () => {
   const sortedStores = stores ? sortStores(stores, sortBy) : [];
 
   const handleCategoryChange = (categoryId: string, storeTypes: string[] = [], namePatterns: string[] = []) => {
-    console.log('Category change called with:', { categoryId, storeTypes, namePatterns });
+    console.log('🔄 Category change called with:', { categoryId, storeTypes, namePatterns });
     
     setActiveCategory(categoryId);
     setSelectedStoreTypes(storeTypes);

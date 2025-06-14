@@ -23,10 +23,17 @@ export const applyFarmersMarketExclusion = (stores: StoreWithDistance[]): StoreW
     return !shouldExclude;
   });
   
-  console.log('Farmers market results:', {
+  console.log('Farmers market exclusion results:', {
     beforeExclusion,
     afterExclusion: filteredStores.length,
     excludePatterns,
+    excludedStores: stores.filter(store => {
+      const storeName = store.Store_Name?.toLowerCase() || '';
+      const storeType = store.Store_Type?.toLowerCase() || '';
+      return excludePatterns.some(pattern => 
+        storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
+      );
+    }).map(s => ({ name: s.Store_Name, type: s.Store_Type })),
     sampleResults: filteredStores.slice(0, 5).map(r => ({ name: r.Store_Name, type: r.Store_Type }))
   });
   
@@ -60,19 +67,57 @@ export const applyLocationFiltering = (
   const { lat, lng } = location;
   const beforeLocationFilter = stores.length;
   
-  const filteredStores = stores
-    .map(store => ({
-      ...store,
-      distance: calculateDistance(lat, lng, store.Latitude!, store.Longitude!)
+  console.log('Starting location filtering:', {
+    userLocation: { lat, lng },
+    radius,
+    storesBeforeFilter: beforeLocationFilter,
+    sampleStores: stores.slice(0, 3).map(s => ({
+      name: s.Store_Name,
+      lat: s.Latitude,
+      lng: s.Longitude,
+      hasCoordinates: !!(s.Latitude && s.Longitude)
     }))
-    .filter(store => store.distance <= radius)
-    .sort((a, b) => a.distance - b.distance);
+  });
   
-  console.log('Location filtering:', {
+  const storesWithDistance = stores
+    .filter(store => {
+      if (!store.Latitude || !store.Longitude) {
+        console.log('Store missing coordinates:', { name: store.Store_Name, lat: store.Latitude, lng: store.Longitude });
+        return false;
+      }
+      return true;
+    })
+    .map(store => {
+      const distance = calculateDistance(lat, lng, store.Latitude!, store.Longitude!);
+      return {
+        ...store,
+        distance
+      };
+    });
+  
+  console.log('Distance calculations:', {
+    storesWithCoordinates: storesWithDistance.length,
+    sampleDistances: storesWithDistance.slice(0, 5).map(s => ({
+      name: s.Store_Name,
+      distance: s.distance?.toFixed(1)
+    }))
+  });
+  
+  const filteredStores = storesWithDistance
+    .filter(store => store.distance! <= radius)
+    .sort((a, b) => a.distance! - b.distance!);
+  
+  console.log('Final location filtering results:', {
     beforeLocationFilter,
     afterLocationFilter: filteredStores.length,
     radius,
-    location: { lat, lng }
+    location: { lat, lng },
+    closestStores: filteredStores.slice(0, 5).map(s => ({
+      name: s.Store_Name,
+      distance: s.distance?.toFixed(1),
+      coordinates: { lat: s.Latitude, lng: s.Longitude }
+    })),
+    storesOutsideRadius: storesWithDistance.filter(s => s.distance! > radius).length
   });
   
   return filteredStores;
