@@ -41,45 +41,45 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         throw error;
       }
       
-      let results: StoreWithDistance[] = data || [];
+      let results: StoreWithDistance[] = [];
       
       // For location-aware queries, the results already include distance and are pre-filtered
       if (locationSearch && data && data.length > 0 && 'distance_miles' in data[0]) {
         console.log('📊 Location-aware results received:', {
-          totalResults: results.length,
+          totalResults: data.length,
           category: activeCategory,
           radius: radius,
-          sampleResults: results.slice(0, 3).map(r => ({ 
-            name: r.Store_Name || (r as any).store_name, 
-            type: r.Store_Type || (r as any).store_type,
+          sampleResults: data.slice(0, 3).map(r => ({ 
+            name: (r as any).store_name, 
+            type: (r as any).store_type,
             distance: (r as any).distance_miles ? (r as any).distance_miles.toFixed(1) + ' miles' : 'unknown'
           }))
         });
 
         // Convert the RPC result format to our expected format
-        results = results.map(store => {
-          const storeData = store as any; // Type assertion to handle the mixed format
+        results = data.map(store => {
+          const storeData = store as any; // Type assertion to handle the RPC result format
           return {
             id: storeData.id,
-            Store_Name: storeData.Store_Name || storeData.store_name,
-            Store_Street_Address: storeData.Store_Street_Address || storeData.store_street_address,
-            City: storeData.City || storeData.city,
-            State: storeData.State || storeData.state,
-            Zip_Code: storeData.Zip_Code || storeData.zip_code,
-            Store_Type: storeData.Store_Type || storeData.store_type,
-            Latitude: storeData.Latitude || storeData.latitude,
-            Longitude: storeData.Longitude || storeData.longitude,
-            distance: storeData.distance || storeData.distance_miles,
+            Store_Name: storeData.store_name,
+            Store_Street_Address: storeData.store_street_address,
+            City: storeData.city,
+            State: storeData.state,
+            Zip_Code: storeData.zip_code,
+            Store_Type: storeData.store_type,
+            Latitude: storeData.latitude,
+            Longitude: storeData.longitude,
+            distance: storeData.distance_miles,
             // Map other required fields with defaults
-            Additional_Address: storeData.Additional_Address || null,
-            Zip4: storeData.Zip4 || null,
-            County: storeData.County || null,
-            Record_ID: storeData.Record_ID || null,
-            ObjectId: storeData.ObjectId || null,
-            Grantee_Name: storeData.Grantee_Name || null,
-            X: storeData.X || null,
-            Y: storeData.Y || null,
-            Incentive_Program: storeData.Incentive_Program || null
+            Additional_Address: null,
+            Zip4: null,
+            County: null,
+            Record_ID: null,
+            ObjectId: null,
+            Grantee_Name: null,
+            X: null,
+            Y: null,
+            Incentive_Program: null
           };
         });
 
@@ -95,6 +95,8 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       }
 
       // Fallback to original logic for non-location searches
+      results = data || [];
+      
       console.log('📊 Non-location search results:', {
         totalResults: results.length,
         category: activeCategory,
