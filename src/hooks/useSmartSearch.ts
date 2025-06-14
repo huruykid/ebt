@@ -92,7 +92,7 @@ export const useSmartSearch = () => {
     },
     enabled: !!(searchParams.searchText.trim() || searchParams.city?.trim() || searchParams.zipCode?.trim()),
     staleTime: 3 * 60 * 1000, // 3 minutes cache for search results
-    cacheTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const performSearch = (params: SmartSearchParams) => {
