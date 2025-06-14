@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { SearchBar } from './SearchBar';
+import { SmartSearchBar } from './SmartSearchBar';
 import { CategoryTabs } from './CategoryTabs';
 import { NearbyStores } from './NearbyStores';
 import { LocationPrompt } from './LocationPrompt';
@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Search, Heart } from 'lucide-react';
 
 export const ExploreTrending: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('trending');
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -24,10 +23,14 @@ export const ExploreTrending: React.FC = () => {
     loading
   } = useGeolocation();
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    console.log('Searching for:', query);
-    navigate(`/search?q=${encodeURIComponent(query)}`);
+  const handleSmartSearch = (searchText: string, city?: string, zipCode?: string) => {
+    // Build URL params for the search page
+    const params = new URLSearchParams();
+    if (searchText) params.set('q', searchText);
+    if (city) params.set('city', city);
+    if (zipCode) params.set('zip', zipCode);
+    
+    navigate(`/search?${params.toString()}`);
   };
 
   const handleLocationSearch = (lat: number, lng: number) => {
@@ -50,10 +53,10 @@ export const ExploreTrending: React.FC = () => {
   const NoLocationExperience = () => (
     <div className="space-y-8">
       {/* Featured Store Types */}
-      <FeaturedStoreTypes onCategorySelect={handleSearch} />
+      <FeaturedStoreTypes onCategorySelect={(query) => handleSmartSearch(query)} />
       
       {/* Search Suggestions */}
-      <SearchSuggestions onSearchSuggestion={handleSearch} />
+      <SearchSuggestions onSearchSuggestion={(query) => handleSmartSearch(query)} />
       
       {/* EBT Information */}
       <EbtInfoSection />
@@ -88,7 +91,7 @@ export const ExploreTrending: React.FC = () => {
             </p>
           </div>
           
-          <SearchBar onSearch={handleSearch} onLocationSearch={handleLocationSearch} className="mt-4" placeholder="Search stores, food, or location..." />
+          <SmartSearchBar onSearch={handleSmartSearch} className="mt-4" />
         </div>
 
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
@@ -125,7 +128,7 @@ export const ExploreTrending: React.FC = () => {
               
               {/* Search Bar - Desktop */}
               <div className="max-w-2xl mx-auto">
-                <SearchBar onSearch={handleSearch} onLocationSearch={handleLocationSearch} placeholder="Search stores, food, or enter an address..." className="text-lg" />
+                <SmartSearchBar onSearch={handleSmartSearch} className="text-lg" />
               </div>
 
               {/* Quick Stats */}
