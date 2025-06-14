@@ -77,32 +77,41 @@ export const useStoreSearch = () => {
           });
         }
         
-        // Add name pattern filters - more flexible matching
+        // Improved name pattern filters for farmers markets
         if (selectedNamePatterns.length > 0) {
+          console.log('Applying name patterns:', selectedNamePatterns);
           selectedNamePatterns.forEach(pattern => {
-            // Split multi-word patterns and create more flexible matching
-            const words = pattern.split(' ');
-            if (words.length > 1) {
-              // For multi-word patterns like "Farmers Market", match each word
-              words.forEach(word => {
-                if (word.length > 2) { // Skip very short words
-                  filters.push(`Store_Name.ilike.%${word}%`);
-                  filters.push(`Store_Type.ilike.%${word}%`);
-                }
-              });
+            // For farmers market patterns, be more specific
+            if (pattern.toLowerCase().includes('farmer')) {
+              // Match variations of farmers market
+              filters.push(`Store_Name.ilike.%farmers market%`);
+              filters.push(`Store_Name.ilike.%farmer's market%`);
+              filters.push(`Store_Name.ilike.%farm market%`);
+              filters.push(`Store_Type.ilike.%farmers market%`);
+              filters.push(`Store_Type.ilike.%farmer's market%`);
+              filters.push(`Store_Type.ilike.%farm market%`);
             } else {
-              // Single word pattern
-              filters.push(`Store_Name.ilike.%${pattern}%`);
-              filters.push(`Store_Type.ilike.%${pattern}%`);
+              // For other patterns, use the original logic
+              const words = pattern.split(' ');
+              if (words.length > 1) {
+                words.forEach(word => {
+                  if (word.length > 2) {
+                    filters.push(`Store_Name.ilike.%${word}%`);
+                    filters.push(`Store_Type.ilike.%${word}%`);
+                  }
+                });
+              } else {
+                filters.push(`Store_Name.ilike.%${pattern}%`);
+                filters.push(`Store_Type.ilike.%${pattern}%`);
+              }
             }
           });
         }
         
         if (filters.length > 0) {
+          console.log('Applied filters:', filters);
           query = query.or(filters.join(','));
         }
-
-        console.log('Applied category filters:', filters);
       }
 
       // If location search is active, we'll filter by distance after getting results
@@ -123,19 +132,27 @@ export const useStoreSearch = () => {
       }
       
       let results = data || [];
+      console.log('Initial results before filtering:', results.length);
 
       // Apply exclude patterns AFTER getting initial results
       if (activeCategory === 'farmers' && results.length > 0) {
+        const beforeExclusion = results.length;
         const excludePatterns = ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'];
         results = results.filter(store => {
           const storeName = store.Store_Name?.toLowerCase() || '';
           const storeType = store.Store_Type?.toLowerCase() || '';
-          return !excludePatterns.some(pattern => 
+          const shouldExclude = excludePatterns.some(pattern => 
             storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
           );
+          return !shouldExclude;
         });
         
-        console.log('Farmers market results after exclusion:', results.length);
+        console.log('Farmers market results:', {
+          beforeExclusion,
+          afterExclusion: results.length,
+          excludePatterns,
+          sampleResults: results.slice(0, 5).map(r => ({ name: r.Store_Name, type: r.Store_Type }))
+        });
       }
 
       // If grocery category, exclude farmers markets
@@ -153,13 +170,21 @@ export const useStoreSearch = () => {
       // If location search is active, calculate distances and filter by radius
       if (locationSearch && results.length > 0) {
         const { lat, lng } = locationSearch;
+        const beforeLocationFilter = results.length;
         results = results
           .map(store => ({
             ...store,
             distance: calculateDistance(lat, lng, store.Latitude!, store.Longitude!)
           }))
-          .filter(store => store.distance <= radius) // Use dynamic radius
+          .filter(store => store.distance <= radius)
           .sort((a, b) => a.distance - b.distance);
+        
+        console.log('Location filtering:', {
+          beforeLocationFilter,
+          afterLocationFilter: results.length,
+          radius,
+          location: { lat, lng }
+        });
       }
 
       console.log('Final search results:', {
