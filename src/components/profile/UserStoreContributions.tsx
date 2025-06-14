@@ -85,21 +85,11 @@ const StoreContributionCard: React.FC<StoreContributionCardProps> = ({ store }) 
           <h4 className="text-sm font-medium text-muted-foreground">Help Complete This Store</h4>
           <div className="flex flex-wrap gap-2">
             {!hasPhone && (
-              <AddPhoneModal store={store}>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Phone
-                </Button>
-              </AddPhoneModal>
+              <AddPhoneModal store={store} />
             )}
             
             {!hasHours && (
-              <AddHoursModal store={store}>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Hours
-                </Button>
-              </AddHoursModal>
+              <AddHoursModal store={store} />
             )}
             
             {!hasWebsite && (
