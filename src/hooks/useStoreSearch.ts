@@ -19,6 +19,16 @@ interface StoreWithDistance extends Store {
   distance?: number;
 }
 
+// Define exclusion patterns for each category
+const categoryExclusions: Record<string, string[]> = {
+  grocery: ['CVS', 'Walgreens', 'Rite Aid', 'Dollar'],
+  convenience: ['CVS', 'Walgreens', 'Rite Aid', 'Dollar'],
+  dollar: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug Store'],
+  pharmacy: ['Dollar', 'Market'],
+  farmers: ['CVS', 'Walgreens', 'Dollar', 'Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'],
+  hotmeals: ['CVS', 'Walgreens', 'Dollar', 'Market']
+};
+
 export const useStoreSearch = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
@@ -88,131 +98,17 @@ export const useStoreSearch = () => {
         userZipCode
       });
 
-      // Special handling for farmers markets - search entire database
-      if (activeCategory === 'farmers') {
-        console.log('🥕 Farmers market search - searching entire database');
-        
-        // If we have user location and zip code, prefer zip-based search
-        if (userZipCode && locationSearch) {
-          console.log('🥕 Using zip code based farmers market search for zip:', userZipCode);
-          
-          const query = buildBaseQuery(
-            '', // No search query for zip-based search
-            activeCategory,
-            selectedStoreTypes,
-            selectedNamePatterns,
-            null // No location search for zip-based approach
-          );
+      // Get exclusion patterns for the active category
+      const excludePatterns = categoryExclusions[activeCategory] || [];
 
-          // Add zip code filter
-          const { data, error } = await query.eq('Zip_Code', userZipCode);
-          
-          if (error) {
-            console.error('Error fetching stores by zip:', error);
-            throw error;
-          }
-          
-          let results: StoreWithDistance[] = data || [];
-          console.log('📊 Zip-based search results:', {
-            totalResults: results.length,
-            zipCode: userZipCode,
-            sampleResults: results.slice(0, 3).map(r => ({ 
-              name: r.Store_Name, 
-              type: r.Store_Type,
-              coordinates: { lat: r.Latitude, lng: r.Longitude }
-            }))
-          });
-
-          // Apply farmers market exclusions
-          if (results.length > 0) {
-            console.log('🥕 Applying farmers market exclusions...');
-            const beforeExclusion = results.length;
-            results = applyFarmersMarketExclusion(results);
-            console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
-          }
-
-          // Calculate distances and sort by nearest first
-          if (results.length > 0 && locationSearch) {
-            results = results
-              .filter(store => store.Latitude && store.Longitude)
-              .map(store => ({
-                ...store,
-                distance: calculateDistance(
-                  locationSearch.lat,
-                  locationSearch.lng,
-                  store.Latitude!,
-                  store.Longitude!
-                )
-              }))
-              .sort((a, b) => (a.distance || 0) - (b.distance || 0));
-            
-            console.log('📍 Distance-sorted farmers markets:', {
-              totalResults: results.length,
-              zipCode: userZipCode,
-              closestStores: results.slice(0, 5).map(s => ({
-                name: s.Store_Name,
-                distance: s.distance?.toFixed(1) + ' miles'
-              }))
-            });
-          }
-
-          return results;
-        } else {
-          // Fallback: search entire database for farmers markets
-          console.log('🥕 Searching entire database for farmers markets');
-          
-          const query = buildBaseQuery(
-            '', // No search query
-            activeCategory,
-            selectedStoreTypes,
-            selectedNamePatterns,
-            locationSearch
-          );
-
-          const { data, error } = await query;
-          
-          if (error) {
-            console.error('Error fetching farmers markets:', error);
-            throw error;
-          }
-          
-          let results: StoreWithDistance[] = data || [];
-          console.log('📊 Database-wide farmers market search results:', {
-            totalResults: results.length,
-            sampleResults: results.slice(0, 3).map(r => ({ 
-              name: r.Store_Name, 
-              type: r.Store_Type,
-              coordinates: { lat: r.Latitude, lng: r.Longitude }
-            }))
-          });
-
-          // Apply farmers market exclusions
-          if (results.length > 0) {
-            console.log('🥕 Applying farmers market exclusions...');
-            const beforeExclusion = results.length;
-            results = applyFarmersMarketExclusion(results);
-            console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
-          }
-
-          // Apply location filtering if active
-          if (locationSearch && results.length > 0) {
-            console.log(`📍 Applying location filtering with ${radius} mile radius...`);
-            const beforeLocationFilter = results.length;
-            results = applyLocationFiltering(results, locationSearch, radius, calculateDistance);
-            console.log(`📍 Location filtering: ${beforeLocationFilter} → ${results.length} stores within ${radius} miles`);
-          }
-
-          return results;
-        }
-      }
-
-      // Original search logic for other categories
+      // Build the query with exclusion patterns
       const query = buildBaseQuery(
         searchQuery,
         activeCategory,
         selectedStoreTypes,
         selectedNamePatterns,
-        locationSearch
+        locationSearch,
+        excludePatterns
       );
 
       const { data, error } = await query;
@@ -228,6 +124,7 @@ export const useStoreSearch = () => {
         category: activeCategory,
         radius: radius,
         locationActive: !!locationSearch,
+        excludePatterns,
         sampleResults: results.slice(0, 3).map(r => ({ 
           name: r.Store_Name, 
           type: r.Store_Type,
@@ -235,8 +132,13 @@ export const useStoreSearch = () => {
         }))
       });
 
-      // Apply category-specific exclusions BEFORE location filtering
-      if (activeCategory === 'grocery' && results.length > 0) {
+      // Apply additional category-specific exclusions if needed
+      if (activeCategory === 'farmers' && results.length > 0) {
+        console.log('🥕 Applying farmers market exclusions...');
+        const beforeExclusion = results.length;
+        results = applyFarmersMarketExclusion(results);
+        console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
+      } else if (activeCategory === 'grocery' && results.length > 0) {
         console.log('🏪 Applying grocery exclusions...');
         const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
