@@ -8,6 +8,7 @@ interface Category {
   activeIcon?: string; // For colorful active state
   storeTypes?: string[]; // Map to actual store types in database
   namePatterns?: string[]; // Additional name patterns to match
+  excludePatterns?: string[]; // Patterns to exclude from matches
   showStateWarning?: boolean; // For RMP state-specific warning
 }
 
@@ -35,7 +36,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '🏪',
       activeIcon: '🏪',
       storeTypes: ['Supermarket', 'Grocery Store', 'Supercenter'],
-      namePatterns: ['Market', 'mart', 'Food', 'Grocery']
+      namePatterns: ['Whole Foods', 'Safeway', 'Kroger', 'Publix', 'H-E-B', 'Wegmans', 'Food Lion', 'Giant', 'Stop & Shop', 'ShopRite', 'IGA', 'Piggly Wiggly', 'Harris Teeter', 'Meijer', 'Fred Meyer', 'King Soopers', 'Ralph\'s', 'Vons', 'Albertsons', 'Market', 'Food', 'Grocery'],
+      excludePatterns: ['Farmers Market', 'Farm Market', 'Flea Market', 'Farmer\'s Market']
     },
     { 
       id: 'convenience', 
@@ -43,7 +45,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '🏬',
       activeIcon: '🏬',
       storeTypes: ['Convenience Store', 'Corner Store'],
-      namePatterns: ['7-Eleven', '7 Eleven', 'Circle K', 'Wawa', 'Sheetz']
+      namePatterns: ['7-Eleven', '7 Eleven', 'Circle K', 'Wawa', 'Sheetz', 'QuikTrip', 'Casey\'s', 'Cumberland Farms']
     },
     { 
       id: 'dollar', 
@@ -51,7 +53,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '💵',
       activeIcon: '💵',
       storeTypes: ['Dollar Store', 'Discount Store', 'Other'],
-      namePatterns: ['Dollar', '99', 'Cent', 'Discount', 'Family Dollar', 'Dollar Tree', 'Dollar General', '99 Cent']
+      namePatterns: ['Dollar General', 'Family Dollar', 'Dollar Tree', '99 Cent', 'Dollar', 'Discount']
     },
     { 
       id: 'pharmacy', 
@@ -59,7 +61,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '💊',
       activeIcon: '💊',
       storeTypes: ['Pharmacy', 'Drug Store'],
-      namePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug', 'Duane Reade']
+      namePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Pharmacy', 'Drug Store', 'Duane Reade']
     },
     { 
       id: 'farmers', 
@@ -67,7 +69,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       icon: '🥕',
       activeIcon: '🥕',
       storeTypes: ['Farmers Market', 'Market'],
-      namePatterns: ['Farmers Market', 'Farm Market', 'Produce Market']
+      namePatterns: ['Farmers Market', 'Farmer\'s Market', 'Farm Market', 'Produce Market', 'Community Market'],
+      excludePatterns: ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market']
     },
     { 
       id: 'hotmeals', 
@@ -86,7 +89,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     
     // Show RMP state warning if applicable
     if (category?.showStateWarning) {
-      // You can add a toast notification here or handle the warning in the parent component
       console.log('RMP category selected - may need state warning');
     }
     

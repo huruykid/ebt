@@ -15,31 +15,52 @@ export const useFarmersMarketAnalysis = () => {
 
       if (storeTypesError) throw storeTypesError;
 
-      // Get stores with "market" in the name
-      const { data: marketStores, error: marketError } = await supabase
+      // Get stores that look like farmers markets (more precise filtering)
+      const { data: farmersMarkets, error: farmersError } = await supabase
         .from('snap_stores')
         .select('Store_Name, Store_Type, City, State')
-        .or('Store_Name.ilike.%market%,Store_Name.ilike.%farm%,Store_Name.ilike.%produce%')
+        .or('Store_Name.ilike.%farmers market%,Store_Name.ilike.%farmer\'s market%,Store_Name.ilike.%farm market%,Store_Type.ilike.%farmers market%')
         .limit(100);
 
-      if (marketError) throw marketError;
+      if (farmersError) throw farmersError;
+
+      // Get grocery stores that might be confused for farmers markets
+      const { data: groceryStores, error: groceryError } = await supabase
+        .from('snap_stores')
+        .select('Store_Name, Store_Type, City, State')
+        .or('Store_Name.ilike.%whole foods%,Store_Name.ilike.%fresh market%,Store_Name.ilike.%food market%')
+        .limit(50);
+
+      if (groceryError) throw groceryError;
 
       // Get unique store types containing market/farm/produce
-      const uniqueStoreTypes = [...new Set(storeTypes.map(s => s.Store_Type))]
+      const farmersMarketTypes = [...new Set(storeTypes.map(s => s.Store_Type))]
         .filter(type => type && (
-          type.toLowerCase().includes('market') ||
-          type.toLowerCase().includes('farm') ||
-          type.toLowerCase().includes('produce')
+          type.toLowerCase().includes('farmers market') ||
+          type.toLowerCase().includes('farm market')
         ))
         .sort();
 
-      console.log('Potential farmers market store types:', uniqueStoreTypes);
-      console.log('Sample market stores:', marketStores?.slice(0, 10));
+      const groceryMarketTypes = [...new Set(storeTypes.map(s => s.Store_Type))]
+        .filter(type => type && (
+          type.toLowerCase().includes('market') &&
+          !type.toLowerCase().includes('farmers') &&
+          !type.toLowerCase().includes('farm market')
+        ))
+        .sort();
+
+      console.log('True farmers market store types:', farmersMarketTypes);
+      console.log('Grocery market store types (not farmers markets):', groceryMarketTypes);
+      console.log('Sample farmers markets:', farmersMarkets?.slice(0, 10));
+      console.log('Sample grocery stores with "market":', groceryStores?.slice(0, 10));
 
       return {
-        potentialStoreTypes: uniqueStoreTypes,
-        sampleStores: marketStores || [],
-        totalMarketStores: marketStores?.length || 0
+        farmersMarketTypes,
+        groceryMarketTypes,
+        sampleFarmersMarkets: farmersMarkets || [],
+        sampleGroceryStores: groceryStores || [],
+        totalFarmersMarkets: farmersMarkets?.length || 0,
+        totalGroceryStores: groceryStores?.length || 0
       };
     },
     staleTime: 10 * 60 * 1000, // 10 minutes

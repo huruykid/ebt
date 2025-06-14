@@ -110,6 +110,28 @@ export const useStoreSearch = () => {
       
       let results = data || [];
 
+      // Apply exclude patterns for specific categories (like farmers markets)
+      if (activeCategory === 'farmers' && results.length > 0) {
+        const excludePatterns = ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'];
+        results = results.filter(store => {
+          const storeName = store.Store_Name?.toLowerCase() || '';
+          return !excludePatterns.some(pattern => 
+            storeName.includes(pattern.toLowerCase())
+          );
+        });
+      }
+
+      // If grocery category, exclude farmers markets
+      if (activeCategory === 'grocery' && results.length > 0) {
+        const excludePatterns = ['Farmers Market', 'Farm Market', 'Flea Market', 'Farmer\'s Market'];
+        results = results.filter(store => {
+          const storeName = store.Store_Name?.toLowerCase() || '';
+          return !excludePatterns.some(pattern => 
+            storeName.includes(pattern.toLowerCase())
+          );
+        });
+      }
+
       // If location search is active, calculate distances and filter by radius
       if (locationSearch && results.length > 0) {
         const { lat, lng } = locationSearch;
