@@ -28,6 +28,7 @@ export const useStoreSearch = () => {
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const [selectedNamePatterns, setSelectedNamePatterns] = useState<string[]>([]);
   const [locationSearch, setLocationSearch] = useState<{ lat: number; lng: number } | null>(null);
+  const [userZipCode, setUserZipCode] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [radius, setRadius] = useState(10);
 
@@ -36,6 +37,32 @@ export const useStoreSearch = () => {
     const queryParam = searchParams.get('q') || '';
     setSearchQuery(queryParam);
   }, [searchParams]);
+
+  // Get user's zip code from their location
+  useEffect(() => {
+    if (locationSearch && !userZipCode) {
+      const getZipCodeFromCoordinates = async (lat: number, lng: number) => {
+        try {
+          console.log('🔍 Getting zip code for coordinates:', { lat, lng });
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+          );
+          const data = await response.json();
+          const zipCode = data.address?.postcode;
+          if (zipCode) {
+            console.log('📮 Found user zip code:', zipCode);
+            setUserZipCode(zipCode);
+          } else {
+            console.log('⚠️ No zip code found in geocoding response');
+          }
+        } catch (error) {
+          console.error('❌ Error getting zip code:', error);
+        }
+      };
+
+      getZipCodeFromCoordinates(locationSearch.lat, locationSearch.lng);
+    }
+  }, [locationSearch, userZipCode]);
 
   // Adjust radius based on category
   useEffect(() => {
@@ -49,7 +76,7 @@ export const useStoreSearch = () => {
   }, [activeCategory]);
 
   const { data: stores, isLoading, error } = useQuery({
-    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius, userZipCode],
     queryFn: async (): Promise<StoreWithDistance[]> => {
       console.log('🔍 Starting store search with params:', {
         searchQuery,
@@ -57,9 +84,78 @@ export const useStoreSearch = () => {
         selectedStoreTypes,
         selectedNamePatterns,
         locationSearch,
-        radius
+        radius,
+        userZipCode
       });
 
+      // For farmers markets with user location, use zip code based search
+      if (activeCategory === 'farmers' && userZipCode && locationSearch) {
+        console.log('🥕 Using zip code based farmers market search for zip:', userZipCode);
+        
+        const query = buildBaseQuery(
+          '', // No search query for zip-based search
+          activeCategory,
+          selectedStoreTypes,
+          selectedNamePatterns,
+          null // No location search for zip-based approach
+        );
+
+        // Add zip code filter
+        const { data, error } = await query.eq('Zip_Code', userZipCode);
+        
+        if (error) {
+          console.error('Error fetching stores by zip:', error);
+          throw error;
+        }
+        
+        let results: StoreWithDistance[] = data || [];
+        console.log('📊 Zip-based search results:', {
+          totalResults: results.length,
+          zipCode: userZipCode,
+          sampleResults: results.slice(0, 3).map(r => ({ 
+            name: r.Store_Name, 
+            type: r.Store_Type,
+            coordinates: { lat: r.Latitude, lng: r.Longitude }
+          }))
+        });
+
+        // Apply farmers market exclusions
+        if (results.length > 0) {
+          console.log('🥕 Applying farmers market exclusions...');
+          const beforeExclusion = results.length;
+          results = applyFarmersMarketExclusion(results);
+          console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
+        }
+
+        // Calculate distances and sort by nearest first
+        if (results.length > 0 && locationSearch) {
+          results = results
+            .filter(store => store.Latitude && store.Longitude)
+            .map(store => ({
+              ...store,
+              distance: calculateDistance(
+                locationSearch.lat,
+                locationSearch.lng,
+                store.Latitude!,
+                store.Longitude!
+              )
+            }))
+            .sort((a, b) => (a.distance || 0) - (b.distance || 0));
+          
+          console.log('📍 Distance-sorted farmers markets:', {
+            totalResults: results.length,
+            zipCode: userZipCode,
+            closestStores: results.slice(0, 5).map(s => ({
+              name: s.Store_Name,
+              distance: s.distance?.toFixed(1) + ' miles'
+            }))
+          });
+        }
+
+        return results;
+      }
+
+      // Original search logic for other categories
       const query = buildBaseQuery(
         searchQuery,
         activeCategory,
@@ -160,5 +256,6 @@ export const useStoreSearch = () => {
     isLoading,
     error,
     handleCategoryChange,
+    userZipCode, // Expose user zip code for debugging
   };
 };

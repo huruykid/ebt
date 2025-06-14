@@ -97,6 +97,13 @@ export const buildBaseQuery = (
       .not('Longitude', 'is', null);
   }
 
+  // For farmers markets, always ensure we have coordinates
+  if (activeCategory === 'farmers') {
+    query = query
+      .not('Latitude', 'is', null)
+      .not('Longitude', 'is', null);
+  }
+
   query = query.limit(1000); // Increased limit to get more results before distance filtering
 
   return query;
