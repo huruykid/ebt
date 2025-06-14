@@ -37,6 +37,17 @@ export const useStoreSearch = () => {
     setSearchQuery(queryParam);
   }, [searchParams]);
 
+  // Adjust radius based on category
+  useEffect(() => {
+    if (activeCategory === 'farmers') {
+      setRadius(40); // Increase radius for farmers markets
+    } else if (activeCategory === 'hotmeals') {
+      setRadius(25); // Increase radius for restaurants
+    } else {
+      setRadius(10); // Default radius for other categories
+    }
+  }, [activeCategory]);
+
   const { data: stores, isLoading, error } = useQuery({
     queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius],
     queryFn: async (): Promise<StoreWithDistance[]> => {
@@ -68,6 +79,8 @@ export const useStoreSearch = () => {
       console.log('📊 Initial database results:', {
         totalResults: results.length,
         category: activeCategory,
+        radius: radius,
+        locationActive: !!locationSearch,
         sampleResults: results.slice(0, 3).map(r => ({ 
           name: r.Store_Name, 
           type: r.Store_Type,
@@ -75,21 +88,27 @@ export const useStoreSearch = () => {
         }))
       });
 
-      // Apply category-specific exclusions
+      // Apply category-specific exclusions BEFORE location filtering
       if (activeCategory === 'farmers' && results.length > 0) {
         console.log('🥕 Applying farmers market exclusions...');
+        const beforeExclusion = results.length;
         results = applyFarmersMarketExclusion(results);
+        console.log(`🥕 Farmers market filtering: ${beforeExclusion} → ${results.length} stores`);
       }
 
       if (activeCategory === 'grocery' && results.length > 0) {
         console.log('🏪 Applying grocery exclusions...');
+        const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
+        console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
       }
 
-      // Apply location filtering if active
+      // Apply location filtering if active (this should be AFTER category filtering)
       if (locationSearch && results.length > 0) {
-        console.log('📍 Applying location filtering...');
+        console.log(`📍 Applying location filtering with ${radius} mile radius...`);
+        const beforeLocationFilter = results.length;
         results = applyLocationFiltering(results, locationSearch, radius, calculateDistance);
+        console.log(`📍 Location filtering: ${beforeLocationFilter} → ${results.length} stores within ${radius} miles`);
       } else if (locationSearch) {
         console.log('⚠️ No results to filter by location');
       } else {
@@ -101,6 +120,7 @@ export const useStoreSearch = () => {
         storeTypes: selectedStoreTypes,
         namePatterns: selectedNamePatterns,
         locationActive: !!locationSearch,
+        radius: radius,
         totalResults: results.length,
         sampleResults: results.slice(0, 3).map(r => ({ 
           name: r.Store_Name, 
