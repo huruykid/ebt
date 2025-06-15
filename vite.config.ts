@@ -8,6 +8,17 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    watch: {
+      usePolling: true, // fallback to polling to avoid EMFILE
+      interval: 300,    // slightly slower but lighter on the system
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/dev-server/**",
+      ], // ignore some heavy/irrelevant folders
+    }
   },
   plugins: [
     react(),
