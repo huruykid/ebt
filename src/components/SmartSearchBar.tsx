@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { StoreQueryInput } from './StoreQueryInput';
 import { LocationQueryInput } from './LocationQueryInput';
 import { SmartSearchPills } from './SmartSearchPills';
+import { useToast } from "@/components/ui/use-toast";
 
-// List of US states (abbreviations & names)
+// US States (abbr, name)
 const US_STATES = [
   { abbr: "AL", name: "Alabama" },   { abbr: "AK", name: "Alaska" },    { abbr: "AZ", name: "Arizona" },
   { abbr: "AR", name: "Arkansas" },  { abbr: "CA", name: "California" },{ abbr: "CO", name: "Colorado" },
@@ -59,12 +60,12 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
   initialZip = "",
   initialState = ""
 }) => {
-  // Parse state from URL if present (if not explicitly given via props)
+  // Helper: parse "city, state" from input and auto-select state
   const getInitialState = () => {
     if (initialState) return initialState;
     const searchParams = new URLSearchParams(window.location.search);
     const urlState = searchParams.get('state');
-    return urlState || "CA"; // default to "CA"
+    return urlState || "CA";
   };
 
   const [storeQuery, setStoreQuery] = useState(initialSearchText);
@@ -72,6 +73,26 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
   const [stateQuery, setStateQuery] = useState(getInitialState());
   const [showStoreSuggestions, setShowStoreSuggestions] = useState(false);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const { toast } = useToast();
+
+  // auto-split city,state inputs
+  const handleLocationChange = (value: string) => {
+    // Match "city, state" or "city, ST"
+    const match = value.match(/^(.+),\s*([A-Za-z]{2})$/);
+    if (match) {
+      setLocationQuery(match[1].trim());
+      // Ensure valid state
+      const found = US_STATES.find(
+        st => st.abbr.toLowerCase() === match[2].trim().toLowerCase()
+      );
+      if (found) {
+        setStateQuery(found.abbr);
+      }
+    } else {
+      setLocationQuery(value);
+    }
+    setShowLocationSuggestions(value.length > 0);
+  };
 
   const filteredStoreTypes = popularStoreTypes.filter(type =>
     storeQuery && type.toLowerCase().includes(storeQuery.toLowerCase())
@@ -86,12 +107,16 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
     const isZipCode = /^\d{5}(-\d{4})?$/.test(locationQuery.trim());
     const city = isZipCode ? undefined : locationQuery.trim() || undefined;
     const zipCode = isZipCode ? locationQuery.trim() : undefined;
-    // Warn if state not selected and city is present
+    // Require state when city or zip is present
     if ((city || zipCode) && !stateQuery) {
-      alert('Please select a U.S. state to refine your location search (for example, "CA" for California).');
+      toast({
+        variant: "destructive",
+        title: "State required",
+        description: "Please select a state when searching by city or zip code."
+      });
       return;
     }
-    onSearch(storeQuery.trim(), city, zipCode, stateQuery); // always pass state
+    onSearch(storeQuery.trim(), city, zipCode, stateQuery);
     setShowStoreSuggestions(false);
     setShowLocationSuggestions(false);
   };
@@ -99,7 +124,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
   const handleClear = () => {
     setStoreQuery('');
     setLocationQuery('');
-    setStateQuery(initialState);
+    setStateQuery(getInitialState());
     setShowStoreSuggestions(false);
     setShowLocationSuggestions(false);
     onClear?.();
@@ -122,21 +147,23 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
           <div className="flex w-full flex-1 gap-2">
             <LocationQueryInput
               value={locationQuery}
-              onChange={setLocationQuery}
+              onChange={handleLocationChange}
               onSuggestionClick={(s) => { setLocationQuery(s); setShowLocationSuggestions(false); }}
               suggestions={filteredLocations}
               showSuggestions={showLocationSuggestions}
               setShowSuggestions={setShowLocationSuggestions}
               state={stateQuery}
               setState={setStateQuery}
+              placeholder="City or ZIP (ex: Fresno or 91301)"
             />
 
-            {/* US State Dropdown */}
+            {/* US State Dropdown - always shown */}
             <select
               value={stateQuery}
               onChange={(e) => setStateQuery(e.target.value)}
               className="border border-input rounded-md px-1.5 py-2 bg-background text-sm w-24 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="State"
+              required
               style={{ minWidth: 90 }}
             >
               <option value="">State</option>

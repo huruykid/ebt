@@ -15,7 +15,7 @@ interface LocationQueryInputProps {
   setState?: (v: string) => void;
 }
 
-export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
+export const LocationQueryInput: React.FC<LocationQueryInputProps & { placeholder?: string }> = ({
   value,
   onChange,
   onSuggestionClick,
@@ -25,6 +25,7 @@ export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
   onBlur,
   state,
   setState,
+  placeholder = "City or ZIP (ex: Fresno or 91301)"
 }) => {
   return (
     <div className="relative flex-1">
@@ -35,7 +36,7 @@ export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
         onChange={(e) => { onChange(e.target.value); setShowSuggestions(e.target.value.length > 0); }}
         onFocus={() => setShowSuggestions(value.length > 0)}
         onBlur={() => setTimeout(() => { setShowSuggestions(false); onBlur && onBlur(); }, 200)}
-        placeholder="Fresno or 90015"
+        placeholder={placeholder}
         className="pl-10 pr-4"
         autoCapitalize="words"
       />
