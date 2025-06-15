@@ -78,70 +78,73 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <nav 
-        className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
-        role="tablist"
-        aria-label="Food categories"
-      >
-        {categories.map((category) => {
-          const isActive = activeCategory === category.id;
-          
-          return (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
-              className={`flex flex-col items-center justify-center min-w-[80px] px-4 py-4 transition-all duration-300 hover:opacity-80 rounded-2xl hover:scale-110 ${
-                isActive 
-                  ? 'bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary/30 scale-110 transform' 
-                  : 'hover:bg-white/70 hover:shadow-lg'
-              }`}
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`panel-${category.id}`}
-            >
-              <div className={`w-12 h-12 flex items-center justify-center mb-2 transition-all duration-300 rounded-full ${
-                isActive 
-                  ? 'scale-125 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg' 
-                  : 'hover:scale-110 hover:bg-primary/5'
-              }`}>
-                <span className={`transition-all duration-300 ${
-                  isActive ? 'text-4xl drop-shadow-lg' : 'text-3xl grayscale hover:grayscale-0'
-                }`}>
-                  {isActive ? (category.activeIcon || category.icon) : category.icon}
-                </span>
-              </div>
-              <span className={`text-xs font-bold text-center whitespace-nowrap transition-all duration-300 ${
-                isActive 
-                  ? 'text-primary scale-110 drop-shadow-sm' 
-                  : 'text-[#484848] hover:text-primary/80'
-              }`}>
-                {category.name}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+      <div className="relative">
+        <nav 
+          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
+          role="tablist"
+          aria-label="Food categories"
+        >
+          {categories.map((category) => {
+            const isActive = activeCategory === category.id;
+            
+            return (
+              <div key={category.id} className="relative">
+                <button
+                  onClick={() => handleCategoryClick(category.id)}
+                  className={`flex flex-col items-center justify-center min-w-[80px] px-4 py-4 transition-all duration-300 hover:opacity-80 rounded-2xl hover:scale-110 ${
+                    isActive 
+                      ? 'bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary/30 scale-110 transform' 
+                      : 'hover:bg-white/70 hover:shadow-lg'
+                  }`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`panel-${category.id}`}
+                >
+                  <div className={`w-12 h-12 flex items-center justify-center mb-2 transition-all duration-300 rounded-full ${
+                    isActive 
+                      ? 'scale-125 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg' 
+                      : 'hover:scale-110 hover:bg-primary/5'
+                  }`}>
+                    <span className={`transition-all duration-300 ${
+                      isActive ? 'text-4xl drop-shadow-lg' : 'text-3xl grayscale hover:grayscale-0'
+                    }`}>
+                      {isActive ? (category.activeIcon || category.icon) : category.icon}
+                    </span>
+                  </div>
+                  <span className={`text-xs font-bold text-center whitespace-nowrap transition-all duration-300 ${
+                    isActive 
+                      ? 'text-primary scale-110 drop-shadow-sm' 
+                      : 'text-[#484848] hover:text-primary/80'
+                  }`}>
+                    {category.name}
+                  </span>
+                </button>
 
-      {/* Desktop RMP Info - positioned outside nav to avoid layout disruption */}
-      {activeCategory === 'hotmeals' && (
-        <div className="hidden md:flex justify-center mt-3">
-          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-            <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
-            <div className="text-xs">
-              <span className="text-blue-800 font-medium">RMP:</span>
-              <span className="text-blue-700 ml-1">State-specific program.</span>
-              <a 
-                href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium"
-              >
-                Learn more →
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+                {/* Desktop RMP Info - positioned directly under the Hot Meals button */}
+                {category.id === 'hotmeals' && activeCategory === 'hotmeals' && (
+                  <div className="hidden md:block absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-10">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg whitespace-nowrap">
+                      <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                      <div className="text-xs">
+                        <span className="text-blue-800 font-medium">RMP:</span>
+                        <span className="text-blue-700 ml-1">State-specific program.</span>
+                        <a 
+                          href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium"
+                        >
+                          Learn more →
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+      </div>
       
       {/* Mobile RMP Explanation Toggle - only show on mobile */}
       {activeCategory === 'hotmeals' && (
