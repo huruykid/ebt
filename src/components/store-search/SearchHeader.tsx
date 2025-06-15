@@ -35,6 +35,11 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* 
+        SearchHeader does not know the URL param for state.
+        It's owned by SmartSearchBar via SmartSearchBar's initialState.
+        We'll rely on SmartSearchBar to read initial state from URLparams.
+      */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h1>
         <p className="text-muted-foreground">
@@ -46,8 +51,8 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
         <SmartSearchBar
           onSearch={handleSmartSearch}
           initialSearchText={searchQuery}
+          // Do not pass initialState here. SmartSearchBar will read from URL.
         />
-
         {latitude && longitude && (
           <div className="text-center">
             <Button

@@ -57,11 +57,19 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
   initialSearchText = "",
   initialCity = "",
   initialZip = "",
-  initialState = "CA"
+  initialState = ""
 }) => {
+  // Parse state from URL if present (if not explicitly given via props)
+  const getInitialState = () => {
+    if (initialState) return initialState;
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlState = searchParams.get('state');
+    return urlState || "CA"; // default to "CA"
+  };
+
   const [storeQuery, setStoreQuery] = useState(initialSearchText);
   const [locationQuery, setLocationQuery] = useState(initialCity || initialZip);
-  const [stateQuery, setStateQuery] = useState(initialState);
+  const [stateQuery, setStateQuery] = useState(getInitialState());
   const [showStoreSuggestions, setShowStoreSuggestions] = useState(false);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
 
@@ -78,7 +86,12 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
     const isZipCode = /^\d{5}(-\d{4})?$/.test(locationQuery.trim());
     const city = isZipCode ? undefined : locationQuery.trim() || undefined;
     const zipCode = isZipCode ? locationQuery.trim() : undefined;
-    onSearch(storeQuery.trim(), city, zipCode, stateQuery);
+    // Warn if state not selected and city is present
+    if ((city || zipCode) && !stateQuery) {
+      alert('Please select a U.S. state to refine your location search (for example, "CA" for California).');
+      return;
+    }
+    onSearch(storeQuery.trim(), city, zipCode, stateQuery); // always pass state
     setShowStoreSuggestions(false);
     setShowLocationSuggestions(false);
   };

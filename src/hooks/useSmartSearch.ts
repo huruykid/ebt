@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,7 +39,7 @@ export const useSmartSearch = () => {
   const [searchParams, setSearchParams] = useState<SmartSearchParams>({
     searchText: '',
     city: '',
-    state: '',
+    state: '',     // NOTE: default to blank, require user to pick
     zipCode: '',
     similarityThreshold: 0.3,
     limit: 50

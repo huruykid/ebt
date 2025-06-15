@@ -54,6 +54,16 @@ export const SearchContainer: React.FC = () => {
     }
   }, [latitude, longitude, locationSearch, searchQuery, setLocationSearch, searchMode]);
 
+  // Parse query params once on mount to set defaults for smart search (esp. state)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialState = params.get('state') || 'CA';
+    // If no state param and city param IS PRESENT: force user to select
+    if (params.get('city') && !params.get('state')) {
+      alert('Please select a U.S. state to narrow your city search (ex: "CA" for California).');
+    }
+  }, []);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setLocationSearch(null);
@@ -67,7 +77,12 @@ export const SearchContainer: React.FC = () => {
 
   const handleSmartSearch = (searchText: string, city?: string, zipCode?: string, state?: string) => {
     setSearchMode('smart');
-    
+    // Require state for all city or zip-based searches
+    if ((city || zipCode) && !state) {
+      alert('Please select a U.S. state to refine your location search.');
+      return;
+    }
+
     // Include user location in smart search if available
     const searchParams = {
       searchText,

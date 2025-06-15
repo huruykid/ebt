@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,6 @@ export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
         placeholder="Fresno or 90015"
         className="pl-10 pr-4"
         autoCapitalize="words"
-        // state selection is handled in SmartSearchBar
       />
       <SmartSearchSuggestionsDropdown
         suggestions={suggestions}
