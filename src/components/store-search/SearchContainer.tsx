@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchHeader } from './SearchHeader';
@@ -6,6 +7,7 @@ import { CategorySearchResults } from './CategorySearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useSmartSearch } from '@/hooks/useSmartSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useToast } from "@/components/ui/use-toast";
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -18,6 +20,7 @@ export const SearchContainer: React.FC = () => {
   const navigate = useNavigate();
   const { latitude, longitude, loading: locationLoading } = useGeolocation();
   const [searchMode, setSearchMode] = useState<'category' | 'smart'>('category');
+  const { toast } = useToast();
   
   // Original category-based search
   const {
@@ -60,7 +63,7 @@ export const SearchContainer: React.FC = () => {
     const initialState = params.get('state') || 'CA';
     // If no state param and city param IS PRESENT: force user to select
     if (params.get('city') && !params.get('state')) {
-      alert('Please select a U.S. state to narrow your city search (ex: "CA" for California).');
+      console.log('City search without state detected, will prompt user to select state');
     }
   }, []);
 
@@ -75,45 +78,45 @@ export const SearchContainer: React.FC = () => {
     }
   };
 
-  const { toast } = require('@/components/ui/use-toast'); // Ensure we have toast
-
   const handleSmartSearch = (searchText: string, city?: string, zipCode?: string, state?: string) => {
     setSearchMode('smart');
-    // Require state for all city or zip-based searches
+    
+    // For city searches without state, try to proceed but don't apply location filtering
     if ((city || zipCode) && !state) {
-      // Show toast instead of alert for better UX
-      import('@/components/ui/use-toast').then(({ useToast }) => {
-        useToast().toast({
-          variant: "destructive",
-          title: "State required",
-          description: "Please select a U.S. state to refine your location search."
-        });
+      toast({
+        variant: "destructive",
+        title: "State required",
+        description: "Please select a U.S. state to refine your location search."
       });
       return;
     }
 
-    // Always send state, even if blank
+    // Determine whether to apply location filtering
+    const shouldApplyLocationFilter = (city || zipCode) && state;
+
     const searchParams = {
       searchText,
       city,
-      state: state ?? "",
+      state: state || "",
       zipCode,
       similarityThreshold: 0.3,
       limit: 50,
-      ...(latitude && longitude && {
+      // Only apply user location filtering if we have both coordinates AND location search
+      ...(shouldApplyLocationFilter && latitude && longitude && {
         userLatitude: latitude,
         userLongitude: longitude,
         radius: radius
       })
     };
     
+    console.log('Smart search params:', searchParams);
     performSmartSearch(searchParams);
     
-    // Update URL with state param
+    // Update URL with all params
     const params = new URLSearchParams();
     if (searchText) params.set('q', searchText);
     if (city) params.set('city', city);
-    if (state) params.set('state', state ?? '');
+    if (state) params.set('state', state);
     if (zipCode) params.set('zip', zipCode);
     navigate(`/search?${params.toString()}`, { replace: true });
   };

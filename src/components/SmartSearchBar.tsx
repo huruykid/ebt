@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, MapPin, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,30 @@ const US_STATES = [
   { abbr: "VA", name: "Virginia" },  { abbr: "WA", name: "Washington" },{ abbr: "WV", name: "West Virginia" },
   { abbr: "WI", name: "Wisconsin" }, { abbr: "WY", name: "Wyoming" }
 ];
+
+// Common city-to-state mappings for auto-suggestion
+const COMMON_CITY_STATES: { [key: string]: string } = {
+  "los angeles": "CA",
+  "new york": "NY",
+  "chicago": "IL",
+  "houston": "TX",
+  "phoenix": "AZ",
+  "philadelphia": "PA",
+  "san antonio": "TX",
+  "san diego": "CA",
+  "dallas": "TX",
+  "san jose": "CA",
+  "austin": "TX",
+  "jacksonville": "FL",
+  "fresno": "CA",
+  "sacramento": "CA",
+  "oakland": "CA",
+  "long beach": "CA",
+  "miami": "FL",
+  "atlanta": "GA",
+  "seattle": "WA",
+  "denver": "CO"
+};
 
 interface SmartSearchBarProps {
   onSearch: (searchText: string, city?: string, zipCode?: string, state?: string) => void;
@@ -64,7 +89,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
     if (initialState) return initialState;
     const searchParams = new URLSearchParams(window.location.search);
     const urlState = searchParams.get('state');
-    return urlState || "CA";
+    return urlState || "CA"; // Default to CA for common cities
   };
 
   const [storeQuery, setStoreQuery] = useState(initialSearchText);
@@ -74,7 +99,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // auto-split city,state inputs
+  // auto-split city,state inputs and auto-suggest state for common cities
   const handleLocationChange = (value: string) => {
     // Match "city, state" or "city, ST"
     const match = value.match(/^(.+),\s*([A-Za-z]{2})$/);
@@ -89,6 +114,12 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
       }
     } else {
       setLocationQuery(value);
+      
+      // Auto-suggest state for common cities
+      const cityLower = value.toLowerCase().trim();
+      if (COMMON_CITY_STATES[cityLower] && !stateQuery) {
+        setStateQuery(COMMON_CITY_STATES[cityLower]);
+      }
     }
     setShowLocationSuggestions(value.length > 0);
   };
@@ -106,7 +137,20 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
     const isZipCode = /^\d{5}(-\d{4})?$/.test(locationQuery.trim());
     const city = isZipCode ? undefined : locationQuery.trim() || undefined;
     const zipCode = isZipCode ? locationQuery.trim() : undefined;
-    // Require state when city or zip is present
+    
+    // Auto-suggest state for common cities if not already set
+    if (city && !stateQuery) {
+      const cityLower = city.toLowerCase();
+      if (COMMON_CITY_STATES[cityLower]) {
+        setStateQuery(COMMON_CITY_STATES[cityLower]);
+        onSearch(storeQuery.trim(), city, zipCode, COMMON_CITY_STATES[cityLower]);
+        setShowStoreSuggestions(false);
+        setShowLocationSuggestions(false);
+        return;
+      }
+    }
+    
+    // Require state when city or zip is present (unless it's a store-only search)
     if ((city || zipCode) && !stateQuery) {
       toast({
         variant: "destructive",
@@ -115,7 +159,8 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
       });
       return;
     }
-    onSearch(storeQuery.trim(), city, zipCode, stateQuery);
+
+    onSearch(storeQuery.trim(), city, zipCode, stateQuery || undefined);
     setShowStoreSuggestions(false);
     setShowLocationSuggestions(false);
   };
@@ -147,13 +192,21 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
             <LocationQueryInput
               value={locationQuery}
               onChange={handleLocationChange}
-              onSuggestionClick={(s) => { setLocationQuery(s); setShowLocationSuggestions(false); }}
+              onSuggestionClick={(s) => { 
+                // Auto-set state when clicking on a suggestion
+                const cityLower = s.toLowerCase();
+                if (COMMON_CITY_STATES[cityLower]) {
+                  setStateQuery(COMMON_CITY_STATES[cityLower]);
+                }
+                setLocationQuery(s); 
+                setShowLocationSuggestions(false); 
+              }}
               suggestions={filteredLocations}
               showSuggestions={showLocationSuggestions}
               setShowSuggestions={setShowLocationSuggestions}
               state={stateQuery}
               setState={setStateQuery}
-              placeholder="City or ZIP (ex: Fresno or 91301)"
+              placeholder="City or ZIP (ex: Los Angeles or 91301)"
             />
 
             {/* US State Dropdown - always shown */}
