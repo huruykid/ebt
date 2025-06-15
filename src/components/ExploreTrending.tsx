@@ -10,7 +10,7 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { EbtInfoSection } from './EbtInfoSection';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Search, Heart, Navigation } from 'lucide-react';
+import { MapPin, Search, Heart, Navigation, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const ExploreTrending: React.FC = () => {
@@ -203,9 +203,29 @@ export const ExploreTrending: React.FC = () => {
           {latitude && longitude && !loading && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-foreground">
-                  Nearby Stores
-                </h2>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    Nearby Stores
+                  </h2>
+                  {/* RMP Explanation - Desktop */}
+                  {activeCategory === 'hotmeals' && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                      <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                      <div className="text-sm">
+                        <span className="text-blue-800 font-medium">RMP:</span>
+                        <span className="text-blue-700 ml-1">State-specific program.</span>
+                        <a 
+                          href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium"
+                        >
+                          Learn more →
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Showing results within 10 miles
                 </p>
