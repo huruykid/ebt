@@ -383,13 +383,22 @@ export type Database = {
         Returns: string[]
       }
       smart_store_search: {
-        Args: {
-          search_text?: string
-          search_city?: string
-          search_zip?: string
-          similarity_threshold?: number
-          result_limit?: number
-        }
+        Args:
+          | {
+              search_text?: string
+              search_city?: string
+              search_state?: string
+              search_zip?: string
+              similarity_threshold?: number
+              result_limit?: number
+            }
+          | {
+              search_text?: string
+              search_city?: string
+              search_zip?: string
+              similarity_threshold?: number
+              result_limit?: number
+            }
         Returns: {
           id: string
           store_name: string

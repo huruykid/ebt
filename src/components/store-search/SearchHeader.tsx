@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { SmartSearchBar } from '@/components/SmartSearchBar';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -9,7 +8,7 @@ interface SearchHeaderProps {
   searchQuery: string;
   onSearch: (query: string) => void;
   onLocationSearch: (latitude: number, longitude: number) => void;
-  onSmartSearch?: (searchText: string, city?: string, zipCode?: string) => void;
+  onSmartSearch?: (searchText: string, city?: string, zipCode?: string, state?: string) => void;
 }
 
 export const SearchHeader: React.FC<SearchHeaderProps> = ({
@@ -20,11 +19,10 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
 }) => {
   const { latitude, longitude, loading: locationLoading } = useGeolocation();
 
-  const handleSmartSearch = (searchText: string, city?: string, zipCode?: string) => {
+  const handleSmartSearch = (searchText: string, city?: string, zipCode?: string, state?: string) => {
     if (onSmartSearch) {
-      onSmartSearch(searchText, city, zipCode);
+      onSmartSearch(searchText, city, zipCode, state);
     } else {
-      // Fallback to regular search if smart search not provided
       onSearch(searchText);
     }
   };

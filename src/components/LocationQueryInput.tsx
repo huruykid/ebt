@@ -12,6 +12,8 @@ interface LocationQueryInputProps {
   showSuggestions: boolean;
   setShowSuggestions: (v: boolean) => void;
   onBlur?: () => void;
+  state?: string;
+  setState?: (v: string) => void;
 }
 
 export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
@@ -22,6 +24,8 @@ export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
   showSuggestions,
   setShowSuggestions,
   onBlur,
+  state,
+  setState,
 }) => {
   return (
     <div className="relative flex-1">
@@ -34,6 +38,8 @@ export const LocationQueryInput: React.FC<LocationQueryInputProps> = ({
         onBlur={() => setTimeout(() => { setShowSuggestions(false); onBlur && onBlur(); }, 200)}
         placeholder="Fresno or 90015"
         className="pl-10 pr-4"
+        autoCapitalize="words"
+        // state selection is handled in SmartSearchBar
       />
       <SmartSearchSuggestionsDropdown
         suggestions={suggestions}

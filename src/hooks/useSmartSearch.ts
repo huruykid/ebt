@@ -27,6 +27,7 @@ interface SmartSearchResult {
 interface SmartSearchParams {
   searchText: string;
   city?: string;
+  state?: string;
   zipCode?: string;
   similarityThreshold?: number;
   limit?: number;
@@ -39,6 +40,7 @@ export const useSmartSearch = () => {
   const [searchParams, setSearchParams] = useState<SmartSearchParams>({
     searchText: '',
     city: '',
+    state: '',
     zipCode: '',
     similarityThreshold: 0.3,
     limit: 50
@@ -47,7 +49,11 @@ export const useSmartSearch = () => {
   const { data: results, isLoading, error } = useQuery({
     queryKey: ['smart-search', searchParams],
     queryFn: async (): Promise<StoreWithDistance[]> => {
-      if (!searchParams.searchText.trim() && !searchParams.city?.trim() && !searchParams.zipCode?.trim()) {
+      if (
+        !searchParams.searchText.trim() &&
+        !searchParams.city?.trim() &&
+        !searchParams.zipCode?.trim()
+      ) {
         return [];
       }
 
@@ -56,6 +62,7 @@ export const useSmartSearch = () => {
       const { data, error } = await supabase.rpc('smart_store_search', {
         search_text: searchParams.searchText || '',
         search_city: searchParams.city || '',
+        search_state: searchParams.state || '',
         search_zip: searchParams.zipCode || '',
         similarity_threshold: searchParams.similarityThreshold || 0.3,
         result_limit: searchParams.limit || 50
@@ -68,7 +75,7 @@ export const useSmartSearch = () => {
 
       console.log('Optimized smart search results:', data?.length || 0, 'stores found');
       console.log('Search params:', searchParams);
-      
+
       // Convert the raw results to the correct format
       let convertedResults: StoreWithDistance[] = (data || []).map((result: SmartSearchResult) => ({
         id: result.id,
@@ -96,7 +103,7 @@ export const useSmartSearch = () => {
       if (searchParams.userLatitude && searchParams.userLongitude && convertedResults.length > 0) {
         const radius = searchParams.radius || 10; // Default 10 mile radius
         console.log(`📍 Applying location filtering to smart search results with ${radius} mile radius...`);
-        
+
         // Calculate distances and filter by radius
         convertedResults = convertedResults
           .map(store => {
@@ -114,14 +121,22 @@ export const useSmartSearch = () => {
           .filter(store => store.distance !== undefined && store.distance <= radius)
           .sort((a, b) => (a.distance || 0) - (b.distance || 0));
 
-        console.log(`📍 Smart search location filtering: ${data?.length || 0} → ${convertedResults.length} stores within ${radius} miles`);
+        console.log(
+          `📍 Smart search location filtering: ${data?.length || 0} → ${
+            convertedResults.length
+          } stores within ${radius} miles`
+        );
       }
-      
+
       return convertedResults;
     },
-    enabled: !!(searchParams.searchText.trim() || searchParams.city?.trim() || searchParams.zipCode?.trim()),
+    enabled: !!(
+      searchParams.searchText.trim() ||
+      searchParams.city?.trim() ||
+      searchParams.zipCode?.trim()
+    ),
     staleTime: 3 * 60 * 1000, // 3 minutes cache for search results
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 5 * 60 * 1000 // 5 minutes
   });
 
   const performSearch = (params: SmartSearchParams) => {
@@ -133,6 +148,7 @@ export const useSmartSearch = () => {
     setSearchParams({
       searchText: '',
       city: '',
+      state: '',
       zipCode: '',
       similarityThreshold: 0.3,
       limit: 50
