@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, MapPin, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -163,7 +162,7 @@ export const SmartSearchBar: React.FC<SmartSearchBarProps> = ({
               onChange={(e) => setStateQuery(e.target.value)}
               className="border border-input rounded-md px-1.5 py-2 bg-background text-sm w-24 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="State"
-              required
+              required={!!locationQuery}
               style={{ minWidth: 90 }}
             >
               <option value="">State</option>

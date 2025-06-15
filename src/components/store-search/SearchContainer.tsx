@@ -75,19 +75,28 @@ export const SearchContainer: React.FC = () => {
     }
   };
 
+  const { toast } = require('@/components/ui/use-toast'); // Ensure we have toast
+
   const handleSmartSearch = (searchText: string, city?: string, zipCode?: string, state?: string) => {
     setSearchMode('smart');
     // Require state for all city or zip-based searches
     if ((city || zipCode) && !state) {
-      alert('Please select a U.S. state to refine your location search.');
+      // Show toast instead of alert for better UX
+      import('@/components/ui/use-toast').then(({ useToast }) => {
+        useToast().toast({
+          variant: "destructive",
+          title: "State required",
+          description: "Please select a U.S. state to refine your location search."
+        });
+      });
       return;
     }
 
-    // Include user location in smart search if available
+    // Always send state, even if blank
     const searchParams = {
       searchText,
       city,
-      state,
+      state: state ?? "",
       zipCode,
       similarityThreshold: 0.3,
       limit: 50,
@@ -104,7 +113,7 @@ export const SearchContainer: React.FC = () => {
     const params = new URLSearchParams();
     if (searchText) params.set('q', searchText);
     if (city) params.set('city', city);
-    if (state) params.set('state', state);
+    if (state) params.set('state', state ?? '');
     if (zipCode) params.set('zip', zipCode);
     navigate(`/search?${params.toString()}`, { replace: true });
   };
