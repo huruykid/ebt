@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SmartSearchBar } from './SmartSearchBar';
 import { CategoryTabs } from './CategoryTabs';
@@ -12,6 +11,9 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Search, Heart, Navigation, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileNearbyStoresSection from './MobileNearbyStoresSection';
+import DesktopNearbyStoresSection from './DesktopNearbyStoresSection';
+import NoLocationExperience from './NoLocationExperience';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -56,35 +58,6 @@ export const ExploreTrending: React.FC = () => {
     window.location.reload();
   };
 
-  // Component for no-location experience
-  const NoLocationExperience = () => (
-    <div className="space-y-8">
-      {/* Featured Store Types */}
-      <FeaturedStoreTypes onCategorySelect={(query) => handleSmartSearch(query)} />
-      
-      {/* Search Suggestions */}
-      <SearchSuggestions onSearchSuggestion={(query) => handleSmartSearch(query)} />
-      
-      {/* EBT Information */}
-      <EbtInfoSection />
-      
-      {/* Optional Location Prompt */}
-      <div className="bg-muted/50 rounded-lg p-6 text-center">
-        <h3 className="font-medium mb-2">Want personalized results?</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Enable location to see stores near you with accurate distances and directions.
-        </p>
-        <button
-          onClick={handleRequestLocation}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          <MapPin className="h-4 w-4" />
-          Enable Location
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
@@ -117,20 +90,15 @@ export const ExploreTrending: React.FC = () => {
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
 
         <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
-          {loading && (
-            <div className="py-8">
-              <LoadingSpinner />
-              <p className="text-center text-gray-600 mt-4">Getting your location...</p>
-            </div>
-          )}
-
-          {latitude && longitude && !loading && (
-            <div className="w-full">
-              <NearbyStores latitude={latitude} longitude={longitude} radius={10} limit={20} category={activeCategory} storeTypes={selectedStoreTypes} />
-            </div>
-          )}
-
-          {(!latitude && !longitude && !loading) && <NoLocationExperience />}
+          <MobileNearbyStoresSection
+            loading={loading}
+            latitude={latitude}
+            longitude={longitude}
+            activeCategory={activeCategory}
+            selectedStoreTypes={selectedStoreTypes}
+            onSmartSearch={handleSmartSearch}
+            onRequestLocation={handleRequestLocation}
+          />
         </main>
       </div>
 
@@ -193,56 +161,19 @@ export const ExploreTrending: React.FC = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {loading && (
-            <div className="text-center py-12">
-              <LoadingSpinner />
-              <p className="text-muted-foreground mt-4">Getting your location...</p>
-            </div>
+          <DesktopNearbyStoresSection
+            loading={loading}
+            latitude={latitude}
+            longitude={longitude}
+            activeCategory={activeCategory}
+            selectedStoreTypes={selectedStoreTypes}
+          />
+          {(!latitude && !longitude && !loading) && (
+            <NoLocationExperience
+              onSmartSearch={handleSmartSearch}
+              onRequestLocation={handleRequestLocation}
+            />
           )}
-
-          {latitude && longitude && !loading && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    Nearby Stores
-                  </h2>
-                  {/* RMP Explanation - Desktop */}
-                  {activeCategory === 'hotmeals' && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-                      <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                      <div className="text-sm">
-                        <span className="text-blue-800 font-medium">RMP:</span>
-                        <span className="text-blue-700 ml-1">State-specific program.</span>
-                        <a 
-                          href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline ml-1 font-medium"
-                        >
-                          Learn more →
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Showing results within 10 miles
-                </p>
-              </div>
-              
-              <NearbyStores 
-                latitude={latitude} 
-                longitude={longitude} 
-                radius={10} 
-                limit={20} 
-                category={activeCategory} 
-                storeTypes={selectedStoreTypes} 
-              />
-            </div>
-          )}
-
-          {(!latitude && !longitude && !loading) && <NoLocationExperience />}
         </div>
       </div>
     </div>
