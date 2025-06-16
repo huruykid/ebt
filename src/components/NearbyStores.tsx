@@ -47,7 +47,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     useOptimized
   });
 
-  if (isLoading && (!data?.pages || data.pages.length === 0)) {
+  if (isLoading && !data) {
     return <div className="flex justify-center py-8">
         <LoadingSpinner />
       </div>;
