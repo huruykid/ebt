@@ -47,7 +47,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     useOptimized
   });
 
-  if (isLoading && !data?.pages?.length) {
+  if (isLoading && (!data?.pages || data.pages.length === 0)) {
     return <div className="flex justify-center py-8">
         <LoadingSpinner />
       </div>;
@@ -71,8 +71,8 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
       </div>;
   }
 
-  // Sort all stores based on the selected option
-  const sortedPages = data?.pages?.map(page => sortStores(page, sortBy)) || [];
+  // Sort all stores based on the selected option - only if data exists
+  const sortedPages = data?.pages ? data.pages.map(page => sortStores(page, sortBy)) : [];
 
   return <div className="space-y-4">
       {/* Header with sort dropdown and radius selector */}
