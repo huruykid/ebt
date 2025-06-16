@@ -1,15 +1,12 @@
+
 import React, { useState } from 'react';
-import { SmartSearchBar } from './SmartSearchBar';
 import { CategoryTabs } from './CategoryTabs';
 import { NearbyStores } from './NearbyStores';
 import { LocationPrompt } from './LocationPrompt';
 import { LoadingSpinner } from './LoadingSpinner';
-import { FeaturedStoreTypes } from './FeaturedStoreTypes';
-import { SearchSuggestions } from './SearchSuggestions';
-import { EbtInfoSection } from './EbtInfoSection';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Search, Heart, Navigation, Info } from 'lucide-react';
+import { MapPin, Heart, Navigation, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileNearbyStoresSection from './MobileNearbyStoresSection';
 import DesktopNearbyStoresSection from './DesktopNearbyStoresSection';
@@ -25,16 +22,6 @@ export const ExploreTrending: React.FC = () => {
     error,
     loading
   } = useGeolocation();
-
-  const handleSmartSearch = (searchText: string, city?: string, zipCode?: string) => {
-    // Build URL params for the search page
-    const params = new URLSearchParams();
-    if (searchText) params.set('q', searchText);
-    if (city) params.set('city', city);
-    if (zipCode) params.set('zip', zipCode);
-    
-    navigate(`/search?${params.toString()}`);
-  };
 
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('Location search:', lat, lng);
@@ -66,12 +53,9 @@ export const ExploreTrending: React.FC = () => {
           <div className="text-center mb-4">
             <h1 className="text-2xl font-bold text-foreground mb-2">Find SNAP / EBT Stores</h1>
             <p className="text-sm text-muted-foreground px-2">
-              Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits in your area. 
-              Save time and shop with confidence.
+              Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits near your location.
             </p>
           </div>
-          
-          <SmartSearchBar onSearch={handleSmartSearch} className="mt-4" />
           
           {/* Current Location Search Button - Mobile */}
           {latitude && longitude && (
@@ -96,7 +80,7 @@ export const ExploreTrending: React.FC = () => {
             longitude={longitude}
             activeCategory={activeCategory}
             selectedStoreTypes={selectedStoreTypes}
-            onSmartSearch={handleSmartSearch}
+            onSmartSearch={() => {}} // Remove search functionality
             onRequestLocation={handleRequestLocation}
           />
         </main>
@@ -110,16 +94,12 @@ export const ExploreTrending: React.FC = () => {
             <div className="text-center max-w-3xl mx-auto">
               <h1 className="text-4xl font-bold text-foreground mb-4">Find SNAP/EBT - Accepting Stores Near You</h1>
               <p className="text-lg text-muted-foreground mb-8">
-                Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits in your area. 
-                Save time and shop with confidence.
+                Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits near your location.
               </p>
               
-              {/* Search Bar - Desktop */}
-              <div className="max-w-2xl mx-auto space-y-4">
-                <SmartSearchBar onSearch={handleSmartSearch} className="text-lg" />
-                
-                {/* Current Location Search Button - Desktop */}
-                {latitude && longitude && (
+              {/* Current Location Search Button - Desktop */}
+              {latitude && longitude && (
+                <div className="max-w-2xl mx-auto">
                   <Button
                     onClick={handleCurrentLocationSearch}
                     variant="outline"
@@ -130,18 +110,14 @@ export const ExploreTrending: React.FC = () => {
                     <Navigation className="h-4 w-4 mr-2" />
                     Search near your current location
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Quick Stats */}
               <div className="flex justify-center gap-8 mt-8 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
                   <span>Location-based results</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  <span>Real-time store data</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Heart className="h-4 w-4" />
@@ -170,7 +146,7 @@ export const ExploreTrending: React.FC = () => {
           />
           {(!latitude && !longitude && !loading) && (
             <NoLocationExperience
-              onSmartSearch={handleSmartSearch}
+              onSmartSearch={() => {}} // Remove search functionality
               onRequestLocation={handleRequestLocation}
             />
           )}

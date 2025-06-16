@@ -20,7 +20,6 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
   longitude,
   activeCategory,
   selectedStoreTypes,
-  onSmartSearch,
   onRequestLocation,
 }) => {
   if (loading) {
@@ -48,10 +47,19 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
   }
 
   return (
-    <NoLocationExperience
-      onSmartSearch={onSmartSearch}
-      onRequestLocation={onRequestLocation}
-    />
+    <div className="text-center py-8">
+      <div className="text-6xl mb-4">📍</div>
+      <h3 className="text-lg font-semibold text-foreground mb-2">Location Required</h3>
+      <p className="text-muted-foreground mb-4">
+        We need your location to show nearby stores that accept EBT/SNAP benefits.
+      </p>
+      <button
+        onClick={onRequestLocation}
+        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+      >
+        Enable Location
+      </button>
+    </div>
   );
 };
 
