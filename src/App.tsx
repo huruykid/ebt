@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HeaderNavigation } from "@/components/HeaderNavigation";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StoreSearch from "./pages/StoreSearch";
@@ -17,6 +18,9 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// Replace this with your actual Google Analytics Measurement ID
+const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -46,6 +50,9 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Google Analytics */}
+      <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
+      
       {/* Header navigation - desktop and mobile */}
       <div className="hidden md:block">
         <HeaderNavigation onNavigate={handleNavigate} />
