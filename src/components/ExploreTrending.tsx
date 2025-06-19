@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import { CategoryTabs } from './CategoryTabs';
 import { NearbyStores } from './NearbyStores';
+import { StoreList } from './StoreList';
+import { ZipCodeSearch } from './ZipCodeSearch';
 import { LocationPrompt } from './LocationPrompt';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useZipCodeSearch } from '@/hooks/useZipCodeSearch';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Heart, Navigation, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +25,17 @@ export const ExploreTrending: React.FC = () => {
     error,
     loading
   } = useGeolocation();
+
+  const {
+    activeZipCode,
+    zipStores,
+    isLoading: zipLoading,
+    errorMessage,
+    noResultsMessage,
+    handleZipSearch,
+    handleClearSearch,
+    isSearchActive
+  } = useZipCodeSearch();
 
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('Location search:', lat, lng);
@@ -45,6 +59,10 @@ export const ExploreTrending: React.FC = () => {
     window.location.reload();
   };
 
+  // Show ZIP search results if active, otherwise show location-based results
+  const showZipResults = isSearchActive;
+  const showLocationResults = !isSearchActive && latitude && longitude;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
@@ -57,8 +75,20 @@ export const ExploreTrending: React.FC = () => {
             </p>
           </div>
           
+          {/* ZIP Code Search - Mobile */}
+          <div className="mb-4">
+            <ZipCodeSearch
+              onZipSearch={handleZipSearch}
+              onClearSearch={handleClearSearch}
+              isSearchActive={isSearchActive}
+              activeZip={activeZipCode || undefined}
+              errorMessage={errorMessage}
+              noResultsMessage={noResultsMessage}
+            />
+          </div>
+          
           {/* Current Location Search Button - Mobile */}
-          {latitude && longitude && (
+          {!isSearchActive && latitude && longitude && (
             <Button
               onClick={handleCurrentLocationSearch}
               variant="outline"
@@ -74,15 +104,27 @@ export const ExploreTrending: React.FC = () => {
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
 
         <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
-          <MobileNearbyStoresSection
-            loading={loading}
-            latitude={latitude}
-            longitude={longitude}
-            activeCategory={activeCategory}
-            selectedStoreTypes={selectedStoreTypes}
-            onSmartSearch={() => {}} // Remove search functionality
-            onRequestLocation={handleRequestLocation}
-          />
+          {showZipResults ? (
+            <div className="w-full">
+              {zipLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <StoreList stores={zipStores} />
+              )}
+            </div>
+          ) : (
+            <MobileNearbyStoresSection
+              loading={loading}
+              latitude={latitude}
+              longitude={longitude}
+              activeCategory={activeCategory}
+              selectedStoreTypes={selectedStoreTypes}
+              onSmartSearch={() => {}} // Remove search functionality
+              onRequestLocation={handleRequestLocation}
+            />
+          )}
         </main>
       </div>
 
@@ -97,8 +139,20 @@ export const ExploreTrending: React.FC = () => {
                 Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits near your location.
               </p>
               
+              {/* ZIP Code Search - Desktop */}
+              <div className="mb-6">
+                <ZipCodeSearch
+                  onZipSearch={handleZipSearch}
+                  onClearSearch={handleClearSearch}
+                  isSearchActive={isSearchActive}
+                  activeZip={activeZipCode || undefined}
+                  errorMessage={errorMessage}
+                  noResultsMessage={noResultsMessage}
+                />
+              </div>
+              
               {/* Current Location Search Button - Desktop */}
-              {latitude && longitude && (
+              {!isSearchActive && latitude && longitude && (
                 <div className="max-w-2xl mx-auto">
                   <Button
                     onClick={handleCurrentLocationSearch}
@@ -137,18 +191,40 @@ export const ExploreTrending: React.FC = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <DesktopNearbyStoresSection
-            loading={loading}
-            latitude={latitude}
-            longitude={longitude}
-            activeCategory={activeCategory}
-            selectedStoreTypes={selectedStoreTypes}
-          />
-          {(!latitude && !longitude && !loading) && (
-            <NoLocationExperience
-              onSmartSearch={() => {}} // Remove search functionality
-              onRequestLocation={handleRequestLocation}
-            />
+          {showZipResults ? (
+            <div className="space-y-4">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  EBT Stores in ZIP {activeZipCode}
+                </h2>
+                <p className="text-muted-foreground">
+                  {zipStores.length} store{zipStores.length !== 1 ? 's' : ''} found
+                </p>
+              </div>
+              {zipLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <StoreList stores={zipStores} />
+              )}
+            </div>
+          ) : (
+            <>
+              <DesktopNearbyStoresSection
+                loading={loading}
+                latitude={latitude}
+                longitude={longitude}
+                activeCategory={activeCategory}
+                selectedStoreTypes={selectedStoreTypes}
+              />
+              {(!latitude && !longitude && !loading) && (
+                <NoLocationExperience
+                  onSmartSearch={() => {}} // Remove search functionality
+                  onRequestLocation={handleRequestLocation}
+                />
+              )}
+            </>
           )}
         </div>
       </div>
