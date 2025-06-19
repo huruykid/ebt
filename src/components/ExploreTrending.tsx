@@ -75,8 +75,9 @@ export const ExploreTrending: React.FC = () => {
             </p>
           </div>
           
-          {/* ZIP Code Search - Mobile */}
-          <div className="mb-4">
+          {/* ZIP Code Search - Mobile - More prominent placement */}
+          <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border">
+            <h3 className="text-sm font-medium text-foreground mb-3">Search by ZIP Code</h3>
             <ZipCodeSearch
               onZipSearch={handleZipSearch}
               onClearSearch={handleClearSearch}
@@ -89,15 +90,36 @@ export const ExploreTrending: React.FC = () => {
           
           {/* Current Location Search Button - Mobile */}
           {!isSearchActive && latitude && longitude && (
-            <Button
-              onClick={handleCurrentLocationSearch}
-              variant="outline"
-              className="mt-3 w-full"
-              disabled={loading}
-            >
-              <Navigation className="h-4 w-4 mr-2" />
-              Search near your current location
-            </Button>
+            <div className="mb-4">
+              <Button
+                onClick={handleCurrentLocationSearch}
+                variant="outline"
+                className="w-full"
+                disabled={loading}
+              >
+                <Navigation className="h-4 w-4 mr-2" />
+                Search near your current location
+              </Button>
+            </div>
+          )}
+
+          {/* Show location prompt for users without location */}
+          {!isSearchActive && !latitude && !longitude && !loading && (
+            <div className="mb-4 text-center py-4 bg-white rounded-lg border">
+              <div className="text-4xl mb-2">📍</div>
+              <h3 className="text-sm font-medium text-foreground mb-2">Enable Location</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Get personalized results for stores near you
+              </p>
+              <Button
+                onClick={handleRequestLocation}
+                size="sm"
+                className="w-full"
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Enable Location Access
+              </Button>
+            </div>
           )}
         </div>
 
