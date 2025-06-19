@@ -40,8 +40,8 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
         </p>
       </div>
       
-      {/* ZIP Code Search - Mobile - More prominent placement */}
-      <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border">
+      {/* ZIP Code Search - Mobile - Always visible */}
+      <div className="mb-4 bg-white rounded-lg p-4 shadow-sm border">
         <h3 className="text-sm font-medium text-foreground mb-3">Search by ZIP Code</h3>
         <ZipCodeSearch
           onZipSearch={onZipSearch}
