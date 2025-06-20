@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { MobileHeader } from '@/components/MobileHeader';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -8,6 +8,9 @@ import { useNavigate } from 'react-router-dom';
 
 const StoreSearch = () => {
   const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState('trending');
+  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
+  
   const {
     latitude,
     longitude,
@@ -24,7 +27,11 @@ const StoreSearch = () => {
     handleZipSearch,
     handleClearSearch,
     isSearchActive
-  } = useZipCodeSearch();
+  } = useZipCodeSearch({
+    activeCategory,
+    selectedStoreTypes,
+    selectedNamePatterns: []
+  });
 
   const handleCurrentLocationSearch = () => {
     if (latitude && longitude) {

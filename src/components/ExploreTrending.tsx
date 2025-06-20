@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CategoryTabs } from './CategoryTabs';
 import { StoreList } from './StoreList';
@@ -33,7 +32,11 @@ export const ExploreTrending: React.FC = () => {
     handleZipSearch,
     handleClearSearch,
     isSearchActive
-  } = useZipCodeSearch();
+  } = useZipCodeSearch({
+    activeCategory,
+    selectedStoreTypes,
+    selectedNamePatterns: []
+  });
 
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('Location search:', lat, lng);
