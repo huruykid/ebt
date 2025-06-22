@@ -1,10 +1,11 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { SEOFooter } from '@/components/SEOFooter';
 import { FAQSection } from '@/components/FAQSection';
+import { SEOHead } from '@/components/SEOHead';
+import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 
 const cityData = {
   'fresno': {
@@ -42,9 +43,73 @@ const CityPage: React.FC = () => {
     );
   }
 
+  // Generate SEO data
+  const seoTitle = `Find EBT Stores in ${city.name}, ${city.state} | EBT Finder`;
+  const seoDescription = `Discover EBT and SNAP-accepting stores in ${city.name}, ${city.state}. Find grocery stores, restaurants, and markets near you. Search by ZIP code: ${city.zipCodes.slice(0, 5).join(', ')} and more.`;
+  const seoKeywords = `EBT stores ${city.name}, SNAP benefits ${city.state}, ${city.name} grocery stores EBT, food assistance ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}, RMP restaurants ${city.name}`;
+  const canonicalUrl = `https://ebtfinder.org/${citySlug}`;
+
+  // Enhanced structured data for city page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": seoTitle,
+    "description": seoDescription,
+    "url": canonicalUrl,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "EBT Finder",
+      "url": "https://ebtfinder.org"
+    },
+    "about": {
+      "@type": "Place",
+      "name": `${city.name}, ${city.state}`,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": city.name,
+        "addressRegion": city.state,
+        "addressCountry": "US"
+      }
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "name": `EBT Stores in ${city.name}`,
+      "description": `Directory of stores accepting EBT and SNAP benefits in ${city.name}, ${city.state}`,
+      "numberOfItems": city.zipCodes.length
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://ebtfinder.org"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": city.name,
+          "item": canonicalUrl
+        }
+      ]
+    }
+  };
+
   return (
     <ProtectedRoute requireAuth={false}>
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+        structuredData={structuredData}
+      />
+      
       <div className="min-h-screen bg-background">
+        {/* Breadcrumb Navigation */}
+        <BreadcrumbNavigation />
+
         {/* City Hero Section */}
         <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
           <div className="max-w-7xl mx-auto px-6 py-12">
