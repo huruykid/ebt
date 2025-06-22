@@ -34,15 +34,15 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
   return (
     <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
       <div className="text-center mb-4">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Find SNAP / EBT Stores</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Find EBT & SNAP-Accepting Stores Near You</h1>
         <p className="text-sm text-muted-foreground px-2">
-          Discover grocery stores, restaurants, and retailers that accept EBT/SNAP benefits near your location.
+          EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or hot food (RMP), and read community reviews before you go.
         </p>
       </div>
       
       {/* ZIP Code Search - Mobile - Always visible */}
       <div className="mb-4 bg-white rounded-lg p-4 shadow-sm border">
-        <h3 className="text-sm font-medium text-foreground mb-3">Search by ZIP Code</h3>
+        <h2 className="text-sm font-medium text-foreground mb-3">Enter your ZIP code or use your current location to find EBT-accepting businesses</h2>
         <ZipCodeSearch
           onZipSearch={onZipSearch}
           onClearSearch={onClearSearch}
