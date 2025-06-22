@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { SearchBar } from '@/components/store-search/SearchBar';
+import { SearchBar } from '@/components/SearchBar';
 import { SearchResults } from '@/components/store-search/SearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
