@@ -14,6 +14,7 @@ import StoreDetail from "./pages/StoreDetail";
 import Mission from "./pages/Mission";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
+import CityPage from "./pages/CityPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,11 @@ const AppContent = () => {
           <Route path="/mission" element={<Mission />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
+          {/* City Pages */}
+          <Route path="/fresno" element={<CityPage />} />
+          <Route path="/houston" element={<CityPage />} />
+          <Route path="/chicago-ebt" element={<CityPage />} />
+          <Route path="/:citySlug" element={<CityPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

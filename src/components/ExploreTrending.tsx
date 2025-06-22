@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CategoryTabs } from './CategoryTabs';
 import { StoreList } from './StoreList';
@@ -12,6 +11,7 @@ import NoLocationExperience from './NoLocationExperience';
 import { MobileHeader } from './MobileHeader';
 import { DesktopHeroSection } from './DesktopHeroSection';
 import { SEOFooter } from './SEOFooter';
+import { FAQSection } from './FAQSection';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -170,6 +170,9 @@ export const ExploreTrending: React.FC = () => {
             </>
           )}
         </div>
+        
+        {/* FAQ Section */}
+        <FAQSection />
         
         {/* SEO Footer */}
         <SEOFooter />
