@@ -50,16 +50,22 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     setRadius(newRadius);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleLocationSearch = (lat: number, lng: number) => {
+    setLocationSearch({ lat, lng });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Search Bar */}
       <SearchBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        activeCategory={activeCategory}
-        selectedStoreTypes={selectedStoreTypes}
-        selectedNamePatterns={selectedNamePatterns}
-        onCategoryChange={handleCategoryChange}
+        onSearch={handleSearch}
+        onLocationSearch={handleLocationSearch}
+        placeholder="Search for stores, ZIP codes, or cities..."
+        initialValue={searchQuery}
       />
 
       {/* Location Display */}
