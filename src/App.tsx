@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -68,10 +69,24 @@ const AppContent = () => {
           <Route path="/mission" element={<Mission />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
-          {/* City Pages */}
-          <Route path="/fresno" element={<CityPage />} />
-          <Route path="/houston" element={<CityPage />} />
+          {/* City Pages - Specific routes first, then catch-all */}
+          <Route path="/los-angeles" element={<CityPage />} />
           <Route path="/chicago-ebt" element={<CityPage />} />
+          <Route path="/houston" element={<CityPage />} />
+          <Route path="/phoenix" element={<CityPage />} />
+          <Route path="/philadelphia" element={<CityPage />} />
+          <Route path="/san-antonio" element={<CityPage />} />
+          <Route path="/san-diego" element={<CityPage />} />
+          <Route path="/dallas" element={<CityPage />} />
+          <Route path="/san-jose" element={<CityPage />} />
+          <Route path="/austin" element={<CityPage />} />
+          <Route path="/jacksonville" element={<CityPage />} />
+          <Route path="/fort-worth" element={<CityPage />} />
+          <Route path="/columbus" element={<CityPage />} />
+          <Route path="/charlotte" element={<CityPage />} />
+          <Route path="/san-francisco" element={<CityPage />} />
+          <Route path="/fresno" element={<CityPage />} />
+          {/* Catch-all for any other city slugs */}
           <Route path="/:citySlug" element={<CityPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
