@@ -78,6 +78,12 @@ export const buildLocationAwareQuery = (
         'Restaurant',
         'Fast Food'
       ];
+    } else if (activeCategory === 'farmersmarket') {
+      storeTypeFilters = [
+        'Farmers Market',
+        'Farm Market',
+        'Specialty Store'
+      ];
     }
     
     // Use the optimized nearby stores function
@@ -137,6 +143,10 @@ export const buildBaseQuery = (
     console.log('🍽️ Applying hot meals (RMP) filters');
     // Search for restaurants and places that might serve hot meals
     query = query.or(`Store_Type.ilike.%restaurant%,Store_Name.ilike.%restaurant%,Store_Name.ilike.%cafe%,Store_Name.ilike.%diner%`);
+  } else if (activeCategory === 'farmersmarket') {
+    console.log('🥕 Applying farmer\'s market filters');
+    // Search for farmers markets and farm stands
+    query = query.or(`Store_Type.ilike.%farmers%,Store_Type.ilike.%market%,Store_Name.ilike.%farmers market%,Store_Name.ilike.%farm market%,Store_Name.ilike.%farmstand%`);
   } else if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
     const filters = [
       ...buildStoreTypeFilters(selectedStoreTypes),

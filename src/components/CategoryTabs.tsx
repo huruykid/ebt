@@ -59,6 +59,15 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill'],
       excludePatterns: ['CVS', 'Walgreens', 'Dollar', 'Market'],
       showStateWarning: true
+    },
+    { 
+      id: 'farmersmarket', 
+      name: "Farmer's Market", 
+      icon: '🥕',
+      activeIcon: '🥕',
+      storeTypes: ['Farmers Market'],
+      namePatterns: ['Farmers Market', 'Farm Market', 'Farmer\'s Market', 'Farmstand'],
+      excludePatterns: []
     }
   ];
 
