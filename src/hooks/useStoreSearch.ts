@@ -17,7 +17,9 @@ export const useStoreSearch = () => {
   // Update search query when URL parameter changes
   useEffect(() => {
     const queryParam = searchParams.get('q') || '';
-    setSearchQuery(queryParam);
+    if (queryParam !== searchQuery) {
+      setSearchQuery(queryParam);
+    }
   }, [searchParams]);
 
   // Use custom hooks for location and category management
@@ -54,9 +56,14 @@ export const useStoreSearch = () => {
     }
   };
 
+  const wrappedSetSearchQuery = (query: string) => {
+    console.log('useStoreSearch: Setting search query to:', query);
+    setSearchQuery(query);
+  };
+
   return {
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: wrappedSetSearchQuery,
     activeCategory,
     selectedStoreTypes,
     selectedNamePatterns,
@@ -70,6 +77,6 @@ export const useStoreSearch = () => {
     isLoading,
     error,
     handleCategoryChange: wrappedHandleCategoryChange,
-    userZipCode, // Expose user zip code for debugging
+    userZipCode,
   };
 };

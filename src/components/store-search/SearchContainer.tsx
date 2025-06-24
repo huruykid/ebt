@@ -65,11 +65,23 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   };
 
   const handleSearch = (query: string) => {
+    console.log('SearchContainer: handleSearch called with:', query);
     setSearchQuery(query);
+    
+    // Check if the query looks like a zip code (5 digits)
+    const zipRegex = /^\d{5}$/;
+    if (zipRegex.test(query.trim())) {
+      console.log('SearchContainer: Detected zip code search:', query);
+      // For zip code searches, clear location search to force text-based search
+      setLocationSearch(null);
+    }
   };
 
   const handleLocationSearch = (lat: number, lng: number) => {
+    console.log('SearchContainer: handleLocationSearch called with:', lat, lng);
     setLocationSearch({ lat, lng });
+    // Clear the text search query when using location search
+    setSearchQuery('');
   };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
@@ -122,6 +134,15 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
             Results near you
           </span>
           {userZipCode && <span className="ml-1">({userZipCode})</span>}
+        </div>
+      )}
+
+      {/* Search Query Display */}
+      {searchQuery && !locationSearch && (
+        <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
+          <span>
+            Search results for: "{searchQuery}"
+          </span>
         </div>
       )}
 
