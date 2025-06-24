@@ -2,9 +2,16 @@
 import React from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { SearchResults } from '@/components/store-search/SearchResults';
+import { StoreFilters } from '@/components/StoreFilters';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin } from 'lucide-react';
+
+interface SearchFilters {
+  storeType: string;
+  incentiveProgram: string;
+  hasCoordinates: boolean;
+}
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -32,6 +39,13 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
 
+  // State for additional filters
+  const [filters, setFilters] = React.useState<SearchFilters>({
+    storeType: '',
+    incentiveProgram: '',
+    hasCoordinates: false
+  });
+
   // If initialCity is provided, set it in the search query
   React.useEffect(() => {
     if (initialCity && !searchQuery) {
@@ -58,6 +72,38 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     setLocationSearch({ lat, lng });
   };
 
+  const handleFiltersChange = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
+  };
+
+  // Apply additional filters to the stores
+  const filteredStores = React.useMemo(() => {
+    let filtered = [...stores];
+
+    // Filter by store type
+    if (filters.storeType) {
+      filtered = filtered.filter(store => 
+        store.Store_Type?.toLowerCase().includes(filters.storeType.toLowerCase())
+      );
+    }
+
+    // Filter by incentive program
+    if (filters.incentiveProgram) {
+      filtered = filtered.filter(store => 
+        store.Incentive_Program?.toLowerCase().includes(filters.incentiveProgram.toLowerCase())
+      );
+    }
+
+    // Filter by coordinates availability
+    if (filters.hasCoordinates) {
+      filtered = filtered.filter(store => 
+        store.Latitude && store.Longitude
+      );
+    }
+
+    return filtered;
+  }, [stores, filters]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Search Bar */}
@@ -79,9 +125,17 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
         </div>
       )}
 
+      {/* Store Filters */}
+      <div className="mt-6">
+        <StoreFilters 
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+        />
+      </div>
+
       {/* Search Results */}
       <SearchResults
-        stores={stores}
+        stores={filteredStores}
         isLoading={isLoading}
         error={error}
         locationSearch={locationSearch}
