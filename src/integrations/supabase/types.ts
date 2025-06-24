@@ -350,6 +350,27 @@ export type Database = {
           distance_miles: number
         }[]
       }
+      get_store_review_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          store_id: number
+          average_rating: number
+          review_count: number
+        }[]
+      }
+      get_user_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          total_points: number
+          total_contributions: number
+          verified_contributions: number
+          reviews_count: number
+          photos_count: number
+          hours_count: number
+          stores_contributed_to: number
+        }[]
+      }
       gtrgm_compress: {
         Args: { "": unknown }
         Returns: unknown
