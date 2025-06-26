@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PointsDisplay } from '@/components/gamification/PointsDisplay';
 import { useGameification } from '@/hooks/useGameification';
 import { toast } from 'sonner';
+import { escapeHtml } from '@/utils/security';
 
 export const UserMenu: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -22,6 +23,10 @@ export const UserMenu: React.FC = () => {
 
   if (!user) return null;
 
+  // Safely display user email with XSS protection
+  const safeEmail = user.email ? escapeHtml(user.email) : '';
+  const emailInitial = user.email ? user.email.charAt(0).toUpperCase() : '?';
+
   return (
     <div className="relative">
       <button
@@ -29,7 +34,7 @@ export const UserMenu: React.FC = () => {
         className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
       >
         <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-          {user.email?.charAt(0).toUpperCase()}
+          {emailInitial}
         </div>
         {userStats && (
           <div className="hidden sm:block">
@@ -41,7 +46,7 @@ export const UserMenu: React.FC = () => {
       {showMenu && (
         <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50">
           <div className="px-4 py-2 border-b text-sm text-gray-600">
-            {user.email}
+            <span dangerouslySetInnerHTML={{ __html: safeEmail }} />
           </div>
           {userStats && (
             <div className="px-4 py-3 border-b">

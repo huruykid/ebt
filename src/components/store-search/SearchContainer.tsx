@@ -6,6 +6,7 @@ import { StoreFilters } from '@/components/StoreFilters';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin } from 'lucide-react';
+import { sanitizeString, isValidZipCode } from '@/utils/security';
 
 interface SearchFilters {
   storeType: string;
@@ -49,7 +50,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   // If initialCity is provided, set it in the search query
   React.useEffect(() => {
     if (initialCity && !searchQuery) {
-      setSearchQuery(initialCity);
+      const sanitizedCity = sanitizeString(initialCity);
+      setSearchQuery(sanitizedCity);
     }
   }, [initialCity, searchQuery, setSearchQuery]);
 
@@ -66,12 +68,14 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
 
   const handleSearch = (query: string) => {
     console.log('SearchContainer: handleSearch called with:', query);
-    setSearchQuery(query);
+    
+    // Sanitize the input query
+    const sanitizedQuery = sanitizeString(query);
+    setSearchQuery(sanitizedQuery);
     
     // Check if the query looks like a zip code (5 digits)
-    const zipRegex = /^\d{5}$/;
-    if (zipRegex.test(query.trim())) {
-      console.log('SearchContainer: Detected zip code search:', query);
+    if (isValidZipCode(sanitizedQuery)) {
+      console.log('SearchContainer: Detected zip code search:', sanitizedQuery);
       // For zip code searches, clear location search to force text-based search
       setLocationSearch(null);
     }
@@ -79,13 +83,25 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
 
   const handleLocationSearch = (lat: number, lng: number) => {
     console.log('SearchContainer: handleLocationSearch called with:', lat, lng);
-    setLocationSearch({ lat, lng });
-    // Clear the text search query when using location search
-    setSearchQuery('');
+    
+    // Validate coordinates
+    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+      setLocationSearch({ lat, lng });
+      // Clear the text search query when using location search
+      setSearchQuery('');
+    } else {
+      console.error('Invalid coordinates provided:', lat, lng);
+    }
   };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
-    setFilters(newFilters);
+    // Sanitize filter inputs
+    const sanitizedFilters = {
+      storeType: sanitizeString(newFilters.storeType),
+      incentiveProgram: sanitizeString(newFilters.incentiveProgram),
+      hasCoordinates: newFilters.hasCoordinates
+    };
+    setFilters(sanitizedFilters);
   };
 
   // Apply additional filters to the stores

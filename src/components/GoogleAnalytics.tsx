@@ -16,34 +16,49 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId 
   const location = useLocation();
 
   useEffect(() => {
-    // Load Google Analytics script
+    // Validate and sanitize measurementId to prevent XSS
+    const sanitizedId = measurementId.replace(/[^A-Z0-9-]/gi, '');
+    if (!sanitizedId || !sanitizedId.match(/^G-[A-Z0-9]+$/)) {
+      console.error('Invalid Google Analytics measurement ID:', measurementId);
+      return;
+    }
+
+    // Load Google Analytics script safely
     const script1 = document.createElement('script');
     script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(sanitizedId)}`;
     document.head.appendChild(script1);
 
-    // Initialize gtag
+    // Initialize gtag safely using DOM manipulation instead of innerHTML
     const script2 = document.createElement('script');
-    script2.innerHTML = `
+    script2.textContent = `
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '${measurementId}');
+      gtag('config', '${sanitizedId}');
     `;
     document.head.appendChild(script2);
 
     return () => {
-      document.head.removeChild(script1);
-      document.head.removeChild(script2);
+      // Clean up scripts on unmount
+      if (document.head.contains(script1)) {
+        document.head.removeChild(script1);
+      }
+      if (document.head.contains(script2)) {
+        document.head.removeChild(script2);
+      }
     };
   }, [measurementId]);
 
   // Track page views when route changes
   useEffect(() => {
     if (typeof window.gtag !== 'undefined') {
-      window.gtag('config', measurementId, {
-        page_path: location.pathname + location.search,
-      });
+      const sanitizedId = measurementId.replace(/[^A-Z0-9-]/gi, '');
+      if (sanitizedId && sanitizedId.match(/^G-[A-Z0-9]+$/)) {
+        window.gtag('config', sanitizedId, {
+          page_path: location.pathname + location.search,
+        });
+      }
     }
   }, [location, measurementId]);
 
