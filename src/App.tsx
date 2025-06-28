@@ -16,6 +16,7 @@ import Mission from "./pages/Mission";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import CityPage from "./pages/CityPage";
+import EbtChipCard from "./pages/EbtChipCard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const AppContent = () => {
           <Route path="/mission" element={<Mission />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/ebt-chip-card" element={<EbtChipCard />} />
           {/* City Pages - Specific routes first, then catch-all */}
           <Route path="/los-angeles" element={<CityPage />} />
           <Route path="/chicago-ebt" element={<CityPage />} />
