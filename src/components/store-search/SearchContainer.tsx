@@ -1,18 +1,11 @@
 
 import React from 'react';
 import { SearchBar } from '@/components/SearchBar';
-import { SearchResults } from '@/components/store-search/SearchResults';
-import { StoreFilters } from '@/components/StoreFilters';
+import { CategorySearchResults } from '@/components/store-search/CategorySearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin } from 'lucide-react';
 import { sanitizeString, isValidZipCode } from '@/utils/security';
-
-interface SearchFilters {
-  storeType: string;
-  incentiveProgram: string;
-  hasCoordinates: boolean;
-}
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -39,13 +32,6 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   } = useStoreSearch();
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
-
-  // State for additional filters
-  const [filters, setFilters] = React.useState<SearchFilters>({
-    storeType: '',
-    incentiveProgram: '',
-    hasCoordinates: false
-  });
 
   // If initialCity is provided, set it in the search query
   React.useEffect(() => {
@@ -94,44 +80,6 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     }
   };
 
-  const handleFiltersChange = (newFilters: SearchFilters) => {
-    // Sanitize filter inputs
-    const sanitizedFilters = {
-      storeType: sanitizeString(newFilters.storeType),
-      incentiveProgram: sanitizeString(newFilters.incentiveProgram),
-      hasCoordinates: newFilters.hasCoordinates
-    };
-    setFilters(sanitizedFilters);
-  };
-
-  // Apply additional filters to the stores
-  const filteredStores = React.useMemo(() => {
-    let filtered = [...stores];
-
-    // Filter by store type
-    if (filters.storeType) {
-      filtered = filtered.filter(store => 
-        store.Store_Type?.toLowerCase().includes(filters.storeType.toLowerCase())
-      );
-    }
-
-    // Filter by incentive program
-    if (filters.incentiveProgram) {
-      filtered = filtered.filter(store => 
-        store.Incentive_Program?.toLowerCase().includes(filters.incentiveProgram.toLowerCase())
-      );
-    }
-
-    // Filter by coordinates availability
-    if (filters.hasCoordinates) {
-      filtered = filtered.filter(store => 
-        store.Latitude && store.Longitude
-      );
-    }
-
-    return filtered;
-  }, [stores, filters]);
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Search Bar */}
@@ -162,27 +110,22 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
         </div>
       )}
 
-      {/* Store Filters */}
+      {/* Category Search Results with Tabs */}
       <div className="mt-6">
-        <StoreFilters 
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
+        <CategorySearchResults
+          stores={stores}
+          isLoading={isLoading}
+          error={error}
+          locationSearch={locationSearch}
+          activeCategory={activeCategory}
+          selectedStoreTypes={selectedStoreTypes}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          radius={radius}
+          onRadiusChange={handleRadiusChange}
+          onCategoryChange={handleCategoryChange}
         />
       </div>
-
-      {/* Search Results */}
-      <SearchResults
-        stores={filteredStores}
-        isLoading={isLoading}
-        error={error}
-        locationSearch={locationSearch}
-        activeCategory={activeCategory}
-        selectedStoreTypes={selectedStoreTypes}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        radius={radius}
-        onRadiusChange={handleRadiusChange}
-      />
     </div>
   );
 };
