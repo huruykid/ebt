@@ -17,6 +17,7 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import CityPage from "./pages/CityPage";
 import EbtChipCard from "./pages/EbtChipCard";
+import CommentGenerator from "./pages/CommentGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
