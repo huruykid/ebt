@@ -71,6 +71,7 @@ const AppContent = () => {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/ebt-chip-card" element={<EbtChipCard />} />
+          <Route path="/comment-generator" element={<CommentGenerator />} />
           {/* City Pages - Specific routes first, then catch-all */}
           <Route path="/los-angeles" element={<CityPage />} />
           <Route path="/chicago-ebt" element={<CityPage />} />

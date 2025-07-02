@@ -229,6 +229,33 @@ export type Database = {
           },
         ]
       }
+      store_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          store_id: string
+          updated_at: string
+          user_name: string
+        }
+        Insert: {
+          comment_text: string
+          created_at: string
+          id?: string
+          store_id: string
+          updated_at?: string
+          user_name: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
