@@ -42,6 +42,36 @@ export type Database = {
         }
         Relationships: []
       }
+      comment_seed_runs: {
+        Row: {
+          comments_inserted: number | null
+          created_at: string
+          error_message: string | null
+          id: string
+          preset_used: string | null
+          stores_processed: number | null
+          success: boolean
+        }
+        Insert: {
+          comments_inserted?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          preset_used?: string | null
+          stores_processed?: number | null
+          success?: boolean
+        }
+        Update: {
+          comments_inserted?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          preset_used?: string | null
+          stores_processed?: number | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string | null
