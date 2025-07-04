@@ -13,6 +13,7 @@ import { DesktopHeroSection } from './DesktopHeroSection';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
 import { SeedCommentsButton } from './SeedCommentsButton';
+import { SeedReviewsButton } from './SeedReviewsButton';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -87,7 +88,10 @@ export const ExploreTrending: React.FC = () => {
         <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
 
         <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
-          <SeedCommentsButton />
+          <div className="flex gap-2 mb-4">
+            <SeedCommentsButton />
+            <SeedReviewsButton />
+          </div>
           {showZipResults ? (
             <div className="w-full">
               {zipLoading ? (
