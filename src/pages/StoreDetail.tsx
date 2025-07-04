@@ -13,6 +13,7 @@ import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
+import { StoreComments } from '@/components/StoreComments';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -115,8 +116,9 @@ export default function StoreDetailPage() {
               {/* Content Grid - Mobile-first responsive layout */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Reviews Section - First on mobile, second column on desktop */}
-                <div className="xl:col-span-2 order-1">
+                <div className="xl:col-span-2 order-1 space-y-6">
                   <ReviewSection store={store} />
+                  <StoreComments storeId={store.id} storeName={store.Store_Name} />
                 </div>
 
                 {/* Store Info and Hours - Second on mobile, third column on desktop */}
