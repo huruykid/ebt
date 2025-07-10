@@ -49,10 +49,12 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           totalResults: data.length,
           category: activeCategory,
           radius: radius,
+          searchQuery: searchQuery,
           sampleResults: data.slice(0, 3).map(r => ({ 
             name: (r as any).store_name, 
             type: (r as any).store_type,
-            distance: (r as any).distance_miles ? (r as any).distance_miles.toFixed(1) + ' miles' : 'unknown'
+            distance: (r as any).distance_miles ? (r as any).distance_miles.toFixed(1) + ' miles' : 'unknown',
+            similarity: (r as any).similarity_score ? (r as any).similarity_score.toFixed(2) : 'n/a'
           }))
         });
 

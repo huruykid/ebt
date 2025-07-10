@@ -50,7 +50,48 @@ export const buildLocationAwareQuery = (
   radius: number = 10,
   excludePatterns: string[] = []
 ) => {
-  // If we have location, use the optimized nearby stores function first
+  // If we have both location AND a search query, use smart_store_search for best results
+  if (locationSearch && searchQuery.trim()) {
+    console.log('🎯 Using smart search combining name and location for:', searchQuery);
+    
+    return supabase.rpc('smart_store_search', {
+      search_text: searchQuery.trim(),
+      search_city: '',
+      search_state: '',
+      search_zip: '',
+      similarity_threshold: 0.2, // Lower threshold for more matches
+      result_limit: 200
+    }).then(async (result) => {
+      if (result.data) {
+        // Calculate distances and filter by radius for the smart search results
+        const resultsWithDistance = result.data
+          .map(store => ({
+            ...store,
+            distance_miles: calculateDistanceInline(
+              locationSearch.lat,
+              locationSearch.lng,
+              store.latitude,
+              store.longitude
+            )
+          }))
+          .filter(store => store.distance_miles <= radius)
+          .sort((a, b) => {
+            // Primary sort: similarity score (higher is better)
+            const scoreDiff = b.similarity_score - a.similarity_score;
+            if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
+            
+            // Secondary sort: distance (closer is better)
+            return a.distance_miles - b.distance_miles;
+          });
+        
+        console.log(`🎯 Smart search found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
+        return { data: resultsWithDistance, error: result.error };
+      }
+      return result;
+    });
+  }
+  
+  // If we have location but no search query, use the proximity-based function
   if (locationSearch) {
     console.log('🎯 Using location-aware search with radius:', radius);
     
@@ -98,6 +139,18 @@ export const buildLocationAwareQuery = (
   
   // Fallback to original query for non-location searches
   return buildBaseQuery(searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, excludePatterns);
+};
+
+// Helper function to calculate distance inline
+const calculateDistanceInline = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 };
 
 /**
