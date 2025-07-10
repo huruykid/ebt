@@ -103,7 +103,7 @@ export async function seedCommentsAutonomously(options: {
   skipExisting?: boolean;
 } = {}) {
   const {
-    state = 'California',
+    state = 'CA',
     storeTypes = [],
     batchSize = 100,
     commentsPerStore = 3,
@@ -230,7 +230,7 @@ export async function seedCommentsAutonomously(options: {
 export const seedingPresets = {
   // California major chains
   californiaMajorChains: {
-    state: 'California',
+    state: 'CA',
     storeTypes: ['Supermarket', 'Supercenter', 'Grocery Store'],
     commentsPerStore: 3,
     skipExisting: true
@@ -238,7 +238,7 @@ export const seedingPresets = {
   
   // All California stores
   californiaAll: {
-    state: 'California',
+    state: 'CA',
     storeTypes: [],
     commentsPerStore: 2,
     skipExisting: true
@@ -246,7 +246,7 @@ export const seedingPresets = {
   
   // Quick test run
   testRun: {
-    state: 'California',
+    state: 'CA',
     storeTypes: ['Supermarket'],
     batchSize: 10,
     commentsPerStore: 2,
