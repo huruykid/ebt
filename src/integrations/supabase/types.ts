@@ -363,15 +363,6 @@ export type Database = {
         }
         Relationships: []
       }
-      store_type_stats: {
-        Row: {
-          incentive_stores: number | null
-          State: string | null
-          store_count: number | null
-          Store_Type: string | null
-        }
-        Relationships: []
-      }
       user_stats: {
         Row: {
           hours_count: number | null
@@ -411,38 +402,6 @@ export type Database = {
           longitude: number
           distance_miles: number
         }[]
-      }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
       }
       smart_store_search: {
         Args: {
