@@ -11,6 +11,7 @@ export const SeedCommentsButton: React.FC = () => {
   const handleSeedComments = async () => {
     setIsLoading(true);
     try {
+      console.log('Starting comment seeding...');
       const { data, error } = await supabase.functions.invoke('seed-comments');
       
       if (error) {
