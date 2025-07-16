@@ -1,11 +1,13 @@
 
 import React from 'react';
-import { SearchBar } from '@/components/SearchBar';
 import { CategorySearchResults } from '@/components/store-search/CategorySearchResults';
 import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import { MapPin } from 'lucide-react';
+import { MapPin, Search, Navigation } from 'lucide-react';
 import { sanitizeString, isValidZipCode } from '@/utils/security';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -80,22 +82,138 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     }
   };
 
+  const [storeNameInput, setStoreNameInput] = React.useState(searchQuery);
+  const [locationInput, setLocationInput] = React.useState('');
+
+  const handleStoreNameSearch = () => {
+    const sanitizedQuery = sanitizeString(storeNameInput);
+    setSearchQuery(sanitizedQuery);
+  };
+
+  const handleLocationInputSearch = () => {
+    const sanitizedLocation = sanitizeString(locationInput);
+    
+    // Check if it's a ZIP code
+    if (isValidZipCode(sanitizedLocation)) {
+      console.log('SearchContainer: Using ZIP code search:', sanitizedLocation);
+      // For ZIP code, we'll combine it with store name if both exist
+      if (storeNameInput.trim()) {
+        const combinedQuery = `${sanitizeString(storeNameInput)} ${sanitizedLocation}`;
+        setSearchQuery(combinedQuery);
+      } else {
+        setSearchQuery(sanitizedLocation);
+      }
+      setLocationSearch(null); // Clear location to use text-based search
+    } else {
+      // For cities, combine with store name if both exist
+      if (storeNameInput.trim()) {
+        const combinedQuery = `${sanitizeString(storeNameInput)} ${sanitizedLocation}`;
+        setSearchQuery(combinedQuery);
+      } else {
+        setSearchQuery(sanitizedLocation);
+      }
+      setLocationSearch(null);
+    }
+  };
+
+  const handleBothFieldsSearch = () => {
+    const sanitizedStoreName = sanitizeString(storeNameInput);
+    const sanitizedLocation = sanitizeString(locationInput);
+    
+    if (sanitizedStoreName && sanitizedLocation) {
+      // Combine both fields
+      const combinedQuery = `${sanitizedStoreName} ${sanitizedLocation}`;
+      setSearchQuery(combinedQuery);
+      setLocationSearch(null);
+    } else if (sanitizedStoreName) {
+      handleStoreNameSearch();
+    } else if (sanitizedLocation) {
+      handleLocationInputSearch();
+    }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (latitude && longitude) {
+      setLocationSearch({ lat: latitude, lng: longitude });
+      setLocationInput(''); // Clear location input when using current location
+      
+      // If we have a store name, keep it for smart search (name + location)
+      if (storeNameInput.trim()) {
+        const sanitizedStoreName = sanitizeString(storeNameInput);
+        setSearchQuery(sanitizedStoreName);
+      } else {
+        // Clear search query to use pure location search
+        setSearchQuery('');
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Search Bar */}
-      <SearchBar
-        onSearch={handleSearch}
-        onLocationSearch={handleLocationSearch}
-        placeholder="Search for stores, ZIP codes, or cities..."
-        initialValue={searchQuery}
-      />
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h1>
+        <p className="text-muted-foreground">
+          Search by store name and location to find stores that accept EBT/SNAP benefits
+        </p>
+      </div>
+
+      {/* Two-Field Search */}
+      <Card className="p-6 mb-6">
+        <div className="space-y-4">
+          {/* Store Name Field */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Store Name (Optional)</label>
+            <Input
+              type="text"
+              placeholder="e.g., Walmart, McDonald's, Target..."
+              value={storeNameInput}
+              onChange={(e) => setStoreNameInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
+              className="w-full"
+            />
+          </div>
+
+          {/* Location Field */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Location</label>
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                placeholder="ZIP code or city name..."
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
+                className="flex-1"
+              />
+              {latitude && longitude && (
+                <Button onClick={handleUseCurrentLocation} variant="outline" disabled={geoLoading}>
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Use My Location
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Search Button */}
+          <Button 
+            onClick={handleBothFieldsSearch} 
+            disabled={!storeNameInput.trim() && !locationInput.trim() && !locationSearch}
+            className="w-full"
+            size="lg"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Search Stores
+          </Button>
+        </div>
+      </Card>
 
       {/* Location Display */}
       {locationSearch && (
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
           <MapPin className="h-4 w-4" />
           <span>
-            Results near you
+            Results near your current location
           </span>
           {userZipCode && <span className="ml-1">({userZipCode})</span>}
         </div>
