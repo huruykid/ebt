@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { SEOFooter } from '@/components/SEOFooter';
@@ -109,7 +109,11 @@ const cityData = {
 
 const CityPage: React.FC = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
-  const city = citySlug ? cityData[citySlug as keyof typeof cityData] : null;
+  const location = useLocation();
+  
+  // Extract city slug from pathname if not in params (for hardcoded routes)
+  const actualCitySlug = citySlug || location.pathname.slice(1);
+  const city = actualCitySlug ? cityData[actualCitySlug as keyof typeof cityData] : null;
 
   if (!city) {
     return (
@@ -126,7 +130,7 @@ const CityPage: React.FC = () => {
   const seoTitle = `Find EBT Stores in ${city.name}, ${city.state} | EBT Finder`;
   const seoDescription = `Discover EBT and SNAP-accepting stores in ${city.name}, ${city.state}. Find grocery stores, restaurants, and markets near you. Search by ZIP code: ${city.zipCodes.slice(0, 5).join(', ')} and more.`;
   const seoKeywords = `EBT stores ${city.name}, SNAP benefits ${city.state}, ${city.name} grocery stores EBT, food assistance ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}, RMP restaurants ${city.name}`;
-  const canonicalUrl = `https://ebtfinder.org/${citySlug}`;
+  const canonicalUrl = `https://ebtfinder.org/${actualCitySlug}`;
 
   // Enhanced structured data for city page
   const structuredData = {
