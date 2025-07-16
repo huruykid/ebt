@@ -156,6 +156,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
         <p className="text-muted-foreground">
           Search by store name and location to find stores that accept EBT/SNAP benefits
         </p>
+        {/* Force React to re-render */}
+        <div className="hidden" data-version="v2.0"></div>
       </div>
 
       {/* NEW: Two-Field Search Form */}
