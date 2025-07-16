@@ -17,7 +17,7 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import CityPage from "./pages/CityPage";
 import EbtChipCard from "./pages/EbtChipCard";
-import CommentGenerator from "./pages/CommentGenerator";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,7 +72,7 @@ const AppContent = () => {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/ebt-chip-card" element={<EbtChipCard />} />
-          <Route path="/comment-generator" element={<CommentGenerator />} />
+          
           {/* City Pages - Specific routes first, then catch-all */}
           <Route path="/los-angeles" element={<CityPage />} />
           <Route path="/chicago-ebt" element={<CityPage />} />

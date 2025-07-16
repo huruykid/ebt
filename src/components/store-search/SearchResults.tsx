@@ -59,16 +59,23 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     return (
       <div className="text-center py-8">
         <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
-          <div className="text-6xl mb-4">📍</div>
-          <p className="text-muted-foreground text-lg">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-xl font-semibold mb-2">No stores found</h3>
+          <p className="text-muted-foreground text-lg mb-4">
             {locationSearch 
-              ? `No stores found within ${radius} miles of your location.`
-              : "No stores found. Try searching by location or adjusting your filters."
+              ? `No EBT-accepting stores found within ${radius} miles of your location.`
+              : "No EBT-accepting stores found matching your search."
             }
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Try expanding your search radius or different search terms
-          </p>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>Try:</p>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Expanding your search radius{locationSearch ? '' : ' or adding your location'}</li>
+              <li>Searching for specific store names (e.g., "Walmart", "Safeway")</li>
+              <li>Using city names or ZIP codes (e.g., "Fresno" or "93722")</li>
+              <li>Checking different store categories</li>
+            </ul>
+          </div>
         </div>
       </div>
     );
