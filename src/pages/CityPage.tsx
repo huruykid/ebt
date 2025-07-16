@@ -111,9 +111,9 @@ const CityPage: React.FC = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
   const location = useLocation();
   
-  // Extract city slug from pathname if not in params (for hardcoded routes)
+  // Extract city slug from pathname (removes leading slash)
   const actualCitySlug = citySlug || location.pathname.slice(1);
-  const city = actualCitySlug ? cityData[actualCitySlug as keyof typeof cityData] : null;
+  const city = actualCitySlug && cityData[actualCitySlug as keyof typeof cityData] ? cityData[actualCitySlug as keyof typeof cityData] : null;
 
   if (!city) {
     return (
