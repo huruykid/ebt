@@ -150,7 +150,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
+      {/* UPDATED: Two-Field Search Interface */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h1>
         <p className="text-muted-foreground">
@@ -158,36 +158,36 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
         </p>
       </div>
 
-      {/* Two-Field Search */}
-      <Card className="p-6 mb-6">
+      {/* NEW: Two-Field Search Form */}
+      <Card className="p-6 mb-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20">
         <div className="space-y-4">
           {/* Store Name Field */}
           <div>
-            <label className="block text-sm font-medium mb-2">Store Name (Optional)</label>
+            <label className="block text-sm font-semibold mb-2 text-foreground">Store Name (Optional)</label>
             <Input
               type="text"
               placeholder="e.g., Walmart, McDonald's, Target..."
               value={storeNameInput}
               onChange={(e) => setStoreNameInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
-              className="w-full"
+              className="w-full h-12 text-base"
             />
           </div>
 
           {/* Location Field */}
           <div>
-            <label className="block text-sm font-medium mb-2">Location</label>
-            <div className="flex gap-2">
+            <label className="block text-sm font-semibold mb-2 text-foreground">Location</label>
+            <div className="flex gap-3">
               <Input
                 type="text"
                 placeholder="ZIP code or city name..."
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
-                className="flex-1"
+                className="flex-1 h-12 text-base"
               />
               {latitude && longitude && (
-                <Button onClick={handleUseCurrentLocation} variant="outline" disabled={geoLoading}>
+                <Button onClick={handleUseCurrentLocation} variant="outline" disabled={geoLoading} className="h-12 px-4">
                   <Navigation className="h-4 w-4 mr-2" />
                   Use My Location
                 </Button>
@@ -199,10 +199,10 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
           <Button 
             onClick={handleBothFieldsSearch} 
             disabled={!storeNameInput.trim() && !locationInput.trim() && !locationSearch}
-            className="w-full"
+            className="w-full h-12 text-base font-semibold"
             size="lg"
           >
-            <Search className="h-4 w-4 mr-2" />
+            <Search className="h-5 w-5 mr-2" />
             Search Stores
           </Button>
         </div>
