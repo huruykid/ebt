@@ -50,44 +50,79 @@ export const buildLocationAwareQuery = (
   radius: number = 10,
   excludePatterns: string[] = []
 ) => {
-  // If we have both location AND a search query, use smart_store_search for best results
-  if (locationSearch && searchQuery.trim()) {
-    console.log('🎯 Using smart search combining name and location for:', searchQuery);
+  // If we have a search query, try to parse it for business name + city combinations
+  if (searchQuery.trim()) {
+    const query = searchQuery.trim();
     
+    // Check if the search contains common city name patterns
+    const cityWords = ['fresno', 'sacramento', 'los angeles', 'san francisco', 'san diego', 'oakland', 'bakersfield', 'stockton', 'modesto', 'riverside'];
+    const foundCity = cityWords.find(city => query.toLowerCase().includes(city.toLowerCase()));
+    
+    if (foundCity) {
+      // Extract business name and city
+      const businessName = query.toLowerCase().replace(foundCity.toLowerCase(), '').trim();
+      console.log(`🎯 Parsed search: business="${businessName}", city="${foundCity}"`);
+      
+      return supabase.rpc('smart_store_search', {
+        search_text: businessName || query,
+        search_city: foundCity,
+        search_state: '',
+        search_zip: '',
+        similarity_threshold: 0.2,
+        result_limit: 200
+      });
+    }
+    
+    // If we have both location AND a search query, use smart_store_search for best results
+    if (locationSearch) {
+      console.log('🎯 Using smart search combining name and location for:', searchQuery);
+      
+      return supabase.rpc('smart_store_search', {
+        search_text: query,
+        search_city: '',
+        search_state: '',
+        search_zip: '',
+        similarity_threshold: 0.2, // Lower threshold for more matches
+        result_limit: 200
+      }).then(async (result) => {
+        if (result.data) {
+          // Calculate distances and filter by radius for the smart search results
+          const resultsWithDistance = result.data
+            .map(store => ({
+              ...store,
+              distance_miles: calculateDistanceInline(
+                locationSearch.lat,
+                locationSearch.lng,
+                store.latitude,
+                store.longitude
+              )
+            }))
+            .filter(store => store.distance_miles <= radius)
+            .sort((a, b) => {
+              // Primary sort: similarity score (higher is better)
+              const scoreDiff = b.similarity_score - a.similarity_score;
+              if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
+              
+              // Secondary sort: distance (closer is better)
+              return a.distance_miles - b.distance_miles;
+            });
+          
+          console.log(`🎯 Smart search found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
+          return { data: resultsWithDistance, error: result.error };
+        }
+        return result;
+      });
+    }
+    
+    // For search queries without location, still use smart_store_search
+    console.log('🎯 Using smart search for general query:', searchQuery);
     return supabase.rpc('smart_store_search', {
-      search_text: searchQuery.trim(),
+      search_text: query,
       search_city: '',
       search_state: '',
       search_zip: '',
-      similarity_threshold: 0.2, // Lower threshold for more matches
+      similarity_threshold: 0.2,
       result_limit: 200
-    }).then(async (result) => {
-      if (result.data) {
-        // Calculate distances and filter by radius for the smart search results
-        const resultsWithDistance = result.data
-          .map(store => ({
-            ...store,
-            distance_miles: calculateDistanceInline(
-              locationSearch.lat,
-              locationSearch.lng,
-              store.latitude,
-              store.longitude
-            )
-          }))
-          .filter(store => store.distance_miles <= radius)
-          .sort((a, b) => {
-            // Primary sort: similarity score (higher is better)
-            const scoreDiff = b.similarity_score - a.similarity_score;
-            if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
-            
-            // Secondary sort: distance (closer is better)
-            return a.distance_miles - b.distance_miles;
-          });
-        
-        console.log(`🎯 Smart search found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
-        return { data: resultsWithDistance, error: result.error };
-      }
-      return result;
     });
   }
   
