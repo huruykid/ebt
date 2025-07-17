@@ -48,10 +48,12 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
         .from('snap_stores')
         .select('State')
         .not('State', 'is', null)
-        .order('State');
+        .not('State', 'eq', '')
+        .order('State')
+        .limit(1000); // Ensure we get all states
       
       if (data) {
-        const uniqueStates = [...new Set(data.map(row => row.State))].filter(Boolean);
+        const uniqueStates = [...new Set(data.map(row => row.State))].filter(Boolean).sort();
         setStates(uniqueStates);
       }
     };
