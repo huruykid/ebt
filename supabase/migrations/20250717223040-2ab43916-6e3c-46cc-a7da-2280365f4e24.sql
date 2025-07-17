@@ -41,6 +41,8 @@ BEGIN
       -- Word boundary matches
       CASE WHEN s."Store_Name" ILIKE search_text || '%' THEN 0.7::REAL ELSE 0::REAL END,
       CASE WHEN s."Store_Type" ILIKE search_text || '%' THEN 0.6::REAL ELSE 0::REAL END,
+      -- Partial word matches (more flexible)
+      CASE WHEN s."Store_Name" ILIKE '%' || split_part(search_text, ' ', 1) || '%' THEN 0.5::REAL ELSE 0::REAL END,
       -- Incentive program bonus
       CASE WHEN s."Incentive_Program" IS NOT NULL THEN 0.1::REAL ELSE 0::REAL END
     ) as similarity_score
