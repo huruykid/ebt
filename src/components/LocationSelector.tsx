@@ -44,16 +44,24 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
   // Load all states on component mount
   useEffect(() => {
     const loadStates = async () => {
-      const { data } = await supabase
+      console.log('🏛️ Loading states from database...');
+      
+      // Use a simple direct query with high limit to get all data
+      const { data, error } = await supabase
         .from('snap_stores')
         .select('State')
         .not('State', 'is', null)
         .not('State', 'eq', '')
-        .order('State')
-        .limit(1000); // Ensure we get all states
+        .limit(100000); // High limit to ensure we get all rows
+      
+      if (error) {
+        console.error('❌ Error loading states:', error);
+        return;
+      }
       
       if (data) {
         const uniqueStates = [...new Set(data.map(row => row.State))].filter(Boolean).sort();
+        console.log('🏛️ States loaded:', uniqueStates.length, uniqueStates);
         setStates(uniqueStates);
       }
     };
