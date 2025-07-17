@@ -31,7 +31,10 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         selectedStoreTypes,
         selectedNamePatterns,
         locationSearch,
-        radius
+        radius,
+        [], // excludePatterns - not used currently
+        params.selectedCity,
+        params.selectedState
       );
 
       const { data, error } = await query;

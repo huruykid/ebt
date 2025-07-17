@@ -20,4 +20,6 @@ export interface SearchParams {
   locationSearch: LocationSearch | null;
   userZipCode: string | null;
   radius: number;
+  selectedCity?: string;
+  selectedState?: string;
 }

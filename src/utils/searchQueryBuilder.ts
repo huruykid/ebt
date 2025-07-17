@@ -48,9 +48,25 @@ export const buildLocationAwareQuery = (
   selectedNamePatterns: string[],
   locationSearch: { lat: number; lng: number } | null,
   radius: number = 10,
-  excludePatterns: string[] = []
+  excludePatterns: string[] = [],
+  selectedCity?: string,
+  selectedState?: string
 ) => {
-  // If we have a search query, try to parse it for business name + city combinations
+  // First priority: Use selectedCity and selectedState from LocationSelector
+  if (selectedCity && selectedState) {
+    console.log(`🎯 Using LocationSelector: business="${searchQuery}", city="${selectedCity}", state="${selectedState}"`);
+    
+    return supabase.rpc('smart_store_search', {
+      search_text: searchQuery.trim() || '',
+      search_city: selectedCity,
+      search_state: selectedState,
+      search_zip: '',
+      similarity_threshold: 0.2,
+      result_limit: 200
+    });
+  }
+  
+  // Second priority: If we have a search query, try to parse it for business name + city combinations
   if (searchQuery.trim()) {
     const query = searchQuery.trim();
     

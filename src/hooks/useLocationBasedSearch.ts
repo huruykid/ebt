@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { sortStores } from '@/utils/storeSorting';
@@ -7,12 +6,14 @@ import { useCategoryManagement } from '@/hooks/useCategoryManagement';
 import { useStoreSearchQuery } from '@/hooks/useStoreSearchQuery';
 import type { SortOption } from '@/components/SortDropdown';
 
-export const useStoreSearch = () => {
+export const useLocationBasedSearch = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState('');
 
   // Update search query when URL parameter changes
   useEffect(() => {
@@ -33,7 +34,7 @@ export const useStoreSearch = () => {
     handleCategoryChange
   } = useCategoryManagement();
 
-  // Use the search query hook
+  // Use the search query hook with city/state parameters
   const { data: stores, isLoading, error } = useStoreSearchQuery({
     searchQuery,
     activeCategory,
@@ -42,8 +43,8 @@ export const useStoreSearch = () => {
     locationSearch,
     userZipCode,
     radius,
-    selectedCity: '', // Will be updated by SearchContainer
-    selectedState: '' // Will be updated by SearchContainer
+    selectedCity,
+    selectedState
   });
 
   // Sort the stores based on the selected option
@@ -59,8 +60,18 @@ export const useStoreSearch = () => {
   };
 
   const wrappedSetSearchQuery = (query: string) => {
-    console.log('useStoreSearch: Setting search query to:', query);
+    console.log('useLocationBasedSearch: Setting search query to:', query);
     setSearchQuery(query);
+  };
+
+  const handleLocationSelect = (city: string, state: string) => {
+    setSelectedCity(city);
+    setSelectedState(state);
+  };
+
+  const clearLocationSelection = () => {
+    setSelectedCity('');
+    setSelectedState('');
   };
 
   return {
@@ -80,5 +91,9 @@ export const useStoreSearch = () => {
     error,
     handleCategoryChange: wrappedHandleCategoryChange,
     userZipCode,
+    selectedCity,
+    selectedState,
+    handleLocationSelect,
+    clearLocationSelection,
   };
 };
