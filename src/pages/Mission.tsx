@@ -5,8 +5,9 @@ import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight } from "lucide-
 
 export default function Mission() {
   const handleJoinCommunity = () => {
-    // TODO: Implement community join functionality
-    console.log("Join community clicked");
+    const subject = encodeURIComponent("Join Monthly Newsletter");
+    const body = encodeURIComponent("Hi team,\n\nI would like to join the monthly newsletter. Please add me to your email list.\n\nThank you!");
+    window.location.href = `mailto:support@ebtfinder.org?subject=${subject}&body=${body}`;
   };
 
   return (
