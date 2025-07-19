@@ -89,6 +89,31 @@ export default function Mission() {
             </CardContent>
           </Card>
 
+          {/* About the Founder Section */}
+          <Card className="mb-12">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">About the Founder</h2>
+              <div className="max-w-3xl mx-auto text-center">
+                <p className="text-foreground leading-relaxed mb-4 text-lg">
+                  Hi, I'm Huruy, a UX designer with a passion for creating equitable and inclusive digital experiences. 
+                  I built EBT Finder to make it easier for people to access essential services, because I believe good 
+                  design should serve everyone — not just those with privilege or access.
+                </p>
+                <p className="text-muted-foreground">
+                  You can connect with me on{" "}
+                  <a 
+                    href="https://www.linkedin.com/in/huruydesigns/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-primary/80 underline transition-colors duration-200"
+                  >
+                    LinkedIn
+                  </a>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
               <Users className="h-8 w-8 text-primary" />
