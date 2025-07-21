@@ -1,6 +1,7 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SEOHead } from "@/components/SEOHead";
 import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight } from "lucide-react";
 export default function Mission() {
   const handleJoinCommunity = () => {
@@ -8,7 +9,30 @@ export default function Mission() {
     const body = encodeURIComponent("Hi team,\n\nI would like to join the monthly newsletter. Please add me to your email list.\n\nThank you!");
     window.location.href = `mailto:support@ebtfinder.org?subject=${subject}&body=${body}`;
   };
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Huruy Kidanemariam",
+    "jobTitle": "UX Designer & Founder",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "EBT Finder"
+    },
+    "url": "https://ebtfinder.org/mission",
+    "sameAs": [
+      "https://www.linkedin.com/in/huruydesigns/"
+    ],
+    "description": "UX designer and founder of EBT Finder, passionate about creating equitable digital experiences for SNAP/EBT users"
+  };
+
   return <ProtectedRoute requireAuth={false}>
+      <SEOHead 
+        title="Meet Huruy Kidanemariam - Founder of EBT Finder | Our Mission"
+        description="Learn about Huruy Kidanemariam, UX designer and founder of EBT Finder. Discover our mission to make SNAP/EBT food access more equitable through inclusive design."
+        keywords="Huruy Kidanemariam, UX designer, EBT Finder founder, equitable design, SNAP benefits, food access, inclusive digital experiences"
+        canonicalUrl="https://ebtfinder.org/mission"
+        structuredData={structuredData}
+      />
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto p-6">
           <div className="text-center mb-8">
