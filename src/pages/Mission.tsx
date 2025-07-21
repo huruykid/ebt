@@ -2,16 +2,13 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight } from "lucide-react";
-
 export default function Mission() {
   const handleJoinCommunity = () => {
     const subject = encodeURIComponent("Join Monthly Newsletter");
     const body = encodeURIComponent("Hi team,\n\nI would like to join the monthly newsletter. Please add me to your email list.\n\nThank you!");
     window.location.href = `mailto:support@ebtfinder.org?subject=${subject}&body=${body}`;
   };
-
-  return (
-    <ProtectedRoute requireAuth={false}>
+  return <ProtectedRoute requireAuth={false}>
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto p-6">
           <div className="text-center mb-8">
@@ -92,21 +89,12 @@ export default function Mission() {
           {/* About the Founder Section */}
           <Card className="mb-12">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">About the Founder</h2>
+              <h2 className="text-2xl font-semibold text-foreground mb-6 text-center">Note from the Founder</h2>
               <div className="max-w-3xl mx-auto text-center">
-                <p className="text-foreground leading-relaxed mb-4 text-lg">
-                  Hi, I'm Huruy, a UX designer with a passion for creating equitable and inclusive digital experiences. 
-                  I built EBT Finder to make it easier for people to access essential services, because I believe good 
-                  design should serve everyone — not just those with privilege or access.
-                </p>
+                <p className="text-foreground leading-relaxed mb-4 text-lg">Hi, I'm Huruy Kidanemariam, a UX designer with a passion for creating equitable and inclusive digital experiences. I built EBT Finder to make it easier for people to access essential services, because I believe good design should serve everyone - not just those with privilege or access.</p>
                 <p className="text-muted-foreground">
                   You can connect with me on{" "}
-                  <a 
-                    href="https://www.linkedin.com/in/huruydesigns/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 underline transition-colors duration-200"
-                  >
+                  <a href="https://www.linkedin.com/in/huruydesigns/" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline transition-colors duration-200">
                     LinkedIn
                   </a>
                 </p>
@@ -122,17 +110,12 @@ export default function Mission() {
             <p className="text-muted-foreground mb-6 text-lg">
               Together, we can make food access more equitable for everyone.
             </p>
-            <Button 
-              onClick={handleJoinCommunity}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
+            <Button onClick={handleJoinCommunity} size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
               Join Now
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
         </div>
       </div>
-    </ProtectedRoute>
-  );
+    </ProtectedRoute>;
 }
