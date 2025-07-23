@@ -8,7 +8,7 @@ import { sanitizeString, isValidZipCode } from '@/utils/security';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LocationSelector } from '@/components/LocationSelector';
+
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -88,26 +88,23 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   };
 
   const [storeNameInput, setStoreNameInput] = React.useState(searchQuery);
-
-  const handleStoreNameSearch = () => {
-    const sanitizedQuery = sanitizeString(storeNameInput);
-    setSearchQuery(sanitizedQuery);
-  };
+  const [zipCodeInput, setZipCodeInput] = React.useState('');
 
   const handleBothFieldsSearch = () => {
     const sanitizedStoreName = sanitizeString(storeNameInput);
+    const sanitizedZipCode = sanitizeString(zipCodeInput);
     
-    if (sanitizedStoreName && selectedCity && selectedState) {
-      // Use smart_store_search with city and state
-      setSearchQuery(sanitizedStoreName);
+    if (sanitizedStoreName && sanitizedZipCode) {
+      // Store name + zip code search
+      setSearchQuery(`${sanitizedStoreName} ${sanitizedZipCode}`);
       setLocationSearch(null);
     } else if (sanitizedStoreName) {
       // Store name only
       setSearchQuery(sanitizedStoreName);
       setLocationSearch(null);
-    } else if (selectedCity && selectedState) {
-      // City and state only
-      setSearchQuery('');
+    } else if (sanitizedZipCode) {
+      // Zip code only
+      setSearchQuery(sanitizedZipCode);
       setLocationSearch(null);
     }
   };
@@ -115,8 +112,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   const handleUseCurrentLocation = () => {
     if (latitude && longitude) {
       setLocationSearch({ lat: latitude, lng: longitude });
-      // Clear the location selector when using current location
-      clearLocationSelection();
+      setZipCodeInput(''); // Clear zip code input
       
       // If we have a store name, keep it for smart search (name + location)
       if (storeNameInput.trim()) {
