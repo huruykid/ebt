@@ -31,11 +31,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     isLoading,
     error,
     handleCategoryChange,
-    userZipCode,
-    selectedCity,
-    selectedState,
-    handleLocationSelect,
-    clearLocationSelection
+    userZipCode
   } = useLocationBasedSearch();
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
@@ -157,11 +153,13 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
           <div>
             <label className="block text-sm font-semibold mb-2 text-foreground">Location</label>
             <div className="flex gap-3 items-center">
-              <LocationSelector
-                onLocationSelect={handleLocationSelect}
-                selectedCity={selectedCity}
-                selectedState={selectedState}
-                className="flex-1"
+              <Input
+                type="text"
+                placeholder="ZIP code (e.g., 90210)"
+                value={zipCodeInput}
+                onChange={(e) => setZipCodeInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
+                className="flex-1 h-12 text-base"
               />
               {latitude && longitude && (
                 <Button onClick={handleUseCurrentLocation} variant="outline" disabled={geoLoading} className="h-12 px-4">
@@ -175,7 +173,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
           {/* Search Button */}
           <Button 
             onClick={handleBothFieldsSearch} 
-            disabled={!storeNameInput.trim() && !selectedCity && !selectedState && !locationSearch}
+            disabled={!storeNameInput.trim() && !zipCodeInput.trim() && !locationSearch}
             className="w-full h-12 text-base font-semibold"
             size="lg"
           >
