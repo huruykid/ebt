@@ -8,36 +8,46 @@ interface StoreWithDistance extends Store {
 }
 
 /**
- * Apply exclusion patterns for farmers market category
+ * Apply inclusion patterns for farmers market category to ensure we only get actual farmers markets
  */
-export const applyFarmersMarketExclusion = (stores: StoreWithDistance[]): StoreWithDistance[] => {
-  const beforeExclusion = stores.length;
-  const excludePatterns = ['Whole Foods', 'Super Market', 'Food Market', 'Meat Market', 'Fish Market', 'Flea Market'];
+export const applyFarmersMarketFiltering = (stores: StoreWithDistance[]): StoreWithDistance[] => {
+  const beforeFiltering = stores.length;
+  // Remove patterns that might exclude legitimate farmers markets, focus on inclusion
+  const includePatterns = ['farmers', 'farm market', 'farmers market', 'farmers and markets'];
   
   const filteredStores = stores.filter(store => {
     const storeName = store.Store_Name?.toLowerCase() || '';
     const storeType = store.Store_Type?.toLowerCase() || '';
-    const shouldExclude = excludePatterns.some(pattern => 
-      storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
+    
+    // Must contain farmers market indicators
+    const hasValidPattern = includePatterns.some(pattern => 
+      storeName.includes(pattern) || storeType.includes(pattern)
     );
-    return !shouldExclude;
+    
+    // Exclude convenience stores and pharmacies that might have "farm" in name
+    const excludePatterns = ['cvs', 'walgreens', 'rite aid', 'convenience store', 'gas station'];
+    const shouldExclude = excludePatterns.some(pattern => 
+      storeName.includes(pattern) || storeType.includes(pattern)
+    );
+    
+    return hasValidPattern && !shouldExclude;
   });
   
-  console.log('Farmers market exclusion results:', {
-    beforeExclusion,
-    afterExclusion: filteredStores.length,
-    excludePatterns,
-    excludedStores: stores.filter(store => {
-      const storeName = store.Store_Name?.toLowerCase() || '';
-      const storeType = store.Store_Type?.toLowerCase() || '';
-      return excludePatterns.some(pattern => 
-        storeName.includes(pattern.toLowerCase()) || storeType.includes(pattern.toLowerCase())
-      );
-    }).map(s => ({ name: s.Store_Name, type: s.Store_Type })),
-    sampleResults: filteredStores.slice(0, 5).map(r => ({ name: r.Store_Name, type: r.Store_Type }))
+  console.log('Farmers market filtering results:', {
+    beforeFiltering,
+    afterFiltering: filteredStores.length,
+    includePatterns,
+    filteredStores: filteredStores.slice(0, 10).map(s => ({ name: s.Store_Name, type: s.Store_Type }))
   });
   
   return filteredStores;
+};
+
+/**
+ * Apply exclusion patterns for farmers market category (deprecated - use applyFarmersMarketFiltering instead)
+ */
+export const applyFarmersMarketExclusion = (stores: StoreWithDistance[]): StoreWithDistance[] => {
+  return applyFarmersMarketFiltering(stores);
 };
 
 /**

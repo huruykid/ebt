@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { buildLocationAwareQuery } from '@/utils/searchQueryBuilder';
 import { calculateDistance } from '@/utils/distanceCalculation';
 import { 
-  applyGroceryExclusion
+  applyGroceryExclusion,
+  applyFarmersMarketFiltering
 } from '@/utils/storeFiltering';
 import { CATEGORY_EXCLUSIONS } from '@/constants/storeSearchConstants';
 import type { StoreWithDistance, SearchParams } from '@/types/storeSearchTypes';
@@ -88,12 +89,17 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           };
         });
 
-        // Only apply exclusions for location-based searches (not in the database query)
+        // Apply category-specific filtering for location-based searches
         if (activeCategory === 'grocery' && results.length > 0) {
           console.log('🏪 Applying grocery exclusions to location results...');
           const beforeExclusion = results.length;
           results = applyGroceryExclusion(results);
           console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
+        } else if (activeCategory === 'farmersmarket' && results.length > 0) {
+          console.log('🥕 Applying farmers market filtering to location results...');
+          const beforeFiltering = results.length;
+          results = applyFarmersMarketFiltering(results);
+          console.log(`🥕 Farmers market filtering: ${beforeFiltering} → ${results.length} stores`);
         }
 
         return results;
@@ -156,6 +162,11 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
         console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
+      } else if (activeCategory === 'farmersmarket' && results.length > 0) {
+        console.log('🥕 Applying farmers market filtering...');
+        const beforeFiltering = results.length;
+        results = applyFarmersMarketFiltering(results);
+        console.log(`🥕 Farmers market filtering: ${beforeFiltering} → ${results.length} stores`);
       }
 
       // Apply location filtering for non-location searches if location is provided
