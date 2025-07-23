@@ -46,13 +46,12 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
     const loadStates = async () => {
       console.log('🏛️ Loading states from database...');
       
-      // Use a simple direct query with high limit to get all data
+      // Get all distinct states using a raw query
       const { data, error } = await supabase
         .from('snap_stores')
         .select('State')
         .not('State', 'is', null)
-        .not('State', 'eq', '')
-        .limit(100000); // High limit to ensure we get all rows
+        .not('State', 'eq', '');
       
       if (error) {
         console.error('❌ Error loading states:', error);
