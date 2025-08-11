@@ -53,10 +53,58 @@ export const buildLocationAwareQuery = (
   selectedState?: string,
   selectedZip?: string
 ) => {
-  // First priority: Use selectedCity and selectedState from LocationSelector
+  // First priority: If coordinates are available, prefer location-aware search
+  if (locationSearch) {
+    console.log('🎯 Using location-aware search with radius:', radius);
+
+    if (searchQuery.trim()) {
+      // Name + coordinates → smart search + distance/radius
+      const query = searchQuery.trim();
+      return supabase.rpc('smart_store_search', {
+        search_text: query,
+        search_city: '',
+        search_state: '',
+        search_zip: '',
+        similarity_threshold: 0.2,
+        result_limit: 200
+      }).then(async (result) => {
+        if (result.data) {
+          const resultsWithDistance = result.data
+            .map(store => ({
+              ...store,
+              distance_miles: calculateDistanceInline(
+                locationSearch.lat,
+                locationSearch.lng,
+                store.latitude,
+                store.longitude
+              )
+            }))
+            .filter(store => store.distance_miles <= radius)
+            .sort((a, b) => {
+              const scoreDiff = (b.similarity_score ?? 0) - (a.similarity_score ?? 0);
+              if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
+              return (a.distance_miles ?? 0) - (b.distance_miles ?? 0);
+            });
+          console.log(`🎯 Smart search (coords) found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
+          return { data: resultsWithDistance, error: result.error };
+        }
+        return result;
+      });
+    }
+
+    // Coordinates only → proximity-based function
+    return supabase.rpc('get_nearby_stores', {
+      user_lat: locationSearch.lat,
+      user_lng: locationSearch.lng,
+      radius_miles: radius,
+      store_types: null,
+      result_limit: 200
+    });
+  }
+  
+  // Next: Use selectedCity and selectedState from LocationSelector, if provided
   if (selectedCity && selectedState) {
     console.log(`🎯 Using LocationSelector: business="${searchQuery}", city="${selectedCity}", state="${selectedState}"`);
-    
     return supabase.rpc('smart_store_search', {
       search_text: searchQuery.trim() || '',
       search_city: selectedCity,

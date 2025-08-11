@@ -92,45 +92,75 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   const [storeNameInput, setStoreNameInput] = React.useState(searchQuery);
   const [locationInput, setLocationInput] = React.useState('');
 
-  const handleBothFieldsSearch = () => {
+  const geocode = async (q: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const params = new URLSearchParams({
+        q: q.trim(),
+        format: 'json',
+        addressdetails: '1',
+        limit: '1',
+        countrycodes: 'us',
+        dedupe: '1',
+      });
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (Array.isArray(data) && data[0]?.lat && data[0]?.lon) {
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      }
+      return null;
+    } catch (e) {
+      console.error('Geocode failed', e);
+      return null;
+    }
+  };
+
+  const handleBothFieldsSearch = async () => {
     const sanitizedStoreName = sanitizeString(storeNameInput);
     const sanitizedLocation = sanitizeString(locationInput);
 
-    // Reset previous explicit location filters
+    // Reset explicit filters
     setSelectedZip('');
     clearLocationSelection();
 
-    // Parse location: ZIP (5 digits) or "City, ST"
+    // Parse ZIP or City, ST
     const zipMatch = sanitizedLocation.match(/^\d{5}$/);
     const cityStateMatch = sanitizedLocation.match(/^(.*?),\s*([A-Za-z]{2})$/);
 
     if (zipMatch) {
-      setSelectedZip(zipMatch[0]);
-      setLocationSearch(null); // use RPC + ZIP, not geolocation
-      setSearchQuery(sanitizedStoreName); // name-only goes to search_text
+      const zip = zipMatch[0];
+      const coords = await geocode(zip);
+      if (coords) setLocationSearch(coords);
+      setSelectedZip(zip);
+      setSearchQuery(sanitizedStoreName);
       return;
     }
 
     if (cityStateMatch) {
       const city = cityStateMatch[1];
       const state = cityStateMatch[2];
+      const coords = await geocode(`${city}, ${state}`);
+      if (coords) setLocationSearch(coords);
       handleLocationSelect(city, state);
-      setLocationSearch(null); // use RPC + city/state
+      setSearchQuery(sanitizedStoreName);
+      return;
+    }
+
+    if (sanitizedLocation && !zipMatch && !cityStateMatch) {
+      // Free-form location: attempt geocode
+      const coords = await geocode(sanitizedLocation);
+      if (coords) setLocationSearch(coords);
       setSearchQuery(sanitizedStoreName);
       return;
     }
 
     if (sanitizedStoreName) {
-      // Name only
+      // Name only: keep existing geolocation if available
       setSearchQuery(sanitizedStoreName);
-      setLocationSearch(null);
       return;
     }
 
-    if (!sanitizedStoreName && !sanitizedLocation && !locationSearch) {
-      // nothing to search
-      return;
-    }
+    // If nothing provided, do nothing
   };
 
   const handleUseCurrentLocation = () => {
