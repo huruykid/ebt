@@ -50,7 +50,8 @@ export const buildLocationAwareQuery = (
   radius: number = 10,
   excludePatterns: string[] = [],
   selectedCity?: string,
-  selectedState?: string
+  selectedState?: string,
+  selectedZip?: string
 ) => {
   // First priority: Use selectedCity and selectedState from LocationSelector
   if (selectedCity && selectedState) {
@@ -66,7 +67,21 @@ export const buildLocationAwareQuery = (
     });
   }
   
-  // Second priority: If we have a search query, try to parse it for business name + city combinations
+  // Second priority: If explicit ZIP is selected, use it
+  if (selectedZip && selectedZip.trim().match(/^\d{5}$/)) {
+    const nameOnly = (searchQuery || '').trim();
+    console.log(`🎯 Using ZIP filter: zip="${selectedZip}", name="${nameOnly}"`);
+    return supabase.rpc('smart_store_search', {
+      search_text: nameOnly,
+      search_city: '',
+      search_state: '',
+      search_zip: selectedZip.trim(),
+      similarity_threshold: 0.2,
+      result_limit: 200
+    });
+  }
+  
+  // Next: If we have a search query, try to parse it for business name + city/zip combinations
   if (searchQuery.trim()) {
     const query = searchQuery.trim();
     

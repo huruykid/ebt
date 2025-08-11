@@ -14,6 +14,7 @@ export const useLocationBasedSearch = () => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [selectedZip, setSelectedZip] = useState('');
 
   // Update search query when URL parameter changes
   useEffect(() => {
@@ -44,7 +45,8 @@ export const useLocationBasedSearch = () => {
     userZipCode,
     radius,
     selectedCity,
-    selectedState
+    selectedState,
+    selectedZip,
   });
 
   // Sort the stores based on the selected option
@@ -72,6 +74,7 @@ export const useLocationBasedSearch = () => {
   const clearLocationSelection = () => {
     setSelectedCity('');
     setSelectedState('');
+    setSelectedZip('');
   };
 
   return {
@@ -93,6 +96,8 @@ export const useLocationBasedSearch = () => {
     userZipCode,
     selectedCity,
     selectedState,
+    selectedZip,
+    setSelectedZip,
     handleLocationSelect,
     clearLocationSelection,
   };

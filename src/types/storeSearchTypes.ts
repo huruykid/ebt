@@ -22,4 +22,5 @@ export interface SearchParams {
   radius: number;
   selectedCity?: string;
   selectedState?: string;
+  selectedZip?: string;
 }

@@ -31,7 +31,13 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     isLoading,
     error,
     handleCategoryChange,
-    userZipCode
+    userZipCode,
+    selectedCity,
+    selectedState,
+    selectedZip,
+    setSelectedZip,
+    handleLocationSelect,
+    clearLocationSelection,
   } = useLocationBasedSearch();
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
@@ -84,7 +90,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   };
 
   const [storeNameInput, setStoreNameInput] = React.useState(searchQuery);
-  const [zipCodeInput, setZipCodeInput] = React.useState('');
+  const [locationInput, setLocationInput] = React.useState('');
 
   const handleBothFieldsSearch = () => {
     const sanitizedStoreName = sanitizeString(storeNameInput);

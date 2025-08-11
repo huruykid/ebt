@@ -21,7 +21,7 @@ export const useStoreSearchQuery = (params: SearchParams) => {
   } = params;
 
   return useQuery({
-    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius, userZipCode],
+    queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius, userZipCode, params.selectedCity, params.selectedState, params.selectedZip],
     queryFn: async (): Promise<StoreWithDistance[]> => {
       console.log('🔍 Starting store search with params:', params);
 
@@ -35,7 +35,8 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         radius,
         [], // excludePatterns - not used currently
         params.selectedCity,
-        params.selectedState
+        params.selectedState,
+        params.selectedZip
       );
 
       const { data, error } = await query;
