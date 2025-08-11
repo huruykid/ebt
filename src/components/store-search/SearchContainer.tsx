@@ -94,27 +94,51 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
 
   const handleBothFieldsSearch = () => {
     const sanitizedStoreName = sanitizeString(storeNameInput);
-    const sanitizedZipCode = sanitizeString(zipCodeInput);
-    
-    if (sanitizedStoreName && sanitizedZipCode) {
-      // Store name + zip code search
-      setSearchQuery(`${sanitizedStoreName} ${sanitizedZipCode}`);
-      setLocationSearch(null);
-    } else if (sanitizedStoreName) {
-      // Store name only
+    const sanitizedLocation = sanitizeString(locationInput);
+
+    // Reset previous explicit location filters
+    setSelectedZip('');
+    clearLocationSelection();
+
+    // Parse location: ZIP (5 digits) or "City, ST"
+    const zipMatch = sanitizedLocation.match(/^\d{5}$/);
+    const cityStateMatch = sanitizedLocation.match(/^(.*?),\s*([A-Za-z]{2})$/);
+
+    if (zipMatch) {
+      setSelectedZip(zipMatch[0]);
+      setLocationSearch(null); // use RPC + ZIP, not geolocation
+      setSearchQuery(sanitizedStoreName); // name-only goes to search_text
+      return;
+    }
+
+    if (cityStateMatch) {
+      const city = cityStateMatch[1];
+      const state = cityStateMatch[2];
+      handleLocationSelect(city, state);
+      setLocationSearch(null); // use RPC + city/state
+      setSearchQuery(sanitizedStoreName);
+      return;
+    }
+
+    if (sanitizedStoreName) {
+      // Name only
       setSearchQuery(sanitizedStoreName);
       setLocationSearch(null);
-    } else if (sanitizedZipCode) {
-      // Zip code only
-      setSearchQuery(sanitizedZipCode);
-      setLocationSearch(null);
+      return;
+    }
+
+    if (!sanitizedStoreName && !sanitizedLocation && !locationSearch) {
+      // nothing to search
+      return;
     }
   };
 
   const handleUseCurrentLocation = () => {
     if (latitude && longitude) {
       setLocationSearch({ lat: latitude, lng: longitude });
-      setZipCodeInput(''); // Clear zip code input
+      setLocationInput(''); // Clear location input
+      setSelectedZip('');
+      clearLocationSelection();
       
       // If we have a store name, keep it for smart search (name + location)
       if (storeNameInput.trim()) {
@@ -161,9 +185,9 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
             <div className="flex gap-3 items-center">
               <Input
                 type="text"
-                placeholder="ZIP code (e.g., 90210)"
-                value={zipCodeInput}
-                onChange={(e) => setZipCodeInput(e.target.value)}
+                placeholder="City, ST or ZIP (e.g., Fresno, CA or 90210)"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
                 className="flex-1 h-12 text-base"
               />
@@ -179,7 +203,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
           {/* Search Button */}
           <Button 
             onClick={handleBothFieldsSearch} 
-            disabled={!storeNameInput.trim() && !zipCodeInput.trim() && !locationSearch}
+            disabled={!storeNameInput.trim() && !locationInput.trim() && !locationSearch}
             className="w-full h-12 text-base font-semibold"
             size="lg"
           >
