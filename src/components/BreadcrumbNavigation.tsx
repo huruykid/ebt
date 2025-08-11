@@ -71,18 +71,18 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ item
     <div className="bg-muted/30 border-b">
       <div className="max-w-7xl mx-auto px-6 py-3">
         <Breadcrumb>
-          <BreadcrumbList>
+          <BreadcrumbList className="flex-nowrap overflow-x-auto">
             {breadcrumbItems.map((item, index) => (
-              <div key={`breadcrumb-${index}`}>
+              <React.Fragment key={`breadcrumb-${index}`}>
                 <BreadcrumbItem>
                   {index === breadcrumbItems.length - 1 ? (
-                    <BreadcrumbPage className="flex items-center gap-1">
+                    <BreadcrumbPage className="inline-flex items-center gap-1">
                       {index === 0 && <Home className="h-4 w-4" />}
                       {item.label}
                     </BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink asChild>
-                      <Link to={item.href || '#'} className="flex items-center gap-1 hover:text-foreground">
+                      <Link to={item.href || '#'} className="inline-flex items-center gap-1 hover:text-foreground">
                         {index === 0 && <Home className="h-4 w-4" />}
                         {item.label}
                       </Link>
@@ -90,7 +90,7 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ item
                   )}
                 </BreadcrumbItem>
                 {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
-              </div>
+              </React.Fragment>
             ))}
           </BreadcrumbList>
         </Breadcrumb>
