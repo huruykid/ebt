@@ -119,7 +119,8 @@ export const SEOFooter: React.FC = () => {
             <h3 className="text-lg font-semibold text-foreground mb-4">About EBT Finder</h3>
             <ul className="space-y-2">
               <li><Link to="/mission" className="text-primary hover:text-primary/80">Our Mission</Link></li>
-              <li><Link to="/contact" className="text-primary hover:text-primary/80">Contact Us</Link></li>
+              <li><Link to="/support" className="text-primary hover:text-primary/80">Support</Link></li>
+              <li><Link to="/privacy-policy" className="text-primary hover:text-primary/80">Privacy Policy</Link></li>
               <li><Link to="/add-store" className="text-primary hover:text-primary/80">Add a Store</Link></li>
               <li><Link to="/report" className="text-primary hover:text-primary/80">Report a Store</Link></li>
             </ul>

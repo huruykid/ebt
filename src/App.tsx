@@ -17,6 +17,8 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import CityPage from "./pages/CityPage";
 import EbtChipCard from "./pages/EbtChipCard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Support from "./pages/Support";
 
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +74,8 @@ const AppContent = () => {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/ebt-chip-card" element={<EbtChipCard />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           
           {/* City Pages - Specific routes first, then catch-all */}
           <Route path="/los-angeles" element={<CityPage />} />
