@@ -14,6 +14,7 @@ import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import { StoreComments } from '@/components/StoreComments';
+import { SEOHead } from '@/components/SEOHead';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -82,8 +83,43 @@ export default function StoreDetailPage() {
     );
   }
 
+  // Generate SEO data for the store
+  const seoTitle = store ? `${store.Store_Name} - EBT Store Details | EBT Finder` : "Store Details | EBT Finder";
+  const seoDescription = store ? 
+    `Find details for ${store.Store_Name} at ${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}. EBT/SNAP accepted. View hours, reviews, and directions.` :
+    "View detailed information about EBT and SNAP accepting stores including hours, reviews, and directions.";
+  
+  const structuredData = store ? {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": store.Store_Name,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": store.Store_Street_Address,
+      "addressLocality": store.City,
+      "addressRegion": store.State,
+      "postalCode": store.Zip_Code,
+      "addressCountry": "US"
+    },
+    "geo": store.Latitude && store.Longitude ? {
+      "@type": "GeoCoordinates",
+      "latitude": store.Latitude,
+      "longitude": store.Longitude
+    } : undefined,
+    "paymentAccepted": ["SNAP", "EBT"],
+    "priceRange": "$",
+    "url": `https://ebtfinder.org/store/${store.id}`
+  } : undefined;
+
   return (
     <ProtectedRoute>
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={`${store?.Store_Name}, EBT store, SNAP accepted, ${store?.City}, ${store?.State}, grocery store, food benefits`}
+        canonicalUrl={`https://ebtfinder.org/store/${id}`}
+        structuredData={structuredData}
+      />
       <div className="min-h-screen bg-background">
         {/* Back Button */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">

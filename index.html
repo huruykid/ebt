@@ -5,6 +5,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#8b5cf6" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <title>Find EBT & SNAP-Approved Stores Near You | EBT Finder</title>
     <meta name="description" content="Easily find stores, restaurants, and markets that accept EBT and SNAP benefits. Filter by ZIP code, store type, or hot meal eligibility. Mobile-friendly and free." />
     <meta name="keywords" content="EBT stores, SNAP benefits, find EBT near me, ZIP code search, hot food program, RMP restaurants" />
@@ -46,6 +50,28 @@
         "@type": "SearchAction",
         "target": "https://ebtfinder.org/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" as="image" />
+    
+    <!-- JSON-LD for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "EBT Finder",
+      "url": "https://ebtfinder.org",
+      "logo": "https://ebtfinder.org/ebt-logo.png",
+      "sameAs": [
+        "https://twitter.com/ebtfinder"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "url": "https://ebtfinder.org/support"
       }
     }
     </script>

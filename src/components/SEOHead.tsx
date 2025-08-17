@@ -7,6 +7,9 @@ interface SEOHeadProps {
   keywords?: string;
   canonicalUrl?: string;
   structuredData?: object;
+  ogImage?: string;
+  ogType?: string;
+  twitterCard?: string;
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
@@ -14,7 +17,10 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   description,
   keywords,
   canonicalUrl,
-  structuredData
+  structuredData,
+  ogImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format",
+  ogType = "website",
+  twitterCard = "summary_large_image"
 }) => {
   useEffect(() => {
     // Update title
@@ -58,6 +64,13 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       updateMetaTag('twitter:title', title);
     }
 
+    // Update Open Graph and Twitter meta tags
+    updatePropertyTag('og:type', ogType);
+    updatePropertyTag('og:image', ogImage);
+    updateMetaTag('twitter:card', twitterCard);
+    updateMetaTag('twitter:image', ogImage);
+    updatePropertyTag('og:url', canonicalUrl || window.location.href);
+
     // Update canonical URL
     if (canonicalUrl) {
       let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
@@ -82,7 +95,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       script.textContent = JSON.stringify(structuredData);
       document.head.appendChild(script);
     }
-  }, [title, description, keywords, canonicalUrl, structuredData]);
+  }, [title, description, keywords, canonicalUrl, structuredData, ogImage, ogType, twitterCard]);
 
   return null;
 };
