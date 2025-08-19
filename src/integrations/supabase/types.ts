@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -171,6 +171,16 @@ export type Database = {
           Additional_Address: string | null
           City: string | null
           County: string | null
+          google_formatted_address: string | null
+          google_formatted_phone_number: string | null
+          google_last_updated: string | null
+          google_name: string | null
+          google_opening_hours: Json | null
+          google_photos: Json | null
+          google_place_id: string | null
+          google_rating: number | null
+          google_user_ratings_total: number | null
+          google_website: string | null
           Grantee_Name: string | null
           id: string
           Incentive_Program: string | null
@@ -191,6 +201,16 @@ export type Database = {
           Additional_Address?: string | null
           City?: string | null
           County?: string | null
+          google_formatted_address?: string | null
+          google_formatted_phone_number?: string | null
+          google_last_updated?: string | null
+          google_name?: string | null
+          google_opening_hours?: Json | null
+          google_photos?: Json | null
+          google_place_id?: string | null
+          google_rating?: number | null
+          google_user_ratings_total?: number | null
+          google_website?: string | null
           Grantee_Name?: string | null
           id?: string
           Incentive_Program?: string | null
@@ -211,6 +231,16 @@ export type Database = {
           Additional_Address?: string | null
           City?: string | null
           County?: string | null
+          google_formatted_address?: string | null
+          google_formatted_phone_number?: string | null
+          google_last_updated?: string | null
+          google_name?: string | null
+          google_opening_hours?: Json | null
+          google_photos?: Json | null
+          google_place_id?: string | null
+          google_rating?: number | null
+          google_user_ratings_total?: number | null
+          google_website?: string | null
           Grantee_Name?: string | null
           id?: string
           Incentive_Program?: string | null
@@ -384,46 +414,61 @@ export type Database = {
       }
       get_nearby_stores: {
         Args: {
+          radius_miles?: number
+          result_limit?: number
+          store_types?: string[]
           user_lat: number
           user_lng: number
-          radius_miles?: number
-          store_types?: string[]
-          result_limit?: number
         }
         Returns: {
-          id: string
-          store_name: string
-          store_street_address: string
           city: string
-          state: string
-          zip_code: string
-          store_type: string
+          distance_miles: number
+          id: string
           latitude: number
           longitude: number
-          distance_miles: number
+          state: string
+          store_name: string
+          store_street_address: string
+          store_type: string
+          zip_code: string
         }[]
       }
       smart_store_search: {
         Args: {
-          search_text?: string
+          result_limit?: number
           search_city?: string
           search_state?: string
+          search_text?: string
           search_zip?: string
           similarity_threshold?: number
-          result_limit?: number
         }
         Returns: {
-          id: string
-          store_name: string
-          store_street_address: string
           city: string
-          state: string
-          zip_code: string
-          store_type: string
+          id: string
           latitude: number
           longitude: number
           similarity_score: number
+          state: string
+          store_name: string
+          store_street_address: string
+          store_type: string
+          zip_code: string
         }[]
+      }
+      update_store_with_google_data: {
+        Args: {
+          p_formatted_address: string
+          p_name: string
+          p_opening_hours: Json
+          p_phone: string
+          p_photos: Json
+          p_place_id: string
+          p_rating: number
+          p_store_id: string
+          p_user_ratings_total: number
+          p_website: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
