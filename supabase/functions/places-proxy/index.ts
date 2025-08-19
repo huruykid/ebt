@@ -181,11 +181,10 @@ async function cacheResult(
 }
 
 async function callGooglePlacesAPI(action: string, params: any) {
-  const baseUrl = 'https://maps.googleapis.com/maps/api';
-  
   if (action === 'search_text') {
+    // Use legacy API for text search (still works and cheaper)
     const { query, region, radius } = params;
-    const url = new URL(`${baseUrl}/place/textsearch/json`);
+    const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
     url.searchParams.set('query', query);
     url.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
     
@@ -196,13 +195,23 @@ async function callGooglePlacesAPI(action: string, params: any) {
     return await response.json();
     
   } else if (action === 'place_details') {
+    // Use new Places API (Field Mask) for place details
     const { place_id, fields } = params;
-    const url = new URL(`${baseUrl}/place/details/json`);
-    url.searchParams.set('place_id', place_id);
-    url.searchParams.set('fields', fields.join(','));
-    url.searchParams.set('key', GOOGLE_PLACES_API_KEY!);
+    const url = `https://places.googleapis.com/v1/places/${place_id}`;
     
-    const response = await fetch(url.toString());
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY!,
+        'X-Goog-FieldMask': fields.join(','),
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Google Places API error: ${response.status}`);
+    }
+    
     return await response.json();
   }
   
@@ -253,12 +262,55 @@ async function handleTextSearch(params: any) {
   }
 }
 
+async function updateStoreWithGoogleData(storeId: string, placeData: any) {
+  try {
+    // Extract relevant fields from Google Places response
+    const googleData = {
+      place_id: placeData.id || placeData.place_id,
+      name: placeData.displayName?.text || placeData.name,
+      formatted_address: placeData.formattedAddress || placeData.formatted_address,
+      website: placeData.websiteUri || placeData.website,
+      phone: placeData.nationalPhoneNumber || placeData.formatted_phone_number,
+      opening_hours: placeData.regularOpeningHours || placeData.opening_hours,
+      rating: placeData.rating,
+      user_ratings_total: placeData.userRatingCount || placeData.user_ratings_total,
+      photos: placeData.photos
+    };
+
+    // Update the store record using our database function
+    const { error } = await supabase.rpc('update_store_with_google_data', {
+      p_store_id: storeId,
+      p_place_id: googleData.place_id,
+      p_name: googleData.name,
+      p_formatted_address: googleData.formatted_address,
+      p_website: googleData.website,
+      p_phone: googleData.phone,
+      p_opening_hours: googleData.opening_hours,
+      p_rating: googleData.rating,
+      p_user_ratings_total: googleData.user_ratings_total,
+      p_photos: googleData.photos
+    });
+
+    if (error) {
+      console.error('Failed to update store with Google data:', error);
+    } else {
+      console.log(`Successfully updated store ${storeId} with Google Places data`);
+    }
+  } catch (error) {
+    console.error('Error updating store with Google data:', error);
+  }
+}
+
 async function handlePlaceDetails(params: any) {
-  const { place_id, fields = [
-    'place_id', 'name', 'formatted_address', 'geometry', 
-    'opening_hours', 'website', 'formatted_phone_number', 
-    'rating', 'user_ratings_total'
-  ] } = params;
+  const { 
+    place_id, 
+    store_id, // Optional: if provided, we'll update the store record
+    fields = [
+      'id', 'displayName', 'formattedAddress', 'websiteUri', 
+      'nationalPhoneNumber', 'regularOpeningHours', 'rating', 
+      'userRatingCount', 'photos'
+    ] 
+  } = params;
   
   const fieldsHash = generateFieldsHash(fields);
   const paramsHash = normalizeParams({ place_id, fields: fields.sort() });
@@ -287,7 +339,12 @@ async function handlePlaceDetails(params: any) {
     // 4. Update usage ledger
     await updateUsageLedger(sku);
     
-    // 5. Cache the result
+    // 5. Update store record if store_id provided
+    if (store_id && googleResponse) {
+      await updateStoreWithGoogleData(store_id, googleResponse);
+    }
+    
+    // 6. Cache the result
     await cacheResult(null, paramsHash, place_id, fieldsHash, googleResponse, TTL_PLACE_DETAILS);
     
     return { from: 'google', budget_exceeded: false, data: googleResponse };

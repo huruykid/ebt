@@ -8,12 +8,10 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import { useYelpBusiness } from '@/hooks/useYelp';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import type { Tables } from '@/integrations/supabase/types';
-
-type Store = Tables<'snap_stores'>;
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface EnhancedStoreCardProps {
-  store: Store & { distance?: number };
+  store: StoreWithDistance;
 }
 
 export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) => {

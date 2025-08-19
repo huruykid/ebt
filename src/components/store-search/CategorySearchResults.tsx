@@ -3,13 +3,7 @@ import React from 'react';
 import { CategoryTabs } from '@/components/CategoryTabs';
 import { SearchResults } from './SearchResults';
 import type { SortOption } from '@/components/SortDropdown';
-import type { Tables } from '@/integrations/supabase/types';
-
-type Store = Tables<'snap_stores'>;
-
-interface StoreWithDistance extends Store {
-  distance?: number;
-}
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface CategorySearchResultsProps {
   stores: StoreWithDistance[];

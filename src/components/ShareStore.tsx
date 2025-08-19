@@ -10,9 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables } from '@/integrations/supabase/types';
-
-type Store = Tables<'snap_stores'>;
+import type { Store } from '@/types/storeTypes';
 
 interface ShareStoreProps {
   store: Store;

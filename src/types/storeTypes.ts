@@ -3,10 +3,12 @@ import type { Tables } from '@/integrations/supabase/types';
 import type { LocationData } from '@/hooks/useStoreLocationData';
 import type { YelpBusiness } from '@/hooks/useYelp';
 
-type Store = Tables<'snap_stores'>;
+// Use Supabase-generated types directly
+export type Store = Tables<'snap_stores'>;
 
 export interface StoreWithDistance extends Store {
   distance?: number;
+  distance_miles?: number;
 }
 
 export interface StoreWithLocationData extends StoreWithDistance {

@@ -83,7 +83,18 @@ export const useInfiniteNearbyStores = ({
             Grantee_Name: null,
             X: null,
             Y: null,
-            Incentive_Program: null
+            Incentive_Program: null,
+            // Google Places fields (optional)
+            google_place_id: null,
+            google_name: null,
+            google_formatted_address: null,
+            google_website: null,
+            google_formatted_phone_number: null,
+            google_opening_hours: null,
+            google_rating: null,
+            google_user_ratings_total: null,
+            google_photos: null,
+            google_last_updated: null
           }));
 
         // Apply trending logic if needed

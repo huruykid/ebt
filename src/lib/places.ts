@@ -15,23 +15,25 @@ export interface TextSearchParams {
 
 export interface PlaceDetailsParams {
   place_id: string;
+  store_id?: string; // Optional: if provided, will update the store record
   fields?: string[];
 }
 
 /**
  * Default fields for Place Details to minimize costs
  * Only request what we actually use in the UI
+ * Updated for new Google Places API (Field Mask format)
  */
 export const DEFAULT_PLACE_FIELDS = [
-  'place_id',
-  'name', 
-  'formatted_address',
-  'geometry',
-  'opening_hours',
-  'website',
-  'formatted_phone_number',
+  'id',
+  'displayName',
+  'formattedAddress',
+  'websiteUri',
+  'nationalPhoneNumber',
+  'regularOpeningHours',
   'rating',
-  'user_ratings_total'
+  'userRatingCount',
+  'photos'
 ];
 
 /**
@@ -78,38 +80,46 @@ export async function searchPlacesByText(
 
 /**
  * Get detailed information about a specific place
+ * @param placeId - Google Place ID
+ * @param storeId - Optional: UUID of store record to update with Google data
+ * @param fields - Fields to request from Google Places API
  */
 export async function getPlaceDetails(
   placeId: string, 
+  storeId?: string,
   fields: string[] = DEFAULT_PLACE_FIELDS
 ): Promise<PlacesResponse> {
   return places('place_details', {
     place_id: placeId,
+    store_id: storeId,
     fields
   });
 }
 
 /**
  * Extract useful information from Google Places API response
+ * Handles both old and new API response formats
  */
 export function extractPlaceInfo(placeData: any) {
-  if (!placeData?.result && !placeData?.candidates?.[0]) {
+  if (!placeData && !placeData?.result && !placeData?.candidates?.[0]) {
     return null;
   }
   
-  const place = placeData.result || placeData.candidates[0];
+  // Handle new API format (direct object) vs old API format (nested in result/candidates)
+  const place = placeData?.result || placeData?.candidates?.[0] || placeData;
   
   return {
-    placeId: place.place_id,
-    name: place.name,
-    address: place.formatted_address,
-    location: place.geometry?.location,
-    phone: place.formatted_phone_number,
-    website: place.website,
+    placeId: place.id || place.place_id,
+    name: place.displayName?.text || place.name,
+    address: place.formattedAddress || place.formatted_address,
+    location: place.location || place.geometry?.location,
+    phone: place.nationalPhoneNumber || place.formatted_phone_number,
+    website: place.websiteUri || place.website,
     rating: place.rating,
-    userRatingsTotal: place.user_ratings_total,
-    openingHours: place.opening_hours?.weekday_text,
-    isOpen: place.opening_hours?.open_now
+    userRatingsTotal: place.userRatingCount || place.user_ratings_total,
+    openingHours: place.regularOpeningHours?.weekdayDescriptions || place.opening_hours?.weekday_text,
+    isOpen: place.regularOpeningHours?.openNow || place.opening_hours?.open_now,
+    photos: place.photos
   };
 }
 
