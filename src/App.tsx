@@ -63,8 +63,8 @@ const AppContent = () => {
         <HeaderNavigation onNavigate={handleNavigate} />
       </div>
 
-      {/* Main content area with responsive bottom padding */}
-      <div className="flex-1 pb-28 md:pb-0">
+      {/* Main content area with responsive bottom padding and top safe area */}
+      <div className="flex-1 pb-28 md:pb-0 pt-[env(safe-area-inset-top)] md:pt-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
