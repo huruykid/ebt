@@ -18,12 +18,16 @@ export const useStoreClickTracking = () => {
         return;
       }
 
+      // Round coordinates to 3 decimals (~100m) to comply with DB constraint and protect privacy
+      const roundedLat = Math.round(userLatitude * 1000) / 1000;
+      const roundedLng = Math.round(userLongitude * 1000) / 1000;
+
       const { error } = await supabase
         .from('store_clicks')
         .insert({
           store_id: storeId,
-          user_latitude: userLatitude,
-          user_longitude: userLongitude,
+          user_latitude: roundedLat,
+          user_longitude: roundedLng,
           user_id: user.id,
         });
 

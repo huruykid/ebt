@@ -324,7 +324,7 @@ export type Database = {
           clicked_at: string | null
           id: string
           store_id: string
-          user_id: string | null
+          user_id: string
           user_latitude: number
           user_longitude: number
         }
@@ -332,7 +332,7 @@ export type Database = {
           clicked_at?: string | null
           id?: string
           store_id: string
-          user_id?: string | null
+          user_id: string
           user_latitude: number
           user_longitude: number
         }
@@ -340,7 +340,7 @@ export type Database = {
           clicked_at?: string | null
           id?: string
           store_id?: string
-          user_id?: string | null
+          user_id?: string
           user_latitude?: number
           user_longitude?: number
         }
@@ -493,6 +493,16 @@ export type Database = {
           zip_code: string
         }[]
       }
+      get_store_click_analytics: {
+        Args: { days_back?: number; store_id_filter?: string }
+        Returns: {
+          avg_distance_km: number
+          click_count: number
+          most_common_region: string
+          store_id: string
+          unique_users: number
+        }[]
+      }
       get_stores_with_fresh_google_data: {
         Args: { days_threshold?: number }
         Returns: {
@@ -526,6 +536,13 @@ export type Database = {
           store_street_address: string
           store_type: string
           zip_code: string
+        }[]
+      }
+      truncate_coordinates: {
+        Args: { lat: number; lng: number }
+        Returns: {
+          truncated_lat: number
+          truncated_lng: number
         }[]
       }
       update_store_with_google_data: {
