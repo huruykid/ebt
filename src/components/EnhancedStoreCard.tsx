@@ -185,24 +185,30 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 flex-shrink-0" />
-              <span>{googlePlacesData?.formatted_phone_number || 'Phone coming soon'}</span>
+              <span>{store.google_formatted_phone_number || googlePlacesData?.formatted_phone_number || 'Phone coming soon'}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 flex-shrink-0" />
               <span>
-                {googlePlacesData?.opening_hours?.open_now !== undefined 
-                  ? (googlePlacesData.opening_hours.open_now ? 'Open Now' : 'Closed')
-                  : 'Hours coming soon'
-                }
+                {(() => {
+                  const openingHours = store.google_opening_hours as { open_now?: boolean } | null;
+                  if (openingHours?.open_now !== undefined) {
+                    return openingHours.open_now ? 'Open Now' : 'Closed';
+                  }
+                  if (googlePlacesData?.opening_hours?.open_now !== undefined) {
+                    return googlePlacesData.opening_hours.open_now ? 'Open Now' : 'Closed';
+                  }
+                  return 'Hours coming soon';
+                })()}
               </span>
             </div>
 
-            {googlePlacesData?.website && (
+            {(store.google_website || googlePlacesData?.website) && (
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 flex-shrink-0" />
                 <a 
-                  href={googlePlacesData.website}
+                  href={store.google_website || googlePlacesData?.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:text-primary/80"

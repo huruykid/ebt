@@ -173,18 +173,35 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 flex-shrink-0" />
-              <span>Phone coming soon</span>
+              <span>{store.google_formatted_phone_number || 'Phone coming soon'}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 flex-shrink-0" />
-              <span>Hours coming soon</span>
+              <span>
+                {(() => {
+                  const openingHours = store.google_opening_hours as { open_now?: boolean } | null;
+                  if (openingHours?.open_now !== undefined) {
+                    return openingHours.open_now ? 'Open Now' : 'Closed';
+                  }
+                  return 'Hours coming soon';
+                })()}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 flex-shrink-0" />
-              <span>Website coming soon</span>
-            </div>
+            {store.google_website && (
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 flex-shrink-0" />
+                <a 
+                  href={store.google_website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 text-sm"
+                >
+                  Visit Website
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Favorites and Share - Bottom row */}

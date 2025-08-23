@@ -163,6 +163,41 @@ serve(async (req) => {
       }));
     }
 
+    // Update the snap_stores table with Google Places data if we found a business
+    if (business && storeName) {
+      // Find the store in snap_stores to update it
+      const { data: storeData } = await supabase
+        .from('snap_stores')
+        .select('id')
+        .ilike('Store_Name', `%${storeName.trim()}%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (storeData) {
+        const { error: updateError } = await supabase
+          .from('snap_stores')
+          .update({
+            google_place_id: business.place_id,
+            google_name: business.name,
+            google_formatted_address: business.formatted_address,
+            google_website: business.website,
+            google_formatted_phone_number: business.formatted_phone_number,
+            google_opening_hours: business.opening_hours,
+            google_rating: business.rating,
+            google_user_ratings_total: business.user_ratings_total,
+            google_photos: business.photos,
+            google_last_updated: new Date().toISOString()
+          })
+          .eq('id', storeData.id);
+
+        if (updateError) {
+          console.error('Error updating snap_stores with Google Places data:', updateError);
+        } else {
+          console.log('✅ Updated snap_stores with Google Places data for:', storeName);
+        }
+      }
+    }
+
     // Cache the result (even if null to avoid repeated API calls)
     const cacheExpiresAt = new Date();
     cacheExpiresAt.setDate(cacheExpiresAt.getDate() + 120); // 120 days
