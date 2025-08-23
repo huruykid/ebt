@@ -15,6 +15,8 @@ import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
+import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
+import { GooglePhotosGallery } from '@/components/store-detail/GooglePhotosGallery';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -153,6 +155,8 @@ export default function StoreDetailPage() {
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Reviews Section - First on mobile, second column on desktop */}
                 <div className="xl:col-span-2 order-1 space-y-6">
+                  <GooglePhotosGallery store={store} />
+                  <GoogleReviewsSection store={store} />
                   <ReviewSection store={store} />
                   <StoreComments storeId={store.id} storeName={store.Store_Name} />
                 </div>
