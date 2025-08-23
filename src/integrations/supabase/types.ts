@@ -201,15 +201,25 @@ export type Database = {
           Additional_Address: string | null
           City: string | null
           County: string | null
+          google_business_status: string | null
           google_formatted_address: string | null
           google_formatted_phone_number: string | null
+          google_geometry: Json | null
+          google_icon: string | null
+          google_icon_background_color: string | null
+          google_icon_mask_base_uri: string | null
           google_last_updated: string | null
           google_name: string | null
           google_opening_hours: Json | null
           google_photos: Json | null
           google_place_id: string | null
+          google_plus_code: string | null
+          google_price_level: number | null
           google_rating: number | null
+          google_reviews: Json | null
+          google_types: Json | null
           google_user_ratings_total: number | null
+          google_vicinity: string | null
           google_website: string | null
           Grantee_Name: string | null
           id: string
@@ -231,15 +241,25 @@ export type Database = {
           Additional_Address?: string | null
           City?: string | null
           County?: string | null
+          google_business_status?: string | null
           google_formatted_address?: string | null
           google_formatted_phone_number?: string | null
+          google_geometry?: Json | null
+          google_icon?: string | null
+          google_icon_background_color?: string | null
+          google_icon_mask_base_uri?: string | null
           google_last_updated?: string | null
           google_name?: string | null
           google_opening_hours?: Json | null
           google_photos?: Json | null
           google_place_id?: string | null
+          google_plus_code?: string | null
+          google_price_level?: number | null
           google_rating?: number | null
+          google_reviews?: Json | null
+          google_types?: Json | null
           google_user_ratings_total?: number | null
+          google_vicinity?: string | null
           google_website?: string | null
           Grantee_Name?: string | null
           id?: string
@@ -261,15 +281,25 @@ export type Database = {
           Additional_Address?: string | null
           City?: string | null
           County?: string | null
+          google_business_status?: string | null
           google_formatted_address?: string | null
           google_formatted_phone_number?: string | null
+          google_geometry?: Json | null
+          google_icon?: string | null
+          google_icon_background_color?: string | null
+          google_icon_mask_base_uri?: string | null
           google_last_updated?: string | null
           google_name?: string | null
           google_opening_hours?: Json | null
           google_photos?: Json | null
           google_place_id?: string | null
+          google_plus_code?: string | null
+          google_price_level?: number | null
           google_rating?: number | null
+          google_reviews?: Json | null
+          google_types?: Json | null
           google_user_ratings_total?: number | null
+          google_vicinity?: string | null
           google_website?: string | null
           Grantee_Name?: string | null
           id?: string
@@ -461,6 +491,15 @@ export type Database = {
           store_street_address: string
           store_type: string
           zip_code: string
+        }[]
+      }
+      get_stores_with_fresh_google_data: {
+        Args: { days_threshold?: number }
+        Returns: {
+          google_last_updated: string
+          google_place_id: string
+          id: string
+          store_name: string
         }[]
       }
       is_admin_user: {
