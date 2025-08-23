@@ -16,6 +16,7 @@ export interface GooglePlacesBusiness {
   };
   photos?: Array<{
     photo_reference: string;
+    photo_url?: string;
     width: number;
     height: number;
   }>;

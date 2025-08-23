@@ -155,6 +155,14 @@ serve(async (req) => {
       }
     }
 
+    // Convert photo references to actual URLs if business has photos
+    if (business?.photos) {
+      business.photos = business.photos.map((photo: any) => ({
+        ...photo,
+        photo_url: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${googleApiKey}`
+      }));
+    }
+
     // Cache the result (even if null to avoid repeated API calls)
     const cacheExpiresAt = new Date();
     cacheExpiresAt.setDate(cacheExpiresAt.getDate() + 120); // 120 days
