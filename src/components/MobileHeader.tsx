@@ -36,7 +36,14 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       <div className="text-center mb-4">
         <h1 className="text-2xl font-bold text-foreground mb-2">Find EBT & SNAP-Accepting Stores Near You</h1>
         <p className="text-sm text-muted-foreground px-2">
-          EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or hot food (RMP), and read community reviews before you go.
+          <a 
+            href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors underline"
+          >
+            EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or hot food (RMP), and read community reviews before you go.
+          </a>
         </p>
       </div>
       
