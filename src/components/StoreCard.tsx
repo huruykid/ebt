@@ -115,14 +115,9 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
                 {store.Store_Type}
               </span>
             )}
-          <a 
-            href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20 hover:bg-accent/30 transition-colors"
-          >
-            EBT Accepted
-          </a>
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
+              EBT Accepted
+            </span>
           {isRmpEnrolled && (
             <a 
               href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
