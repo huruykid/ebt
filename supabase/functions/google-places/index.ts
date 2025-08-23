@@ -114,8 +114,8 @@ serve(async (req) => {
       ) || textData.results[0];
 
       if (bestMatch) {
-        // Get detailed place information with comprehensive fields
-        const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${bestMatch.place_id}&fields=place_id,name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,price_level,opening_hours,photos,types,geometry,vicinity,icon,icon_background_color,icon_mask_base_uri,business_status,plus_code,reviews&key=${googleApiKey}`;
+        // Get enhanced place information (excluding basic data we already have)
+        const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${bestMatch.place_id}&fields=formatted_phone_number,website,rating,user_ratings_total,price_level,opening_hours,photos,types,business_status,reviews&key=${googleApiKey}`;
         
         const detailsResponse = await fetch(detailsUrl);
         const detailsData = await detailsResponse.json();
@@ -141,8 +141,8 @@ serve(async (req) => {
         ) || nearbyData.results[0];
 
         if (nearbyMatch) {
-          // Get detailed place information with comprehensive fields
-          const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${nearbyMatch.place_id}&fields=place_id,name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,price_level,opening_hours,photos,types,geometry,vicinity,icon,icon_background_color,icon_mask_base_uri,business_status,plus_code,reviews&key=${googleApiKey}`;
+          // Get enhanced place information (excluding basic data we already have)
+          const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${nearbyMatch.place_id}&fields=formatted_phone_number,website,rating,user_ratings_total,price_level,opening_hours,photos,types,business_status,reviews&key=${googleApiKey}`;
           
           const detailsResponse = await fetch(detailsUrl);
           const detailsData = await detailsResponse.json();
@@ -178,10 +178,8 @@ serve(async (req) => {
           .from('snap_stores')
           .update({
             google_place_id: business.place_id,
-            google_name: business.name,
-            google_formatted_address: business.formatted_address,
-            google_website: business.website,
             google_formatted_phone_number: business.formatted_phone_number,
+            google_website: business.website,
             google_opening_hours: business.opening_hours,
             google_rating: business.rating,
             google_user_ratings_total: business.user_ratings_total,
@@ -189,13 +187,7 @@ serve(async (req) => {
             google_reviews: business.reviews,
             google_types: business.types,
             google_price_level: business.price_level,
-            google_plus_code: business.plus_code?.global_code,
             google_business_status: business.business_status,
-            google_geometry: business.geometry,
-            google_vicinity: business.vicinity,
-            google_icon: business.icon,
-            google_icon_background_color: business.icon_background_color,
-            google_icon_mask_base_uri: business.icon_mask_base_uri,
             google_last_updated: new Date().toISOString()
           })
           .eq('id', storeData.id);
@@ -203,7 +195,7 @@ serve(async (req) => {
         if (updateError) {
           console.error('Error updating snap_stores with Google Places data:', updateError);
         } else {
-          console.log('✅ Updated snap_stores with comprehensive Google Places data for:', storeName);
+          console.log('✅ Updated snap_stores with enhanced Google Places data for:', storeName);
         }
       }
     }
