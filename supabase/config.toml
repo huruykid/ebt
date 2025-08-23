@@ -69,10 +69,10 @@ enable_confirmations = false
 template = "Your code is {{ .Code }} ."
 
 [functions.sync-snap-stores]
-verify_jwt = false
+verify_jwt = true
 
 [functions.places-proxy]
-verify_jwt = false
+verify_jwt = true
 
 [edge_runtime]
 enabled = true

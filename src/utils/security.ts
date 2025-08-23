@@ -52,3 +52,58 @@ export const escapeHtml = (unsafe: string): string => {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 };
+
+/**
+ * Sanitizes HTML content by removing dangerous elements and attributes
+ */
+export const sanitizeHtml = (html: string): string => {
+  // Allow only basic formatting tags and remove dangerous attributes
+  const allowedTags = ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  
+  // Remove script tags and event handlers
+  let cleaned = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+="[^"]*"/gi, '')
+    .replace(/on\w+='[^']*'/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '');
+  
+  // Remove all HTML tags except allowed ones
+  const tagPattern = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+  cleaned = cleaned.replace(tagPattern, (match, tagName) => {
+    if (allowedTags.includes(tagName.toLowerCase())) {
+      // Keep allowed tags but remove attributes
+      return match.replace(/\s+[^>]*/, '');
+    }
+    return '';
+  });
+  
+  return cleaned.trim();
+};
+
+/**
+ * Validates file upload type and size
+ */
+export const validateFileUpload = (file: File, allowedTypes: string[], maxSizeMB: number = 5): { valid: boolean; error?: string } => {
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: 'Invalid file type' };
+  }
+  
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    return { valid: false, error: `File size exceeds ${maxSizeMB}MB` };
+  }
+  
+  return { valid: true };
+};
+
+/**
+ * Generates secure file path for user uploads
+ */
+export const generateSecureFilePath = (userId: string, originalFilename: string): string => {
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const fileExtension = originalFilename.split('.').pop()?.toLowerCase() || '';
+  
+  return `${userId}/${timestamp}-${randomString}.${fileExtension}`;
+};

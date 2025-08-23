@@ -33,20 +33,20 @@ export const useFavorites = () => {
   });
 
   // Check if a store is favorited
-  const isFavorited = (storeId: number) => {
-    return favorites.some(fav => fav.store_id === storeId.toString());
+  const isFavorited = (storeId: string) => {
+    return favorites.some(fav => fav.store_id === storeId);
   };
 
   // Add to favorites
   const addToFavoritesMutation = useMutation({
-    mutationFn: async (storeId: number) => {
+    mutationFn: async (storeId: string) => {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
         .from('favorites')
         .insert({
           user_id: user.id,
-          store_id: storeId.toString(),
+          store_id: storeId,
         });
 
       if (error) throw error;
@@ -63,14 +63,14 @@ export const useFavorites = () => {
 
   // Remove from favorites
   const removeFromFavoritesMutation = useMutation({
-    mutationFn: async (storeId: number) => {
+    mutationFn: async (storeId: string) => {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
         .from('favorites')
         .delete()
         .eq('user_id', user.id)
-        .eq('store_id', storeId.toString());
+        .eq('store_id', storeId);
 
       if (error) throw error;
     },
@@ -84,7 +84,7 @@ export const useFavorites = () => {
     },
   });
 
-  const toggleFavorite = (storeId: number) => {
+  const toggleFavorite = (storeId: string) => {
     if (isFavorited(storeId)) {
       removeFromFavoritesMutation.mutate(storeId);
     } else {

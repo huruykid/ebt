@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 interface FavoriteButtonProps {
-  storeId: number;
+  storeId: string;
   variant?: 'default' | 'icon';
   className?: string;
 }
