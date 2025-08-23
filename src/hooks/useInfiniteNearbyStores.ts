@@ -109,7 +109,7 @@ export const useInfiniteNearbyStores = ({
 
         // Apply trending logic if needed
         if (category === 'trending' && storesWithDistance.length > 0) {
-          const storeIds = storesWithDistance.map(store => parseInt(store.id));
+          const storeIds = storesWithDistance.map(store => store.id);
           
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -117,12 +117,13 @@ export const useInfiniteNearbyStores = ({
           const { data: clickData } = await supabase
             .from('store_clicks')
             .select('store_id, clicked_at, user_latitude, user_longitude')
-            .in('store_id', storeIds.map(id => id.toString()))
+            .in('store_id', storeIds)
             .gte('clicked_at', thirtyDaysAgo.toISOString());
 
-          const trendingScores = new Map<number, number>();
+          const trendingScores = new Map<string, number>();
           
           clickData?.forEach(click => {
+            const storeId = click.store_id;
             const clickDistance = calculateDistance(
               latitude,
               longitude,
@@ -134,15 +135,14 @@ export const useInfiniteNearbyStores = ({
               const daysSinceClick = (Date.now() - new Date(click.clicked_at).getTime()) / (1000 * 60 * 60 * 24);
               const recencyWeight = Math.max(0.1, 1 - (daysSinceClick / 30));
               
-              const storeIdNum = parseInt(click.store_id);
-              const currentScore = trendingScores.get(storeIdNum) || 0;
-              trendingScores.set(storeIdNum, currentScore + recencyWeight);
+              const currentScore = trendingScores.get(storeId) || 0;
+              trendingScores.set(storeId, currentScore + recencyWeight);
             }
           });
 
           storesWithDistance = storesWithDistance.sort((a, b) => {
-            const aScore = trendingScores.get(parseInt(a.id)) || 0;
-            const bScore = trendingScores.get(parseInt(b.id)) || 0;
+            const aScore = trendingScores.get(a.id) || 0;
+            const bScore = trendingScores.get(b.id) || 0;
             
             if (aScore !== bScore) {
               return bScore - aScore;
