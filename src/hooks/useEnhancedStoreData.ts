@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useOverpassData } from './useOverpassData';
-import { useYelpBusiness } from './useYelp';
+import { useGooglePlacesBusiness } from './useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -27,18 +27,19 @@ export const useEnhancedStoreData = (store: Store) => {
     enabled: !!(store.Store_Name && store.Latitude && store.Longitude)
   });
 
-  const { data: yelpData, isLoading: yelpLoading } = useYelpBusiness(
+  const { data: googlePlacesData, isLoading: googlePlacesLoading } = useGooglePlacesBusiness(
     store.Store_Name || '',
-    store.Latitude || 0,
-    store.Longitude || 0,
+    store.Store_Street_Address || '',
+    store.Latitude || undefined,
+    store.Longitude || undefined,
     !!(store.Store_Name && store.Latitude && store.Longitude)
   );
 
-  const isLoading = overpassLoading || yelpLoading;
+  const isLoading = overpassLoading || googlePlacesLoading;
 
   // Combine data from multiple sources
   const enhancedData: EnhancedStoreInfo | null = React.useMemo(() => {
-    if (!overpassData && !yelpData) return null;
+    if (!overpassData && !googlePlacesData) return null;
 
     const sources: string[] = [];
     let combinedScore = 0;
@@ -49,26 +50,25 @@ export const useEnhancedStoreData = (store: Store) => {
       confidence_score: 0
     };
 
-    // Prefer Yelp data for business info (usually more accurate)
-    if (yelpData) {
-      sources.push('Yelp');
-      combinedScore += 0.8; // Yelp generally has good accuracy
+    // Prefer Google Places data for business info (usually more accurate)
+    if (googlePlacesData) {
+      sources.push('Google Places');
+      combinedScore += 0.8; // Google Places generally has good accuracy
       sourceCount++;
 
-      result.phone = yelpData.display_phone;
-      result.website = yelpData.url;
-      result.rating = yelpData.rating;
-      result.review_count = yelpData.review_count;
-      result.image_url = yelpData.image_url;
-      result.price_level = yelpData.price;
-      result.categories = yelpData.categories?.map(cat => cat.title) || [];
+      result.phone = googlePlacesData.formatted_phone_number;
+      result.website = googlePlacesData.website;
+      result.rating = googlePlacesData.rating;
+      result.review_count = googlePlacesData.user_ratings_total;
+      result.image_url = googlePlacesData.photos?.[0] 
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${googlePlacesData.photos[0].photo_reference}&key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY || ''}`
+        : undefined;
+      result.price_level = googlePlacesData.price_level?.toString();
+      result.categories = googlePlacesData.types?.map(type => type.replace(/_/g, ' ')) || [];
       
-      // Convert Yelp hours to simple format if available
-      if (yelpData.hours?.[0]?.open) {
-        const todayHours = yelpData.hours[0].open.find(h => h.day === new Date().getDay());
-        if (todayHours) {
-          result.hours = `${todayHours.start} - ${todayHours.end}`;
-        }
+      // Convert Google Places opening hours to simple format if available
+      if (googlePlacesData.opening_hours?.weekday_text?.[new Date().getDay()]) {
+        result.hours = googlePlacesData.opening_hours.weekday_text[new Date().getDay()];
       }
     }
 
@@ -78,7 +78,7 @@ export const useEnhancedStoreData = (store: Store) => {
       combinedScore += overpassData.confidence_score;
       sourceCount++;
 
-      // Use OSM data if Yelp doesn't have it
+      // Use OSM data if Google Places doesn't have it
       if (!result.phone && overpassData.phone) {
         result.phone = overpassData.phone;
       }
@@ -101,14 +101,14 @@ export const useEnhancedStoreData = (store: Store) => {
     result.confidence_score = sourceCount > 0 ? combinedScore / sourceCount : 0;
     
     return result;
-  }, [overpassData, yelpData]);
+  }, [overpassData, googlePlacesData]);
 
   return {
     data: enhancedData,
     isLoading,
     sources: {
       overpass: overpassData,
-      yelp: yelpData
+      googlePlaces: googlePlacesData
     }
   };
 };

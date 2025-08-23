@@ -1,7 +1,7 @@
 
 import type { Tables } from '@/integrations/supabase/types';
 import type { LocationData } from '@/hooks/useStoreLocationData';
-import type { YelpBusiness } from '@/hooks/useYelp';
+import type { GooglePlacesBusiness } from '@/hooks/useGooglePlaces';
 
 // Use Supabase-generated types directly
 export type Store = Tables<'snap_stores'>;
@@ -18,8 +18,8 @@ export interface StoreWithLocationData extends StoreWithDistance {
   averageRating?: number;
 }
 
-export interface StoreWithYelpData extends StoreWithLocationData {
-  yelpData?: YelpBusiness;
+export interface StoreWithGooglePlacesData extends StoreWithLocationData {
+  googlePlacesData?: GooglePlacesBusiness;
 }
 
 // For compatibility with existing components

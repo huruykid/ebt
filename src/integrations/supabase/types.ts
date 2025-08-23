@@ -106,6 +106,36 @@ export type Database = {
           },
         ]
       }
+      google_places_cache: {
+        Row: {
+          business_data: Json
+          cache_expires_at: string
+          created_at: string
+          id: string
+          last_updated: string
+          place_id: string | null
+          search_query: string
+        }
+        Insert: {
+          business_data: Json
+          cache_expires_at?: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          place_id?: string | null
+          search_query: string
+        }
+        Update: {
+          business_data?: Json
+          cache_expires_at?: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          place_id?: string | null
+          search_query?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

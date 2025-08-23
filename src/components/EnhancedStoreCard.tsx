@@ -5,7 +5,7 @@ import { MapPin, Star, Phone, Clock, Globe, Utensils } from 'lucide-react';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
-import { useYelpBusiness } from '@/hooks/useYelp';
+import { useGooglePlacesBusiness } from '@/hooks/useGooglePlaces';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import type { StoreWithDistance } from '@/types/storeTypes';
@@ -24,11 +24,12 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
     rootMargin: '200px'
   });
 
-  // Only fetch Yelp data once the card is in view
-  const { data: yelpData, isLoading: yelpLoading } = useYelpBusiness(
+  // Only fetch Google Places data once the card is in view
+  const { data: googlePlacesData, isLoading: googlePlacesLoading } = useGooglePlacesBusiness(
     store.Store_Name || '',
-    store.Latitude || 0,
-    store.Longitude || 0,
+    store.Store_Street_Address || '',
+    store.Latitude || undefined,
+    store.Longitude || undefined,
     hasIntersected && !!(store.Latitude && store.Longitude)
   );
 
@@ -72,11 +73,11 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
   return (
     <div ref={ref} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="flex">
-        {/* Store Photo - Left side with Yelp integration */}
+        {/* Store Photo - Left side with Google Places integration */}
         <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
-          {yelpData?.image_url ? (
+          {googlePlacesData?.photos && googlePlacesData.photos.length > 0 ? (
             <img 
-              src={yelpData.image_url}
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${googlePlacesData.photos[0].photo_reference}&key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY || ''}`}
               alt={store.Store_Name || ''}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -103,16 +104,16 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
               {store.Store_Name}
             </Link>
             
-            {/* Yelp Rating or Placeholder */}
+            {/* Google Places Rating or Placeholder */}
             <div className="flex items-center gap-2 mt-1">
-              {yelpData ? (
+              {googlePlacesData ? (
                 <>
                   <div className="flex items-center">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star 
                         key={star} 
                         className={`h-4 w-4 ${
-                          star <= yelpData.rating
+                          star <= Math.round(googlePlacesData.rating || 0)
                             ? 'text-yellow-400 fill-current' 
                             : 'text-gray-300'
                         }`}
@@ -120,12 +121,12 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                     ))}
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    {yelpData.rating} ({yelpData.review_count} reviews)
+                    {googlePlacesData.rating} ({googlePlacesData.user_ratings_total} reviews)
                   </span>
                 </>
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  {yelpLoading ? 'Loading rating...' : 'No reviews yet'}
+                  {googlePlacesLoading ? 'Loading rating...' : 'No reviews yet'}
                 </span>
               )}
             </div>
@@ -138,9 +139,9 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                 {store.Store_Type}
               </span>
             )}
-            {yelpData?.categories && yelpData.categories.length > 0 && (
+            {googlePlacesData?.types && googlePlacesData.types.length > 0 && (
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-secondary/20 text-secondary-foreground border border-secondary/20">
-                {yelpData.categories[0].title}
+                {googlePlacesData.types[0].replace(/_/g, ' ')}
               </span>
             )}
             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
@@ -168,29 +169,29 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
 
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 flex-shrink-0" />
-              <span>{yelpData?.display_phone || 'Phone coming soon'}</span>
+              <span>{googlePlacesData?.formatted_phone_number || 'Phone coming soon'}</span>
             </div>
 
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 flex-shrink-0" />
               <span>
-                {yelpData?.hours?.[0]?.is_open_now !== undefined 
-                  ? (yelpData.hours[0].is_open_now ? 'Open Now' : 'Closed')
+                {googlePlacesData?.opening_hours?.open_now !== undefined 
+                  ? (googlePlacesData.opening_hours.open_now ? 'Open Now' : 'Closed')
                   : 'Hours coming soon'
                 }
               </span>
             </div>
 
-            {yelpData?.url && (
+            {googlePlacesData?.website && (
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 flex-shrink-0" />
                 <a 
-                  href={yelpData.url}
+                  href={googlePlacesData.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:text-primary/80"
                 >
-                  View on Yelp
+                  Visit Website
                 </a>
               </div>
             )}

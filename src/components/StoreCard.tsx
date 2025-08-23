@@ -78,7 +78,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
-      {/* Yelp-style horizontal layout */}
+      {/* Enhanced horizontal layout */}
       <div className="flex">
         {/* Store Photo - Left side */}
         <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
@@ -159,7 +159,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           {/* Separator */}
           <div className="border-t border-border mb-3"></div>
 
-          {/* Contact Information - Yelp style */}
+          {/* Contact Information - Enhanced style */}
           <div className="space-y-1 text-sm text-muted-foreground">
             {fullAddress && (
               <div className="flex items-start gap-2">
