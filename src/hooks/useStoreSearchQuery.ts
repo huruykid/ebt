@@ -64,42 +64,13 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         });
 
         // Convert the RPC result format to our expected format
-        results = data.map(store => {
+        results = (data.map(store => {
           const storeData = store as any; // Type assertion to handle the RPC result format
           return {
-            id: storeData.id,
-            Store_Name: storeData.store_name,
-            Store_Street_Address: storeData.store_street_address,
-            City: storeData.city,
-            State: storeData.state,
-            Zip_Code: storeData.zip_code,
-            Store_Type: storeData.store_type,
-            Latitude: storeData.latitude,
-            Longitude: storeData.longitude,
-            distance: storeData.distance_miles,
-            // Map other required fields with defaults
-            Additional_Address: null,
-            Zip4: null,
-            County: null,
-            Record_ID: null,
-            ObjectId: null,
-            Grantee_Name: null,
-            X: null,
-            Y: null,
-            Incentive_Program: null,
-            // Google Places fields (optional)
-            google_place_id: null,
-            google_name: null,
-            google_formatted_address: null,
-            google_website: null,
-            google_formatted_phone_number: null,
-            google_opening_hours: null,
-            google_rating: null,
-            google_user_ratings_total: null,
-            google_photos: null,
-            google_last_updated: null
+            ...storeData, // This spreads all fields including new Google Places fields
+            distance_miles: storeData.distance_miles,
           };
-        });
+        }) as StoreWithDistance[]);
 
         // Apply category-specific filtering for location-based searches
         if (activeCategory === 'grocery' && results.length > 0) {

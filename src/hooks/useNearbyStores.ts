@@ -63,7 +63,7 @@ export const useNearbyStores = ({
         }
 
         // Convert the raw results to the correct format
-        let storesWithDistance: StoreWithDistance[] = (data || []).map((result: OptimizedNearbyResult) => ({
+        let storesWithDistance = (data || []).map((result: OptimizedNearbyResult) => ({
           id: result.id,
           Store_Name: result.store_name,
           Store_Street_Address: result.store_street_address,
@@ -94,8 +94,18 @@ export const useNearbyStores = ({
           google_rating: null,
           google_user_ratings_total: null,
           google_photos: null,
-          google_last_updated: null
-        }));
+          google_last_updated: null,
+          google_reviews: null,
+          google_types: null,
+          google_price_level: null,
+          google_plus_code: null,
+          google_business_status: null,
+          google_geometry: null,
+          google_vicinity: null,
+          google_icon: null,
+          google_icon_background_color: null,
+          google_icon_mask_base_uri: null,
+        })) as StoreWithDistance[];
 
         // Apply trending logic if needed
         if (category === 'trending') {

@@ -73,39 +73,72 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
   return (
     <div ref={ref} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="flex">
-        {/* Store Photo - Left side with Google Places integration */}
+        {/* Store Photo - Left side with Google Places integration and multiple photos */}
         <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
-          {googlePlacesData?.photos && googlePlacesData.photos.length > 0 && googlePlacesData.photos[0].photo_url ? (
-            <img 
-              src={googlePlacesData.photos[0].photo_url}
-              alt={store.Store_Name || ''}
-              className="w-full h-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                // Fallback to default image if Google Places photo fails
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                target.parentElement!.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                    <div class="text-center text-gray-500">
-                      <svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      </svg>
-                      <span class="text-xs font-medium">${store.Store_Name}</span>
-                    </div>
+          {(() => {
+            // Priority: stored photos > Google Places API photos > fallback
+            const storedPhotos = store.google_photos as Array<{photo_url?: string}> | null;
+            const apiPhotos = googlePlacesData?.photos;
+            
+            if (storedPhotos && storedPhotos.length > 0 && storedPhotos[0].photo_url) {
+              return (
+                <img 
+                  src={storedPhotos[0].photo_url}
+                  alt={store.Store_Name || ''}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML = `
+                      <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                        <div class="text-center text-gray-500">
+                          <svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          <span class="text-xs font-medium">${store.Store_Name}</span>
+                        </div>
+                      </div>
+                    `;
+                  }}
+                />
+              );
+            } else if (apiPhotos && apiPhotos.length > 0 && apiPhotos[0].photo_url) {
+              return (
+                <img 
+                  src={apiPhotos[0].photo_url}
+                  alt={store.Store_Name || ''}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.parentElement!.innerHTML = `
+                      <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                        <div class="text-center text-gray-500">
+                          <svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          <span class="text-xs font-medium">${store.Store_Name}</span>
+                        </div>
+                      </div>
+                    `;
+                  }}
+                />
+              );
+            } else {
+              return (
+                <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <MapPin className="h-6 w-6 mx-auto mb-1" />
+                    <span className="text-xs font-medium">{store.Store_Name}</span>
                   </div>
-                `;
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <MapPin className="h-6 w-6 mx-auto mb-1" />
-                <span className="text-xs font-medium">{store.Store_Name}</span>
-              </div>
-            </div>
-          )}
+                </div>
+              );
+            }
+          })()}
         </div>
 
         {/* Content - Right side */}
@@ -120,31 +153,40 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
               {store.Store_Name}
             </Link>
             
-            {/* Google Places Rating or Placeholder */}
+            {/* Google Places Rating with stored data priority */}
             <div className="flex items-center gap-2 mt-1">
-              {googlePlacesData ? (
-                <>
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star} 
-                        className={`h-4 w-4 ${
-                          star <= Math.round(googlePlacesData.rating || 0)
-                            ? 'text-yellow-400 fill-current' 
-                            : 'text-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {googlePlacesData.rating} ({googlePlacesData.user_ratings_total} reviews)
-                  </span>
-                </>
-              ) : (
-                <span className="text-sm text-muted-foreground">
-                  {googlePlacesLoading ? 'Loading rating...' : 'No reviews yet'}
-                </span>
-              )}
+              {(() => {
+                const rating = store.google_rating || googlePlacesData?.rating;
+                const ratingsTotal = store.google_user_ratings_total || googlePlacesData?.user_ratings_total;
+                
+                if (rating) {
+                  return (
+                    <>
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star 
+                            key={star} 
+                            className={`h-4 w-4 ${
+                              star <= Math.round(rating)
+                                ? 'text-yellow-400 fill-current' 
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {rating.toFixed(1)} ({ratingsTotal} reviews)
+                      </span>
+                    </>
+                  );
+                } else {
+                  return (
+                    <span className="text-sm text-muted-foreground">
+                      {googlePlacesLoading ? 'Loading rating...' : 'No reviews yet'}
+                    </span>
+                  );
+                }
+              })()}
             </div>
           </div>
 
@@ -155,9 +197,9 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                 {store.Store_Type}
               </span>
             )}
-            {googlePlacesData?.types && googlePlacesData.types.length > 0 && (
+            {store.google_types && Array.isArray(store.google_types) && store.google_types.length > 0 && (
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-secondary/20 text-secondary-foreground border border-secondary/20">
-                {googlePlacesData.types[0].replace(/_/g, ' ')}
+                {(store.google_types[0] as string).replace(/_/g, ' ')}
               </span>
             )}
             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">

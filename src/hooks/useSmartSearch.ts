@@ -76,7 +76,7 @@ export const useSmartSearch = () => {
       console.log('Search params:', searchParams);
 
       // Convert the raw results to the correct format
-      let convertedResults: StoreWithDistance[] = (data || []).map((result: SmartSearchResult) => ({
+      let convertedResults = (data || []).map((result: SmartSearchResult) => ({
         id: result.id,
         Store_Name: result.store_name,
         Store_Street_Address: result.store_street_address,
@@ -106,8 +106,19 @@ export const useSmartSearch = () => {
         google_rating: null,
         google_user_ratings_total: null,
         google_photos: null,
-        google_last_updated: null
-      }));
+        google_last_updated: null,
+        google_reviews: null,
+        google_types: null,
+        google_price_level: null,
+        google_plus_code: null,
+        google_business_status: null,
+        google_geometry: null,
+        google_vicinity: null,
+        google_icon: null,
+        google_icon_background_color: null,
+        google_icon_mask_base_uri: null,
+        distance_miles: 0 // SmartSearchResult doesn't have distance field
+      })) as StoreWithDistance[];
 
       // Apply location filtering if user coordinates are available
       if (searchParams.userLatitude && searchParams.userLongitude && convertedResults.length > 0) {

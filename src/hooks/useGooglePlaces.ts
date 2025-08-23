@@ -20,12 +20,31 @@ export interface GooglePlacesBusiness {
     width: number;
     height: number;
   }>;
+  reviews?: Array<{
+    author_name: string;
+    author_url?: string;
+    language: string;
+    profile_photo_url?: string;
+    rating: number;
+    relative_time_description: string;
+    text: string;
+    time: number;
+  }>;
   types?: string[];
   geometry?: {
     location: {
       lat: number;
       lng: number;
     };
+  };
+  vicinity?: string;
+  icon?: string;
+  icon_background_color?: string;
+  icon_mask_base_uri?: string;
+  business_status?: string;
+  plus_code?: {
+    global_code: string;
+    compound_code?: string;
   };
 }
 

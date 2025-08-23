@@ -62,7 +62,7 @@ export const useInfiniteNearbyStores = ({
         }
 
         // Convert and slice for pagination
-        let storesWithDistance: StoreWithDistance[] = (data || [])
+        let storesWithDistance = (data || [])
           .slice(offset, offset + pageSize)
           .map((result: OptimizedNearbyResult) => ({
             id: result.id,
@@ -84,18 +84,28 @@ export const useInfiniteNearbyStores = ({
             X: null,
             Y: null,
             Incentive_Program: null,
-            // Google Places fields (optional)
-            google_place_id: null,
-            google_name: null,
-            google_formatted_address: null,
-            google_website: null,
-            google_formatted_phone_number: null,
-            google_opening_hours: null,
-            google_rating: null,
-            google_user_ratings_total: null,
-            google_photos: null,
-            google_last_updated: null
-          }));
+          // Google Places fields (optional)
+          google_place_id: null,
+          google_name: null,
+          google_formatted_address: null,
+          google_website: null,
+          google_formatted_phone_number: null,
+          google_opening_hours: null,
+          google_rating: null,
+          google_user_ratings_total: null,
+          google_photos: null,
+          google_last_updated: null,
+          google_reviews: null,
+          google_types: null,
+          google_price_level: null,
+          google_plus_code: null,
+          google_business_status: null,
+          google_geometry: null,
+          google_vicinity: null,
+          google_icon: null,
+          google_icon_background_color: null,
+          google_icon_mask_base_uri: null,
+        })) as StoreWithDistance[];
 
         // Apply trending logic if needed
         if (category === 'trending' && storesWithDistance.length > 0) {
