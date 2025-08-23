@@ -32,7 +32,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
   onRequestLocation
 }) => {
   return (
-    <div className="flex w-full flex-col items-stretch px-3.5 pt-3">
+    <div className="flex w-full flex-col items-stretch px-3.5 pt-6">
       <div className="text-center mb-4">
         <h1 className="text-2xl font-bold text-foreground mb-2">Find EBT & SNAP-Accepting Stores Near You</h1>
         <p className="text-sm text-muted-foreground px-2">
