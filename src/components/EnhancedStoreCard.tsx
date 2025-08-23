@@ -202,14 +202,24 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                 {(store.google_types[0] as string).replace(/_/g, ' ')}
               </span>
             )}
-            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
+            <a 
+              href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20 hover:bg-accent/30 transition-colors"
+            >
               EBT Accepted
-            </span>
+            </a>
             {isRmpEnrolled && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+              <a 
+                href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+              >
                 <Utensils className="h-3 w-3 mr-1" />
                 Hot Foods
-              </span>
+              </a>
             )}
           </div>
 
