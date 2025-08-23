@@ -35,14 +35,16 @@ export const DesktopHeroSection: React.FC<DesktopHeroSectionProps> = ({
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold text-foreground mb-4">Find EBT & SNAP-Accepting Stores Near You</h1>
           <p className="text-lg text-muted-foreground mb-8">
+            EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or{" "}
             <a 
               href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors underline"
             >
-              EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or hot food (RMP), and read community reviews before you go.
+              hot food (RMP)
             </a>
+            , and read community reviews before you go.
           </p>
           
           {/* ZIP Code Search - Desktop */}
