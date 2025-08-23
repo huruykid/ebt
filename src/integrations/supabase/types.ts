@@ -433,6 +433,10 @@ export type Database = {
           zip_code: string
         }[]
       }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       smart_store_search: {
         Args: {
           result_limit?: number
