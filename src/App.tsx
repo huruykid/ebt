@@ -64,7 +64,7 @@ const AppContent = () => {
       </div>
 
       {/* Main content area with responsive bottom padding */}
-      <div className="flex-1 pb-20 md:pb-0">
+      <div className="flex-1 pb-28 md:pb-0">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -102,7 +102,7 @@ const AppContent = () => {
       </div>
       
       {/* Fixed bottom navigation - mobile only */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
         <BottomNavigation onNavigate={handleNavigate} />
       </div>
     </div>
