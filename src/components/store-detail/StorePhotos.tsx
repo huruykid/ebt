@@ -107,13 +107,18 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
   const defaultImageId = getDefaultStoreImage(store.Store_Type, store.Store_Name);
   const defaultBackgroundImage = `https://images.unsplash.com/${defaultImageId}?auto=format&fit=crop&w=1200&h=400&q=80`;
   
-  // For Google Photos, we'll use a placeholder since we need the actual Google Places API
-  // In a real implementation, you'd need to call Google Places API with the photo_reference
+  // Generate Google Places Photo API URL from photo_reference
   const getCurrentBackgroundImage = () => {
     if (hasGooglePhotos && googlePhotos[currentPhotoIndex]) {
-      // For now, we'll use a placeholder. In production, you'd call Google Places Photo API
-      // with the photo_reference: googlePhotos[currentPhotoIndex].photo_reference
-      return `https://via.placeholder.com/1200x400/4f46e5/ffffff?text=${encodeURIComponent(storeName + ' - Photo ' + (currentPhotoIndex + 1))}`;
+      const photo = googlePhotos[currentPhotoIndex];
+      if (photo.photo_url) {
+        // Use the direct photo URL if available
+        return photo.photo_url;
+      } else if (photo.photo_reference) {
+        // Use our edge function to serve Google Places photos
+        const supabaseUrl = 'https://vpnaaaocqqmkslwqrkyd.supabase.co';
+        return `${supabaseUrl}/functions/v1/google-places-photo?photo_reference=${photo.photo_reference}&maxwidth=1200&maxheight=400`;
+      }
     }
     return defaultBackgroundImage;
   };

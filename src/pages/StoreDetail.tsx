@@ -16,7 +16,8 @@ import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
 import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
-import { GooglePhotosGallery } from '@/components/store-detail/GooglePhotosGallery';
+import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
+import { useGooglePlacesBusiness } from '@/hooks/useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -50,7 +51,16 @@ export default function StoreDetailPage() {
     enabled: !!id,
   });
 
-  if (isLoading) {
+  // Fetch Google Places data for the store
+  const { data: googleData, isLoading: isGoogleLoading } = useGooglePlacesBusiness(
+    store?.Store_Name || '',
+    store ? `${store.Store_Street_Address}, ${store.City}, ${store.State}` : '',
+    store?.Latitude || undefined,
+    store?.Longitude || undefined,
+    !!store
+  );
+
+  if (isLoading || isGoogleLoading) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -85,16 +95,17 @@ export default function StoreDetailPage() {
     );
   }
 
-  // Generate SEO data for the store
-  const seoTitle = store ? `${store.Store_Name} - EBT Store Details | EBT Finder` : "Store Details | EBT Finder";
+  // Generate SEO data for the store - use Google name if available
+  const displayName = googleData?.name || store?.Store_Name;
+  const seoTitle = store ? `${displayName} - EBT Store Details | EBT Finder` : "Store Details | EBT Finder";
   const seoDescription = store ? 
-    `Find details for ${store.Store_Name} at ${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}. EBT/SNAP accepted. View hours, reviews, and directions.` :
+    `Find details for ${displayName} at ${googleData?.formatted_address || `${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}. EBT/SNAP accepted. ${googleData?.rating ? `Rated ${googleData.rating} stars.` : ''} View hours, reviews, and directions.` :
     "View detailed information about EBT and SNAP accepting stores including hours, reviews, and directions.";
   
   const structuredData = store ? {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": store.Store_Name,
+    "name": displayName,
     "address": {
       "@type": "PostalAddress",
       "streetAddress": store.Store_Street_Address,
@@ -109,8 +120,14 @@ export default function StoreDetailPage() {
       "longitude": store.Longitude
     } : undefined,
     "paymentAccepted": ["SNAP", "EBT"],
-    "priceRange": "$",
-    "url": `https://ebtfinder.org/store/${store.id}`
+    "priceRange": googleData?.price_level ? '$'.repeat(googleData.price_level) : "$",
+    "telephone": googleData?.formatted_phone_number || undefined,
+    "website": googleData?.website || undefined,
+    "aggregateRating": googleData?.rating ? {
+      "@type": "AggregateRating",
+      "ratingValue": googleData.rating,
+      "reviewCount": googleData.user_ratings_total
+    } : undefined
   } : undefined;
 
   return (
@@ -118,7 +135,7 @@ export default function StoreDetailPage() {
       <SEOHead
         title={seoTitle}
         description={seoDescription}
-        keywords={`${store?.Store_Name}, EBT store, SNAP accepted, ${store?.City}, ${store?.State}, grocery store, food benefits`}
+        keywords={`${displayName}, EBT store, SNAP accepted, ${store?.City}, ${store?.State}, grocery store, food benefits`}
         canonicalUrl={`https://ebtfinder.org/store/${id}`}
         structuredData={structuredData}
       />
@@ -139,7 +156,7 @@ export default function StoreDetailPage() {
 
         {/* Hero Section with Photos */}
         <StorePhotos 
-          storeName={store.Store_Name} 
+          storeName={displayName || store.Store_Name} 
           store={store}
           onHoursAdded={setStoreHours}
         />
@@ -155,7 +172,6 @@ export default function StoreDetailPage() {
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Reviews Section - First on mobile, second column on desktop */}
                 <div className="xl:col-span-2 order-1 space-y-6">
-                  <GooglePhotosGallery store={store} />
                   <GoogleReviewsSection store={store} />
                   <ReviewSection store={store} />
                   <StoreComments storeId={store.id} storeName={store.Store_Name} />
@@ -164,6 +180,11 @@ export default function StoreDetailPage() {
                 {/* Store Info and Hours - Second on mobile, third column on desktop */}
                 <div className="xl:col-span-1 order-2 space-y-6">
                   <div className="xl:sticky xl:top-4 space-y-6">
+                    <EnhancedGooglePlacesInfo 
+                      googleData={googleData}
+                      storeName={store.Store_Name}
+                      fallbackAddress={`${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}
+                    />
                     <EnhancedStoreInfo store={store} />
                     {storeHours && <StoreHoursCard hours={storeHours} />}
                   </div>
