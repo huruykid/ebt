@@ -63,12 +63,11 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
               Add Photo
             </Button>
             
-            <ShareStore store={store}>
-              <Button className="bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-105">
-                <Share className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </ShareStore>
+          <ShareStore 
+            store={store}
+            variant="button"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-105"
+          />
           </div>
         </div>
       </div>
@@ -77,9 +76,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
       <AddPhotoModal
         isOpen={showAddPhotoModal}
         onClose={() => setShowAddPhotoModal(false)}
-        storeId={store.id}
-        storeName={storeName}
-        onHoursAdded={onHoursAdded}
+        store={store}
       />
     </div>
   );
