@@ -77,9 +77,6 @@ verify_jwt = true
 [functions.google-places]
 verify_jwt = false
 
-[functions.google-photos]
-verify_jwt = false
-
 [edge_runtime]
 enabled = true
 ip_version = "ipv6"

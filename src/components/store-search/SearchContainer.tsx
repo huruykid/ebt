@@ -37,6 +37,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     selectedZip,
     setSelectedZip,
     handleLocationSelect,
+    clearLocationSelection,
   } = useLocationBasedSearch();
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();

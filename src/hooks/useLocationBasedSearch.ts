@@ -11,13 +11,16 @@ export const useLocationBasedSearch = () => {
   const initialQuery = searchParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [sortBy, setSortBy] = useState<'relevance' | 'distance' | 'name'>('relevance');
+  const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedZip, setSelectedZip] = useState('');
 
-  // Initialize from URL params
+  // Update search query when URL parameter changes
   useEffect(() => {
-    const urlQuery = searchParams.get('q') || '';
-    if (urlQuery !== searchQuery) {
-      setSearchQuery(urlQuery);
+    const queryParam = searchParams.get('q') || '';
+    if (queryParam !== searchQuery) {
+      setSearchQuery(queryParam);
     }
   }, [searchParams]);
 
@@ -29,7 +32,7 @@ export const useLocationBasedSearch = () => {
     selectedNamePatterns,
     radius,
     setRadius,
-    handleCategoryChange,
+    handleCategoryChange
   } = useCategoryManagement();
 
   // Use the search query hook with city/state parameters
@@ -41,17 +44,21 @@ export const useLocationBasedSearch = () => {
     locationSearch,
     userZipCode,
     radius,
-    city: locationSearch?.city,
-    state: locationSearch?.state,
-    zipCode: userZipCode || '',
+    selectedCity,
+    selectedState,
+    selectedZip,
   });
 
-  // Sort the stores based on current sort option
+  // Sort the stores based on the selected option
   const sortedStores = stores ? sortStores(stores, sortBy) : [];
 
-  const handleLocationUpdate = (location: typeof locationSearch) => {
-    console.log('useLocationBasedSearch: Updating location to:', location);
-    setLocationSearch(location);
+  const wrappedHandleCategoryChange = (categoryId: string, storeTypes: string[] = [], namePatterns: string[] = []) => {
+    handleCategoryChange(categoryId, storeTypes, namePatterns);
+    
+    // Force a fresh search by clearing the search query for category-based searches
+    if (categoryId !== 'trending') {
+      setSearchQuery('');
+    }
   };
 
   const wrappedSetSearchQuery = (query: string) => {
@@ -59,39 +66,34 @@ export const useLocationBasedSearch = () => {
     setSearchQuery(query);
   };
 
-  // Location selection helpers
-  const selectedCity = locationSearch?.city || '';
-  const selectedState = locationSearch?.state || '';
-  const selectedZip = userZipCode || '';
-  const setSelectedZip = (zip: string) => {
-    // This would need to be implemented in useLocationSearch
-  };
-
   const handleLocationSelect = (city: string, state: string) => {
-    setLocationSearch({ city, state });
+    setSelectedCity(city);
+    setSelectedState(state);
   };
 
   const clearLocationSelection = () => {
-    setLocationSearch(null);
+    setSelectedCity('');
+    setSelectedState('');
+    setSelectedZip('');
   };
 
   return {
     searchQuery,
     setSearchQuery: wrappedSetSearchQuery,
-    stores: sortedStores,
-    isLoading,
-    error,
-    sortBy,
-    setSortBy,
-    locationSearch,
-    setLocationSearch: handleLocationUpdate,
-    userZipCode,
     activeCategory,
     selectedStoreTypes,
     selectedNamePatterns,
+    locationSearch,
+    setLocationSearch,
+    sortBy,
+    setSortBy,
     radius,
     setRadius,
-    handleCategoryChange,
+    stores: sortedStores,
+    isLoading,
+    error,
+    handleCategoryChange: wrappedHandleCategoryChange,
+    userZipCode,
     selectedCity,
     selectedState,
     selectedZip,
