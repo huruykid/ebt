@@ -512,6 +512,19 @@ export type Database = {
           store_name: string
         }[]
       }
+      get_user_stats: {
+        Args: { target_user_id?: string }
+        Returns: {
+          hours_count: number
+          photos_count: number
+          reviews_count: number
+          stores_contributed_to: number
+          total_contributions: number
+          total_points: number
+          user_id: string
+          verified_contributions: number
+        }[]
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean

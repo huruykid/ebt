@@ -14,20 +14,17 @@ export const useGameification = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch user's points and stats
+  // Fetch user's points and stats using secure function
   const { data: userStats } = useQuery({
     queryKey: ['user-stats', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
       
       const { data, error } = await supabase
-        .from('user_stats')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .rpc('get_user_stats', { target_user_id: user.id });
       
       if (error) throw error;
-      return data;
+      return data?.[0] || null; // RPC returns array, we want first item
     },
     enabled: !!user?.id,
   });
