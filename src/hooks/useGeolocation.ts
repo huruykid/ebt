@@ -20,7 +20,9 @@ export const useGeolocation = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const isNative = Capacitor.getPlatform() !== 'web';
+    const platform = Capacitor.getPlatform();
+    const isNative = platform !== 'web';
+    const isIOS = platform === 'ios';
 
     const setSafe = (updater: ((prev: GeolocationState) => GeolocationState) | GeolocationState) => {
       if (cancelled) return;
@@ -96,7 +98,7 @@ export const useGeolocation = () => {
       });
     };
 
-    if (isNative) {
+    if (isNative && !isIOS) {
       getNative();
     } else {
       getWeb();
