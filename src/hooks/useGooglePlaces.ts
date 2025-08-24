@@ -53,13 +53,16 @@ interface GooglePlacesResponse {
   cached: boolean;
 }
 
-// In-memory cache to reduce duplicate requests within the same session
+// Performance optimization: In-memory cache and request deduplication
 const googlePlacesCache = new Map<string, { data: GooglePlacesBusiness | null; timestamp: number }>();
+const ongoingRequests = new Map<string, Promise<GooglePlacesBusiness | null>>();
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes session cache
 
-// Function to find best match from Google Places results
+// Improved cache key generation for better hit rates
 const generateCacheKey = (storeName: string, address?: string): string => {
-  return `${storeName.toLowerCase().trim()}_${(address || '').toLowerCase().trim()}`;
+  const normalizedName = storeName.toLowerCase().trim().replace(/[^\w\s]/g, '');
+  const normalizedAddress = (address || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
+  return `${normalizedName}_${normalizedAddress}`;
 };
 
 export const useGooglePlacesBusiness = (
@@ -74,79 +77,77 @@ export const useGooglePlacesBusiness = (
   return useQuery({
     queryKey: ['google-places-business', cacheKey],
     queryFn: async (): Promise<GooglePlacesBusiness | null> => {
-      console.log('🔍 Fetching Google Places data for:', { 
-        storeName, 
-        address,
-        latitude,
-        longitude 
-      });
-
       if (!storeName?.trim()) {
         console.warn('⚠️ No store name provided for Google Places lookup');
         return null;
       }
 
-      try {
-        // Check session cache first
-        const cached = googlePlacesCache.get(cacheKey);
-        if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-          console.log('📦 Using session cached Google Places data for:', storeName);
-          return cached.data;
-        }
+      // Check session cache first
+      const cached = googlePlacesCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+        console.log('📦 Using cached Google Places data for:', storeName);
+        return cached.data;
+      }
 
-        console.log('🌐 Making API call to google-places function...');
+      // Check if there's an ongoing request for this cache key
+      const ongoingRequest = ongoingRequests.get(cacheKey);
+      if (ongoingRequest) {
+        console.log('⏳ Request already in progress, waiting for result:', storeName);
+        return ongoingRequest;
+      }
 
-        const { data: searchData, error: searchError } = await supabase.functions.invoke('google-places', {
-          body: {
-            storeName: storeName.trim(),
-            address: address?.trim(),
-            latitude,
-            longitude
-          },
-        });
+      // Create new request and cache the promise
+      const requestPromise = (async (): Promise<GooglePlacesBusiness | null> => {
+        try {
+          console.log('🌐 Making API call to google-places function for:', storeName);
 
-        if (searchError) {
-          console.error('❌ Error calling google-places function:', searchError);
-          
-          // Set empty cache to prevent repeated failed requests
+          const { data: searchData, error: searchError } = await supabase.functions.invoke('google-places', {
+            body: {
+              storeName: storeName.trim(),
+              address: address?.trim(),
+              latitude,
+              longitude
+            },
+          });
+
+          if (searchError) {
+            console.error('❌ Error calling google-places function:', searchError);
+            // Cache null result to prevent repeated failed requests
+            googlePlacesCache.set(cacheKey, { data: null, timestamp: Date.now() });
+            return null;
+          }
+
+          const response = searchData as GooglePlacesResponse;
+          const business = response.business || null;
+
+          // Cache the result
           googlePlacesCache.set(cacheKey, { 
-            data: null, 
+            data: business, 
             timestamp: Date.now() 
           });
-          
+
+          if (business) {
+            console.log('✅ Found Google Places business:', business.name);
+          } else {
+            console.log('😐 No Google Places match found for:', storeName);
+          }
+
+          return business;
+
+        } catch (error) {
+          console.error('💥 Error fetching Google Places data:', error);
+          // Cache null result to prevent repeated failed requests
+          googlePlacesCache.set(cacheKey, { data: null, timestamp: Date.now() });
           return null;
+        } finally {
+          // Clean up the ongoing request
+          ongoingRequests.delete(cacheKey);
         }
+      })();
 
-        const response = searchData as GooglePlacesResponse;
-        console.log(`✅ Google Places response for "${storeName}":`, response);
-
-        const business = response.business || null;
-
-        if (business) {
-          console.log('🏪 Found Google Places business:', business);
-        } else {
-          console.log('😐 No Google Places match found for:', storeName);
-        }
-
-        // Cache the result in session cache
-        googlePlacesCache.set(cacheKey, { 
-          data: business, 
-          timestamp: Date.now() 
-        });
-
-        return business;
-
-      } catch (error) {
-        console.error('💥 Error fetching Google Places data:', error);
-        
-        // Set empty cache to prevent repeated failed requests
-        googlePlacesCache.set(cacheKey, { 
-          data: null, 
-          timestamp: Date.now() 
-        });
-        
-        return null;
-      }
+      // Cache the promise to prevent duplicate requests
+      ongoingRequests.set(cacheKey, requestPromise);
+      return requestPromise;
     },
     enabled: enabled && Boolean(storeName?.trim()),
     staleTime: 1000 * 60 * 30, // 30 minutes
