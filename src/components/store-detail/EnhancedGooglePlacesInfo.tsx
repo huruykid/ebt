@@ -3,10 +3,10 @@ import { Phone, Globe, Clock, Star, MapPin, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { GooglePlacesBusiness } from '@/hooks/useGooglePlaces';
+import type { OptimizedGooglePlacesData } from '@/hooks/useOptimizedGooglePlaces';
 
 interface EnhancedGooglePlacesInfoProps {
-  googleData: GooglePlacesBusiness | null;
+  googleData: OptimizedGooglePlacesData | null;
   storeName: string;
   fallbackAddress?: string;
 }
@@ -63,7 +63,8 @@ export const EnhancedGooglePlacesInfo: React.FC<EnhancedGooglePlacesInfoProps> =
                 {googleData.name || storeName}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Verified business information from Google
+                Verified business information from Google 
+                {googleData.cached && <span className="text-yellow-600">• Cached data</span>}
               </p>
             </div>
             <div className="text-right">

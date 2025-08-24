@@ -17,7 +17,7 @@ import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
 import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
 import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
-import { useGooglePlacesBusiness } from '@/hooks/useGooglePlaces';
+import { useOptimizedGooglePlaces } from '@/hooks/useOptimizedGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -51,14 +51,8 @@ export default function StoreDetailPage() {
     enabled: !!id,
   });
 
-  // Fetch Google Places data for the store
-  const { data: googleData, isLoading: isGoogleLoading } = useGooglePlacesBusiness(
-    store?.Store_Name || '',
-    store ? `${store.Store_Street_Address}, ${store.City}, ${store.State}` : '',
-    store?.Latitude || undefined,
-    store?.Longitude || undefined,
-    !!store
-  );
+  // Fetch optimized Google Places data for the store
+  const { data: googleData, isLoading: isGoogleLoading } = useOptimizedGooglePlaces(store, !!store);
 
   if (isLoading || isGoogleLoading) {
     return (
@@ -163,6 +157,15 @@ export default function StoreDetailPage() {
         
         <div className="relative -mt-8 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Budget Warning */}
+            {googleData?.budget_exceeded && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <span className="font-medium">Note:</span> Using cached data due to monthly API budget limit. Information may be slightly outdated.
+                </p>
+              </div>
+            )}
+            
             {/* Main Content */}
             <div className="space-y-6">
               {/* Store Header */}
