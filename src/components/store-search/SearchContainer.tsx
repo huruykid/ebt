@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { CategorySearchResults } from '@/components/store-search/CategorySearchResults';
-import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
+import { useStoreSearch } from '@/hooks/useStoreSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin, Search, Navigation } from 'lucide-react';
 import { sanitizeString, isValidZipCode } from '@/utils/security';
@@ -37,8 +37,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     selectedZip,
     setSelectedZip,
     handleLocationSelect,
-    clearLocationSelection,
-  } = useLocationBasedSearch();
+  } = useStoreSearch({ useLocationParams: true });
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { sortStores } from '@/utils/storeSorting';
@@ -7,18 +6,22 @@ import { useCategoryManagement } from '@/hooks/useCategoryManagement';
 import { useStoreSearchQuery } from '@/hooks/useStoreSearchQuery';
 import type { SortOption } from '@/components/SortDropdown';
 
-export const useStoreSearch = () => {
+interface UseStoreSearchProps {
+  useLocationParams?: boolean;
+}
+
+export const useStoreSearch = ({ useLocationParams = false }: UseStoreSearchProps = {}) => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [sortBy, setSortBy] = useState<SortOption>('distance');
+  const [sortBy, setSortBy] = useState<SortOption>('relevance');
 
-  // Update search query when URL parameter changes
+  // Initialize from URL params
   useEffect(() => {
-    const queryParam = searchParams.get('q') || '';
-    if (queryParam !== searchQuery) {
-      setSearchQuery(queryParam);
+    const urlQuery = searchParams.get('q') || '';
+    if (urlQuery !== searchQuery) {
+      setSearchQuery(urlQuery);
     }
   }, [searchParams]);
 
@@ -27,35 +30,32 @@ export const useStoreSearch = () => {
   const {
     activeCategory,
     selectedStoreTypes,
-    selectedNamePatterns,
-    radius,
-    setRadius,
-    handleCategoryChange
+    setActiveCategory,
+    setSelectedStoreTypes,
+    resetCategoryFilters
   } = useCategoryManagement();
 
-  // Use the search query hook
-  const { data: stores, isLoading, error } = useStoreSearchQuery({
+  // Build search parameters
+  const searchParams_internal = {
     searchQuery,
     activeCategory,
     selectedStoreTypes,
-    selectedNamePatterns,
-    locationSearch,
-    userZipCode,
-    radius,
-    selectedCity: '', // Will be updated by SearchContainer
-    selectedState: '' // Will be updated by SearchContainer
-  });
+    ...(useLocationParams && locationSearch ? {
+      city: locationSearch.city,
+      state: locationSearch.state,
+      zipCode: locationSearch.zipCode
+    } : {}),
+  };
 
-  // Sort the stores based on the selected option
+  // Use the search query hook
+  const { data: stores, isLoading, error } = useStoreSearchQuery(searchParams_internal);
+
+  // Sort the stores based on current sort option
   const sortedStores = stores ? sortStores(stores, sortBy) : [];
 
-  const wrappedHandleCategoryChange = (categoryId: string, storeTypes: string[] = [], namePatterns: string[] = []) => {
-    handleCategoryChange(categoryId, storeTypes, namePatterns);
-    
-    // Force a fresh search by clearing the search query for category-based searches
-    if (categoryId !== 'trending') {
-      setSearchQuery('');
-    }
+  const handleLocationUpdate = (location: typeof locationSearch) => {
+    console.log('useStoreSearch: Updating location to:', location);
+    setLocationSearch(location);
   };
 
   const wrappedSetSearchQuery = (query: string) => {
@@ -66,19 +66,18 @@ export const useStoreSearch = () => {
   return {
     searchQuery,
     setSearchQuery: wrappedSetSearchQuery,
-    activeCategory,
-    selectedStoreTypes,
-    selectedNamePatterns,
-    locationSearch,
-    setLocationSearch,
-    sortBy,
-    setSortBy,
-    radius,
-    setRadius,
     stores: sortedStores,
     isLoading,
     error,
-    handleCategoryChange: wrappedHandleCategoryChange,
+    sortBy,
+    setSortBy,
+    locationSearch,
+    setLocationSearch: handleLocationUpdate,
     userZipCode,
+    activeCategory,
+    selectedStoreTypes,
+    setActiveCategory,
+    setSelectedStoreTypes,
+    resetCategoryFilters,
   };
 };
