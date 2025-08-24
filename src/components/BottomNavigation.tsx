@@ -52,7 +52,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     <footer 
       className={`flex w-full flex-col items-stretch text-[15px] font-normal whitespace-nowrap justify-center py-px border-[#979797] border-t bg-white ${className}`}
     >
-      <div className="bg-blend-normal bg-white flex w-full flex-col items-stretch justify-center px-[34px] pt-3 pb-2 border-[#979797] border-t">
+      <div className="bg-blend-normal bg-white flex w-full flex-col items-stretch justify-center px-[34px] pt-6 pb-[15px] border-[#979797] border-t">
         <nav className="flex items-center justify-center" role="navigation" aria-label="Main navigation">
           <div className="flex items-center justify-between w-full max-w-md">
             {navItems.map((item) => {
