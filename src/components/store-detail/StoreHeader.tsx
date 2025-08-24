@@ -93,6 +93,41 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
     return `${todayHours.open} - ${todayHours.close}`;
   };
 
+  const formatGoogleHours = () => {
+    if (!store.google_opening_hours) return null;
+    
+    try {
+      const openingHours = JSON.parse(store.google_opening_hours as string);
+      if (openingHours.weekday_text && openingHours.weekday_text.length > 0) {
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const todayIndex = today === 0 ? 6 : today - 1; // Convert to Monday = 0 format
+        return openingHours.weekday_text[todayIndex] || openingHours.weekday_text[0];
+      }
+    } catch (error) {
+      console.warn('Error parsing Google opening hours:', error);
+    }
+    
+    return null;
+  };
+
+  const getDisplayPhone = () => {
+    return addedPhone || store.google_formatted_phone_number;
+  };
+
+  const getDisplayHours = () => {
+    if (addedHours) {
+      return formatTodayHours(addedHours);
+    }
+    
+    const googleHours = formatGoogleHours();
+    if (googleHours) {
+      // Extract just the hours part after the day name
+      return googleHours.split(': ')[1] || googleHours;
+    }
+    
+    return null;
+  };
+
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
       <CardContent className="p-6 lg:p-8">
@@ -170,10 +205,17 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-foreground mb-2">Phone</p>
-                {addedPhone ? (
+                {getDisplayPhone() ? (
                   <div>
-                    <p className="text-green-600 text-sm mb-1">✓ Phone number added</p>
-                    <p className="text-muted-foreground text-xs">{addedPhone}</p>
+                    <a 
+                      href={`tel:${getDisplayPhone()}`}
+                      className="text-primary underline hover:text-primary/80 transition-colors"
+                    >
+                      {getDisplayPhone()}
+                    </a>
+                    {store.google_formatted_phone_number && !addedPhone && (
+                      <p className="text-xs text-muted-foreground mt-1">From Google Places</p>
+                    )}
                   </div>
                 ) : (
                   <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
@@ -185,10 +227,17 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store }) => {
               <Clock className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-foreground mb-2">Hours</p>
-                {addedHours ? (
+                {getDisplayHours() ? (
                   <div>
-                    <p className="text-green-600 text-sm mb-1">✓ Hours added</p>
-                    <p className="text-muted-foreground text-xs">{formatTodayHours(addedHours)}</p>
+                    <p className="text-foreground text-sm">{getDisplayHours()}</p>
+                    {store.google_opening_hours && !addedHours && (
+                      <p className="text-xs text-muted-foreground mt-1">From Google Places</p>
+                    )}
+                    {!addedHours && (
+                      <div className="mt-2">
+                        <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
