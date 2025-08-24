@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Info } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -24,6 +24,9 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState('trending');
   const [showRmpExplanation, setShowRmpExplanation] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const categories: Category[] = [
     { 
@@ -71,6 +74,21 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     }
   ];
 
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    const handleResize = () => checkScrollButtons();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
     const category = categories.find(c => c.id === categoryId);
@@ -85,9 +103,55 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     }
   };
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className={`overflow-x-auto ${className}`}>
-      <div className="relative">
+    <div className={`relative ${className}`}>
+      {/* Left fade indicator */}
+      {canScrollLeft && (
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" />
+      )}
+      
+      {/* Right fade indicator */}
+      {canScrollRight && (
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
+      )}
+
+      {/* Left scroll button - visible on mobile */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 md:hidden"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="h-4 w-4 text-gray-600" />
+        </button>
+      )}
+
+      {/* Right scroll button - visible on mobile */}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          className="absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 md:hidden animate-pulse"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="h-4 w-4 text-gray-600" />
+        </button>
+      )}
+
+      <div 
+        ref={scrollContainerRef}
+        className="overflow-x-auto scrollbar-hide"
+        onScroll={checkScrollButtons}
+      >
         <nav 
           className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
           role="tablist"
@@ -131,6 +195,22 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             );
           })}
         </nav>
+      </div>
+      
+      {/* Small scroll indicator dots for mobile */}
+      <div className="flex justify-center mt-2 md:hidden">
+        <div className="flex gap-1">
+          {categories.map((_, index) => (
+            <div
+              key={index}
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                Math.floor((activeCategory === categories[index]?.id ? index : 0)) === index
+                  ? 'bg-primary' 
+                  : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
       </div>
       
       {/* Mobile RMP Explanation Toggle - only show on mobile */}
