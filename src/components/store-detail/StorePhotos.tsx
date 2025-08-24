@@ -86,17 +86,100 @@ const hashString = (str: string): number => {
 
 export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHoursAdded }) => {
   const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  
+  // Parse Google Places photos
+  const getGooglePhotos = () => {
+    if (!store.google_photos) return [];
+    
+    try {
+      const photos = JSON.parse(store.google_photos as string);
+      return Array.isArray(photos) ? photos : [];
+    } catch (error) {
+      console.warn('Error parsing Google photos:', error);
+      return [];
+    }
+  };
+
+  const googlePhotos = getGooglePhotos();
+  const hasGooglePhotos = googlePhotos.length > 0;
   
   const defaultImageId = getDefaultStoreImage(store.Store_Type, store.Store_Name);
-  const backgroundImage = `https://images.unsplash.com/${defaultImageId}?auto=format&fit=crop&w=1200&h=400&q=80`;
+  const defaultBackgroundImage = `https://images.unsplash.com/${defaultImageId}?auto=format&fit=crop&w=1200&h=400&q=80`;
+  
+  // For Google Photos, we'll use a placeholder since we need the actual Google Places API
+  // In a real implementation, you'd need to call Google Places API with the photo_reference
+  const getCurrentBackgroundImage = () => {
+    if (hasGooglePhotos && googlePhotos[currentPhotoIndex]) {
+      // For now, we'll use a placeholder. In production, you'd call Google Places Photo API
+      // with the photo_reference: googlePhotos[currentPhotoIndex].photo_reference
+      return `https://via.placeholder.com/1200x400/4f46e5/ffffff?text=${encodeURIComponent(storeName + ' - Photo ' + (currentPhotoIndex + 1))}`;
+    }
+    return defaultBackgroundImage;
+  };
+
+  const nextPhoto = () => {
+    if (hasGooglePhotos) {
+      setCurrentPhotoIndex((prev) => (prev + 1) % googlePhotos.length);
+    }
+  };
+
+  const prevPhoto = () => {
+    if (hasGooglePhotos) {
+      setCurrentPhotoIndex((prev) => (prev - 1 + googlePhotos.length) % googlePhotos.length);
+    }
+  };
 
   return (
     <div 
       className="relative h-64 md:h-80 bg-cover bg-center overflow-hidden"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
+      style={{ backgroundImage: `url(${getCurrentBackgroundImage()})` }}
     >
       {/* Improved overlay for better text readability */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+      
+      {/* Photo navigation for Google Photos */}
+      {hasGooglePhotos && googlePhotos.length > 1 && (
+        <>
+          <button
+            onClick={prevPhoto}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur-sm transition-colors z-10"
+            aria-label="Previous photo"
+          >
+            ←
+          </button>
+          <button
+            onClick={nextPhoto}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur-sm transition-colors z-10"
+            aria-label="Next photo"
+          >
+            →
+          </button>
+          
+          {/* Photo indicators */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {googlePhotos.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPhotoIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === currentPhotoIndex 
+                    ? 'bg-white' 
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+                aria-label={`Go to photo ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+      
+      {/* Photo source indicator */}
+      {hasGooglePhotos && (
+        <div className="absolute top-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+          Photo {currentPhotoIndex + 1} of {googlePhotos.length} • Google Places
+        </div>
+      )}
       
       {/* Content overlay with better contrast */}
       <div className="absolute inset-0 flex items-center justify-center text-white">
