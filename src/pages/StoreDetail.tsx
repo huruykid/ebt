@@ -157,11 +157,11 @@ export default function StoreDetailPage() {
         
         <div className="relative -mt-8 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Budget Warning */}
-            {googleData?.budget_exceeded && (
-              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            {/* Budget Warning - Only show if there's an actual issue */}
+            {googleData?.budget_exceeded && !googleData?.cached && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <span className="font-medium">Note:</span> Using cached data due to monthly API budget limit. Information may be slightly outdated.
+                  Some information may be limited due to API usage.
                 </p>
               </div>
             )}
@@ -169,7 +169,9 @@ export default function StoreDetailPage() {
             {/* Main Content */}
             <div className="space-y-6">
               {/* Store Header */}
-              <StoreHeader store={store} />
+              <StoreHeader 
+                store={store} 
+              />
 
               {/* Content Grid - Mobile-first responsive layout */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
