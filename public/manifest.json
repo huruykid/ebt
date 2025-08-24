@@ -1,0 +1,35 @@
+{
+  "name": "EBT Finder - Find SNAP Stores Near You",
+  "short_name": "EBT Finder",
+  "description": "Easily find stores, restaurants, and markets that accept EBT and SNAP benefits",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8b5cf6",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle", "food"],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
