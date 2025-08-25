@@ -50,43 +50,44 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 
   return (
     <footer 
-      className={`flex w-full flex-col items-stretch text-[15px] font-normal whitespace-nowrap justify-center py-px border-[#979797] border-t bg-white ${className}`}
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border ${className}`}
+      style={{
+        paddingBottom: 'max(constant(safe-area-inset-bottom), env(safe-area-inset-bottom), 0px)'
+      }}
     >
-      <div className="bg-blend-normal bg-white flex w-full flex-col items-stretch justify-center px-[34px] pt-2 pb-1 border-[#979797] border-t">
-        <nav className="flex items-center justify-center" role="navigation" aria-label="Main navigation">
-          <div className="flex items-center justify-between w-full max-w-md">
-            {navItems.map((item) => {
-              const isActive = activeItem === item.id;
-              const IconComponent = item.icon;
-              
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`flex flex-col items-center justify-center min-w-[50px] py-2 transition-all duration-200 hover:opacity-80 ${
-                    isActive ? 'text-green-600' : 'text-[#757575]'
-                  }`}
-                  aria-label={`Navigate to ${item.label}`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <IconComponent 
-                    size={22} 
-                    strokeWidth={isActive ? 2.5 : 2}
-                    className={`mb-1 transition-all duration-200 ${
-                      isActive ? 'stroke-green-600' : 'stroke-[#757575]'
-                    }`}
-                  />
-                  <span className={`text-[9px] font-medium transition-colors duration-200 ${
-                    isActive ? 'text-green-600' : 'text-[#757575]'
-                  }`}>
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-      </div>
+      <nav 
+        className="flex items-center justify-center h-[49px] px-2" 
+        role="navigation" 
+        aria-label="Main navigation"
+      >
+        <div className="flex items-center justify-between w-full max-w-md">
+          {navItems.map((item) => {
+            const isActive = activeItem === item.id;
+            const IconComponent = item.icon;
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-1 transition-all duration-200 hover:opacity-80 ${
+                  isActive ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                aria-label={`Navigate to ${item.label}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <IconComponent 
+                  size={20} 
+                  strokeWidth={isActive ? 2.5 : 2}
+                  className={`mb-0.5 transition-all duration-200`}
+                />
+                <span className={`text-[10px] font-medium transition-colors duration-200 leading-tight`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </footer>
   );
 };
