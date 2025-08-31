@@ -50,7 +50,7 @@ async function checkCache(query: string | null, paramsHash: string, placeId: str
   if (placeId && fieldsHash) {
     // Place Details cache lookup
     cacheQuery = supabase
-      .from('places_cache')
+      .from('google_places_cache')
       .select('*')
       .eq('place_id', placeId)
       .eq('fields_hash', fieldsHash)
@@ -58,9 +58,9 @@ async function checkCache(query: string | null, paramsHash: string, placeId: str
   } else if (query) {
     // Text search cache lookup
     cacheQuery = supabase
-      .from('places_cache')
+      .from('google_places_cache')
       .select('*')
-      .eq('query', query)
+      .eq('search_query', query)
       .eq('params_hash', paramsHash)
       .single();
   } else {
@@ -68,6 +68,13 @@ async function checkCache(query: string | null, paramsHash: string, placeId: str
   }
 
   const { data: cached } = await cacheQuery;
+  
+  // Check if cache is still fresh
+  if (cached && cached.fresh_until && new Date(cached.fresh_until) > new Date()) {
+    return cached;
+  }
+  
+  // Return stale cache data (can be used as fallback)
   return cached;
 }
 
@@ -151,32 +158,31 @@ async function cacheResult(
   freshUntil.setDate(freshUntil.getDate() + ttlDays);
   
   const cacheData = {
-    query,
+    search_query: query,
     params_hash: paramsHash,
     place_id: placeId,
     fields_hash: fieldsHash,
-    payload,
+    business_data: payload,
     fresh_until: freshUntil.toISOString(),
-    updated_at: new Date().toISOString()
+    last_updated: new Date().toISOString()
   };
   
-  // Upsert based on whether it's a place details or text search
-  if (placeId && fieldsHash) {
-    // For place details, update or insert based on place_id + fields_hash
-    await supabase
-      .from('places_cache')
+  try {
+    // Upsert to google_places_cache table
+    const { error } = await supabase
+      .from('google_places_cache')
       .upsert(cacheData, { 
-        onConflict: 'place_id,fields_hash',
+        onConflict: placeId ? 'place_id,fields_hash' : 'search_query,params_hash',
         ignoreDuplicates: false 
       });
-  } else if (query) {
-    // For text search, update or insert based on query + params_hash
-    await supabase
-      .from('places_cache')
-      .upsert(cacheData, { 
-        onConflict: 'query,params_hash',
-        ignoreDuplicates: false 
-      });
+      
+    if (error) {
+      console.error('Failed to cache result:', error);
+    } else {
+      console.log('Successfully cached result for:', query || placeId);
+    }
+  } catch (error) {
+    console.error('Error caching result:', error);
   }
 }
 
@@ -224,8 +230,8 @@ async function handleTextSearch(params: any) {
   
   // 1. Check cache first
   const cached = await checkCache(params.query, paramsHash, null, null);
-  if (cached && new Date(cached.fresh_until) > new Date()) {
-    return { from: 'cache', budget_exceeded: false, data: cached.payload };
+  if (cached && cached.fresh_until && new Date(cached.fresh_until) > new Date()) {
+    return { from: 'cache', budget_exceeded: false, data: cached.business_data };
   }
   
   // 2. Check budget
@@ -233,7 +239,7 @@ async function handleTextSearch(params: any) {
   if (!allowed) {
     // Return stale cache if available
     if (cached) {
-      return { from: 'cache', budget_exceeded: true, data: cached.payload };
+      return { from: 'cache', budget_exceeded: true, data: cached.business_data };
     }
     return { from: 'cache', budget_exceeded: true, data: null, error: 'Budget exceeded and no cache available' };
   }
@@ -255,7 +261,7 @@ async function handleTextSearch(params: any) {
     
     // Return stale cache if available
     if (cached) {
-      return { from: 'cache', budget_exceeded: false, data: cached.payload };
+      return { from: 'cache', budget_exceeded: false, data: cached.business_data };
     }
     
     throw error;
@@ -318,8 +324,8 @@ async function handlePlaceDetails(params: any) {
   
   // 1. Check cache first
   const cached = await checkCache(null, paramsHash, place_id, fieldsHash);
-  if (cached && new Date(cached.fresh_until) > new Date()) {
-    return { from: 'cache', budget_exceeded: false, data: cached.payload };
+  if (cached && cached.fresh_until && new Date(cached.fresh_until) > new Date()) {
+    return { from: 'cache', budget_exceeded: false, data: cached.business_data };
   }
   
   // 2. Check budget
@@ -327,7 +333,7 @@ async function handlePlaceDetails(params: any) {
   if (!allowed) {
     // Return stale cache if available
     if (cached) {
-      return { from: 'cache', budget_exceeded: true, data: cached.payload };
+      return { from: 'cache', budget_exceeded: true, data: cached.business_data };
     }
     return { from: 'cache', budget_exceeded: true, data: null, error: 'Budget exceeded and no cache available' };
   }
@@ -354,7 +360,7 @@ async function handlePlaceDetails(params: any) {
     
     // Return stale cache if available
     if (cached) {
-      return { from: 'cache', budget_exceeded: false, data: cached.payload };
+      return { from: 'cache', budget_exceeded: false, data: cached.business_data };
     }
     
     throw error;

@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_usage_ledger: {
+        Row: {
+          billable: number | null
+          count: number | null
+          created_at: string | null
+          estimated_cost_usd: number | null
+          free_remaining: number | null
+          id: string
+          month: string
+          sku: string
+          updated_at: string | null
+        }
+        Insert: {
+          billable?: number | null
+          count?: number | null
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          free_remaining?: number | null
+          id?: string
+          month: string
+          sku: string
+          updated_at?: string | null
+        }
+        Update: {
+          billable?: number | null
+          count?: number | null
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          free_remaining?: number | null
+          id?: string
+          month?: string
+          sku?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           badge_type: Database["public"]["Enums"]["badge_type"]
@@ -44,6 +80,33 @@ export type Database = {
           id?: string
           name?: string
           points_required?: number | null
+        }
+        Relationships: []
+      }
+      budget_events: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          meta: Json | null
+          month: string
+          threshold: number
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          meta?: Json | null
+          month: string
+          threshold: number
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          meta?: Json | null
+          month?: string
+          threshold?: number
         }
         Relationships: []
       }
@@ -111,8 +174,11 @@ export type Database = {
           business_data: Json
           cache_expires_at: string
           created_at: string
+          fields_hash: string | null
+          fresh_until: string | null
           id: string
           last_updated: string
+          params_hash: string | null
           place_id: string | null
           search_query: string
         }
@@ -120,8 +186,11 @@ export type Database = {
           business_data: Json
           cache_expires_at?: string
           created_at?: string
+          fields_hash?: string | null
+          fresh_until?: string | null
           id?: string
           last_updated?: string
+          params_hash?: string | null
           place_id?: string | null
           search_query: string
         }
@@ -129,8 +198,11 @@ export type Database = {
           business_data?: Json
           cache_expires_at?: string
           created_at?: string
+          fields_hash?: string | null
+          fresh_until?: string | null
           id?: string
           last_updated?: string
+          params_hash?: string | null
           place_id?: string | null
           search_query?: string
         }
@@ -570,6 +642,17 @@ export type Database = {
           p_store_id: string
           p_user_ratings_total: number
           p_website: string
+        }
+        Returns: undefined
+      }
+      upsert_usage_ledger: {
+        Args: {
+          p_billable_inc?: number
+          p_cost_inc?: number
+          p_count_inc?: number
+          p_free_dec?: number
+          p_month: string
+          p_sku: string
         }
         Returns: undefined
       }
