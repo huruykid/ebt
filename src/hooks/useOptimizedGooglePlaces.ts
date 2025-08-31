@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { places, getPlaceDetails, extractPlaceInfo } from '@/lib/places';
+import { supabase } from '@/integrations/supabase/client';
 import type { Store } from '@/types/storeTypes';
 
 export interface OptimizedGooglePlacesData {
@@ -98,38 +98,43 @@ export const useOptimizedGooglePlaces = (
       if (store.google_place_id) {
         console.log('🔄 Refreshing stale Google Places data via places-proxy for:', store.Store_Name);
         try {
-          const response = await getPlaceDetails(store.google_place_id, store.id);
+          const response = await supabase.functions.invoke('places-proxy', {
+            body: {
+              action: 'place_details',
+              payload: {
+                place_id: store.google_place_id,
+                store_id: store.id
+              }
+            }
+          });
           
-          if (response.error) {
+          if (response.error || !response.data?.data) {
             console.error('❌ Error refreshing Google Places data:', response.error);
             // Fallback to cached data even if stale
             return formatDatabaseGoogleData(store);
           }
 
-          const placeInfo = extractPlaceInfo(response.data);
-          if (!placeInfo) {
+          const placeData = response.data.data;
+          if (!placeData) {
             // Fallback to cached data
             return formatDatabaseGoogleData(store);
           }
 
           return {
-            place_id: placeInfo.placeId,
-            name: placeInfo.name,
-            formatted_address: placeInfo.address,
-            formatted_phone_number: placeInfo.phone,
-            website: placeInfo.website,
-            rating: placeInfo.rating,
-            user_ratings_total: placeInfo.userRatingsTotal,
-            opening_hours: placeInfo.openingHours ? {
-              open_now: placeInfo.isOpen,
-              weekday_text: placeInfo.openingHours
+            place_id: placeData.id || placeData.place_id,
+            name: placeData.displayName?.text || placeData.name,
+            formatted_address: placeData.formattedAddress || placeData.formatted_address,
+            formatted_phone_number: placeData.nationalPhoneNumber || placeData.formatted_phone_number,
+            website: placeData.websiteUri || placeData.website,
+            rating: placeData.rating,
+            user_ratings_total: placeData.userRatingCount || placeData.user_ratings_total,
+            opening_hours: placeData.regularOpeningHours || placeData.opening_hours,
+            photos: placeData.photos,
+            geometry: placeData.location ? {
+              location: placeData.location
             } : undefined,
-            photos: placeInfo.photos,
-            geometry: placeInfo.location ? {
-              location: placeInfo.location
-            } : undefined,
-            cached: response.from === 'cache',
-            budget_exceeded: response.budget_exceeded,
+            cached: response.data.from === 'cache',
+            budget_exceeded: response.data.budget_exceeded,
             data_source: 'places_api'
           };
 
@@ -144,46 +149,58 @@ export const useOptimizedGooglePlaces = (
       console.log('🔍 No Google Place ID found, searching via places-proxy for:', store.Store_Name);
       try {
         const searchQuery = `${store.Store_Name} ${store.Store_Street_Address} ${store.City} ${store.State}`;
-        const response = await places('search_text', {
-          query: searchQuery.trim(),
-          region: store.State || undefined
+        const searchResponse = await supabase.functions.invoke('places-proxy', {
+          body: {
+            action: 'search_text',
+            payload: {
+              query: searchQuery.trim(),
+              region: store.State || undefined
+            }
+          }
         });
 
-        if (response.error || !response.data?.places?.[0]) {
+        if (searchResponse.error || !searchResponse.data?.data?.places?.[0]) {
           console.log('😐 No Google Places search results found for:', store.Store_Name);
           return null;
         }
 
-        const firstPlace = response.data.places[0];
-        const placeInfo = extractPlaceInfo(firstPlace);
+        const firstPlace = searchResponse.data.data.places[0];
+        const placeId = firstPlace.id;
         
-        if (!placeInfo?.placeId) {
+        if (!placeId) {
           console.log('😐 No valid place ID in search results for:', store.Store_Name);
           return null;
         }
 
         // Now get full details for this place
-        const detailsResponse = await getPlaceDetails(placeInfo.placeId, store.id);
-        const detailsInfo = extractPlaceInfo(detailsResponse.data);
+        const detailsResponse = await supabase.functions.invoke('places-proxy', {
+          body: {
+            action: 'place_details',
+            payload: {
+              place_id: placeId,
+              store_id: store.id
+            }
+          }
+        });
+
+        const detailsData = detailsResponse.data?.data;
+        const searchData = firstPlace;
 
         return {
-          place_id: detailsInfo?.placeId || placeInfo.placeId,
-          name: detailsInfo?.name || placeInfo.name,
-          formatted_address: detailsInfo?.address || placeInfo.address,
-          formatted_phone_number: detailsInfo?.phone || placeInfo.phone,
-          website: detailsInfo?.website || placeInfo.website,
-          rating: detailsInfo?.rating || placeInfo.rating,
-          user_ratings_total: detailsInfo?.userRatingsTotal || placeInfo.userRatingsTotal,
-          opening_hours: (detailsInfo?.openingHours || placeInfo.openingHours) ? {
-            open_now: detailsInfo?.isOpen || placeInfo.isOpen,
-            weekday_text: detailsInfo?.openingHours || placeInfo.openingHours
+          place_id: detailsData?.id || searchData.id,
+          name: detailsData?.displayName?.text || searchData.displayName?.text,
+          formatted_address: detailsData?.formattedAddress || searchData.formattedAddress,
+          formatted_phone_number: detailsData?.nationalPhoneNumber || searchData.nationalPhoneNumber,
+          website: detailsData?.websiteUri || searchData.websiteUri,
+          rating: detailsData?.rating || searchData.rating,
+          user_ratings_total: detailsData?.userRatingCount || searchData.userRatingCount,
+          opening_hours: detailsData?.regularOpeningHours || searchData.regularOpeningHours,
+          photos: detailsData?.photos || searchData.photos,
+          geometry: detailsData?.location || searchData.location ? {
+            location: detailsData?.location || searchData.location
           } : undefined,
-          photos: detailsInfo?.photos || placeInfo.photos,
-          geometry: (detailsInfo?.location || placeInfo.location) ? {
-            location: detailsInfo?.location || placeInfo.location
-          } : undefined,
-          cached: response.from === 'cache',
-          budget_exceeded: response.budget_exceeded || detailsResponse.budget_exceeded,
+          cached: searchResponse.data.from === 'cache',
+          budget_exceeded: searchResponse.data.budget_exceeded || detailsResponse.data?.budget_exceeded,
           data_source: 'places_api'
         };
 

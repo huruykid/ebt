@@ -29,19 +29,23 @@ function getCurrentMonth(): string {
   return new Date().toISOString().slice(0, 7); // YYYY-MM
 }
 
-function normalizeParams(params: Record<string, any>): string {
+async function normalizeParams(params: Record<string, any>): Promise<string> {
   const sorted = Object.keys(params).sort().reduce((obj: Record<string, any>, key) => {
     obj[key] = params[key];
     return obj;
   }, {});
-  return crypto.subtle.digestSync('SHA-256', new TextEncoder().encode(JSON.stringify(sorted)))
-    .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sorted)));
+  return Array.from(new Uint8Array(hash))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
 }
 
-function generateFieldsHash(fields: string[]): string {
+async function generateFieldsHash(fields: string[]): Promise<string> {
   const sortedFields = [...fields].sort().join(',');
-  return crypto.subtle.digestSync('SHA-256', new TextEncoder().encode(sortedFields))
-    .reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(sortedFields));
+  return Array.from(new Uint8Array(hash))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 async function checkCache(query: string | null, paramsHash: string, placeId: string | null, fieldsHash: string | null) {
@@ -225,11 +229,14 @@ async function callGooglePlacesAPI(action: string, params: any) {
 }
 
 async function handleTextSearch(params: any) {
-  const paramsHash = normalizeParams(params);
+  const { query, region } = params;
+  
+  const fieldsHash = await generateFieldsHash(['id', 'displayName', 'formattedAddress']);
+  const paramsHash = await normalizeParams({ query, region });
   const sku = 'TEXT_SEARCH_PRO';
   
   // 1. Check cache first
-  const cached = await checkCache(params.query, paramsHash, null, null);
+  const cached = await checkCache(query, paramsHash, null, null);
   if (cached && cached.fresh_until && new Date(cached.fresh_until) > new Date()) {
     return { from: 'cache', budget_exceeded: false, data: cached.business_data };
   }
@@ -252,7 +259,7 @@ async function handleTextSearch(params: any) {
     await updateUsageLedger(sku);
     
     // 5. Cache the result
-    await cacheResult(params.query, paramsHash, null, null, googleResponse, TTL_TEXT_SEARCH);
+    await cacheResult(query, paramsHash, null, null, googleResponse, TTL_TEXT_SEARCH);
     
     return { from: 'google', budget_exceeded: false, data: googleResponse };
     
@@ -318,8 +325,8 @@ async function handlePlaceDetails(params: any) {
     ] 
   } = params;
   
-  const fieldsHash = generateFieldsHash(fields);
-  const paramsHash = normalizeParams({ place_id, fields: fields.sort() });
+  const fieldsHash = await generateFieldsHash(fields);
+  const paramsHash = await normalizeParams({ place_id, fields: fields.sort() });
   const sku = 'PLACE_DETAILS_ESSENTIALS';
   
   // 1. Check cache first
