@@ -2,13 +2,127 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEOHead } from "@/components/SEOHead";
-import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight } from "lucide-react";
+import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight, Home, Stethoscope, GraduationCap, Zap, Bus, ExternalLink } from "lucide-react";
 export default function Mission() {
   const handleJoinCommunity = () => {
     const subject = encodeURIComponent("Join Monthly Newsletter");
     const body = encodeURIComponent("Hi team,\n\nI would like to join the monthly newsletter. Please add me to your email list.\n\nThank you!");
     window.location.href = `mailto:support@ebtfinder.org?subject=${subject}&body=${body}`;
   };
+
+  const helpfulPrograms = [
+    {
+      categoryIcon: Home,
+      categoryTitle: "Housing",
+      programs: [
+        {
+          name: "Section 8 Housing Choice Vouchers",
+          description: "Helps low-income families pay rent in the private housing market",
+          url: "https://www.hud.gov/topics/housing_choice_voucher_program_section_8"
+        },
+        {
+          name: "Public Housing",
+          description: "Affordable apartments managed by local housing authorities",
+          url: "https://www.hud.gov/program_offices/public_indian_housing/programs/ph"
+        },
+        {
+          name: "LIHEAP (Low Income Home Energy Assistance Program)",
+          description: "Helps with heating, cooling, and utility bills",
+          url: "https://www.acf.hhs.gov/ocs/low-income-home-energy-assistance-program-liheap"
+        },
+        {
+          name: "Weatherization Assistance Program",
+          description: "Free home upgrades to lower energy costs",
+          url: "https://www.energy.gov/scep/wap/weatherization-assistance-program"
+        }
+      ]
+    },
+    {
+      categoryIcon: Stethoscope,
+      categoryTitle: "Healthcare & Nutrition",
+      programs: [
+        {
+          name: "Medicaid & CHIP",
+          description: "Free or low-cost health insurance for families, children, and seniors",
+          url: "https://www.medicaid.gov/"
+        },
+        {
+          name: "WIC (Women, Infants, and Children)",
+          description: "Provides food, formula, and nutrition support for moms and kids under 5",
+          url: "https://www.fns.usda.gov/wic"
+        },
+        {
+          name: "Community Health Centers",
+          description: "Low-cost medical, dental, and mental health services near you",
+          url: "https://findahealthcenter.hrsa.gov/"
+        }
+      ]
+    },
+    {
+      categoryIcon: GraduationCap,
+      categoryTitle: "Education & Childcare",
+      programs: [
+        {
+          name: "Head Start & Early Head Start",
+          description: "Free preschool, childcare, and family support for low-income households",
+          url: "https://www.acf.hhs.gov/ohs"
+        },
+        {
+          name: "Pell Grants",
+          description: "Federal grants that help pay for college (no repayment required)",
+          url: "https://studentaid.gov/understand-aid/types/grants/pell"
+        },
+        {
+          name: "Child Care & Development Fund (CCDF)",
+          description: "Helps cover childcare costs for working parents",
+          url: "https://www.acf.hhs.gov/occ/child-care-development-fund-ccdf"
+        }
+      ]
+    },
+    {
+      categoryIcon: Zap,
+      categoryTitle: "Utilities & Bills",
+      programs: [
+        {
+          name: "Lifeline",
+          description: "Discounted phone or internet service for low-income households",
+          url: "https://www.fcc.gov/lifeline-consumers"
+        },
+        {
+          name: "Affordable Connectivity Program (ACP)",
+          description: "Internet discount up to $30/month (up to $75 on tribal lands)",
+          url: "https://www.fcc.gov/acp"
+        },
+        {
+          name: "State Utility Assistance Programs",
+          description: "Extra help with water, gas, and electricity bills",
+          url: "https://www.acf.hhs.gov/ocs/map/find-local-help"
+        }
+      ]
+    },
+    {
+      categoryIcon: Bus,
+      categoryTitle: "Transportation & Work Support",
+      programs: [
+        {
+          name: "Low-Income Transit Discounts",
+          description: "Reduced bus/train fares in many cities",
+          url: "https://www.nyc.gov/fairfares"
+        },
+        {
+          name: "TANF (Temporary Assistance for Needy Families)",
+          description: "Monthly cash support and job training for families in need",
+          url: "https://www.acf.hhs.gov/ofa/programs/tanf"
+        },
+        {
+          name: "EITC (Earned Income Tax Credit)",
+          description: "A refundable tax credit that boosts income for working families",
+          url: "https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit-eitc"
+        }
+      ]
+    }
+  ];
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -125,6 +239,82 @@ export default function Mission() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Helpful Programs Section */}
+          <div className="mb-12">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Heart className="h-8 w-8 text-primary" />
+                <h2 className="text-2xl font-semibold text-foreground">Helpful Programs</h2>
+              </div>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Beyond EBT, there are many other programs available to support low-income families. 
+                Explore these resources to find additional assistance.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+              {helpfulPrograms.map((category, categoryIndex) => {
+                const CategoryIcon = category.categoryIcon;
+                return (
+                  <div key={categoryIndex} className="space-y-4">
+                    {/* Category Header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <CategoryIcon className="h-6 w-6 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-foreground">{category.categoryTitle}</h3>
+                    </div>
+
+                    {/* Program Cards */}
+                    <div className="space-y-3">
+                      {category.programs.map((program, programIndex) => (
+                        <Card key={programIndex} className="group hover:shadow-md transition-all duration-200 hover:border-primary/20">
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              <h4 className="font-semibold text-foreground text-sm leading-tight group-hover:text-primary transition-colors duration-200">
+                                {program.name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {program.description}
+                              </p>
+                              <div className="pt-2">
+                                <Button
+                                  asChild
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                                >
+                                  <a
+                                    href={program.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label={`Learn more about ${program.name} (opens in new tab)`}
+                                    className="flex items-center justify-center gap-2"
+                                  >
+                                    Learn More
+                                    <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom Note */}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+                This information is provided as a resource. Program availability and eligibility requirements may vary by location. 
+                Please visit the official websites for the most current information and application details.
+              </p>
+            </div>
+          </div>
 
           <div className="text-center">
             <div className="flex items-center justify-center gap-3 mb-6">
