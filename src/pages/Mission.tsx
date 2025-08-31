@@ -2,6 +2,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEOHead } from "@/components/SEOHead";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Heart, Users, MapPin, Star, Clock, Utensils, ArrowRight, Home, Stethoscope, GraduationCap, Zap, Bus, ExternalLink } from "lucide-react";
 export default function Mission() {
   const handleJoinCommunity = () => {
@@ -253,59 +254,71 @@ export default function Mission() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+            <Accordion type="multiple" className="max-w-4xl mx-auto space-y-4">
               {helpfulPrograms.map((category, categoryIndex) => {
                 const CategoryIcon = category.categoryIcon;
                 return (
-                  <div key={categoryIndex} className="space-y-4">
-                    {/* Category Header */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="bg-primary/10 p-2 rounded-lg">
-                        <CategoryIcon className="h-6 w-6 text-primary" />
+                  <AccordionItem 
+                    key={categoryIndex} 
+                    value={`category-${categoryIndex}`}
+                    className="border border-border/50 rounded-lg bg-card hover:bg-accent/5 transition-colors duration-200"
+                  >
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline group">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors duration-200">
+                          <CategoryIcon className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
+                            {category.categoryTitle}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {category.programs.length} program{category.programs.length !== 1 ? 's' : ''} available
+                          </p>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-semibold text-foreground">{category.categoryTitle}</h3>
-                    </div>
-
-                    {/* Program Cards */}
-                    <div className="space-y-3">
-                      {category.programs.map((program, programIndex) => (
-                        <Card key={programIndex} className="group hover:shadow-md transition-all duration-200 hover:border-primary/20">
-                          <CardContent className="p-4">
-                            <div className="space-y-3">
-                              <h4 className="font-semibold text-foreground text-sm leading-tight group-hover:text-primary transition-colors duration-200">
-                                {program.name}
-                              </h4>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                {program.description}
-                              </p>
-                              <div className="pt-2">
-                                <Button
-                                  asChild
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-200"
-                                >
-                                  <a
-                                    href={program.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={`Learn more about ${program.name} (opens in new tab)`}
-                                    className="flex items-center justify-center gap-2"
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        {category.programs.map((program, programIndex) => (
+                          <Card key={programIndex} className="group hover:shadow-md transition-all duration-200 hover:border-primary/20 bg-background">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-foreground text-sm leading-tight group-hover:text-primary transition-colors duration-200">
+                                  {program.name}
+                                </h4>
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                  {program.description}
+                                </p>
+                                <div className="pt-2">
+                                  <Button
+                                    asChild
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                                   >
-                                    Learn More
-                                    <ExternalLink className="h-3 w-3" />
-                                  </a>
-                                </Button>
+                                    <a
+                                      href={program.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      aria-label={`Learn more about ${program.name} (opens in new tab)`}
+                                      className="flex items-center justify-center gap-2"
+                                    >
+                                      Learn More
+                                      <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 );
               })}
-            </div>
+            </Accordion>
 
             {/* Bottom Note */}
             <div className="mt-8 text-center">
