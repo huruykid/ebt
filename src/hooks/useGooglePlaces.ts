@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { searchPlacesByText } from '@/lib/places';
 
 export interface GooglePlacesBusiness {
   place_id: string;
@@ -99,26 +99,19 @@ export const useGooglePlacesBusiness = (
       // Create new request and cache the promise
       const requestPromise = (async (): Promise<GooglePlacesBusiness | null> => {
         try {
-          console.log('🌐 Making API call to google-places function for:', storeName);
+          console.log('🌐 Making API call to places-proxy function for:', storeName);
 
-          const { data: searchData, error: searchError } = await supabase.functions.invoke('google-places', {
-            body: {
-              storeName: storeName.trim(),
-              address: address?.trim(),
-              latitude,
-              longitude
-            },
-          });
+          const searchQuery = `${storeName.trim()} ${address?.trim() || ''}`.trim();
+          const response = await searchPlacesByText(searchQuery);
 
-          if (searchError) {
-            console.error('❌ Error calling google-places function:', searchError);
+          if (response.error || !response.data?.places?.[0]) {
+            console.error('❌ Error calling places-proxy function:', response.error);
             // Cache null result to prevent repeated failed requests
             googlePlacesCache.set(cacheKey, { data: null, timestamp: Date.now() });
             return null;
           }
 
-          const response = searchData as GooglePlacesResponse;
-          const business = response.business || null;
+          const business = response.data.places[0] || null;
 
           // Cache the result
           googlePlacesCache.set(cacheKey, { 
@@ -180,26 +173,21 @@ export const useGooglePlacesBusinessBatch = (
         }
 
         try {
-          const { data, error } = await supabase.functions.invoke('google-places', {
-            body: {
-              storeName: store.name.trim(),
-              address: store.address?.trim(),
-              latitude: store.latitude,
-              longitude: store.longitude
-            },
-          });
+          const searchQuery = `${store.name.trim()} ${store.address?.trim() || ''}`.trim();
+          const response = await searchPlacesByText(searchQuery);
+          
+          if (response.error || !response.data?.places?.[0]) {
+            continue; // Skip this store if no results
+          }
+          
+          const data = response.data.places[0];
 
-          if (!error && data?.business) {
-            results.set(store.id, data.business);
-            googlePlacesCache.set(cacheKey, { 
-              data: data.business, 
-              timestamp: Date.now() 
-            });
-          } else {
-            googlePlacesCache.set(cacheKey, { 
-              data: null, 
-              timestamp: Date.now() 
-            });
+          if (data) {
+            results.set(store.id, data);
+            
+            // Cache the result
+            const cacheKey = generateCacheKey(store.name, store.address);
+            googlePlacesCache.set(cacheKey, { data: data, timestamp: Date.now() });
           }
         } catch (error) {
           console.error(`Error fetching Google Places data for store ${store.id}:`, error);
