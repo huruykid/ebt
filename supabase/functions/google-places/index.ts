@@ -47,6 +47,15 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication - this function should require JWT
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { storeName, address, latitude, longitude }: GooglePlacesRequest = await req.json();
     
     if (!storeName) {

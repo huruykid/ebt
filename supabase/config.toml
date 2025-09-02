@@ -75,7 +75,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.google-places]
-verify_jwt = false
+verify_jwt = true
 
 [edge_runtime]
 enabled = true

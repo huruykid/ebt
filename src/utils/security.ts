@@ -98,12 +98,16 @@ export const validateFileUpload = (file: File, allowedTypes: string[], maxSizeMB
 };
 
 /**
- * Generates secure file path for user uploads
+ * Generates secure file path for user uploads (UUID-free for privacy)
  */
 export const generateSecureFilePath = (userId: string, originalFilename: string): string => {
   const timestamp = Date.now();
   const randomString = Math.random().toString(36).substring(2, 15);
+  const additionalRandom = Math.random().toString(36).substring(2, 15);
   const fileExtension = originalFilename.split('.').pop()?.toLowerCase() || '';
   
-  return `${userId}/${timestamp}-${randomString}.${fileExtension}`;
+  // Use hash of userId instead of raw UUID to prevent exposure
+  const userHash = btoa(userId).substring(0, 8);
+  
+  return `uploads/${userHash}/${timestamp}-${randomString}-${additionalRandom}.${fileExtension}`;
 };

@@ -441,6 +441,7 @@ export type Database = {
           id: string
           store_id: string
           updated_at: string
+          user_id: string | null
           user_name: string
         }
         Insert: {
@@ -449,6 +450,7 @@ export type Database = {
           id?: string
           store_id: string
           updated_at?: string
+          user_id?: string | null
           user_name: string
         }
         Update: {
@@ -457,6 +459,7 @@ export type Database = {
           id?: string
           store_id?: string
           updated_at?: string
+          user_id?: string | null
           user_name?: string
         }
         Relationships: []
@@ -520,6 +523,30 @@ export type Database = {
           store_id?: number | null
           user_id?: string
           verified?: boolean | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -646,6 +673,13 @@ export type Database = {
           verified_contributions: number
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -707,6 +741,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       badge_type:
         | "neighborhood_scout"
         | "snap_hero"
@@ -849,6 +884,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       badge_type: [
         "neighborhood_scout",
         "snap_hero",
