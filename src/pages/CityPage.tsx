@@ -6,6 +6,7 @@ import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { SEOFooter } from '@/components/SEOFooter';
 import { FAQSection } from '@/components/FAQSection';
 import { SEOHead } from '@/components/SEOHead';
+import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 
 const cityData = {
@@ -132,7 +133,13 @@ const CityPage: React.FC = () => {
   const seoKeywords = `EBT stores ${city.name}, SNAP benefits ${city.state}, ${city.name} grocery stores EBT, food assistance ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}, RMP restaurants ${city.name}`;
   const canonicalUrl = `https://ebtfinder.org/${actualCitySlug}`;
 
-  // Enhanced structured data for city page
+  // Breadcrumb data for SEO
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: city.name, url: `/${actualCitySlug}` }
+  ];
+
+  // Enhanced structured data for city page (without breadcrumb - handled by component)
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -159,23 +166,6 @@ const CityPage: React.FC = () => {
       "name": `EBT Stores in ${city.name}`,
       "description": `Directory of stores accepting EBT and SNAP benefits in ${city.name}, ${city.state}`,
       "numberOfItems": city.zipCodes.length
-    },
-    "breadcrumb": {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://ebtfinder.org"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": city.name,
-          "item": canonicalUrl
-        }
-      ]
     }
   };
 
@@ -188,6 +178,9 @@ const CityPage: React.FC = () => {
         canonicalUrl={canonicalUrl}
         structuredData={structuredData}
       />
+      
+      {/* Enhanced SEO Schema Component */}
+      <BreadcrumbSchema items={breadcrumbItems} />
       
       <div className="min-h-screen bg-background">
         {/* Breadcrumb Navigation */}

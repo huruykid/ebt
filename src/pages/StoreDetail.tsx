@@ -15,6 +15,8 @@ import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
 import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
+import { LocalBusinessSchema } from '@/components/LocalBusinessSchema';
+import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
 import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
 import { useOptimizedGooglePlaces } from '@/hooks/useOptimizedGooglePlaces';
@@ -96,33 +98,12 @@ export default function StoreDetailPage() {
     `Find details for ${displayName} at ${googleData?.formatted_address || `${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}. EBT/SNAP accepted. ${googleData?.rating ? `Rated ${googleData.rating} stars.` : ''} View hours, reviews, and directions.` :
     "View detailed information about EBT and SNAP accepting stores including hours, reviews, and directions.";
   
-  const structuredData = store ? {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": displayName,
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": store.Store_Street_Address,
-      "addressLocality": store.City,
-      "addressRegion": store.State,
-      "postalCode": store.Zip_Code,
-      "addressCountry": "US"
-    },
-    "geo": store.Latitude && store.Longitude ? {
-      "@type": "GeoCoordinates",
-      "latitude": store.Latitude,
-      "longitude": store.Longitude
-    } : undefined,
-    "paymentAccepted": ["SNAP", "EBT"],
-    "priceRange": googleData?.price_level ? '$'.repeat(googleData.price_level) : "$",
-    "telephone": googleData?.formatted_phone_number || undefined,
-    "website": googleData?.website || undefined,
-    "aggregateRating": googleData?.rating ? {
-      "@type": "AggregateRating",
-      "ratingValue": googleData.rating,
-      "reviewCount": googleData.user_ratings_total
-    } : undefined
-  } : undefined;
+  // Breadcrumb data for SEO
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Store Search', url: '/search' },
+    { name: displayName || 'Store', url: `/store/${id}` }
+  ];
 
   return (
     <ProtectedRoute>
@@ -131,8 +112,26 @@ export default function StoreDetailPage() {
         description={seoDescription}
         keywords={`${displayName}, EBT store, SNAP accepted, ${store?.City}, ${store?.State}, grocery store, food benefits`}
         canonicalUrl={`https://ebtfinder.org/store/${id}`}
-        structuredData={structuredData}
       />
+      
+      {/* Enhanced SEO Schema Components */}
+      <LocalBusinessSchema
+        storeName={displayName || store.Store_Name}
+        address={store.Store_Street_Address || ''}
+        city={store.City || ''}
+        state={store.State || ''}
+        zipCode={store.Zip_Code || ''}
+        latitude={store.Latitude || undefined}
+        longitude={store.Longitude || undefined}
+        phoneNumber={googleData?.formatted_phone_number}
+        website={googleData?.website}
+        rating={googleData?.rating}
+        ratingCount={googleData?.user_ratings_total}
+        storeType={store.Store_Type || 'store'}
+        openingHours={googleData?.opening_hours}
+      />
+      
+      <BreadcrumbSchema items={breadcrumbItems} />
       <div className="min-h-screen bg-background">
         {/* Back Button */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
