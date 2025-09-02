@@ -525,11 +525,55 @@ export type Database = {
       }
     }
     Views: {
+      public_reviews: {
+        Row: {
+          anonymous_reviewer: string | null
+          created_at: string | null
+          id: string | null
+          rating: number | null
+          review_text: string | null
+          store_id: number | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_reviewer?: never
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          store_id?: number | null
+          user_id?: never
+        }
+        Update: {
+          anonymous_reviewer?: never
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          store_id?: number | null
+          user_id?: never
+        }
+        Relationships: []
+      }
       store_review_stats: {
         Row: {
           average_rating: number | null
           review_count: number | null
           store_id: number | null
+        }
+        Relationships: []
+      }
+      store_review_stats_secure: {
+        Row: {
+          average_rating: number | null
+          five_star_count: number | null
+          four_star_count: number | null
+          latest_review_date: string | null
+          one_star_count: number | null
+          review_count: number | null
+          store_id: number | null
+          three_star_count: number | null
+          two_star_count: number | null
         }
         Relationships: []
       }
