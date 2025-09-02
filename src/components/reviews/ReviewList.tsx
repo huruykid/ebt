@@ -12,8 +12,7 @@ interface Review {
   rating: number;
   review_text: string | null;
   created_at: string;
-  user_id: string;
-  user_name: string | null;
+  anonymous_reviewer: string; // Changed from user_id and user_name
 }
 
 interface ReviewListProps {
@@ -22,40 +21,18 @@ interface ReviewListProps {
 
 export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   const { data: reviews, isLoading, error } = useQuery({
-    queryKey: ['reviews', storeId],
+    queryKey: ['public-reviews', storeId],
     queryFn: async () => {
-      // First get the reviews
+      // Use secure public_reviews view instead of direct reviews table access
       const { data: reviewsData, error: reviewsError } = await supabase
-        .from('reviews')
-        .select('id, rating, review_text, created_at, user_id')
+        .from('public_reviews')
+        .select('id, rating, review_text, created_at, anonymous_reviewer')
         .eq('store_id', storeId)
         .order('created_at', { ascending: false });
 
       if (reviewsError) throw reviewsError;
       
-      if (!reviewsData || reviewsData.length === 0) {
-        return [];
-      }
-
-      // Get unique user IDs
-      const userIds = [...new Set(reviewsData.map(review => review.user_id))];
-      
-      // Get profiles for all users
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', userIds);
-
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-        // Continue without profile data
-      }
-
-      // Combine reviews with profile data
-      return reviewsData.map(review => ({
-        ...review,
-        user_name: profilesData?.find(profile => profile.id === review.user_id)?.full_name || null
-      })) as Review[];
+      return reviewsData || [];
     }
   });
 
@@ -94,7 +71,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
                 <div className="flex items-center gap-2 mb-1">
                   <StarRating rating={review.rating} readonly size="sm" />
                   <span className="text-sm font-medium">
-                    {review.user_name || 'Anonymous User'}
+                    {review.anonymous_reviewer}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500">

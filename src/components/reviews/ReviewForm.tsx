@@ -52,8 +52,8 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
       setReviewText('');
       
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['reviews', storeId] });
-      queryClient.invalidateQueries({ queryKey: ['store-rating', storeId] });
+      queryClient.invalidateQueries({ queryKey: ['public-reviews', storeId] });
+      queryClient.invalidateQueries({ queryKey: ['store-review-stats', storeId] });
       
       toast.success('Review submitted successfully!');
       onSuccess?.();

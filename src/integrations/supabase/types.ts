@@ -533,7 +533,6 @@ export type Database = {
           rating: number | null
           review_text: string | null
           store_id: number | null
-          user_id: string | null
         }
         Insert: {
           anonymous_reviewer?: never
@@ -542,7 +541,6 @@ export type Database = {
           rating?: number | null
           review_text?: string | null
           store_id?: number | null
-          user_id?: never
         }
         Update: {
           anonymous_reviewer?: never
@@ -551,7 +549,6 @@ export type Database = {
           rating?: number | null
           review_text?: string | null
           store_id?: number | null
-          user_id?: never
         }
         Relationships: []
       }

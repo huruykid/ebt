@@ -17,7 +17,7 @@ export const StoreRatingDisplay: React.FC<StoreRatingDisplayProps> = ({
     queryKey: ['store-review-stats', storeId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('store_review_stats')
+        .from('store_review_stats_secure')
         .select('*')
         .eq('store_id', storeId)
         .maybeSingle();

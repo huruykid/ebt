@@ -83,7 +83,7 @@ export const UserReviews: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-reviews'] });
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['public-reviews'] });
       queryClient.invalidateQueries({ queryKey: ['store-review-stats'] });
       toast({
         title: "Review deleted",
