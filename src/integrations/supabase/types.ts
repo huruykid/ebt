@@ -208,6 +208,50 @@ export type Database = {
         }
         Relationships: []
       }
+      google_places_sync_queue: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          priority: number
+          retry_count: number
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          priority?: number
+          retry_count?: number
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          priority?: number
+          retry_count?: number
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_places_sync_queue_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
