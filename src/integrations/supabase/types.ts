@@ -685,6 +685,20 @@ export type Database = {
           zip_code: string
         }[]
       }
+      get_next_sync_batch: {
+        Args: { batch_size?: number }
+        Returns: {
+          city: string
+          latitude: number
+          longitude: number
+          priority: number
+          queue_id: string
+          state: string
+          store_address: string
+          store_id: string
+          store_name: string
+        }[]
+      }
       get_store_click_analytics: {
         Args: { days_back?: number; store_id_filter?: string }
         Returns: {
@@ -770,6 +784,10 @@ export type Database = {
           p_user_ratings_total: number
           p_website: string
         }
+        Returns: undefined
+      }
+      update_sync_queue_status: {
+        Args: { error_msg?: string; new_status: string; queue_id: string }
         Returns: undefined
       }
       upsert_usage_ledger: {
