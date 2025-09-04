@@ -11,7 +11,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import StoreSearch from "./pages/StoreSearch";
+import { EnhancedSearch } from "./pages/EnhancedSearch";
 import StoreDetail from "./pages/StoreDetail";
 import Mission from "./pages/Mission";
 import Favorites from "./pages/Favorites";
@@ -84,7 +84,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/search" element={<StoreSearch />} />
+          <Route path="/search" element={<EnhancedSearch />} />
           <Route path="/store/:id" element={<StoreDetail />} />
           <Route path="/mission" element={<Mission />} />
           <Route path="/favorites" element={<Favorites />} />
