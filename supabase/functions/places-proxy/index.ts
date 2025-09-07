@@ -277,20 +277,34 @@ async function handleTextSearch(params: any) {
 
 async function updateStoreWithGoogleData(storeId: string, placeData: any) {
   try {
-    // Extract relevant fields from Google Places response
+    // Extract comprehensive fields from Google Places response
     const googleData = {
       place_id: placeData.id || placeData.place_id,
       name: placeData.displayName?.text || placeData.name,
       formatted_address: placeData.formattedAddress || placeData.formatted_address,
       website: placeData.websiteUri || placeData.website,
-      phone: placeData.nationalPhoneNumber || placeData.formatted_phone_number,
+      phone: placeData.nationalPhoneNumber || placeData.internationalPhoneNumber || placeData.formatted_phone_number,
       opening_hours: placeData.regularOpeningHours || placeData.opening_hours,
       rating: placeData.rating,
       user_ratings_total: placeData.userRatingCount || placeData.user_ratings_total,
-      photos: placeData.photos
+      photos: placeData.photos,
+      // Comprehensive new fields
+      types: placeData.types,
+      price_level: placeData.priceLevel,
+      geometry: placeData.location || placeData.viewport ? {
+        location: placeData.location,
+        viewport: placeData.viewport
+      } : placeData.geometry,
+      business_status: placeData.businessStatus,
+      vicinity: placeData.shortFormattedAddress || placeData.vicinity,
+      icon: placeData.icon,
+      icon_background_color: placeData.iconBackgroundColor,
+      icon_mask_base_uri: placeData.iconMaskBaseUri,
+      plus_code: placeData.plusCode?.globalCode || placeData.plus_code,
+      reviews: placeData.reviews
     };
 
-    // Update the store record using our database function
+    // Update the store record using our expanded database function
     const { error } = await supabase.rpc('update_store_with_google_data', {
       p_store_id: storeId,
       p_place_id: googleData.place_id,
@@ -301,7 +315,18 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
       p_opening_hours: googleData.opening_hours,
       p_rating: googleData.rating,
       p_user_ratings_total: googleData.user_ratings_total,
-      p_photos: googleData.photos
+      p_photos: googleData.photos,
+      // New comprehensive fields
+      p_types: googleData.types,
+      p_price_level: googleData.price_level,
+      p_geometry: googleData.geometry,
+      p_business_status: googleData.business_status,
+      p_vicinity: googleData.vicinity,
+      p_icon: googleData.icon,
+      p_icon_background_color: googleData.icon_background_color,
+      p_icon_mask_base_uri: googleData.icon_mask_base_uri,
+      p_plus_code: googleData.plus_code,
+      p_reviews: googleData.reviews
     });
 
     if (error) {
@@ -319,9 +344,17 @@ async function handlePlaceDetails(params: any) {
     place_id, 
     store_id, // Optional: if provided, we'll update the store record
     fields = [
-      'id', 'displayName', 'formattedAddress', 'websiteUri', 
-      'nationalPhoneNumber', 'regularOpeningHours', 'rating', 
-      'userRatingCount', 'photos'
+      // Comprehensive field list - maximizing data per API call
+      'id', 'displayName', 'formattedAddress', 'location', 'viewport',
+      'websiteUri', 'nationalPhoneNumber', 'internationalPhoneNumber',
+      'regularOpeningHours', 'rating', 'userRatingCount', 'reviews',
+      'priceLevel', 'types', 'businessStatus', 'photos',
+      'iconMaskBaseUri', 'iconBackgroundColor', 'plusCode',
+      'shortFormattedAddress', 'utcOffsetMinutes', 'accessibilityOptions',
+      'allowsDogs', 'curbsidePickup', 'delivery', 'dineIn',
+      'editorialSummary', 'outdoorSeating', 'reservable', 'servesBeer',
+      'servesBreakfast', 'servesBrunch', 'servesDinner', 'servesLunch',
+      'servesVegetarianFood', 'servesWine', 'takeout'
     ] 
   } = params;
   

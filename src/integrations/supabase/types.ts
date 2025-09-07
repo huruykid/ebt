@@ -773,15 +773,25 @@ export type Database = {
       }
       update_store_with_google_data: {
         Args: {
+          p_business_status?: string
           p_formatted_address: string
+          p_geometry?: Json
+          p_icon?: string
+          p_icon_background_color?: string
+          p_icon_mask_base_uri?: string
           p_name: string
           p_opening_hours: Json
           p_phone: string
           p_photos: Json
           p_place_id: string
+          p_plus_code?: string
+          p_price_level?: number
           p_rating: number
+          p_reviews?: Json
           p_store_id: string
+          p_types?: Json
           p_user_ratings_total: number
+          p_vicinity?: string
           p_website: string
         }
         Returns: undefined

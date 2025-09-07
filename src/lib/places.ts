@@ -20,20 +20,57 @@ export interface PlaceDetailsParams {
 }
 
 /**
- * Default fields for Place Details to minimize costs
- * Only request what we actually use in the UI
+ * Comprehensive fields for Place Details to maximize data in single API call
+ * Google charges per API call, not per field, so get complete data upfront
  * Updated for new Google Places API (Field Mask format)
  */
 export const DEFAULT_PLACE_FIELDS = [
+  // Core identification
   'id',
   'displayName',
   'formattedAddress',
+  'location',
+  'viewport',
+  
+  // Contact & web presence
   'websiteUri',
   'nationalPhoneNumber',
+  'internationalPhoneNumber',
+  
+  // Business details
   'regularOpeningHours',
   'rating',
   'userRatingCount',
-  'photos'
+  'reviews',
+  'priceLevel',
+  'types',
+  'businessStatus',
+  
+  // Visual & location data
+  'photos',
+  'iconMaskBaseUri',
+  'iconBackgroundColor',
+  'plusCode',
+  'shortFormattedAddress',
+  
+  // Additional useful fields
+  'utcOffsetMinutes',
+  'accessibilityOptions',
+  'allowsDogs',
+  'curbsidePickup',
+  'delivery',
+  'dineIn',
+  'editorialSummary',
+  'outdoorSeating',
+  'reservable',
+  'servesBeer',
+  'servesBreakfast',
+  'servesBrunch',
+  'servesDinner',
+  'servesLunch',
+  'servesVegetarianFood',
+  'servesWine',
+  'takeout'
 ];
 
 /**
