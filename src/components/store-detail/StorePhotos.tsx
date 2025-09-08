@@ -188,10 +188,55 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
       
       {/* Content overlay with better contrast */}
       <div className="absolute inset-0 flex items-center justify-center text-white">
-        <div className="text-center space-y-4 px-4">
+        <div className="text-center space-y-6 px-4 max-w-4xl">
           <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg text-white [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
             {storeName}
           </h1>
+          
+          {/* Photo Thumbnail Gallery */}
+          {hasGooglePhotos && googlePhotos.length > 1 && (
+            <div className="flex justify-center">
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex gap-2 max-w-sm overflow-x-auto scrollbar-hide">
+                  {googlePhotos.map((photo, index) => {
+                    const thumbnailUrl = photo.photo_url 
+                      ? photo.photo_url.replace('maxwidth=800', 'maxwidth=120').replace('maxheight=400', 'maxheight=80')
+                      : photo.photo_reference 
+                        ? `https://vpnaaaocqqmkslwqrkyd.supabase.co/functions/v1/google-places-photo?photo_reference=${photo.photo_reference}&maxwidth=120&maxheight=80`
+                        : defaultBackgroundImage;
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPhotoIndex(index)}
+                        className={`relative w-16 h-12 md:w-20 md:h-14 rounded-md overflow-hidden transition-all duration-200 flex-shrink-0 ${
+                          index === currentPhotoIndex 
+                            ? 'ring-2 ring-white shadow-lg scale-105' 
+                            : 'ring-1 ring-white/40 hover:ring-white/80 hover:scale-105'
+                        }`}
+                      >
+                        <img
+                          src={thumbnailUrl}
+                          alt={`Store photo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        {index === currentPhotoIndex && (
+                          <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="text-xs text-white/80 mt-2 text-center">
+                  {googlePhotos.length} photos from Google Places
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button 
               onClick={() => setShowAddPhotoModal(true)}
