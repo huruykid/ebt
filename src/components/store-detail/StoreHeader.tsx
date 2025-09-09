@@ -116,7 +116,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
     if (!store.google_opening_hours) return null;
     
     try {
-      const openingHours = JSON.parse(store.google_opening_hours as string);
+      // Handle both string and object formats
+      const openingHours = typeof store.google_opening_hours === 'string' 
+        ? JSON.parse(store.google_opening_hours) 
+        : store.google_opening_hours;
+        
       if (openingHours.weekday_text && openingHours.weekday_text.length > 0) {
         const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
         const todayIndex = today === 0 ? 6 : today - 1; // Convert to Monday = 0 format
@@ -150,7 +154,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
   const getOpenStatus = () => {
     try {
       if (store.google_opening_hours) {
-        const openingHours = JSON.parse(store.google_opening_hours as string);
+        // Handle both string and object formats
+        const openingHours = typeof store.google_opening_hours === 'string' 
+          ? JSON.parse(store.google_opening_hours) 
+          : store.google_opening_hours;
         return openingHours.open_now;
       }
     } catch (error) {
@@ -285,7 +292,18 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
                 <p className="text-sm text-foreground font-medium mb-1">
                   {formatAddress() || 'Address not available'}
                 </p>
-                 {/* Inline actions for missing data */}
+                
+                {/* Display hours if available */}
+                {getDisplayHours() && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      Today: {getDisplayHours()}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Inline actions for missing data */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {!getDisplayPhone() && (
                     <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
