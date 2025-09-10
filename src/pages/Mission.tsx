@@ -241,6 +241,43 @@ export default function Mission() {
             </CardContent>
           </Card>
 
+          {/* SNAP Resources Section */}
+          <Card className="mb-12 bg-gradient-to-r from-success/5 to-primary/5 border-success/20">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Utensils className="h-8 w-8 text-success" />
+                  <h2 className="text-2xl font-semibold text-foreground">SNAP Resources & Tips</h2>
+                </div>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
+                  Maximize your SNAP/EBT benefits with our comprehensive guide to programs, eligible items, and money-saving strategies.
+                </p>
+                <div className="bg-white/50 dark:bg-gray-900/50 rounded-xl p-6 border border-success/20">
+                  <div className="flex items-start gap-4 text-left">
+                    <div className="bg-success/10 p-3 rounded-lg">
+                      <Star className="h-6 w-6 text-success" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground mb-2 text-lg">Complete 2025 SNAP Tips & Tricks Guide</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Learn about Double Up Food Bucks programs, surprising eligible items, Restaurant Meals Program, and the latest policy updates that could save you money.
+                      </p>
+                      <Button 
+                        asChild 
+                        className="bg-success hover:bg-success/90 text-white hover:scale-105 transition-all duration-200"
+                      >
+                        <a href="/snap-tips" className="flex items-center gap-2">
+                          View Complete Guide
+                          <ArrowRight className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Helpful Programs Section */}
           <div className="mb-12">
             <div className="text-center mb-8">
