@@ -12,6 +12,9 @@ import { MobileHeader } from './MobileHeader';
 import { DesktopHeroSection } from './DesktopHeroSection';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Star, ArrowRight, Utensils } from 'lucide-react';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -169,6 +172,52 @@ export const ExploreTrending: React.FC = () => {
               )}
             </>
           )}
+        </div>
+        
+        {/* SNAP Tips Section - Desktop Only */}
+        <div className="bg-gradient-to-r from-success/5 to-primary/5 py-16">
+          <div className="max-w-4xl mx-auto px-6">
+            <Card className="bg-white/80 backdrop-blur-sm border-success/20 shadow-lg">
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Utensils className="h-8 w-8 text-success" />
+                    <h2 className="text-3xl font-bold text-foreground">Maximize Your SNAP Benefits</h2>
+                  </div>
+                  <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
+                    Discover money-saving programs, eligible items, and insider tips to get the most out of your EBT benefits in 2025.
+                  </p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 border border-success/20 shadow-sm">
+                  <div className="flex items-start gap-6">
+                    <div className="bg-success/10 p-4 rounded-xl">
+                      <Star className="h-8 w-8 text-success" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-foreground mb-3 text-xl">Complete 2025 SNAP Tips & Tricks Guide</h3>
+                      <div className="text-muted-foreground mb-4 space-y-2">
+                        <p>• <strong>Double Up Food Bucks:</strong> Match your SNAP dollars on produce (up to $30/day)</p>
+                        <p>• <strong>Surprising eligible items:</strong> Birthday cakes, coffee, seeds, and more</p>
+                        <p>• <strong>Restaurant Meals Program:</strong> Use EBT at participating restaurants</p>
+                        <p>• <strong>2025 policy updates:</strong> New work requirements and benefit changes</p>
+                      </div>
+                      <Button 
+                        asChild 
+                        size="lg"
+                        className="bg-success hover:bg-success/90 text-white hover:scale-105 transition-all duration-200 shadow-md"
+                      >
+                        <a href="/snap-tips" className="flex items-center gap-2">
+                          View Complete Guide
+                          <ArrowRight className="h-5 w-5" />
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         
         {/* FAQ Section */}
