@@ -20,6 +20,7 @@ import CityPage from "./pages/CityPage";
 import EbtChipCard from "./pages/EbtChipCard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Support from "./pages/Support";
+import SnapTips from "./pages/SnapTips";
 
 import NotFound from "./pages/NotFound";
 
@@ -92,6 +93,7 @@ const AppContent = () => {
           <Route path="/ebt-chip-card" element={<EbtChipCard />} />
           <Route path="/support" element={<Support />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/snap-tips" element={<SnapTips />} />
           
           {/* City Pages - Specific routes first, then catch-all */}
           <Route path="/los-angeles" element={<CityPage />} />
