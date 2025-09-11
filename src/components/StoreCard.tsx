@@ -176,10 +176,12 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
               </div>
             )}
 
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 flex-shrink-0" />
-              <span>{store.google_formatted_phone_number || 'Phone coming soon'}</span>
-            </div>
+            {store.google_formatted_phone_number && (
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 flex-shrink-0" />
+                <span>{store.google_formatted_phone_number}</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 flex-shrink-0" />
@@ -189,7 +191,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
                   if (openingHours?.open_now !== undefined) {
                     return openingHours.open_now ? 'Open Now' : 'Closed';
                   }
-                  return 'Hours coming soon';
+                  return 'Hours not available';
                 })()}
               </span>
             </div>

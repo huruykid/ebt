@@ -4,6 +4,7 @@ import { StoreCard } from '@/components/StoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { RadiusDropdown } from '@/components/RadiusDropdown';
+import { BudgetWarningBanner } from '@/components/BudgetWarningBanner';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -83,6 +84,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Budget Warning */}
+      <BudgetWarningBanner />
+      
       {/* Search Summary and Controls */}
       <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
         <div className="flex items-center justify-between flex-wrap gap-4">

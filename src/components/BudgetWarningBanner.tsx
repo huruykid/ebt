@@ -1,23 +1,14 @@
 import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface BudgetWarningBannerProps {
-  show: boolean;
-  message?: string;
-}
-
-export const BudgetWarningBanner: React.FC<BudgetWarningBannerProps> = ({ 
-  show, 
-  message = "Using cached results due to monthly API budget limit. Data may be slightly outdated." 
-}) => {
-  if (!show) return null;
-
+export const BudgetWarningBanner: React.FC = () => {
   return (
-    <Alert className="mb-4 border-amber-200 bg-amber-50 text-amber-800">
-      <AlertTriangle className="h-4 w-4" />
-      <AlertDescription className="text-sm">
-        {message}
+    <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950 dark:border-amber-800 mb-4">
+      <AlertTriangle className="h-4 w-4 text-amber-600" />
+      <AlertDescription className="text-amber-800 dark:text-amber-200">
+        <strong>Limited Data Available:</strong> Enhanced store details (phone numbers, hours, ratings) are temporarily limited due to API usage. 
+        Basic store information and locations are still fully available.
       </AlertDescription>
     </Alert>
   );

@@ -105,6 +105,13 @@ export const useGooglePlacesBusiness = (
           const response = await searchPlacesByText(searchQuery);
 
           if (response.error || !response.data?.places?.[0]) {
+            // Check if this is a budget-related error
+            if (response.error?.includes('Budget exceeded')) {
+              console.warn('💰 Google Places API budget exceeded, using basic store data');
+              // Don't cache budget errors to allow retry later
+              return null;
+            }
+            
             console.error('❌ Error calling places-proxy function:', response.error);
             // Cache null result to prevent repeated failed requests
             googlePlacesCache.set(cacheKey, { data: null, timestamp: Date.now() });
