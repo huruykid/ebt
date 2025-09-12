@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, Heart, User, Target } from 'lucide-react';
+import { Home, Search, BookOpen, User, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 interface HeaderNavigationProps {
@@ -22,7 +22,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
     if (path === '/mission') return 'mission';
-    if (path === '/favorites') return 'favorites';
+    if (path === '/snap-tips') return 'snap-tips';
     if (path === '/profile') return 'profile';
     return 'home'; // default fallback
   };
@@ -40,9 +40,9 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     label: 'Mission',
     icon: Target
   }, {
-    id: 'favorites',
-    label: 'Favorites',
-    icon: Heart
+    id: 'snap-tips',
+    label: 'SNAP Tips',
+    icon: BookOpen
   }, {
     id: 'profile',
     label: 'Profile',

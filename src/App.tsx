@@ -59,8 +59,8 @@ const AppContent = () => {
       case 'mission':
         navigate('/mission');
         break;
-      case 'favorites':
-        navigate('/favorites');
+      case 'snap-tips':
+        navigate('/snap-tips');
         break;
       case 'profile':
         navigate('/profile');
