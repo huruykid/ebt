@@ -1,47 +1,71 @@
 import { SEOHead } from "@/components/SEOHead";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
+import { FAQSchema } from "@/components/FAQSchema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, DollarSign, ShoppingCart, AlertCircle, CreditCard, Users } from "lucide-react";
 
 export default function SnapTips() {
-  const seoTitle = "SNAP Tips & Tricks 2025: Maximize Your EBT Benefits | Complete Guide";
-  const seoDescription = "Complete 2025 guide to SNAP/EBT benefits: Double Up Food Bucks, Restaurant Meals Program, eligible items, policy updates, and money-saving tips to maximize your benefits.";
-  const seoKeywords = "SNAP benefits 2025, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide";
-
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "SNAP Tips & Tricks: Complete 2025 Guide to Maximize Your EBT Benefits",
-    "description": seoDescription,
+    "headline": "Complete 2025 SNAP Tips & Tricks Guide",
+    "description": "Comprehensive guide to maximizing your SNAP benefits in 2025. Learn about eligible items, programs, and money-saving strategies.",
     "author": {
       "@type": "Organization",
       "name": "EBT Finder"
     },
     "publisher": {
-      "@type": "Organization",
+      "@type": "Organization", 
       "name": "EBT Finder",
       "logo": {
         "@type": "ImageObject",
         "url": "https://ebtfinder.org/ebt-logo.png"
       }
     },
-    "datePublished": "2025-09-10",
-    "dateModified": "2025-09-10"
+    "datePublished": "2025-01-01",
+    "dateModified": "2025-01-15",
+    "url": "https://ebtfinder.org/snap-tips"
   };
+
+  const faqData = [
+    {
+      question: "What items can I buy with SNAP benefits in 2025?",
+      answer: "You can buy most food items including fruits, vegetables, meat, dairy, bread, cereals, snacks, and non-alcoholic beverages. Seeds and plants that produce food are also eligible. You cannot buy alcohol, tobacco, vitamins, hot prepared foods (unless you qualify for RMP), or non-food items."
+    },
+    {
+      question: "What is the Restaurant Meals Program (RMP)?",
+      answer: "RMP allows eligible SNAP recipients (elderly 60+, disabled, or homeless) to use benefits at participating restaurants. Not all states participate, and participating restaurants must be authorized."
+    },
+    {
+      question: "How can I double my SNAP benefits?",
+      answer: "Many farmers markets and grocery stores offer 'Double Up Food Bucks' or similar programs that match your SNAP spending on fruits and vegetables, effectively doubling your purchasing power for healthy foods."
+    },
+    {
+      question: "Can I buy energy drinks with SNAP?",
+      answer: "Energy drinks are SNAP-eligible if they have a nutrition facts label (like Red Bull, Monster). However, energy drinks with supplement facts labels are not eligible."
+    },
+    {
+      question: "What's new with SNAP in 2025?",
+      answer: "Key changes include updated income limits, expanded work requirements for some recipients, mandatory EMV chip cards in many states, and new fees for cash withdrawals at some retailers like Walmart."
+    }
+  ];
 
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
+        title="Complete 2025 SNAP Tips & Tricks Guide | EBT Finder"
+        description="Comprehensive guide to maximizing your SNAP benefits in 2025. Learn about eligible items, programs, and money-saving strategies."
+        keywords="SNAP benefits 2025, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide"
         canonicalUrl="https://ebtfinder.org/snap-tips"
         structuredData={structuredData}
       />
-      
-      <BreadcrumbNavigation />
+      <FAQSchema faqs={faqData} />
+      <BreadcrumbNavigation items={[
+        { label: 'Home', href: '/' },
+        { label: 'SNAP Tips', href: '/snap-tips' }
+      ]} />
       
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-6 max-w-4xl">
