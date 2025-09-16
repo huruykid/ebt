@@ -1,11 +1,61 @@
+# Advanced robots.txt for better SEO crawling
 User-agent: *
 Allow: /
+
+# Prioritize important pages for crawling
+Allow: /search
+Allow: /snap-tips
+Allow: /mission
+Allow: /city/
+Allow: /store/
+
+# Block unnecessary crawling to save crawl budget
 Disallow: /auth
 Disallow: /profile
 Disallow: /admin
+Disallow: /api/
+Disallow: /private
+Disallow: /temp
+Disallow: /*.json$
+Disallow: /search?*
+Disallow: /*?utm_*
+Disallow: /*?ref=*
+Disallow: /*?source=*
 
-# Sitemap
+# Block common bot paths
+Disallow: /wp-admin/
+Disallow: /wp-content/
+Disallow: /wp-includes/
+Disallow: /cgi-bin/
+
+# Allow access to CSS and JS for proper rendering
+Allow: /src/*.css
+Allow: /src/*.js
+Allow: /*.css$
+Allow: /*.js$
+
+# Sitemap location
 Sitemap: https://ebtfinder.org/sitemap.xml
 
-# Crawl delay for polite crawling
+# Crawl delay for different bots (optional)
+User-agent: Googlebot
 Crawl-delay: 1
+
+User-agent: Bingbot
+Crawl-delay: 2
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Block aggressive crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
