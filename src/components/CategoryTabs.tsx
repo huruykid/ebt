@@ -169,9 +169,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                     ? 'bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary/30 scale-110 transform' 
                     : 'hover:bg-white/70 hover:shadow-lg'
                 }`}
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`panel-${category.id}`}
+                role="button"
+                aria-pressed={isActive}
               >
                 <div className={`w-12 h-12 flex items-center justify-center mb-2 transition-all duration-300 rounded-full ${
                   isActive 
