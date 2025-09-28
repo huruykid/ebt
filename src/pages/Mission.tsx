@@ -282,7 +282,7 @@ export default function Mission() {
           <div className="mb-12">
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Heart className="h-8 w-8 text-primary" />
+                <img src="/primary-logo.svg" alt="Primary logo" className="h-8 w-auto" />
                 <h2 className="text-2xl font-semibold text-foreground">Helpful Programs</h2>
               </div>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
