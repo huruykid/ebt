@@ -34,7 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        // Log only essential debugging information (no email addresses)
+        console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -42,7 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           setIsGuest(false);
           localStorage.removeItem('guest_mode');
-          console.log('User authenticated, clearing guest mode');
         } else if (event === 'SIGNED_OUT') {
           // Only set guest mode if explicitly signed out and guest mode was previously set
           const wasGuest = localStorage.getItem('guest_mode') === 'true';
@@ -61,13 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user);
         setIsGuest(false);
         localStorage.removeItem('guest_mode');
-        console.log('Existing session found, clearing guest mode');
       } else {
         // Only check for guest mode if no valid session
         const guestMode = localStorage.getItem('guest_mode');
         if (guestMode === 'true') {
           setIsGuest(true);
-          console.log('No session, setting guest mode');
         }
       }
       setLoading(false);
@@ -102,7 +100,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!error) {
       setIsGuest(false);
       localStorage.removeItem('guest_mode');
-      console.log('Sign in successful, clearing guest mode');
     }
     
     return { error };
@@ -118,7 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsGuest(true);
     setLoading(false);
     localStorage.setItem('guest_mode', 'true');
-    console.log('Continuing as guest');
   };
 
   const value = {

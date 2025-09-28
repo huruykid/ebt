@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { reviewSchema, type ReviewInput } from '@/lib/validationSchemas';
+import { sanitizeString } from '@/utils/security';
 
 interface ReviewFormProps {
   storeId: number;
@@ -27,15 +29,30 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
-      if (rating === 0) throw new Error('Please select a rating');
+
+      // Validate and sanitize input
+      const validationResult = reviewSchema.safeParse({
+        rating,
+        review_text: reviewText,
+      });
+
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(e => e.message).join(', ');
+        throw new Error(errors);
+      }
+
+      const { rating: validRating, review_text: validReviewText } = validationResult.data;
+
+      // Additional sanitization for review text
+      const sanitizedReviewText = validReviewText ? sanitizeString(validReviewText) : null;
 
       const { data, error } = await supabase
         .from('reviews')
         .insert({
           user_id: user.id,
           store_id: storeId,
-          rating,
-          review_text: reviewText.trim() || null,
+          rating: validRating,
+          review_text: sanitizedReviewText,
         })
         .select()
         .single();
@@ -96,8 +113,12 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
             placeholder="Share your experience with this store..."
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
+            maxLength={1000}
             rows={4}
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            {reviewText.length}/1000 characters
+          </p>
         </div>
 
         <Button 

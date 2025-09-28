@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ShoppingCart, Heart, MapPin, Users } from 'lucide-react';
+import { signUpSchema, signInSchema } from '@/lib/validationSchemas';
 
 export const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -34,11 +35,30 @@ export const Auth: React.FC = () => {
     setLoading(true);
 
     try {
+      // Validate form inputs
+      if (isLogin) {
+        const validationResult = signInSchema.safeParse({ email, password });
+        if (!validationResult.success) {
+          const errors = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errors);
+          setLoading(false);
+          return;
+        }
+      } else {
+        const validationResult = signUpSchema.safeParse({ email, password, fullName });
+        if (!validationResult.success) {
+          const errors = validationResult.error.errors.map(e => e.message).join(', ');
+          toast.error(errors);
+          setLoading(false);
+          return;
+        }
+      }
+
       let result;
       if (isLogin) {
-        result = await signIn(email, password);
+        result = await signIn(email.trim(), password);
       } else {
-        result = await signUp(email, password, fullName);
+        result = await signUp(email.trim(), password, fullName.trim());
       }
 
       if (result.error) {
