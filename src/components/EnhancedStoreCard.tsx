@@ -89,18 +89,24 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                   loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML = `
-                      <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                        <div class="text-center text-gray-500">
-                          <svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                          </svg>
-                          <span class="text-xs font-medium">${store.Store_Name}</span>
-                        </div>
-                      </div>
-                    `;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      target.style.display = 'none';
+                      // Safely create fallback without innerHTML
+                      const fallbackDiv = document.createElement('div');
+                      fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center';
+                      const centerDiv = document.createElement('div');
+                      centerDiv.className = 'text-center text-gray-500';
+                      const mapPin = document.createElement('span');
+                      mapPin.innerHTML = '<svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+                      const nameSpan = document.createElement('span');
+                      nameSpan.className = 'text-xs font-medium';
+                      nameSpan.textContent = store.Store_Name || '';
+                      centerDiv.appendChild(mapPin);
+                      centerDiv.appendChild(nameSpan);
+                      fallbackDiv.appendChild(centerDiv);
+                      parent.appendChild(fallbackDiv);
+                    }
                   }}
                 />
               );
@@ -113,18 +119,24 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                   loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.parentElement!.innerHTML = `
-                      <div class="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center">
-                        <div class="text-center text-gray-500">
-                          <svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                          </svg>
-                          <span class="text-xs font-medium">${store.Store_Name}</span>
-                        </div>
-                      </div>
-                    `;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      target.style.display = 'none';
+                      // Safely create fallback without innerHTML
+                      const fallbackDiv = document.createElement('div');
+                      fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center';
+                      const centerDiv = document.createElement('div');
+                      centerDiv.className = 'text-center text-gray-500';
+                      const mapPin = document.createElement('span');
+                      mapPin.innerHTML = '<svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+                      const nameSpan = document.createElement('span');
+                      nameSpan.className = 'text-xs font-medium';
+                      nameSpan.textContent = store.Store_Name || '';
+                      centerDiv.appendChild(mapPin);
+                      centerDiv.appendChild(nameSpan);
+                      fallbackDiv.appendChild(centerDiv);
+                      parent.appendChild(fallbackDiv);
+                    }
                   }}
                 />
               );

@@ -48,6 +48,11 @@ export const useUserRoles = () => {
   // Assign role (admin only)
   const assignRoleMutation = useMutation({
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: UserRole }) => {
+      // Client-side admin check before allowing role assignment
+      if (!isAdmin) {
+        throw new Error('Only administrators can assign roles');
+      }
+      
       const { error } = await supabase
         .from('user_roles')
         .insert({
@@ -63,13 +68,18 @@ export const useUserRoles = () => {
     },
     onError: (error) => {
       console.error('Error assigning role:', error);
-      toast.error('Failed to assign role');
+      toast.error(error instanceof Error ? error.message : 'Failed to assign role');
     },
   });
 
   // Remove role (admin only)
   const removeRoleMutation = useMutation({
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: UserRole }) => {
+      // Client-side admin check before allowing role removal
+      if (!isAdmin) {
+        throw new Error('Only administrators can remove roles');
+      }
+      
       const { error } = await supabase
         .from('user_roles')
         .delete()
@@ -84,7 +94,7 @@ export const useUserRoles = () => {
     },
     onError: (error) => {
       console.error('Error removing role:', error);
-      toast.error('Failed to remove role');
+      toast.error(error instanceof Error ? error.message : 'Failed to remove role');
     },
   });
 
