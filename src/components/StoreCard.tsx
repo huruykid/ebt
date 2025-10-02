@@ -109,7 +109,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
           </div>
 
           {/* Store Type and EBT Tags */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             {store.Store_Type && (
               <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStoreTypeColor(store.Store_Type)}`}>
                 {store.Store_Type}
@@ -118,18 +118,31 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-accent/20 text-accent-foreground border border-accent/20">
               EBT Accepted
             </span>
-          {isRmpEnrolled && (
-            <a 
-              href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
-            >
-              <Utensils className="h-3 w-3 mr-1" />
-              Hot Foods
-            </a>
-          )}
           </div>
+
+          {/* Incentive Programs - Prominent Display */}
+          {store.Incentive_Program && (
+            <div className="mb-3 p-3 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-600 dark:text-amber-400 fill-amber-600 dark:fill-amber-400" />
+                <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                  {store.Incentive_Program}
+                </span>
+              </div>
+              {isRmpEnrolled && (
+                <a 
+                  href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-xs text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 font-medium"
+                >
+                  <Utensils className="h-3 w-3" />
+                  Hot prepared meals available
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Community Tip Preview */}
           {latestComment && (
@@ -216,18 +229,6 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             <FavoriteButton storeId={store.id} variant="icon" />
             <ShareStore store={store} variant="icon" />
           </div>
-
-          {/* Special Programs */}
-          {store.Incentive_Program && (
-            <div className="mt-2 p-2 bg-primary/5 rounded-md border border-primary/10">
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 text-primary" />
-                <span className="text-xs font-medium text-primary">
-                  {store.Incentive_Program}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
