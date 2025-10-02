@@ -17,11 +17,47 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Starting CSV upload and processing...');
+    
+    // Get auth token and verify admin access
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized - missing auth token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    // Initialize Supabase client
+    // Initialize Supabase client with service role key for database operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Create client with user auth to verify permissions
+    const supabaseAnon = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnon, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    // Verify user is admin
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unauthorized - invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Check if user is admin using the has_role function
+    const { data: isAdmin, error: roleError } = await supabase
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    
+    if (roleError || !isAdmin) {
+      console.error('Admin check failed:', roleError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Forbidden - admin access required for CSV uploads' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Parse multipart form data
     const formData = await req.formData();
@@ -34,6 +70,31 @@ Deno.serve(async (req) => {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
+      );
+    }
+    
+    // Validate file type
+    if (!csvFile.name.toLowerCase().endsWith('.csv')) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid file type - must be a CSV file' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate file size (max 50MB to prevent abuse)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (csvFile.size > maxSize) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'File too large - maximum 50MB allowed' }),
+        { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Validate file is not empty
+    if (csvFile.size === 0) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'File is empty' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

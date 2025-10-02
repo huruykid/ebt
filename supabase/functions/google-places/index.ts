@@ -58,8 +58,47 @@ serve(async (req) => {
 
     const { storeName, address, latitude, longitude }: GooglePlacesRequest = await req.json();
     
-    if (!storeName) {
-      throw new Error('Store name is required');
+    // Input validation
+    if (!storeName || typeof storeName !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid store name - must be a non-empty string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (storeName.length > 200) {
+      return new Response(
+        JSON.stringify({ error: 'Store name too long - maximum 200 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (address && typeof address !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid address - must be a string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (address && address.length > 500) {
+      return new Response(
+        JSON.stringify({ error: 'Address too long - maximum 500 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (latitude !== undefined && (typeof latitude !== 'number' || latitude < -90 || latitude > 90)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid latitude - must be between -90 and 90' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (longitude !== undefined && (typeof longitude !== 'number' || longitude < -180 || longitude > 180)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid longitude - must be between -180 and 180' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('🔍 Google Places lookup for:', { storeName, address });

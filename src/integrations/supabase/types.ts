@@ -318,6 +318,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_reviews_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       snap_stores: {
@@ -635,6 +642,33 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       public_reviews: {
         Row: {
           anonymous_reviewer: string | null
@@ -701,6 +735,10 @@ export type Database = {
     Functions: {
       check_and_award_badges: {
         Args: { p_user_id: string }
+        Returns: undefined
+      }
+      cleanup_old_store_clicks: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       get_nearby_stores: {
