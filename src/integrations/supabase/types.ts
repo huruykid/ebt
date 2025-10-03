@@ -83,6 +83,116 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author: string
+          body: string
+          category_id: string | null
+          created_at: string
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          slug: string
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author: string
+          body: string
+          category_id?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author?: string
+          body?: string
+          category_id?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       budget_events: {
         Row: {
           action: string
@@ -252,6 +362,60 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscribers: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean | null
+          source: string | null
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean | null
+          source?: string | null
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          source?: string | null
+          subscribed_at?: string
+        }
+        Relationships: []
+      }
+      post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -279,6 +443,69 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          category: string | null
+          cook_time_minutes: number | null
+          cost_per_serving: number | null
+          created_at: string
+          description: string | null
+          featured_image: string | null
+          id: string
+          ingredients: Json
+          instructions: Json
+          is_published: boolean | null
+          name: string
+          nutrition_info: Json | null
+          prep_time_minutes: number | null
+          published_at: string | null
+          servings: number | null
+          slug: string
+          snap_eligible: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cook_time_minutes?: number | null
+          cost_per_serving?: number | null
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          id?: string
+          ingredients: Json
+          instructions: Json
+          is_published?: boolean | null
+          name: string
+          nutrition_info?: Json | null
+          prep_time_minutes?: number | null
+          published_at?: string | null
+          servings?: number | null
+          slug: string
+          snap_eligible?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cook_time_minutes?: number | null
+          cost_per_serving?: number | null
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          id?: string
+          ingredients?: Json
+          instructions?: Json
+          is_published?: boolean | null
+          name?: string
+          nutrition_info?: Json | null
+          prep_time_minutes?: number | null
+          published_at?: string | null
+          servings?: number | null
+          slug?: string
+          snap_eligible?: boolean | null
+          updated_at?: string
         }
         Relationships: []
       }

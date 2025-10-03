@@ -13,7 +13,7 @@ import { SEOOptimizer } from "@/components/SEOOptimizer";
 import { AdvancedSEO } from "@/components/AdvancedSEO";
 import { RankingBooster } from "@/components/RankingBooster";
 import { ComprehensiveSEO } from "@/components/ComprehensiveSEO";
-import Index from "./pages/Index";
+import BlogHome from "./pages/BlogHome";
 import Auth from "./pages/Auth";
 import { EnhancedSearch } from "./pages/EnhancedSearch";
 import StoreDetail from "./pages/StoreDetail";
@@ -25,6 +25,10 @@ import EbtChipCard from "./pages/EbtChipCard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Support from "./pages/Support";
 import SnapTips from "./pages/SnapTips";
+import Blog from "./pages/Blog";
+import BlogArticle from "./pages/BlogArticle";
+import Recipes from "./pages/Recipes";
+import BusinessResources from "./pages/BusinessResources";
 
 import NotFound from "./pages/NotFound";
 
@@ -60,6 +64,12 @@ const AppContent = () => {
       case 'search':
         navigate('/search');
         break;
+      case 'blog':
+        navigate('/blog');
+        break;
+      case 'recipes':
+        navigate('/recipes');
+        break;
       case 'mission':
         navigate('/mission');
         break;
@@ -92,7 +102,7 @@ const AppContent = () => {
         {/* Main content area with responsive bottom padding and top safe area */}
         <div className="flex-1 pb-28 md:pb-0 pt-[env(safe-area-inset-top)] md:pt-0">
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<BlogHome />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/search" element={<EnhancedSearch />} />
             <Route path="/store/:id" element={<StoreDetail />} />
@@ -103,6 +113,10 @@ const AppContent = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/snap-tips" element={<SnapTips />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogArticle />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/business-resources" element={<BusinessResources />} />
             
             {/* City Pages - Specific routes first, then catch-all */}
             <Route path="/los-angeles" element={<CityPage />} />
