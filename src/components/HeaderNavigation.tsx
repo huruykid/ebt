@@ -21,9 +21,8 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
-    if (path === '/blog' || path.startsWith('/blog')) return 'blog';
-    if (path === '/recipes' || path.startsWith('/recipes')) return 'recipes';
     if (path === '/mission') return 'mission';
+    if (path === '/snap-tips') return 'snap-tips';
     if (path === '/profile') return 'profile';
     return 'home'; // default fallback
   };
@@ -37,17 +36,13 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     label: 'Search',
     icon: Search
   }, {
-    id: 'blog',
-    label: 'Blog',
-    icon: BookOpen
-  }, {
-    id: 'recipes',
-    label: 'Recipes',
-    icon: BookOpen
-  }, {
     id: 'mission',
     label: 'Mission',
     icon: Target
+  }, {
+    id: 'snap-tips',
+    label: 'SNAP Tips',
+    icon: BookOpen
   }, {
     id: 'profile',
     label: 'Profile',
@@ -55,21 +50,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     requiresAuth: true
   }];
   const handleNavClick = (itemId: string) => {
-    // Map navigation IDs to routes
-    const routeMap: { [key: string]: string } = {
-      'home': '/',
-      'search': '/search',
-      'blog': '/blog',
-      'recipes': '/recipes',
-      'mission': '/mission',
-      'profile': '/profile'
-    };
-    
-    const route = routeMap[itemId];
-    if (route) {
-      navigate(route);
-    }
-    
     if (onNavigate) {
       onNavigate(itemId);
     }
