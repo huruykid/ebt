@@ -25,6 +25,7 @@ import EbtChipCard from "./pages/EbtChipCard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Support from "./pages/Support";
 import SnapTips from "./pages/SnapTips";
+import Blog from "./pages/Blog";
 
 import NotFound from "./pages/NotFound";
 
@@ -66,6 +67,9 @@ const AppContent = () => {
       case 'snap-tips':
         navigate('/snap-tips');
         break;
+      case 'blog':
+        navigate('/blog');
+        break;
       case 'profile':
         navigate('/profile');
         break;
@@ -103,6 +107,7 @@ const AppContent = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/snap-tips" element={<SnapTips />} />
+            <Route path="/blog" element={<Blog />} />
             
             {/* City Pages - Specific routes first, then catch-all */}
             <Route path="/los-angeles" element={<CityPage />} />

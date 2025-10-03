@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Home, Search, BookOpen, User, Target } from 'lucide-react';
+import { Home, Search, BookOpen, User, Target, FileText } from 'lucide-react';
 
 interface NavItem {
   id: string;
@@ -26,6 +26,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
+    if (path === '/blog') return 'blog';
     if (path === '/mission') return 'mission';
     if (path === '/snap-tips') return 'snap-tips';
     if (path === '/profile') return 'profile';
@@ -37,7 +38,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   const navItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'search', label: 'Search', icon: Search },
-    { id: 'mission', label: 'Mission', icon: Target },
+    { id: 'blog', label: 'Blog', icon: FileText },
     { id: 'snap-tips', label: 'SNAP Tips', icon: BookOpen },
     { id: 'profile', label: 'Profile', icon: User }
   ];

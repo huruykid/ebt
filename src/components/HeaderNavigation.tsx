@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, BookOpen, User, Target } from 'lucide-react';
+import { Home, Search, BookOpen, User, Target, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 interface HeaderNavigationProps {
@@ -21,6 +21,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     const path = location.pathname;
     if (path === '/') return 'home';
     if (path === '/search' || path.startsWith('/search')) return 'search';
+    if (path === '/blog') return 'blog';
     if (path === '/mission') return 'mission';
     if (path === '/snap-tips') return 'snap-tips';
     if (path === '/profile') return 'profile';
@@ -35,6 +36,10 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
     id: 'search',
     label: 'Search',
     icon: Search
+  }, {
+    id: 'blog',
+    label: 'Blog',
+    icon: FileText
   }, {
     id: 'mission',
     label: 'Mission',
