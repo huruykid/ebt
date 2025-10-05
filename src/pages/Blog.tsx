@@ -3,15 +3,18 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { BlogPostForm } from '@/components/blog/BlogPostForm';
+import { BlogPostList } from '@/components/blog/BlogPostList';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Blog() {
   const { isAdmin } = useUserRoles();
   const [showForm, setShowForm] = useState(false);
+  const [editingPost, setEditingPost] = useState<BlogPostWithCategory | undefined>(undefined);
 
   const { data: posts = [], isLoading } = useQuery<BlogPostWithCategory[]>({
     queryKey: ['blog-posts'],
@@ -48,27 +51,44 @@ export default function Blog() {
           </p>
 
           {isAdmin && (
-            <div className="mb-8">
-              <Button
-                onClick={() => setShowForm(!showForm)}
-                variant="outline"
-                className="mb-4"
-              >
-                {showForm ? (
-                  <>
-                    <ChevronUp className="mr-2 h-4 w-4" />
-                    Hide Form
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="mr-2 h-4 w-4" />
-                    Create New Article
-                  </>
-                )}
-              </Button>
+            <Tabs defaultValue="list" className="mb-8">
+              <TabsList>
+                <TabsTrigger value="list">Manage Articles</TabsTrigger>
+                <TabsTrigger value="create">
+                  <Plus className="mr-2 h-4 w-4" />
+                  {editingPost ? 'Edit Article' : 'Create New'}
+                </TabsTrigger>
+              </TabsList>
               
-              {showForm && <BlogPostForm />}
-            </div>
+              <TabsContent value="list" className="mt-4">
+                <BlogPostList 
+                  posts={posts} 
+                  onEdit={(post) => {
+                    setEditingPost(post);
+                    setShowForm(true);
+                  }}
+                />
+              </TabsContent>
+              
+              <TabsContent value="create" className="mt-4">
+                <BlogPostForm 
+                  editingPost={editingPost}
+                  onSuccess={() => {
+                    setEditingPost(undefined);
+                    setShowForm(false);
+                  }}
+                />
+                {editingPost && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingPost(undefined)}
+                    className="mt-4"
+                  >
+                    Cancel Edit
+                  </Button>
+                )}
+              </TabsContent>
+            </Tabs>
           )}
 
           <div className="space-y-6">
