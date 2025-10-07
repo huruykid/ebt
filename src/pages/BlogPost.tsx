@@ -65,34 +65,34 @@ export default function BlogPost() {
       />
       
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8 max-w-3xl">
           <Button 
             onClick={() => navigate('/blog')} 
             variant="ghost" 
-            className="mb-6"
+            className="mb-8"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Blog
           </Button>
 
-          <article className="prose prose-lg max-w-none">
+          <article>
             {post.featured_image && (
               <img
                 src={post.featured_image}
                 alt={post.title}
-                className="w-full h-64 md:h-96 object-cover rounded-lg mb-6"
+                className="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
               />
             )}
 
             {post.blog_categories && (
-              <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm mb-4">
+              <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm mb-6">
                 {post.blog_categories.name}
               </span>
             )}
 
-            <h1 className="text-4xl font-bold mb-4 text-foreground">{post.title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground leading-tight">{post.title}</h1>
 
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6 not-prose">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span>{post.author}</span>
@@ -104,14 +104,24 @@ export default function BlogPost() {
             </div>
 
             {post.excerpt && (
-              <p className="text-xl text-muted-foreground mb-6 italic">
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed font-medium">
                 {post.excerpt}
               </p>
             )}
 
             <div 
-              className="text-foreground"
-              dangerouslySetInnerHTML={{ __html: post.body }}
+              className="prose prose-lg dark:prose-invert max-w-none
+                prose-headings:text-foreground prose-headings:font-bold
+                prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-6
+                prose-a:text-primary hover:prose-a:text-primary/80
+                prose-strong:text-foreground prose-strong:font-semibold
+                prose-ul:text-foreground prose-ul:my-6
+                prose-ol:text-foreground prose-ol:my-6
+                prose-li:text-foreground prose-li:mb-2
+                prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+                prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                prose-pre:bg-muted prose-pre:text-foreground"
+              dangerouslySetInnerHTML={{ __html: post.body.replace(/\n/g, '<br />') }}
             />
           </article>
         </div>
