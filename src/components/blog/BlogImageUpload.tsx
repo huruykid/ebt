@@ -25,6 +25,11 @@ export function BlogImageUpload({ onImageUploaded, currentImageUrl, label = "Upl
       }
 
       const file = event.target.files[0];
+      console.log('Upload attempt:', { 
+        fileName: file.name, 
+        fileSize: file.size, 
+        fileType: file.type 
+      });
 
       // Client-side validation (5MB limit)
       const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -38,13 +43,24 @@ export function BlogImageUpload({ onImageUploaded, currentImageUrl, label = "Upl
         throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
       }
 
+      // Check admin status
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user:', user?.id);
+      
+      const { data: adminCheck } = await supabase.rpc('is_admin_user');
+      console.log('Admin check result:', adminCheck);
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
+      console.log('Attempting upload to path:', filePath);
+
       const { error: uploadError, data } = await supabase.storage
         .from('blog-images')
         .upload(filePath, file);
+
+      console.log('Upload result:', { error: uploadError, data });
 
       if (uploadError) {
         throw uploadError;
