@@ -545,13 +545,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_reviews_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       snap_stores: {
@@ -830,107 +823,6 @@ export type Database = {
       }
     }
     Views: {
-      google_places_public: {
-        Row: {
-          business_data: Json | null
-          cache_expires_at: string | null
-          created_at: string | null
-          fields_hash: string | null
-          fresh_until: string | null
-          id: string | null
-          last_updated: string | null
-          params_hash: string | null
-          place_id: string | null
-          search_query: string | null
-        }
-        Insert: {
-          business_data?: never
-          cache_expires_at?: string | null
-          created_at?: string | null
-          fields_hash?: string | null
-          fresh_until?: string | null
-          id?: string | null
-          last_updated?: string | null
-          params_hash?: string | null
-          place_id?: string | null
-          search_query?: string | null
-        }
-        Update: {
-          business_data?: never
-          cache_expires_at?: string | null
-          created_at?: string | null
-          fields_hash?: string | null
-          fresh_until?: string | null
-          id?: string | null
-          last_updated?: string | null
-          params_hash?: string | null
-          place_id?: string | null
-          search_query?: string | null
-        }
-        Relationships: []
-      }
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          updated_at: string | null
-          username: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
-      public_reviews: {
-        Row: {
-          anonymous_reviewer: string | null
-          created_at: string | null
-          id: string | null
-          rating: number | null
-          review_text: string | null
-          store_id: number | null
-        }
-        Insert: {
-          anonymous_reviewer?: never
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-          review_text?: string | null
-          store_id?: number | null
-        }
-        Update: {
-          anonymous_reviewer?: never
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-          review_text?: string | null
-          store_id?: number | null
-        }
-        Relationships: []
-      }
-      store_review_stats: {
-        Row: {
-          average_rating: number | null
-          review_count: number | null
-          store_id: number | null
-        }
-        Relationships: []
-      }
       store_review_stats_secure: {
         Row: {
           average_rating: number | null
