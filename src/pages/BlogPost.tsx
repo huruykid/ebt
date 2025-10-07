@@ -6,10 +6,13 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const [imageOpen, setImageOpen] = useState(false);
 
   const { data: post, isLoading } = useQuery<BlogPostWithCategory>({
     queryKey: ['blog-post', slug],
@@ -77,11 +80,22 @@ export default function BlogPost() {
 
           <article>
             {post.featured_image && (
-              <img
-                src={post.featured_image}
-                alt={post.title}
-                className="w-full h-64 md:h-96 object-cover rounded-lg mb-8"
-              />
+              <Dialog open={imageOpen} onOpenChange={setImageOpen}>
+                <DialogTrigger asChild>
+                  <img
+                    src={post.featured_image}
+                    alt={post.title}
+                    className="w-full h-64 md:h-96 object-cover rounded-lg mb-8 cursor-pointer hover:opacity-90 transition-opacity"
+                  />
+                </DialogTrigger>
+                <DialogContent className="max-w-7xl w-full max-h-[90vh] p-2">
+                  <img
+                    src={post.featured_image}
+                    alt={post.title}
+                    className="w-full h-full object-contain"
+                  />
+                </DialogContent>
+              </Dialog>
             )}
 
             {post.blog_categories && (
