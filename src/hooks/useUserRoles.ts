@@ -45,14 +45,10 @@ export const useUserRoles = () => {
   // Check if user is moderator or admin
   const isModerator = hasRole('moderator') || isAdmin;
 
-  // Assign role (admin only)
+  // Assign role (server-side RLS enforced)
   const assignRoleMutation = useMutation({
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: UserRole }) => {
-      // Client-side admin check before allowing role assignment
-      if (!isAdmin) {
-        throw new Error('Only administrators can assign roles');
-      }
-      
+      // RLS policy enforces admin-only access, no client-side check needed
       const { error } = await supabase
         .from('user_roles')
         .insert({
@@ -72,14 +68,10 @@ export const useUserRoles = () => {
     },
   });
 
-  // Remove role (admin only)
+  // Remove role (server-side RLS enforced)
   const removeRoleMutation = useMutation({
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: UserRole }) => {
-      // Client-side admin check before allowing role removal
-      if (!isAdmin) {
-        throw new Error('Only administrators can remove roles');
-      }
-      
+      // RLS policy enforces admin-only access, no client-side check needed
       const { error } = await supabase
         .from('user_roles')
         .delete()
