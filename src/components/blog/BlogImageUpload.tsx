@@ -25,6 +25,19 @@ export function BlogImageUpload({ onImageUploaded, currentImageUrl, label = "Upl
       }
 
       const file = event.target.files[0];
+
+      // Client-side validation (5MB limit)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error('File size must be less than 5MB');
+      }
+
+      // Client-side MIME type validation
+      const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
