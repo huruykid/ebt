@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -144,9 +145,11 @@ export default function Blog() {
                     <p className="text-muted-foreground mb-4">{post.excerpt}</p>
                   )}
                   
-                  <Button variant="link" className="p-0">
-                    Read More →
-                  </Button>
+                  <Link to={`/blog/${post.slug}`}>
+                    <Button variant="link" className="p-0">
+                      Read More →
+                    </Button>
+                  </Link>
                 </article>
               ))
             )}
