@@ -837,19 +837,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_stats: {
-        Row: {
-          hours_count: number | null
-          photos_count: number | null
-          reviews_count: number | null
-          stores_contributed_to: number | null
-          total_contributions: number | null
-          total_points: number | null
-          user_id: string | null
-          verified_contributions: number | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       check_and_award_badges: {
