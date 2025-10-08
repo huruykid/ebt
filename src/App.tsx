@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HeaderNavigation } from "@/components/HeaderNavigation";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { SearchEngineOptimizer } from "@/components/SearchEngineOptimizer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEOOptimizer } from "@/components/SEOOptimizer";
 import { AdvancedSEO } from "@/components/AdvancedSEO";
@@ -88,6 +89,7 @@ const AppContent = () => {
             <SEOOptimizer>
         {/* Google Analytics */}
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
+        <SearchEngineOptimizer />
         
         {/* Header navigation - desktop and mobile */}
         <div className="hidden md:block">
