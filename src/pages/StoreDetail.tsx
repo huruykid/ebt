@@ -19,7 +19,7 @@ import { LocalBusinessSchema } from '@/components/LocalBusinessSchema';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
 import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
-import { useOptimizedGooglePlaces } from '@/hooks/useOptimizedGooglePlaces';
+import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -53,10 +53,10 @@ export default function StoreDetailPage() {
     enabled: !!id,
   });
 
-  // Fetch optimized Google Places data for the store
-  const { data: googleData, isLoading: isGoogleLoading } = useOptimizedGooglePlaces(store, !!store);
+  // Get stored Google Places data from the database (no API calls)
+  const googleData = useStoredGooglePlaces(store);
 
-  if (isLoading || isGoogleLoading) {
+  if (isLoading) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -156,14 +156,6 @@ export default function StoreDetailPage() {
         
         <div className="relative -mt-8 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Budget Warning - Only show if there's an actual issue */}
-            {googleData?.budget_exceeded && !googleData?.cached && (
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  Some information may be limited due to API usage.
-                </p>
-              </div>
-            )}
             
             {/* Main Content */}
             <div className="space-y-6">

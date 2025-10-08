@@ -4,10 +4,9 @@ import { Link } from 'react-router-dom';
 import { MapPin, Star, Phone, Clock, Globe, Utensils, ExternalLink } from 'lucide-react';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
-import { useGooglePlacesBusiness } from '@/hooks/useGooglePlaces';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface EnhancedStoreCardProps {
@@ -18,20 +17,8 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
   const { trackStoreClick } = useStoreClickTracking();
   const { latitude, longitude } = useGeolocation();
   
-  // Lazy loading with intersection observer
-  const { ref, hasIntersected } = useIntersectionObserver({
-    threshold: 0.1,
-    rootMargin: '200px'
-  });
-
-  // Only fetch Google Places data once the card is in view
-  const { data: googlePlacesData, isLoading: googlePlacesLoading } = useGooglePlacesBusiness(
-    store.Store_Name || '',
-    store.Store_Street_Address || '',
-    store.Latitude || undefined,
-    store.Longitude || undefined,
-    hasIntersected && !!(store.Latitude && store.Longitude)
-  );
+  // Get stored Google Places data from the database (no API calls)
+  const googlePlacesData = useStoredGooglePlaces(store);
 
   const handleStoreClick = () => {
     if (latitude && longitude) {
@@ -71,49 +58,18 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                        store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
   return (
-    <div ref={ref} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="flex">
         {/* Store Photo - Left side with Google Places integration and multiple photos */}
         <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0">
           {(() => {
             // Priority: stored photos > Google Places API photos > fallback
             const storedPhotos = store.google_photos as Array<{photo_url?: string}> | null;
-            const apiPhotos = googlePlacesData?.photos;
             
             if (storedPhotos && storedPhotos.length > 0 && storedPhotos[0].photo_url) {
               return (
                 <img 
                   src={storedPhotos[0].photo_url}
-                  alt={store.Store_Name || ''}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    const parent = target.parentElement;
-                    if (parent) {
-                      target.style.display = 'none';
-                      // Safely create fallback without innerHTML
-                      const fallbackDiv = document.createElement('div');
-                      fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center';
-                      const centerDiv = document.createElement('div');
-                      centerDiv.className = 'text-center text-gray-500';
-                      const mapPin = document.createElement('span');
-                      mapPin.innerHTML = '<svg class="h-6 w-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
-                      const nameSpan = document.createElement('span');
-                      nameSpan.className = 'text-xs font-medium';
-                      nameSpan.textContent = store.Store_Name || '';
-                      centerDiv.appendChild(mapPin);
-                      centerDiv.appendChild(nameSpan);
-                      fallbackDiv.appendChild(centerDiv);
-                      parent.appendChild(fallbackDiv);
-                    }
-                  }}
-                />
-              );
-            } else if (apiPhotos && apiPhotos.length > 0 && apiPhotos[0].photo_url) {
-              return (
-                <img 
-                  src={apiPhotos[0].photo_url}
                   alt={store.Store_Name || ''}
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -194,7 +150,7 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
                 } else {
                   return (
                     <span className="text-sm text-muted-foreground">
-                      {googlePlacesLoading ? 'Loading rating...' : 'No reviews yet'}
+                      No reviews yet
                     </span>
                   );
                 }

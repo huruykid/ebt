@@ -3,10 +3,10 @@ import { Phone, Globe, Clock, Star, MapPin, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { OptimizedGooglePlacesData } from '@/hooks/useOptimizedGooglePlaces';
+import type { StoredGooglePlacesData } from '@/hooks/useStoredGooglePlaces';
 
 interface EnhancedGooglePlacesInfoProps {
-  googleData: OptimizedGooglePlacesData | null;
+  googleData: StoredGooglePlacesData | null;
   storeName: string;
   fallbackAddress?: string;
 }
