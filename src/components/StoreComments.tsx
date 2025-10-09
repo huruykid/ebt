@@ -15,8 +15,9 @@ export const StoreComments: React.FC<StoreCommentsProps> = ({ storeId, storeName
   const { data: comments, isLoading } = useQuery({
     queryKey: ['store-comments', storeId],
     queryFn: async () => {
+      // Use public_store_comments view for privacy (excludes user_id)
       const { data, error } = await supabase
-        .from('store_comments')
+        .from('public_store_comments')
         .select('*')
         .eq('store_id', storeId)
         .order('created_at', { ascending: false });

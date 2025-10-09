@@ -12,10 +12,6 @@ interface Review {
   rating: number;
   review_text: string | null;
   created_at: string;
-  user_id: string;
-  profiles?: {
-    username: string | null;
-  } | null;
 }
 
 interface ReviewListProps {
@@ -26,18 +22,10 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   const { data: reviews, isLoading, error } = useQuery({
     queryKey: ['reviews', storeId],
     queryFn: async () => {
+      // Use public_reviews view for privacy (excludes user_id)
       const { data: reviewsData, error: reviewsError } = await supabase
-        .from('reviews')
-        .select(`
-          id,
-          rating,
-          review_text,
-          created_at,
-          user_id,
-          profiles (
-            username
-          )
-        `)
+        .from('public_reviews')
+        .select('*')
         .eq('store_id', storeId)
         .order('created_at', { ascending: false });
 
@@ -81,9 +69,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <StarRating rating={review.rating} readonly size="sm" />
-                  <span className="text-sm font-medium">
-                    {review.profiles?.username || 'Anonymous User'}
-                  </span>
+                  <span className="text-sm font-medium">Anonymous User</span>
                 </div>
                 <p className="text-xs text-gray-500">
                   {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}

@@ -98,6 +98,45 @@ export const validateFileUpload = (file: File, allowedTypes: string[], maxSizeMB
 };
 
 /**
+ * Validates image upload for security and size constraints
+ */
+export const validateImageUpload = (file: File): { valid: boolean; error?: string } => {
+  // Check file type - only allow common image formats
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  if (!allowedTypes.includes(file.type.toLowerCase())) {
+    return { valid: false, error: 'Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed.' };
+  }
+  
+  // Check file size - max 10MB
+  const maxSizeMB = 10;
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    return { valid: false, error: `File size exceeds ${maxSizeMB}MB limit.` };
+  }
+  
+  // Check minimum size to prevent tiny/malformed images
+  const minSizeKB = 1;
+  if (file.size < minSizeKB * 1024) {
+    return { valid: false, error: 'File is too small. Please upload a valid image.' };
+  }
+  
+  // Validate file extension matches MIME type (basic check)
+  const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+  const mimeTypeMap: Record<string, string[]> = {
+    'image/jpeg': ['jpg', 'jpeg'],
+    'image/png': ['png'],
+    'image/gif': ['gif'],
+    'image/webp': ['webp']
+  };
+  
+  const expectedExtensions = mimeTypeMap[file.type.toLowerCase()] || [];
+  if (!expectedExtensions.includes(fileExtension)) {
+    return { valid: false, error: 'File extension does not match file type.' };
+  }
+  
+  return { valid: true };
+};
+
+/**
  * Generates secure file path for user uploads (UUID-free for privacy)
  */
 export const generateSecureFilePath = (userId: string, originalFilename: string): string => {

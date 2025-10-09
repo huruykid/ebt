@@ -820,6 +820,60 @@ export type Database = {
       }
     }
     Views: {
+      public_reviews: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          rating: number | null
+          review_text: string | null
+          store_id: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          store_id?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          review_text?: string | null
+          store_id?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      public_store_comments: {
+        Row: {
+          comment_text: string | null
+          created_at: string | null
+          id: string | null
+          store_id: string | null
+          updated_at: string | null
+          user_name: string | null
+        }
+        Insert: {
+          comment_text?: string | null
+          created_at?: string | null
+          id?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          comment_text?: string | null
+          created_at?: string | null
+          id?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       store_review_stats_secure: {
         Row: {
           average_rating: number | null

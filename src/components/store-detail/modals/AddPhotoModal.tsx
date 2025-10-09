@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
+import { validateImageUpload } from '@/utils/security';
 
 type Store = Tables<'snap_stores'>;
 
@@ -26,13 +27,29 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const validFiles: File[] = [];
     
-    if (imageFiles.length !== files.length) {
-      toast.error('Please select only image files');
+    // Validate each file
+    for (const file of files) {
+      const validation = validateImageUpload(file);
+      if (!validation.valid) {
+        toast.error(`${file.name}: ${validation.error}`);
+      } else {
+        validFiles.push(file);
+      }
     }
     
-    setSelectedFiles(prev => [...prev, ...imageFiles].slice(0, 5)); // Max 5 photos
+    // Add valid files, max 5 total
+    if (validFiles.length > 0) {
+      setSelectedFiles(prev => {
+        const newFiles = [...prev, ...validFiles];
+        if (newFiles.length > 5) {
+          toast.warning('Maximum 5 photos allowed. Only the first 5 will be kept.');
+          return newFiles.slice(0, 5);
+        }
+        return newFiles;
+      });
+    }
   };
 
   const removeFile = (index: number) => {
