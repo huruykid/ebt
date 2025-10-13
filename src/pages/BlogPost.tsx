@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ArticleSchema } from '@/components/blog/ArticleSchema';
 import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { SocialShare } from '@/components/blog/SocialShare';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
+import DOMPurify from 'dompurify';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -39,6 +40,18 @@ export default function BlogPost() {
       return data as unknown as BlogPostWithCategory;
     },
   });
+
+  // Sanitize blog post content to prevent XSS attacks
+  const sanitizedContent = useMemo(() => {
+    if (!post?.body) return '';
+    
+    return DOMPurify.sanitize(post.body.replace(/\n/g, '<br />'), {
+      ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 
+                     'strong', 'em', 'b', 'i', 'a', 'blockquote', 'code', 'pre', 'br', 'hr'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+      ALLOW_DATA_ATTR: false
+    });
+  }, [post?.body]);
 
   if (isLoading) {
     return (
@@ -159,7 +172,7 @@ export default function BlogPost() {
                     prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
                     prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
                     prose-pre:bg-muted prose-pre:text-foreground"
-                  dangerouslySetInnerHTML={{ __html: post.body.replace(/\n/g, '<br />') }}
+                  dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                 />
 
                 <SocialShare 
