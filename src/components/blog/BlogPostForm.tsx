@@ -14,6 +14,7 @@ import { Loader2 } from 'lucide-react';
 import type { BlogCategory, BlogPostWithCategory } from '@/types/blogTypes';
 import { BlogImageUpload } from './BlogImageUpload';
 import { useEffect } from 'react';
+import DOMPurify from 'dompurify';
 
 interface BlogPostFormProps {
   editingPost?: BlogPostWithCategory;
@@ -78,8 +79,17 @@ export function BlogPostForm({ editingPost, onSuccess }: BlogPostFormProps) {
 
   const savePostMutation = useMutation({
     mutationFn: async (data: BlogPostInput) => {
+      // Sanitize HTML content before saving to database
+      const sanitizedBody = DOMPurify.sanitize(data.body, {
+        ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 
+                       'strong', 'em', 'b', 'i', 'a', 'blockquote', 'code', 'pre', 'br', 'hr'],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+        ALLOW_DATA_ATTR: false
+      });
+
       const postData = {
         ...data,
+        body: sanitizedBody,
         published_at: data.is_published ? new Date().toISOString() : null,
       };
       
