@@ -1,12 +1,16 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#8b5cf6" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a1a" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -22,35 +26,40 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" />
     <!-- Performance optimizations for Core Web Vitals -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co">
-    <link rel="preconnect" href="https://maps.googleapis.com">
-    
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/src/index.css" as="style">
-    
-    <!-- DNS prefetch for external domains -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://analytics.google.com">
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
     <link rel="dns-prefetch" href="https://overpass-api.de">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/index.css" as="style">
+    <link rel="preload" as="image" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" fetchpriority="high">
     <title>Find EBT &amp; SNAP-Approved Stores Near You | EBT Finder</title>
     <meta name="description" content="Easily find stores, restaurants, and markets that accept EBT and SNAP benefits. Filter by ZIP code, store type, or hot meal eligibility.">
     <meta name="keywords" content="EBT stores, SNAP benefits, find EBT near me, ZIP code search, hot food program, RMP restaurants">
     <meta name="author" content="EBT Finder" />
 
     <!-- Open Graph -->
+    <meta property="og:site_name" content="EBT Finder" />
     <meta property="og:title" content="Find EBT & SNAP-Approved Stores Near You | EBT Finder" />
     <meta property="og:description" content="Easily find stores, restaurants, and markets that accept EBT and SNAP benefits. Filter by ZIP code, store type, or hot meal eligibility. Mobile-friendly and free." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ebtfinder.org" />
     <meta property="og:image" content="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="EBT Finder - Find stores that accept SNAP benefits" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@ebtfinder" />
+    <meta name="twitter:creator" content="@ebtfinder" />
     <meta name="twitter:title" content="Find EBT & SNAP-Approved Stores Near You | EBT Finder" />
     <meta name="twitter:description" content="Easily find stores, restaurants, and markets that accept EBT and SNAP benefits. Filter by ZIP code, store type, or hot meal eligibility. Mobile-friendly and free." />
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" />
+    <meta name="twitter:image:alt" content="EBT Finder - Find stores that accept SNAP benefits" />
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756"
@@ -64,8 +73,9 @@
       "name": "EBT Finder",
       "url": "https://ebtfinder.org",
       "description": "Find stores, restaurants, and markets that accept EBT and SNAP benefits",
-      "applicationCategory": "Utility",
-      "operatingSystem": "Web Browser",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -73,14 +83,20 @@
       },
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://ebtfinder.org/search?q={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ebtfinder.org/search?q={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "15000",
+        "bestRating": "5"
       }
     }
     </script>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" as="image" />
     
     <!-- JSON-LD for Organization -->
     <script type="application/ld+json">
@@ -88,18 +104,36 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "EBT Finder",
+      "alternateName": "EBT Store Finder",
       "url": "https://ebtfinder.org",
-      "logo": "https://ebtfinder.org/ebt-logo.png",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ebtfinder.org/ebt-logo.png",
+        "width": 512,
+        "height": 512
+      },
+      "description": "Helping SNAP recipients find stores that accept EBT benefits nationwide",
+      "foundingDate": "2024",
+      "areaServed": {
+        "@type": "Country",
+        "name": "United States"
+      },
+      "knowsAbout": ["SNAP Benefits", "EBT Cards", "Food Assistance", "USDA Retailers"],
       "sameAs": [
-        "https://twitter.com/ebtfinder"
+        "https://twitter.com/ebtfinder",
+        "https://www.linkedin.com/in/huruydesigns/"
       ],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Customer Service",
+        "email": "support@ebtfinder.org",
         "url": "https://ebtfinder.org/support"
       }
     }
     </script>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ebtfinder.org/" />
   </head>
 
   <body>

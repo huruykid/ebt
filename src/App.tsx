@@ -13,7 +13,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEOOptimizer } from "@/components/SEOOptimizer";
 import { AdvancedSEO } from "@/components/AdvancedSEO";
 import { RankingBooster } from "@/components/RankingBooster";
-import { ComprehensiveSEO } from "@/components/ComprehensiveSEO";
+import { SEOWrapper } from "@/components/SEOWrapper";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { EnhancedSearch } from "./pages/EnhancedSearch";
@@ -83,7 +83,7 @@ const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Advanced SEO and Ranking Optimizations */}
-      <ComprehensiveSEO>
+      <SEOWrapper>
         <AdvancedSEO>
           <RankingBooster>
             <SEOOptimizer>
@@ -144,7 +144,7 @@ const AppContent = () => {
             </SEOOptimizer>
           </RankingBooster>
         </AdvancedSEO>
-      </ComprehensiveSEO>
+      </SEOWrapper>
     </div>
   );
 };

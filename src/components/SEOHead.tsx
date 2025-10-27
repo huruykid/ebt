@@ -67,6 +67,9 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     // Update Open Graph and Twitter meta tags
     updatePropertyTag('og:type', ogType);
     updatePropertyTag('og:image', ogImage);
+    updatePropertyTag('og:image:width', '1200');
+    updatePropertyTag('og:image:height', '630');
+    updatePropertyTag('og:site_name', 'EBT Finder');
     updateMetaTag('twitter:card', twitterCard);
     updateMetaTag('twitter:image', ogImage);
     updatePropertyTag('og:url', canonicalUrl || window.location.href);
