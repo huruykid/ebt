@@ -30,39 +30,47 @@ export const LCPOptimizer = () => {
       }
     });
 
-    // 2. Preload critical CSS (inline to avoid render-blocking)
+    // 2. Inline critical CSS and defer main stylesheet
     const criticalCSS = document.createElement('style');
     criticalCSS.id = 'critical-lcp-css';
     criticalCSS.textContent = `
       /* Critical above-the-fold styles */
-      .hero-section, [class*="hero"] {
-        content-visibility: auto;
-        contain-intrinsic-size: auto 500px;
-      }
-      
-      /* Optimize font loading */
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 400 700;
-        font-display: swap;
-        src: local('Inter'), local('Inter-Regular');
-      }
-      
-      /* Prevent layout shift for images */
-      img[loading="lazy"] {
-        min-height: 1px;
-      }
-      
-      /* Optimize initial render */
-      body {
-        text-rendering: optimizeSpeed;
-      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.5; text-rendering: optimizeSpeed; }
+      .hero-section, [class*="hero"] { content-visibility: auto; contain-intrinsic-size: auto 500px; }
+      img { max-width: 100%; height: auto; display: block; }
+      img[loading="lazy"] { min-height: 1px; }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400 700; font-display: swap; src: local('Inter'), local('Inter-Regular'); }
     `;
     
     if (!document.getElementById('critical-lcp-css')) {
       document.head.appendChild(criticalCSS);
     }
+
+    // Defer main stylesheet loading to prevent render blocking
+    const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
+    stylesheets.forEach(link => {
+      const linkElement = link as HTMLLinkElement;
+      if (!linkElement.hasAttribute('data-optimized')) {
+        // Mark as processed
+        linkElement.setAttribute('data-optimized', 'true');
+        
+        // Create preload link
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'preload';
+        preloadLink.as = 'style';
+        preloadLink.href = linkElement.href;
+        
+        // Insert preload before the stylesheet
+        linkElement.parentNode?.insertBefore(preloadLink, linkElement);
+        
+        // Load stylesheet asynchronously
+        linkElement.media = 'print';
+        linkElement.onload = () => {
+          linkElement.media = 'all';
+        };
+      }
+    });
 
     // 3. Optimize images with fetchpriority for LCP
     requestIdleCallback(() => {
