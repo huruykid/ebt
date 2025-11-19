@@ -76,9 +76,14 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+      // Use requestAnimationFrame to batch layout reads and avoid forced reflows
+      requestAnimationFrame(() => {
+        if (scrollContainerRef.current) {
+          const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+          setCanScrollLeft(scrollLeft > 0);
+          setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+        }
+      });
     }
   };
 

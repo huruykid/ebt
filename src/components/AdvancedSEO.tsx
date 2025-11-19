@@ -34,19 +34,21 @@ export const AdvancedSEO: React.FC<AdvancedSEOProps> = ({ children }) => {
         document.head.appendChild(criticalJS);
       };
 
-      // 2. Optimize images with advanced lazy loading
+      // 2. Optimize images with advanced lazy loading - batch to avoid forced reflows
       const optimizeImages = () => {
-        const images = document.querySelectorAll('img');
-        images.forEach(img => {
-          // Add loading="lazy" for better LCP
-          img.loading = 'lazy';
-          img.decoding = 'async';
-          
-          // Add fetchpriority for hero images
-          if (img.classList.contains('hero-image') || img.closest('.hero-section')) {
-            img.setAttribute('fetchpriority', 'high');
-            img.loading = 'eager'; // Load hero images immediately
-          }
+        requestAnimationFrame(() => {
+          const images = document.querySelectorAll('img');
+          images.forEach(img => {
+            // Add loading="lazy" for better LCP
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            
+            // Add fetchpriority for hero images
+            if (img.classList.contains('hero-image') || img.closest('.hero-section')) {
+              img.setAttribute('fetchpriority', 'high');
+              img.loading = 'eager'; // Load hero images immediately
+            }
+          });
         });
       };
 

@@ -101,24 +101,46 @@ export const SearchEngineOptimizer = () => {
       }
     };
 
-    // Optimize images for SEO
+    // Optimize images for SEO using IntersectionObserver to avoid forced reflows
     const optimizeImages = () => {
-      document.querySelectorAll('img:not([loading])').forEach((img) => {
-        const element = img as HTMLImageElement;
-        const rect = element.getBoundingClientRect();
-        const isAboveFold = rect.top < window.innerHeight;
+      requestAnimationFrame(() => {
+        const images = document.querySelectorAll('img:not([loading])');
         
-        if (!isAboveFold) {
-          element.loading = 'lazy';
-        } else {
-          element.fetchPriority = 'high';
-        }
+        if ('IntersectionObserver' in window) {
+          const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              const element = entry.target as HTMLImageElement;
+              if (entry.isIntersecting && entry.boundingClientRect.top < window.innerHeight) {
+                element.fetchPriority = 'high';
+              } else {
+                element.loading = 'lazy';
+              }
+              
+              // Ensure images have alt text
+              if (!element.alt) {
+                const src = element.src;
+                const filename = src.split('/').pop()?.split('.')[0] || '';
+                element.alt = filename.replace(/[-_]/g, ' ');
+              }
+              
+              imageObserver.unobserve(element);
+            });
+          }, { rootMargin: '50px' });
 
-        // Ensure all images have alt text
-        if (!element.alt) {
-          const src = element.src;
-          const filename = src.split('/').pop()?.split('.')[0] || '';
-          element.alt = filename.replace(/[-_]/g, ' ');
+          images.forEach(img => imageObserver.observe(img));
+        } else {
+          // Fallback: just add lazy loading to all
+          images.forEach(img => {
+            const element = img as HTMLImageElement;
+            element.loading = 'lazy';
+            
+            // Ensure images have alt text
+            if (!element.alt) {
+              const src = element.src;
+              const filename = src.split('/').pop()?.split('.')[0] || '';
+              element.alt = filename.replace(/[-_]/g, ' ');
+            }
+          });
         }
       });
     };
@@ -128,8 +150,12 @@ export const SearchEngineOptimizer = () => {
     optimizeCoreWebVitals();
     addSitelinksSearchBox();
     
-    // Delay image optimization to not block initial render
-    setTimeout(optimizeImages, 100);
+    // Use requestIdleCallback for non-critical optimizations
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => optimizeImages(), { timeout: 2000 });
+    } else {
+      setTimeout(optimizeImages, 300);
+    }
 
   }, [location.pathname]);
 
