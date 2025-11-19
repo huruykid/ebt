@@ -14,6 +14,7 @@ import { SEOOptimizer } from "@/components/SEOOptimizer";
 import { AdvancedSEO } from "@/components/AdvancedSEO";
 import { RankingBooster } from "@/components/RankingBooster";
 import { SEOWrapper } from "@/components/SEOWrapper";
+import { LCPOptimizer } from "@/components/LCPOptimizer";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { EnhancedSearch } from "./pages/EnhancedSearch";
@@ -90,6 +91,7 @@ const AppContent = () => {
         {/* Google Analytics */}
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
         <SearchEngineOptimizer />
+        <LCPOptimizer />
         
         {/* Header navigation - desktop and mobile */}
         <div className="hidden md:block">
