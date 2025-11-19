@@ -69,5 +69,6 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     target: 'esnext',
     cssMinify: true,
+    cssCodeSplit: true,
   },
 }));

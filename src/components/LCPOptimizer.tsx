@@ -72,7 +72,28 @@ export const LCPOptimizer = () => {
       }
     });
 
-    // 3. Optimize images with fetchpriority for LCP
+    // 3. Prioritize hero image loading for faster FCP
+    const optimizeHeroImage = () => {
+      const heroImage = document.querySelector('img[src*="lovable-uploads"]') as HTMLImageElement;
+      if (heroImage) {
+        heroImage.setAttribute('fetchpriority', 'high');
+        heroImage.removeAttribute('loading');
+        
+        // Add responsive image sizes
+        if (!heroImage.hasAttribute('sizes')) {
+          heroImage.setAttribute('sizes', '(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw');
+        }
+      }
+    };
+    
+    // Run immediately for faster FCP
+    if (document.readyState === 'complete') {
+      optimizeHeroImage();
+    } else {
+      window.addEventListener('DOMContentLoaded', optimizeHeroImage, { once: true });
+    }
+
+    // 4. Optimize other images with fetchpriority for LCP
     requestIdleCallback(() => {
       const images = document.querySelectorAll('img');
       const viewportHeight = window.innerHeight;
@@ -83,18 +104,18 @@ export const LCPOptimizer = () => {
         
         if (isAboveFold && !img.getAttribute('fetchpriority')) {
           img.setAttribute('fetchpriority', 'high');
-          img.removeAttribute('loading'); // Remove lazy loading from above-fold images
+          img.removeAttribute('loading');
         } else if (!isAboveFold && !img.getAttribute('loading')) {
           img.setAttribute('loading', 'lazy');
         }
       });
     }, { timeout: 1000 });
 
-    // 4. Defer non-critical third-party scripts
+    // 5. Defer non-critical third-party scripts
     const deferScripts = () => {
       requestIdleCallback(() => {
         // Google Analytics - defer until idle
-        const scripts = document.querySelectorAll('script[src*="googletagmanager"], script[src*="google-analytics"]');
+        const scripts = document.querySelectorAll('script[src*="googletagmanager"], script[src*="google-analytics"], script[src*="googlesyndication"]');
         scripts.forEach(script => {
           if (!script.hasAttribute('defer') && !script.hasAttribute('async')) {
             script.setAttribute('defer', 'true');
