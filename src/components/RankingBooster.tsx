@@ -37,39 +37,45 @@ export const RankingBooster: React.FC<RankingBoosterProps> = ({ children }) => {
 
     // Critical rendering path optimization for better ranking
     const optimizeCriticalPath = () => {
-      // Inline critical CSS for above-the-fold content
-      const criticalCSS = `
-        .hero-section { 
-          background: linear-gradient(135deg, hsl(272, 92%, 55%) 0%, hsl(35, 100%, 60%) 100%);
-          padding: 2rem 1rem;
-          text-align: center;
-          color: white;
-        }
-        .search-container {
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 1rem;
-        }
-        .btn-primary {
-          background: hsl(272, 92%, 55%);
-          color: white;
-          padding: 0.75rem 2rem;
-          border-radius: 0.5rem;
-          border: none;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .btn-primary:hover {
-          background: hsl(272, 92%, 48%);
-          transform: translateY(-1px);
-        }
-      `;
+      // Use requestAnimationFrame to avoid blocking main thread
+      requestAnimationFrame(() => {
+        // Check if critical CSS already exists
+        if (document.getElementById('critical-css')) return;
+        
+        // Inline critical CSS for above-the-fold content
+        const criticalCSS = `
+          .hero-section { 
+            background: linear-gradient(135deg, hsl(272, 92%, 55%) 0%, hsl(35, 100%, 60%) 100%);
+            padding: 2rem 1rem;
+            text-align: center;
+            color: white;
+          }
+          .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+          }
+          .btn-primary {
+            background: hsl(272, 92%, 55%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          .btn-primary:hover {
+            background: hsl(272, 92%, 48%);
+            transform: translateY(-1px);
+          }
+        `;
 
-      const style = document.createElement('style');
-      style.textContent = criticalCSS;
-      style.id = 'critical-css';
-      document.head.appendChild(style);
+        const style = document.createElement('style');
+        style.textContent = criticalCSS;
+        style.id = 'critical-css';
+        document.head.appendChild(style);
+      });
     };
 
     // Advanced internal linking for better crawling
