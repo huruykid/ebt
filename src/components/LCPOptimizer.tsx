@@ -12,20 +12,15 @@ export const LCPOptimizer = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Only run optimizations once on mount
-    if (document.getElementById('lcp-optimizations')) return;
-
-    const container = document.createElement('div');
-    container.id = 'lcp-optimizations';
-    container.style.display = 'none';
-
-    // 1. Preconnect to critical external domains
-    const criticalDomains = [
-      'https://fonts.googleapis.com',
-      'https://fonts.gstatic.com',
+    // Preconnect to critical third-party domains
+    const preconnectDomains = [
+      'https://ohkzqrqzmtzfzklbmadk.supabase.co',
+      'https://www.googletagmanager.com',
+      'https://www.google-analytics.com',
+      'https://pagead2.googlesyndication.com',
     ];
 
-    criticalDomains.forEach(domain => {
+    preconnectDomains.forEach(domain => {
       if (!document.querySelector(`link[rel="preconnect"][href="${domain}"]`)) {
         const link = document.createElement('link');
         link.rel = 'preconnect';

@@ -1,4 +1,5 @@
 
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,22 +16,24 @@ import { AdvancedSEO } from "@/components/AdvancedSEO";
 import { RankingBooster } from "@/components/RankingBooster";
 import { SEOWrapper } from "@/components/SEOWrapper";
 import { LCPOptimizer } from "@/components/LCPOptimizer";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import { EnhancedSearch } from "./pages/EnhancedSearch";
-import StoreDetail from "./pages/StoreDetail";
-import Mission from "./pages/Mission";
-import Favorites from "./pages/Favorites";
-import Profile from "./pages/Profile";
-import CityPage from "./pages/CityPage";
-import EbtChipCard from "./pages/EbtChipCard";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Support from "./pages/Support";
-import SnapTips from "./pages/SnapTips";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-import NotFound from "./pages/NotFound";
+// Lazy load all route components for better code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const EnhancedSearch = lazy(() => import("./pages/EnhancedSearch").then(m => ({ default: m.EnhancedSearch })));
+const StoreDetail = lazy(() => import("./pages/StoreDetail"));
+const Mission = lazy(() => import("./pages/Mission"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Profile = lazy(() => import("./pages/Profile"));
+const CityPage = lazy(() => import("./pages/CityPage"));
+const EbtChipCard = lazy(() => import("./pages/EbtChipCard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Support = lazy(() => import("./pages/Support"));
+const SnapTips = lazy(() => import("./pages/SnapTips"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -100,31 +103,32 @@ const AppContent = () => {
 
         {/* Main content area with responsive bottom padding and top safe area */}
         <div className="flex-1 pb-28 md:pb-0 pt-[env(safe-area-inset-top)] md:pt-0">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/search" element={<EnhancedSearch />} />
-            <Route path="/store/:id" element={<StoreDetail />} />
-            <Route path="/mission" element={<Mission />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/ebt-chip-card" element={<EbtChipCard />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/snap-tips" element={<SnapTips />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            
-            {/* City Pages - Specific routes first, then catch-all */}
-            <Route path="/los-angeles" element={<CityPage />} />
-            <Route path="/chicago-ebt" element={<CityPage />} />
-            <Route path="/houston" element={<CityPage />} />
-            <Route path="/phoenix" element={<CityPage />} />
-            <Route path="/philadelphia" element={<CityPage />} />
-            <Route path="/san-antonio" element={<CityPage />} />
-            <Route path="/san-diego" element={<CityPage />} />
-            <Route path="/dallas" element={<CityPage />} />
-            <Route path="/san-jose" element={<CityPage />} />
+          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><LoadingSpinner /></div>}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/search" element={<EnhancedSearch />} />
+              <Route path="/store/:id" element={<StoreDetail />} />
+              <Route path="/mission" element={<Mission />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/ebt-chip-card" element={<EbtChipCard />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/snap-tips" element={<SnapTips />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              
+              {/* City Pages - Specific routes first, then catch-all */}
+              <Route path="/los-angeles" element={<CityPage />} />
+              <Route path="/chicago-ebt" element={<CityPage />} />
+              <Route path="/houston" element={<CityPage />} />
+              <Route path="/phoenix" element={<CityPage />} />
+              <Route path="/philadelphia" element={<CityPage />} />
+              <Route path="/san-antonio" element={<CityPage />} />
+              <Route path="/san-diego" element={<CityPage />} />
+              <Route path="/dallas" element={<CityPage />} />
+              <Route path="/san-jose" element={<CityPage />} />
             <Route path="/austin" element={<CityPage />} />
             <Route path="/jacksonville" element={<CityPage />} />
             <Route path="/fort-worth" element={<CityPage />} />
@@ -137,6 +141,7 @@ const AppContent = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </div>
         
         {/* Fixed bottom navigation - mobile only */}
