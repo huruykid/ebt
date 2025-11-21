@@ -30,16 +30,14 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - stale-while-revalidate for static assets
+// Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') {
     return;
   }
 
-  const url = new URL(event.request.url);
-  
-  // Handle navigation requests (HTML pages)
+  // Handle navigation requests
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -48,32 +46,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate strategy for static assets
-  if (url.pathname.startsWith('/assets/') || 
-      url.pathname.startsWith('/lovable-uploads/') ||
-      url.pathname.endsWith('.js') ||
-      url.pathname.endsWith('.css') ||
-      url.pathname.endsWith('.png') ||
-      url.pathname.endsWith('.jpg') ||
-      url.pathname.endsWith('.jpeg') ||
-      url.pathname.endsWith('.svg') ||
-      url.pathname.endsWith('.woff') ||
-      url.pathname.endsWith('.woff2')) {
+  // Handle other requests with cache-first strategy for static assets
+  if (event.request.url.includes('/assets/') || 
+      event.request.url.includes('/lovable-uploads/') ||
+      event.request.url.includes('.png') ||
+      event.request.url.includes('.jpg') ||
+      event.request.url.includes('.svg')) {
     
     event.respondWith(
-      caches.open(CACHE_NAME).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          const fetchPromise = fetch(event.request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => cachedResponse);
-
-          // Return cached response immediately, update cache in background
-          return cachedResponse || fetchPromise;
-        });
-      })
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
+            return response;
+          }
+          return fetch(event.request).then((response) => {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((cache) => cache.put(event.request, responseClone));
+            return response;
+          });
+        })
     );
     return;
   }

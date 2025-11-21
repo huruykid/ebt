@@ -1,7 +1,5 @@
-project_id = "vpnaaaocqqmkslwqrkyd"
 
-[functions.yelp-business-details]
-verify_jwt = true
+project_id = "vpnaaaocqqmkslwqrkyd"
 
 [api]
 enabled = true

@@ -2,39 +2,18 @@
 
 export const measurePerformance = (name: string, fn: () => void | Promise<void>) => {
   if (typeof performance !== 'undefined' && performance.mark) {
-    // Use requestIdleCallback to avoid blocking main thread
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        performance.mark(`${name}-start`);
-      });
-    } else {
-      performance.mark(`${name}-start`);
-    }
+    performance.mark(`${name}-start`);
     
     const result = fn();
     
     if (result instanceof Promise) {
       return result.finally(() => {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(() => {
-            performance.mark(`${name}-end`);
-            performance.measure(name, `${name}-start`, `${name}-end`);
-          });
-        } else {
-          performance.mark(`${name}-end`);
-          performance.measure(name, `${name}-start`, `${name}-end`);
-        }
-      });
-    } else {
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          performance.mark(`${name}-end`);
-          performance.measure(name, `${name}-start`, `${name}-end`);
-        });
-      } else {
         performance.mark(`${name}-end`);
         performance.measure(name, `${name}-start`, `${name}-end`);
-      }
+      });
+    } else {
+      performance.mark(`${name}-end`);
+      performance.measure(name, `${name}-start`, `${name}-end`);
       return result;
     }
   }
@@ -101,17 +80,12 @@ export const createIntersectionObserver = (
 // Bundle size monitoring (development only)
 export const logBundleSize = () => {
   if (import.meta.env.DEV) {
-    // Use requestIdleCallback to avoid blocking
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        const entries = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        if (entries) {
-          console.log('Page Load Performance:', {
-            domContentLoaded: entries.domContentLoadedEventEnd - entries.domContentLoadedEventStart,
-            loadComplete: entries.loadEventEnd - entries.loadEventStart,
-            totalTime: entries.loadEventEnd - entries.fetchStart
-          });
-        }
+    const entries = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    if (entries) {
+      console.log('Page Load Performance:', {
+        domContentLoaded: entries.domContentLoadedEventEnd - entries.domContentLoadedEventStart,
+        loadComplete: entries.loadEventEnd - entries.loadEventStart,
+        totalTime: entries.loadEventEnd - entries.fetchStart
       });
     }
   }

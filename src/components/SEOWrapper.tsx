@@ -59,34 +59,20 @@ export const SEOWrapper: React.FC<SEOWrapperProps> = ({ children }) => {
       document.head.appendChild(script);
     };
 
-    // Optimize images for better CLS scores - batch reads to avoid forced reflows
+    // Optimize images for better CLS scores
     const optimizeImages = () => {
-      requestAnimationFrame(() => {
-        const images = document.querySelectorAll('img:not([width]):not([height])');
+      const images = document.querySelectorAll('img:not([width]):not([height])');
+      images.forEach((img) => {
+        const htmlImg = img as HTMLImageElement;
+        // Add aspect-ratio to prevent layout shift
+        if (!htmlImg.style.aspectRatio && htmlImg.naturalWidth && htmlImg.naturalHeight) {
+          htmlImg.style.aspectRatio = `${htmlImg.naturalWidth}/${htmlImg.naturalHeight}`;
+        }
         
-        // Batch all reads first
-        const imageData = Array.from(images).map((img) => {
-          const htmlImg = img as HTMLImageElement;
-          return {
-            element: htmlImg,
-            hasAspectRatio: !!htmlImg.style.aspectRatio,
-            naturalWidth: htmlImg.naturalWidth,
-            naturalHeight: htmlImg.naturalHeight,
-            hasAlt: !!htmlImg.alt,
-            src: htmlImg.src
-          };
-        });
-        
-        // Then batch all writes
-        imageData.forEach(({ element, hasAspectRatio, naturalWidth, naturalHeight, hasAlt, src }) => {
-          if (!hasAspectRatio && naturalWidth && naturalHeight) {
-            element.style.aspectRatio = `${naturalWidth}/${naturalHeight}`;
-          }
-          
-          if (!hasAlt && import.meta.env.DEV) {
-            console.warn('Image missing alt text:', src);
-          }
-        });
+        // Ensure all images have alt text
+        if (!htmlImg.alt) {
+          console.warn('Image missing alt text:', htmlImg.src);
+        }
       });
     };
 
@@ -113,18 +99,11 @@ export const SEOWrapper: React.FC<SEOWrapperProps> = ({ children }) => {
     updateCanonical();
     addBreadcrumbSchema();
     
-    // Use requestIdleCallback for non-critical optimizations
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        optimizeImages();
-        observeLCP();
-      }, { timeout: 2000 });
-    } else {
-      setTimeout(() => {
-        optimizeImages();
-        observeLCP();
-      }, 300);
-    }
+    // Delay image optimization to not block initial render
+    setTimeout(() => {
+      optimizeImages();
+      observeLCP();
+    }, 100);
 
     return () => {
       document.querySelector('#breadcrumb-schema')?.remove();
