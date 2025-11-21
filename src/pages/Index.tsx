@@ -6,6 +6,7 @@ import { HowItWorksSection } from "@/components/HowItWorksSection";
 import { StoreTypesSection } from "@/components/StoreTypesSection";
 import { TrustSignalsSection } from "@/components/TrustSignalsSection";
 import { PopularSearchesSection } from "@/components/PopularSearchesSection";
+import { CitiesDirectory } from "@/components/CitiesDirectory";
 
 export default function Index() {
   const structuredData = {
@@ -86,6 +87,7 @@ export default function Index() {
       <TrustSignalsSection />
       <HowItWorksSection />
       <StoreTypesSection />
+      <CitiesDirectory />
       <PopularSearchesSection />
     </ProtectedRoute>
   );
