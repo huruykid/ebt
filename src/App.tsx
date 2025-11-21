@@ -115,6 +115,7 @@ const AppContent = () => {
             
             {/* City Pages - Specific routes first, then catch-all */}
             <Route path="/los-angeles" element={<CityPage />} />
+            <Route path="/new-york" element={<CityPage />} />
             <Route path="/chicago-ebt" element={<CityPage />} />
             <Route path="/houston" element={<CityPage />} />
             <Route path="/phoenix" element={<CityPage />} />
