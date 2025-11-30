@@ -11,9 +11,6 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { SearchEngineOptimizer } from "@/components/SearchEngineOptimizer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEOOptimizer } from "@/components/SEOOptimizer";
-import { AdvancedSEO } from "@/components/AdvancedSEO";
-import { RankingBooster } from "@/components/RankingBooster";
-import { SEOWrapper } from "@/components/SEOWrapper";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { EnhancedSearch } from "./pages/EnhancedSearch";
@@ -82,11 +79,8 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Advanced SEO and Ranking Optimizations */}
-      <SEOWrapper>
-        <AdvancedSEO>
-          <RankingBooster>
-            <SEOOptimizer>
+      {/* SEO Optimizations - consolidated for better performance */}
+      <SEOOptimizer>
         {/* Google Analytics */}
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
         <SearchEngineOptimizer />
@@ -142,10 +136,7 @@ const AppContent = () => {
         <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
           <BottomNavigation onNavigate={handleNavigate} />
         </div>
-            </SEOOptimizer>
-          </RankingBooster>
-        </AdvancedSEO>
-      </SEOWrapper>
+      </SEOOptimizer>
     </div>
   );
 };
