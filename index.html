@@ -81,14 +81,23 @@
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" />
     <meta name="twitter:image:alt" content="EBT Finder - Find stores that accept SNAP benefits" />
 
-    <!-- Google AdSense - deferred for better FCP -->
+    <!-- Google AdSense - deferred for better FCP with error handling -->
     <script>
       window.addEventListener('load', function() {
-        var script = document.createElement('script');
-        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756';
-        script.async = true;
-        script.crossOrigin = 'anonymous';
-        document.head.appendChild(script);
+        try {
+          var script = document.createElement('script');
+          script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756';
+          script.async = true;
+          script.crossOrigin = 'anonymous';
+          script.onerror = function() {
+            // Silently handle AdSense load failures (403, network issues, etc.)
+            console.debug('AdSense not loaded');
+          };
+          document.head.appendChild(script);
+        } catch (e) {
+          // Silently handle any AdSense initialization errors
+          console.debug('AdSense initialization skipped');
+        }
       });
     </script>
 
