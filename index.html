@@ -3,7 +3,7 @@
 <html lang="en-US" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" type="image/png">
+    <link rel="icon" href="/ebt-logo.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -24,17 +24,24 @@
     
     <!-- Resource hints for better performance -->
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" />
+    <link rel="apple-touch-icon" href="/ebt-logo.png" />
     <!-- Performance optimizations for Core Web Vitals -->
-    <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co">
+    <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://analytics.google.com">
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
     <link rel="dns-prefetch" href="https://overpass-api.de">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/src/index.css" as="style">
-    <link rel="preload" as="image" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" fetchpriority="high">
+    <!-- Critical CSS inlined for faster FCP -->
+    <style>
+      :root{--background:220 80% 98%;--foreground:220 29% 14%;--primary:272 92% 55%;--primary-foreground:0 0% 100%;}
+      body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:hsl(var(--background));color:hsl(var(--foreground));min-height:100vh;}
+      #root{min-height:100vh;}
+      .min-h-screen{min-height:100vh;}
+    </style>
+    
+    <!-- Preload critical fonts with font-display swap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <title>Find EBT &amp; SNAP-Approved Stores Near You | EBT Finder</title>
     <meta name="description" content="Easily find stores, restaurants, and markets that accept EBT and SNAP benefits. Filter by ZIP code, store type, or hot meal eligibility.">
     <meta name="keywords" content="EBT stores, SNAP benefits, find EBT near me, ZIP code search, hot food program, RMP restaurants">
@@ -61,9 +68,16 @@
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" />
     <meta name="twitter:image:alt" content="EBT Finder - Find stores that accept SNAP benefits" />
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense - deferred for better FCP -->
+    <script>
+      window.addEventListener('load', function() {
+        var script = document.createElement('script');
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+      });
+    </script>
 
     <!-- Structured Data -->
     <script type="application/ld+json">

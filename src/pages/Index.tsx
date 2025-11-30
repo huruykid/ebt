@@ -1,4 +1,3 @@
-import ExploreTrending from "@/components/ExploreTrending";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SEOHead } from "@/components/SEOHead";
 import { FAQSchema } from "@/components/FAQSchema";
@@ -7,6 +6,7 @@ import { StoreTypesSection } from "@/components/StoreTypesSection";
 import { TrustSignalsSection } from "@/components/TrustSignalsSection";
 import { PopularSearchesSection } from "@/components/PopularSearchesSection";
 import { CitiesDirectory } from "@/components/CitiesDirectory";
+import { CriticalContent } from "@/components/CriticalContent";
 
 export default function Index() {
   const structuredData = {
@@ -83,7 +83,7 @@ export default function Index() {
         structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
-      <ExploreTrending />
+      <CriticalContent />
       <TrustSignalsSection />
       <HowItWorksSection />
       <StoreTypesSection />
