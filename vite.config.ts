@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: true,
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
-    sourcemap: mode === 'development',
+    sourcemap: true, // Enable source maps for better debugging and Lighthouse insights
     reportCompressedSize: false,
     // Optimize build
     assetsInlineLimit: 4096,
