@@ -1,8 +1,7 @@
-const CACHE_NAME = 'ebt-finder-v1';
+const CACHE_NAME = 'ebt-finder-v2';
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
-  '/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png',
   '/ebt-logo.png'
 ];
 
@@ -30,10 +29,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - optimized caching strategy
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
+  // Skip non-GET requests
   if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
@@ -46,31 +50,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle other requests with cache-first strategy for static assets
-  if (event.request.url.includes('/assets/') || 
-      event.request.url.includes('/lovable-uploads/') ||
-      event.request.url.includes('.png') ||
-      event.request.url.includes('.jpg') ||
-      event.request.url.includes('.svg')) {
-    
+  // Cache-first for static assets (JS, CSS, images)
+  if (event.request.url.match(/\.(js|css|png|jpg|jpeg|svg|woff2?)$/)) {
     event.respondWith(
-      caches.match(event.request)
-        .then((response) => {
-          if (response) {
-            return response;
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          // Update cache in background
+          fetch(event.request).then((response) => {
+            if (response.ok) {
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, response.clone());
+              });
+            }
+          }).catch(() => {});
+          
+          return cachedResponse;
+        }
+
+        return fetch(event.request).then((response) => {
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
           }
-          return fetch(event.request).then((response) => {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => cache.put(event.request, responseClone));
-            return response;
-          });
-        })
+          return response;
+        });
+      })
     );
     return;
   }
 
-  // Network-first strategy for API calls
+  // Network-first for API calls
   event.respondWith(
     fetch(event.request)
       .catch(() => caches.match(event.request))

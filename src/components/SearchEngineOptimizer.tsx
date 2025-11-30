@@ -44,32 +44,18 @@ export const SearchEngineOptimizer = () => {
 
     // Optimize for Core Web Vitals
     const optimizeCoreWebVitals = () => {
-      // Preload critical fonts
-      const fontPreload = document.createElement('link');
-      fontPreload.rel = 'preload';
-      fontPreload.as = 'font';
-      fontPreload.type = 'font/woff2';
-      fontPreload.crossOrigin = 'anonymous';
-      fontPreload.href = '/fonts/inter-var.woff2';
-      
-      if (!document.querySelector(`link[href="${fontPreload.href}"]`)) {
-        document.head.appendChild(fontPreload);
-      }
-
       // Add resource hints for critical domains
       const domains = [
         'https://fonts.googleapis.com',
         'https://fonts.gstatic.com',
-        'https://www.googletagmanager.com'
       ];
 
       domains.forEach(domain => {
-        const preconnect = document.createElement('link');
-        preconnect.rel = 'preconnect';
-        preconnect.href = domain;
-        preconnect.crossOrigin = 'anonymous';
-        
         if (!document.querySelector(`link[rel="preconnect"][href="${domain}"]`)) {
+          const preconnect = document.createElement('link');
+          preconnect.rel = 'preconnect';
+          preconnect.href = domain;
+          preconnect.crossOrigin = 'anonymous';
           document.head.appendChild(preconnect);
         }
       });
@@ -103,24 +89,45 @@ export const SearchEngineOptimizer = () => {
 
     // Optimize images for SEO
     const optimizeImages = () => {
-      document.querySelectorAll('img:not([loading])').forEach((img) => {
-        const element = img as HTMLImageElement;
-        const rect = element.getBoundingClientRect();
-        const isAboveFold = rect.top < window.innerHeight;
-        
-        if (!isAboveFold) {
-          element.loading = 'lazy';
-        } else {
-          element.fetchPriority = 'high';
-        }
+      // Use requestIdleCallback to avoid blocking main thread
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+          const images = document.querySelectorAll('img:not([loading])');
+          images.forEach((img) => {
+            const element = img as HTMLImageElement;
+            const rect = element.getBoundingClientRect();
+            const isAboveFold = rect.top < window.innerHeight;
+            
+            if (!isAboveFold) {
+              element.loading = 'lazy';
+            } else {
+              element.fetchPriority = 'high';
+            }
 
-        // Ensure all images have alt text
-        if (!element.alt) {
-          const src = element.src;
-          const filename = src.split('/').pop()?.split('.')[0] || '';
-          element.alt = filename.replace(/[-_]/g, ' ');
-        }
-      });
+            // Ensure all images have alt text
+            if (!element.alt) {
+              const src = element.src;
+              const filename = src.split('/').pop()?.split('.')[0] || '';
+              element.alt = filename.replace(/[-_]/g, ' ');
+            }
+            
+            // Add content-visibility for performance
+            if (!isAboveFold) {
+              element.style.contentVisibility = 'auto';
+            }
+          });
+        });
+      } else {
+        // Fallback for browsers without requestIdleCallback
+        setTimeout(() => {
+          document.querySelectorAll('img:not([loading])').forEach((img) => {
+            const element = img as HTMLImageElement;
+            if (element.getBoundingClientRect().top >= window.innerHeight) {
+              element.loading = 'lazy';
+            }
+          });
+        }, 100);
+      }
     };
 
     addLastModified();
@@ -128,8 +135,8 @@ export const SearchEngineOptimizer = () => {
     optimizeCoreWebVitals();
     addSitelinksSearchBox();
     
-    // Delay image optimization to not block initial render
-    setTimeout(optimizeImages, 100);
+    // Delay image optimization to avoid forced reflows
+    optimizeImages();
 
   }, [location.pathname]);
 
