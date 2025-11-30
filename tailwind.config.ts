@@ -9,6 +9,12 @@ export default {
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
 	],
+	safelist: [
+		'text-primary',
+		'text-secondary',
+		'bg-primary',
+		'bg-secondary',
+	],
 	prefix: "",
 	theme: {
 		container: {

@@ -87,21 +87,20 @@ export const SearchEngineOptimizer = () => {
       }
     };
 
-    // Optimize images for SEO
+    // Optimize images for SEO - Avoid forced reflows
     const optimizeImages = () => {
       // Use requestIdleCallback to avoid blocking main thread
       if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {
           const images = document.querySelectorAll('img:not([loading])');
+          const windowHeight = window.innerHeight; // Read once to avoid reflows
+          
           images.forEach((img) => {
             const element = img as HTMLImageElement;
-            const rect = element.getBoundingClientRect();
-            const isAboveFold = rect.top < window.innerHeight;
             
-            if (!isAboveFold) {
+            // Set lazy loading for all images by default
+            if (!element.loading) {
               element.loading = 'lazy';
-            } else {
-              element.fetchPriority = 'high';
             }
 
             // Ensure all images have alt text
@@ -110,23 +109,8 @@ export const SearchEngineOptimizer = () => {
               const filename = src.split('/').pop()?.split('.')[0] || '';
               element.alt = filename.replace(/[-_]/g, ' ');
             }
-            
-            // Add content-visibility for performance
-            if (!isAboveFold) {
-              element.style.contentVisibility = 'auto';
-            }
           });
         });
-      } else {
-        // Fallback for browsers without requestIdleCallback
-        setTimeout(() => {
-          document.querySelectorAll('img:not([loading])').forEach((img) => {
-            const element = img as HTMLImageElement;
-            if (element.getBoundingClientRect().top >= window.innerHeight) {
-              element.loading = 'lazy';
-            }
-          });
-        }, 100);
       }
     };
 

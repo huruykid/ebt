@@ -3,21 +3,20 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
     watch: {
-      usePolling: true, // fallback to polling to avoid EMFILE
-      interval: 300,    // slightly slower but lighter on the system
+      usePolling: true,
+      interval: 300,
       ignored: [
         "**/node_modules/**",
         "**/.git/**",
         "**/dist/**",
         "**/build/**",
         "**/dev-server/**",
-      ], // ignore some heavy/irrelevant folders
+      ],
     }
   },
   plugins: [
@@ -31,22 +30,45 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    target: 'es2015',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover'],
-          icons: ['lucide-react'],
-          supabase: ['@supabase/supabase-js'],
-          query: ['@tanstack/react-query'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            if (id.includes('react-router-dom')) {
+              return 'router';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'query';
+            }
+            return 'vendor-other';
+          }
         },
+        // Optimize chunk names for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
     minify: 'esbuild',
     cssCodeSplit: true,
+    cssMinify: true,
     chunkSizeWarningLimit: 1000,
     sourcemap: mode === 'development',
     reportCompressedSize: false,
+    // Optimize build
+    assetsInlineLimit: 4096,
   },
 }));
