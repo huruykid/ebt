@@ -1,9 +1,16 @@
-const CACHE_NAME = 'ebt-finder-v2';
+const CACHE_NAME = 'ebt-finder-v3';
 const STATIC_CACHE_URLS = [
   '/',
   '/manifest.json',
   '/ebt-logo.png'
 ];
+
+// Cache expiration times
+const CACHE_EXPIRATION = {
+  static: 31536000000, // 1 year for static assets
+  api: 300000,         // 5 minutes for API calls
+  images: 604800000    // 1 week for images
+};
 
 // Install event - cache static resources
 self.addEventListener('install', (event) => {
