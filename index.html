@@ -23,8 +23,14 @@
     <meta name="google" content="notranslate" />
     
     <!-- Resource hints for better performance -->
-    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/ebt-logo.png" />
+    
+    <!-- Preload critical resources to optimize network dependency chain -->
+    <link rel="modulepreload" href="/src/main.tsx">
+    
+    <!-- Defer non-critical manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
     <!-- Performance optimizations for Core Web Vitals -->
     <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
@@ -169,9 +175,9 @@
             .then((registration) => {
               console.log('SW registered with scope:', registration.scope);
               
-              // Prefetch critical resources
+              // Prefetch critical resources (excluding manifest to reduce chain length)
               if ('connection' in navigator && navigator.connection.effectiveType !== 'slow-2g') {
-                const criticalResources = ['/ebt-logo.png', '/manifest.json'];
+                const criticalResources = ['/ebt-logo.png'];
                 criticalResources.forEach(url => {
                   fetch(url, { method: 'HEAD' }).catch(() => {});
                 });
