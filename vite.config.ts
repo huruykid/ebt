@@ -43,17 +43,7 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        drop_debugger: true,
-        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
-      },
-      format: {
-        comments: false,
-      },
-    },
+    minify: 'esbuild',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
     sourcemap: mode === 'development',
