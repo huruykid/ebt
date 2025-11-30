@@ -125,6 +125,7 @@
   /* Enhanced typography with more visual hierarchy */
   h1 {
     @apply text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    contain: layout style paint;
   }
 
   h2 {

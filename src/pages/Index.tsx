@@ -1,12 +1,9 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SEOHead } from "@/components/SEOHead";
 import { FAQSchema } from "@/components/FAQSchema";
-import { HowItWorksSection } from "@/components/HowItWorksSection";
-import { StoreTypesSection } from "@/components/StoreTypesSection";
 import { TrustSignalsSection } from "@/components/TrustSignalsSection";
-import { PopularSearchesSection } from "@/components/PopularSearchesSection";
-import { CitiesDirectory } from "@/components/CitiesDirectory";
 import { CriticalContent } from "@/components/CriticalContent";
+import { LazySection, HowItWorksSection, StoreTypesSection, PopularSearchesSection, CitiesDirectory } from "@/components/OptimizedComponents";
 
 export default function Index() {
   const structuredData = {
@@ -85,10 +82,18 @@ export default function Index() {
       <FAQSchema faqs={faqs} />
       <CriticalContent />
       <TrustSignalsSection />
-      <HowItWorksSection />
-      <StoreTypesSection />
-      <CitiesDirectory />
-      <PopularSearchesSection />
+      <LazySection>
+        <HowItWorksSection />
+      </LazySection>
+      <LazySection>
+        <StoreTypesSection />
+      </LazySection>
+      <LazySection>
+        <CitiesDirectory />
+      </LazySection>
+      <LazySection>
+        <PopularSearchesSection />
+      </LazySection>
     </ProtectedRoute>
   );
 }

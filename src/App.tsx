@@ -9,6 +9,7 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 import { HeaderNavigation } from "@/components/HeaderNavigation";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { SearchEngineOptimizer } from "@/components/SearchEngineOptimizer";
+import { PerformanceOptimizer } from "@/components/PerformanceOptimizer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEOOptimizer } from "@/components/SEOOptimizer";
 import Index from "./pages/Index";
@@ -81,7 +82,8 @@ const AppContent = () => {
     <div className="min-h-screen flex flex-col">
       {/* SEO Optimizations - consolidated for better performance */}
       <SEOOptimizer>
-        {/* Google Analytics */}
+        {/* Performance and Analytics */}
+        <PerformanceOptimizer />
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
         <SearchEngineOptimizer />
         
