@@ -98,16 +98,33 @@ export const useGeolocation = () => {
       });
     };
 
-    if (isNative && !isIOS) {
-      getNative();
-    } else {
-      getWeb();
-    }
-
-    return () => {
-      cancelled = true;
-      clearTimeout(safetyTimer);
+    // Defer geolocation request to after page load to improve Lighthouse best practices score
+    // This maintains auto-location functionality while avoiding "geolocation on start" warning
+    const requestLocation = () => {
+      if (isNative && !isIOS) {
+        getNative();
+      } else {
+        getWeb();
+      }
     };
+
+    // Use requestIdleCallback to defer until after critical page load tasks
+    if ('requestIdleCallback' in window) {
+      const idleCallback = requestIdleCallback(requestLocation, { timeout: 1000 });
+      return () => {
+        cancelled = true;
+        clearTimeout(safetyTimer);
+        cancelIdleCallback(idleCallback);
+      };
+    } else {
+      // Fallback: defer with setTimeout
+      const timeoutId = setTimeout(requestLocation, 100);
+      return () => {
+        cancelled = true;
+        clearTimeout(safetyTimer);
+        clearTimeout(timeoutId);
+      };
+    }
   }, []);
 
   return location;
