@@ -1,6 +1,6 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { layoutBatcher } from '@/utils/avoidReflows';
 
 interface Category {
   id: string;
@@ -74,20 +74,50 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     }
   ];
 
-  const checkScrollButtons = () => {
+  // Batched scroll check to avoid forced reflows
+  const checkScrollButtons = useCallback(() => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+      const container = scrollContainerRef.current;
+      
+      // Batch all DOM reads together to avoid forced reflows
+      layoutBatcher.read(() => {
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const canLeft = scrollLeft > 0;
+        const canRight = scrollLeft < scrollWidth - clientWidth - 1;
+        
+        // Batch all DOM writes together
+        layoutBatcher.write(() => {
+          setCanScrollLeft(canLeft);
+          setCanScrollRight(canRight);
+        });
+      });
     }
-  };
+  }, []);
 
   useEffect(() => {
-    checkScrollButtons();
-    const handleResize = () => checkScrollButtons();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Use requestAnimationFrame to defer initial check
+    const rafId = requestAnimationFrame(() => {
+      checkScrollButtons();
+    });
+    
+    // Throttle resize handler to avoid excessive reflows
+    let resizeTimer: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          checkScrollButtons();
+        });
+      }, 150);
+    };
+    
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, [checkScrollButtons]);
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
@@ -110,8 +140,20 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      
+      // Check buttons after scroll completes
+      requestAnimationFrame(() => {
+        setTimeout(() => checkScrollButtons(), 300);
+      });
     }
   };
+  
+  // Throttled scroll handler to avoid forced reflows
+  const handleScroll = useCallback(() => {
+    requestAnimationFrame(() => {
+      checkScrollButtons();
+    });
+  }, [checkScrollButtons]);
 
   return (
     <div className={`relative ${className}`}>
@@ -150,7 +192,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       <div 
         ref={scrollContainerRef}
         className="overflow-x-auto scrollbar-hide"
-        onScroll={checkScrollButtons}
+        onScroll={handleScroll}
       >
         <nav 
           className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"

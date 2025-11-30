@@ -120,6 +120,12 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     font-display: swap;
     min-height: 100vh;
+    contain: layout style;
+  }
+
+  #root {
+    contain: layout style;
+    isolation: isolate;
   }
 
   /* Enhanced typography with more visual hierarchy */
@@ -130,14 +136,17 @@
 
   h2 {
     @apply text-3xl font-bold tracking-tight;
+    contain: layout style;
   }
 
   h3 {
     @apply text-2xl font-semibold tracking-tight;
+    contain: layout style;
   }
 
   h4 {
     @apply text-xl font-semibold tracking-tight;
+    contain: layout style;
   }
 
   h5 {
@@ -155,23 +164,31 @@
   /* Enhanced button styles with more vibrant colors */
   .btn-spotify {
     @apply bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 font-semibold rounded-xl px-8 py-3 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl;
+    contain: layout style;
+    will-change: transform;
   }
 
   .btn-spotify-outline {
     @apply border-2 border-primary bg-gradient-to-r from-transparent to-primary/5 text-primary hover:from-primary/10 hover:to-primary/20 hover:bg-primary hover:text-primary-foreground font-semibold rounded-xl px-8 py-3 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg;
+    contain: layout style;
+    will-change: transform;
   }
 
   .btn-colorful {
     @apply bg-gradient-to-r from-accent via-primary to-info text-white font-semibold rounded-xl px-6 py-3 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl;
+    contain: layout style;
+    will-change: transform;
   }
 
   /* Gradient backgrounds for cards */
   .card-gradient {
     @apply bg-gradient-to-br from-card via-card to-secondary/20 backdrop-blur-sm;
+    contain: layout style;
   }
 
   .card-vibrant {
     @apply bg-gradient-to-br from-primary/5 via-accent/5 to-info/5 border-2 border-primary/20;
+    contain: layout style;
   }
 }
 
@@ -195,6 +212,27 @@
 
   .hover-lift {
     @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+  
+  /* Performance optimization utilities */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  .contain-layout {
+    contain: layout;
+  }
+  
+  .contain-paint {
+    contain: paint;
+  }
+  
+  .contain-strict {
+    contain: strict;
+  }
+  
+  .isolate-layer {
+    isolation: isolate;
   }
 }
 
