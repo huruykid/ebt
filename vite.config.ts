@@ -31,6 +31,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'es2015',
+    modulePreload: {
+      polyfill: false, // Reduce overhead
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -68,7 +71,11 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     sourcemap: true, // Enable source maps for better debugging and Lighthouse insights
     reportCompressedSize: false,
-    // Optimize build
+    // Optimize build for better LCP
     assetsInlineLimit: 4096,
+    // Enable tree shaking
+    treeshake: {
+      moduleSideEffects: false,
+    },
   },
 }));
