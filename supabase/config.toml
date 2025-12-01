@@ -77,12 +77,6 @@ verify_jwt = true
 [functions.google-places]
 verify_jwt = true
 
-[functions.update-sitemap]
-verify_jwt = false
-
-[functions.preserve-google-data]
-verify_jwt = false
-
 [edge_runtime]
 enabled = true
 ip_version = "ipv6"

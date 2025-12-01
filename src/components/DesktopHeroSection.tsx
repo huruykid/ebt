@@ -33,31 +33,23 @@ export const DesktopHeroSection: React.FC<DesktopHeroSectionProps> = ({
     <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-5xl font-bold text-foreground mb-5 leading-tight">
-            Find EBT & SNAP Stores Near You
-          </h1>
-          <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
-            Search 300,000+ grocery stores, restaurants, and farmers markets that accept EBT cards and SNAP benefits across all 50 states.
-          </p>
-          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            Whether you're looking for supermarkets, convenience stores, farmers markets with fresh produce, or{" "}
+          <h1 className="text-4xl font-bold text-foreground mb-4">Find EBT & SNAP-Accepting Stores Near You</h1>
+          <p className="text-lg text-muted-foreground mb-8">
+            EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or{" "}
             <a 
               href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-primary transition-colors underline font-medium"
+              className="hover:text-primary transition-colors underline"
             >
-              Restaurant Meals Program (RMP)
+              hot food (RMP)
             </a>
-            {" "}locations serving hot meals, EBT Finder helps you discover authorized SNAP retailers near you. Get directions, read reviews, and find store hours instantly.
+            , and read community reviews before you go.
           </p>
-
+          
           {/* ZIP Code Search - Desktop */}
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">Search by ZIP Code or Location</h2>
-            <p className="text-muted-foreground mb-4">
-              Enter your ZIP code to find SNAP-approved stores, or enable location access for real-time results based on where you are right now.
-            </p>
+            <h2 className="text-lg font-medium text-foreground mb-3">Enter your ZIP code or use your current location to find EBT-accepting businesses</h2>
             <ZipCodeSearch
               onZipSearch={onZipSearch}
               onClearSearch={onClearSearch}
@@ -85,18 +77,14 @@ export const DesktopHeroSection: React.FC<DesktopHeroSectionProps> = ({
           )}
 
           {/* Quick Stats */}
-          <div className="flex flex-wrap justify-center gap-6 mt-10 text-sm">
-            <div className="flex items-center gap-2 bg-background/50 px-4 py-2 rounded-full">
-              <MapPin className="h-5 w-5 text-primary" />
-              <span className="font-medium">Nationwide Coverage</span>
+          <div className="flex justify-center gap-8 mt-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>Location-based results</span>
             </div>
-            <div className="flex items-center gap-2 bg-background/50 px-4 py-2 rounded-full">
-              <Heart className="h-5 w-5 text-primary" />
-              <span className="font-medium">Save Favorites</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/50 px-4 py-2 rounded-full">
-              <Navigation className="h-5 w-5 text-primary" />
-              <span className="font-medium">Live Directions</span>
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span>Save your favorites</span>
             </div>
           </div>
         </div>

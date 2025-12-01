@@ -1,9 +1,8 @@
+
+import ExploreTrending from "@/components/ExploreTrending";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SEOHead } from "@/components/SEOHead";
 import { FAQSchema } from "@/components/FAQSchema";
-import { TrustSignalsSection } from "@/components/TrustSignalsSection";
-import { CriticalContent } from "@/components/CriticalContent";
-import { LazySection, HowItWorksSection, StoreTypesSection, PopularSearchesSection, CitiesDirectory } from "@/components/OptimizedComponents";
 
 export default function Index() {
   const structuredData = {
@@ -80,20 +79,7 @@ export default function Index() {
         structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
-      <CriticalContent />
-      <TrustSignalsSection />
-      <LazySection>
-        <HowItWorksSection />
-      </LazySection>
-      <LazySection>
-        <StoreTypesSection />
-      </LazySection>
-      <LazySection>
-        <CitiesDirectory />
-      </LazySection>
-      <LazySection>
-        <PopularSearchesSection />
-      </LazySection>
+      <ExploreTrending />
     </ProtectedRoute>
   );
 }

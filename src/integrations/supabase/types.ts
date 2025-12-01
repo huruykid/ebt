@@ -874,33 +874,6 @@ export type Database = {
         }
         Relationships: []
       }
-      reviews_public: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          rating: number | null
-          review_text: string | null
-          store_id: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-          review_text?: string | null
-          store_id?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-          review_text?: string | null
-          store_id?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       store_review_stats_secure: {
         Row: {
           average_rating: number | null
@@ -921,7 +894,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      cleanup_old_store_clicks: { Args: never; Returns: undefined }
+      cleanup_old_store_clicks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_nearby_stores: {
         Args: {
           radius_miles?: number
@@ -996,7 +972,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin_user: { Args: never; Returns: boolean }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       safe_newsletter_subscribe: {
         Args: { subscriber_email: string }
         Returns: Json

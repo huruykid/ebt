@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
-import { layoutBatcher } from '@/utils/avoidReflows';
 
 interface Category {
   id: string;
@@ -74,50 +74,20 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     }
   ];
 
-  // Batched scroll check to avoid forced reflows
-  const checkScrollButtons = useCallback(() => {
+  const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      
-      // Batch all DOM reads together to avoid forced reflows
-      layoutBatcher.read(() => {
-        const { scrollLeft, scrollWidth, clientWidth } = container;
-        const canLeft = scrollLeft > 0;
-        const canRight = scrollLeft < scrollWidth - clientWidth - 1;
-        
-        // Batch all DOM writes together
-        layoutBatcher.write(() => {
-          setCanScrollLeft(canLeft);
-          setCanScrollRight(canRight);
-        });
-      });
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    // Use requestAnimationFrame to defer initial check
-    const rafId = requestAnimationFrame(() => {
-      checkScrollButtons();
-    });
-    
-    // Throttle resize handler to avoid excessive reflows
-    let resizeTimer: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          checkScrollButtons();
-        });
-      }, 150);
-    };
-    
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
-    };
-  }, [checkScrollButtons]);
+    checkScrollButtons();
+    const handleResize = () => checkScrollButtons();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
@@ -140,31 +110,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
-      
-      // Check buttons after scroll completes
-      requestAnimationFrame(() => {
-        setTimeout(() => checkScrollButtons(), 300);
-      });
     }
   };
-  
-  // Throttled scroll handler to avoid forced reflows
-  const handleScroll = useCallback(() => {
-    requestAnimationFrame(() => {
-      checkScrollButtons();
-    });
-  }, [checkScrollButtons]);
 
   return (
-    <div className={`relative ${className} contain-layout`} style={{ height: '154px', minHeight: '154px' }}>
+    <div className={`relative ${className}`}>
       {/* Left fade indicator */}
       {canScrollLeft && (
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" style={{ willChange: 'opacity' }} />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" />
       )}
       
       {/* Right fade indicator */}
       {canScrollRight && (
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" style={{ willChange: 'opacity' }} />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
       )}
 
       {/* Left scroll button - visible on mobile */}
@@ -191,15 +149,13 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
       <div 
         ref={scrollContainerRef}
-        className="overflow-x-auto scrollbar-hide h-full"
-        onScroll={handleScroll}
-        style={{ contain: 'layout style' }}
+        className="overflow-x-auto scrollbar-hide"
+        onScroll={checkScrollButtons}
       >
         <nav 
-          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg h-full"
+          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
           role="tablist"
           aria-label="Food categories"
-          style={{ contain: 'layout paint' }}
         >
           {categories.map((category) => {
             const isActive = activeCategory === category.id;

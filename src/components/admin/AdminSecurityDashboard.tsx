@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Shield, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import { GoogleDataPreservation } from "./GoogleDataPreservation";
 
 /**
  * Admin-only security dashboard showing current security posture
@@ -9,8 +8,6 @@ import { GoogleDataPreservation } from "./GoogleDataPreservation";
 export const AdminSecurityDashboard = () => {
   return (
     <div className="space-y-6">
-      <GoogleDataPreservation />
-      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
