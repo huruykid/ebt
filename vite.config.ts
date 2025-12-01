@@ -34,6 +34,21 @@ export default defineConfig(({ mode }) => ({
     modulePreload: {
       polyfill: false, // Reduce overhead
     },
+    minify: 'terser', // Use terser for better minification
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
+        passes: 2, // Multiple passes for better compression
+      },
+      mangle: {
+        safari10: true, // Better compatibility
+      },
+      format: {
+        comments: false, // Remove all comments
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -76,7 +91,6 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    minify: 'esbuild',
     cssCodeSplit: true,
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
