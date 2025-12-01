@@ -86,7 +86,10 @@ export const ExploreTrending: React.FC = () => {
           onRequestLocation={handleRequestLocation}
         />
 
-        <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
+        {/* Fixed height container prevents CLS */}
+        <div className="min-h-[154px]">
+          <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
+        </div>
 
         <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
           {showZipResults ? (
