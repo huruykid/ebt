@@ -4,14 +4,22 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
 
+# Cache static assets with content hashes for 1 year (immutable)
+/assets/*.js
+  Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
+
+/assets/*.css
+  Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
+  Content-Type: text/css; charset=utf-8
+
 /assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
 
 /*.js
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
 
 /*.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
   Content-Type: text/css; charset=utf-8
 
 /*.png
