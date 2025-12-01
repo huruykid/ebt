@@ -39,28 +39,39 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor';
+              return 'vendor-react';
             }
             if (id.includes('react-router-dom')) {
-              return 'router';
+              return 'vendor-router';
             }
             if (id.includes('@radix-ui')) {
-              return 'ui';
+              return 'vendor-ui';
             }
             if (id.includes('lucide-react')) {
-              return 'icons';
+              return 'vendor-icons';
             }
             if (id.includes('@supabase')) {
-              return 'supabase';
+              return 'vendor-supabase';
             }
             if (id.includes('@tanstack/react-query')) {
-              return 'query';
+              return 'vendor-query';
             }
             return 'vendor-other';
           }
+          // Split pages into separate chunks for lazy loading
+          if (id.includes('src/pages/')) {
+            const pageName = id.split('src/pages/')[1].split('.')[0];
+            return `page-${pageName}`;
+          }
         },
         // Optimize chunk names for better caching
-        chunkFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: (chunkInfo) => {
+          // Use shorter names for page chunks to reduce overhead
+          if (chunkInfo.name.startsWith('page-')) {
+            return 'assets/p/[name]-[hash].js';
+          }
+          return 'assets/[name]-[hash].js';
+        },
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
