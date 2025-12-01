@@ -28,9 +28,6 @@
     <!-- Preload critical resources to optimize network dependency chain -->
     <link rel="modulepreload" href="/src/main.tsx" fetchpriority="high">
     
-    <!-- Preload main CSS for faster LCP -->
-    <link rel="preload" href="/src/index.css" as="style" fetchpriority="high">
-    
     <!-- Defer non-critical manifest -->
     <link rel="manifest" href="/manifest.json">
     
@@ -42,18 +39,37 @@
     
     <!-- Critical CSS inlined for faster FCP -->
     <style>
-      :root{--background:220 80% 98%;--foreground:220 29% 14%;--primary:272 92% 55%;--primary-foreground:0 0% 100%;--border:220 15% 90%;}
+      :root{--background:220 80% 98%;--foreground:220 29% 14%;--primary:272 92% 55%;--primary-foreground:0 0% 100%;--border:220 15% 90%;--radius:0.5rem;}
       *{box-sizing:border-box;margin:0;padding:0;}
-      body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:hsl(var(--background));color:hsl(var(--foreground));min-height:100vh;contain:layout style paint;text-rendering:optimizeSpeed;-webkit-font-smoothing:antialiased;}
+      body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:hsl(var(--background));color:hsl(var(--foreground));min-height:100vh;contain:layout style paint;text-rendering:optimizeSpeed;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
       #root{min-height:100vh;display:flex;flex-direction:column;}
       header{position:sticky;top:0;z-index:50;background:hsl(var(--background));border-bottom:1px solid hsl(var(--border));}
       main{flex:1;}
       img,video,iframe{max-width:100%;height:auto;content-visibility:auto;}
       .loading-skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);animation:shimmer 1.5s infinite;}
       @keyframes shimmer{0%,100%{opacity:0.6}50%{opacity:1}}
-      /* LCP optimization: pre-render space for hero content */
       .hero-section{min-height:60vh;display:flex;align-items:center;justify-content:center;}
+      /* Critical above-the-fold styles for category tabs */
+      .relative{position:relative;}
+      .flex{display:flex;}
+      .items-center{align-items:center;}
+      .justify-center{justify-content:center;}
+      .gap-6{gap:1.5rem;}
+      .rounded-2xl{border-radius:1rem;}
+      .shadow-lg{box-shadow:0 10px 15px -3px rgb(0 0 0/0.1),0 4px 6px -4px rgb(0 0 0/0.1);}
+      .px-6{padding-left:1.5rem;padding-right:1.5rem;}
+      .py-4{padding-top:1rem;padding-bottom:1rem;}
+      .min-h-screen{min-height:100vh;}
+      .overflow-x-auto{overflow-x:auto;}
+      .bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops));}
+      .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
+      .scrollbar-hide::-webkit-scrollbar{display:none;}
+      button{cursor:pointer;border:none;background:transparent;}
     </style>
+    
+    <!-- Defer non-critical CSS loading -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" fetchpriority="low">
+    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
     
     <!-- Preload critical LCP resources -->
     <link rel="preload" href="/ebt-logo.png" as="image" fetchpriority="high">
