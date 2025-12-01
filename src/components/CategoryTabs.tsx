@@ -156,7 +156,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   }, [checkScrollButtons]);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} style={{ minHeight: '154px' }}>
       {/* Left fade indicator */}
       {canScrollLeft && (
         <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" />
