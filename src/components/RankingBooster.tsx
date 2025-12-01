@@ -37,19 +37,46 @@ export const RankingBooster: React.FC<RankingBoosterProps> = ({ children }) => {
 
     // Critical rendering path optimization for better ranking
     const optimizeCriticalPath = () => {
-      // Inline critical CSS for above-the-fold content
+      // Inline comprehensive critical CSS for above-the-fold content
       const criticalCSS = `
+        /* Core layout to prevent layout shift */
+        * { box-sizing: border-box; }
+        body { 
+          margin: 0; 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          line-height: 1.5;
+          -webkit-font-smoothing: antialiased;
+        }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Header to prevent CLS */
+        header { 
+          position: sticky; 
+          top: 0; 
+          z-index: 50; 
+          background: hsl(var(--background));
+          border-bottom: 1px solid hsl(var(--border));
+          contain: layout style;
+        }
+        
+        /* Hero section */
         .hero-section { 
           background: linear-gradient(135deg, hsl(272, 92%, 55%) 0%, hsl(35, 100%, 60%) 100%);
           padding: 2rem 1rem;
           text-align: center;
           color: white;
+          contain: layout style paint;
         }
+        
+        /* Search container */
         .search-container {
           max-width: 600px;
           margin: 0 auto;
           padding: 1rem;
+          contain: layout;
         }
+        
+        /* Buttons */
         .btn-primary {
           background: hsl(272, 92%, 55%);
           color: white;
@@ -58,18 +85,32 @@ export const RankingBooster: React.FC<RankingBoosterProps> = ({ children }) => {
           border: none;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: transform 0.2s;
+          will-change: transform;
         }
         .btn-primary:hover {
           background: hsl(272, 92%, 48%);
           transform: translateY(-1px);
         }
+        
+        /* Loading skeleton */
+        .loading-skeleton { 
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 
+          0%, 100% { opacity: 0.6; } 
+          50% { opacity: 1; } 
+        }
+        
+        /* Prevent layout shift for images */
+        img { max-width: 100%; height: auto; }
       `;
 
       const style = document.createElement('style');
       style.textContent = criticalCSS;
       style.id = 'critical-css';
-      document.head.appendChild(style);
+      document.head.insertBefore(style, document.head.firstChild);
     };
 
     // Advanced internal linking for better crawling
@@ -169,25 +210,32 @@ export const RankingBooster: React.FC<RankingBoosterProps> = ({ children }) => {
     // Performance optimizations for ranking factors
     const optimizeForRanking = () => {
       // Resource hints for better loading
-      const addResourceHint = (rel: string, href: string, as?: string) => {
+      const addResourceHint = (rel: string, href: string, as?: string, crossorigin?: boolean) => {
         const link = document.createElement('link');
         link.rel = rel;
         link.href = href;
         if (as) link.setAttribute('as', as);
+        if (crossorigin) link.setAttribute('crossorigin', 'anonymous');
         document.head.appendChild(link);
       };
 
-      // Preconnect to critical third-party domains
-      addResourceHint('preconnect', 'https://fonts.googleapis.com');
-      addResourceHint('preconnect', 'https://fonts.gstatic.com');
+      // Preconnect to critical third-party domains early for FCP
+      addResourceHint('preconnect', 'https://fonts.googleapis.com', undefined, true);
+      addResourceHint('preconnect', 'https://fonts.gstatic.com', undefined, true);
       addResourceHint('preconnect', 'https://images.unsplash.com');
       
       // DNS prefetch for potential resources
       addResourceHint('dns-prefetch', 'https://www.google-analytics.com');
       addResourceHint('dns-prefetch', 'https://maps.googleapis.com');
       
-      // Preload critical resources
-      addResourceHint('preload', 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2', 'font');
+      // Preload critical CSS to reduce FCP
+      const criticalStylesheets = document.querySelectorAll('link[rel="stylesheet"]');
+      criticalStylesheets.forEach((stylesheet) => {
+        const href = (stylesheet as HTMLLinkElement).href;
+        if (href && !document.querySelector(`link[rel="preload"][href="${href}"]`)) {
+          addResourceHint('preload', href, 'style');
+        }
+      });
     };
 
     // Mobile-first optimization signals
