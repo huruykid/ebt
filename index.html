@@ -26,13 +26,16 @@
     <link rel="apple-touch-icon" href="/ebt-logo.png" />
     
     <!-- Preload critical resources to optimize network dependency chain -->
-    <link rel="modulepreload" href="/src/main.tsx">
+    <link rel="modulepreload" href="/src/main.tsx" fetchpriority="high">
+    
+    <!-- Preload main CSS for faster LCP -->
+    <link rel="preload" href="/src/index.css" as="style" fetchpriority="high">
     
     <!-- Defer non-critical manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.json">
     
     <!-- Performance optimizations for Core Web Vitals -->
-    <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co" crossorigin fetchpriority="high">
     <link rel="dns-prefetch" href="https://maps.googleapis.com">
     <link rel="dns-prefetch" href="https://analytics.google.com">
     <link rel="dns-prefetch" href="https://overpass-api.de">
@@ -48,7 +51,12 @@
       img,video,iframe{max-width:100%;height:auto;content-visibility:auto;}
       .loading-skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);animation:shimmer 1.5s infinite;}
       @keyframes shimmer{0%,100%{opacity:0.6}50%{opacity:1}}
+      /* LCP optimization: pre-render space for hero content */
+      .hero-section{min-height:60vh;display:flex;align-items:center;justify-content:center;}
     </style>
+    
+    <!-- Preload critical LCP resources -->
+    <link rel="preload" href="/ebt-logo.png" as="image" fetchpriority="high">
     
     <!-- Preload critical fonts with font-display swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -83,14 +91,26 @@
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format" />
     <meta name="twitter:image:alt" content="EBT Finder - Find stores that accept SNAP benefits" />
 
-    <!-- Google AdSense - deferred for better FCP with error handling -->
+    <!-- Google AdSense - deferred for better FCP/LCP with error handling -->
     <script>
+      // Defer AdSense until after LCP
       window.addEventListener('load', function() {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(function() {
+            loadAdSense();
+          }, { timeout: 2000 });
+        } else {
+          setTimeout(loadAdSense, 2000);
+        }
+      });
+      
+      function loadAdSense() {
         try {
           var script = document.createElement('script');
           script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756';
           script.async = true;
           script.crossOrigin = 'anonymous';
+          script.fetchPriority = 'low';
           script.onerror = function() {
             // Silently handle AdSense load failures (403, network issues, etc.)
             console.debug('AdSense not loaded');
@@ -100,7 +120,7 @@
           // Silently handle any AdSense initialization errors
           console.debug('AdSense initialization skipped');
         }
-      });
+      }
     </script>
 
     <!-- Structured Data -->
@@ -176,7 +196,8 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- Main script with high priority for faster LCP -->
+    <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
     
     <!-- Service Worker Registration with caching strategy -->
     <script>
@@ -190,7 +211,11 @@
               if ('connection' in navigator && navigator.connection.effectiveType !== 'slow-2g') {
                 const criticalResources = ['/ebt-logo.png'];
                 criticalResources.forEach(url => {
-                  fetch(url, { method: 'HEAD' }).catch(() => {});
+                  const link = document.createElement('link');
+                  link.rel = 'prefetch';
+                  link.href = url;
+                  link.fetchPriority = 'low';
+                  document.head.appendChild(link);
                 });
               }
             })
