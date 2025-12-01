@@ -92,9 +92,9 @@ export default defineConfig(({ mode }) => ({
       },
     },
     cssCodeSplit: true,
-    cssMinify: true,
+    cssMinify: 'lightningcss', // Use Lightning CSS for better CSS minification
     chunkSizeWarningLimit: 1000,
-    sourcemap: true, // Enable source maps for better debugging and Lighthouse insights
+    sourcemap: false, // Disable sourcemaps in production for smaller bundle
     reportCompressedSize: false,
     // Optimize build for better LCP
     assetsInlineLimit: 4096,
