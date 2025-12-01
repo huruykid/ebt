@@ -156,15 +156,15 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   }, [checkScrollButtons]);
 
   return (
-    <div className={`relative ${className}`} style={{ minHeight: '154px' }}>
+    <div className={`relative ${className} contain-layout`} style={{ height: '154px', minHeight: '154px' }}>
       {/* Left fade indicator */}
       {canScrollLeft && (
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" />
+        <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden" style={{ willChange: 'opacity' }} />
       )}
       
       {/* Right fade indicator */}
       {canScrollRight && (
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden" style={{ willChange: 'opacity' }} />
       )}
 
       {/* Left scroll button - visible on mobile */}
@@ -191,13 +191,15 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
 
       <div 
         ref={scrollContainerRef}
-        className="overflow-x-auto scrollbar-hide"
+        className="overflow-x-auto scrollbar-hide h-full"
         onScroll={handleScroll}
+        style={{ contain: 'layout style' }}
       >
         <nav 
-          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
+          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg h-full"
           role="tablist"
           aria-label="Food categories"
+          style={{ contain: 'layout paint' }}
         >
           {categories.map((category) => {
             const isActive = activeCategory === category.id;
