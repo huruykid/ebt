@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { List } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 interface Heading {
   id: string;
@@ -17,9 +18,13 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
 
   useEffect(() => {
-    // Extract headings from HTML content
+    // Extract headings from sanitized HTML content (defense-in-depth)
+    const sanitizedContent = DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+      ALLOWED_ATTR: ['id']
+    });
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
+    tempDiv.innerHTML = sanitizedContent;
     
     const headingElements = tempDiv.querySelectorAll('h2, h3');
     const extractedHeadings: Heading[] = [];
