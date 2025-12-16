@@ -60,9 +60,9 @@ export const useEnhancedStoreData = (store: Store) => {
       result.website = googlePlacesData.website;
       result.rating = googlePlacesData.rating;
       result.review_count = googlePlacesData.user_ratings_total;
-      result.image_url = googlePlacesData.photos?.[0] 
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${googlePlacesData.photos[0].photo_reference}&key=${import.meta.env.VITE_GOOGLE_PLACES_API_KEY || ''}`
-        : undefined;
+      // Use cached photo URL from database (Google Places API is disabled)
+      // Photos are now stored in snap_stores.google_photos from previous syncs
+      result.image_url = undefined;
       result.price_level = googlePlacesData.price_level?.toString();
       result.categories = googlePlacesData.types?.map(type => type.replace(/_/g, ' ')) || [];
       
