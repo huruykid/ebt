@@ -996,6 +996,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      insert_store_click_with_privacy: {
+        Args: {
+          p_latitude: number
+          p_longitude: number
+          p_store_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       is_admin_user: { Args: never; Returns: boolean }
       safe_newsletter_subscribe: {
         Args: { subscriber_email: string }
