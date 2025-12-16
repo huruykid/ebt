@@ -101,26 +101,46 @@ export const SearchEngineOptimizer = () => {
       }
     };
 
-    // Optimize images for SEO
+    // Optimize images for SEO using IntersectionObserver to avoid forced reflow
     const optimizeImages = () => {
-      document.querySelectorAll('img:not([loading])').forEach((img) => {
-        const element = img as HTMLImageElement;
-        const rect = element.getBoundingClientRect();
-        const isAboveFold = rect.top < window.innerHeight;
-        
-        if (!isAboveFold) {
-          element.loading = 'lazy';
-        } else {
-          element.fetchPriority = 'high';
-        }
+      const images = document.querySelectorAll('img:not([loading])');
+      
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            const element = entry.target as HTMLImageElement;
+            if (entry.isIntersecting) {
+              element.fetchPriority = 'high';
+            } else {
+              element.loading = 'lazy';
+            }
+            observer.unobserve(element);
+          });
+        }, { rootMargin: '0px' });
 
-        // Ensure all images have alt text
-        if (!element.alt) {
-          const src = element.src;
-          const filename = src.split('/').pop()?.split('.')[0] || '';
-          element.alt = filename.replace(/[-_]/g, ' ');
-        }
-      });
+        images.forEach((img) => {
+          const element = img as HTMLImageElement;
+          observer.observe(element);
+          
+          // Ensure all images have alt text
+          if (!element.alt) {
+            const src = element.src;
+            const filename = src.split('/').pop()?.split('.')[0] || '';
+            element.alt = filename.replace(/[-_]/g, ' ');
+          }
+        });
+      } else {
+        // Fallback for older browsers - set lazy loading for all
+        images.forEach((img) => {
+          const element = img as HTMLImageElement;
+          element.loading = 'lazy';
+          if (!element.alt) {
+            const src = element.src;
+            const filename = src.split('/').pop()?.split('.')[0] || '';
+            element.alt = filename.replace(/[-_]/g, ' ');
+          }
+        });
+      }
     };
 
     addLastModified();
