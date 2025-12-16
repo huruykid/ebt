@@ -22,21 +22,15 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
   const { user } = useAuth();
   const [showReviewForm, setShowReviewForm] = useState(false);
 
-  // Fetch reviews for this store
-  const { data: reviews = [], refetch } = useQuery({
+  // Track review count for refresh - use public view for privacy
+  const { refetch } = useQuery({
     queryKey: ['store-reviews', store.id],
     queryFn: async () => {
+      // Use public_reviews view which excludes user_id for privacy
       const { data, error } = await supabase
-        .from('reviews')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('store_id', parseInt(store.id))
-        .order('created_at', { ascending: false });
+        .from('public_reviews')
+        .select('id')
+        .eq('store_id', parseInt(store.id));
 
       if (error) {
         console.error('Error fetching reviews:', error);
