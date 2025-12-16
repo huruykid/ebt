@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ArticleSchema } from '@/components/blog/ArticleSchema';
 import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { SocialShare } from '@/components/blog/SocialShare';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
+import DOMPurify from 'dompurify';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -146,21 +147,30 @@ export default function BlogPost() {
                   </p>
                 )}
 
-                <div 
-                  className="prose prose-lg dark:prose-invert max-w-none
-                    prose-headings:text-foreground prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4
-                    prose-h2:text-3xl prose-h3:text-2xl
-                    prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-6
-                    prose-a:text-primary hover:prose-a:text-primary/80
-                    prose-strong:text-foreground prose-strong:font-semibold
-                    prose-ul:text-foreground prose-ul:my-6
-                    prose-ol:text-foreground prose-ol:my-6
-                    prose-li:text-foreground prose-li:mb-2
-                    prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-                    prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                    prose-pre:bg-muted prose-pre:text-foreground"
-                  dangerouslySetInnerHTML={{ __html: post.body.replace(/\n/g, '<br />') }}
-                />
+                {/* Sanitize blog content to prevent XSS attacks */}
+                {useMemo(() => {
+                  const sanitizedHtml = DOMPurify.sanitize(post.body.replace(/\n/g, '<br />'), {
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre', 'img', 'span', 'div'],
+                    ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id']
+                  });
+                  return (
+                    <div 
+                      className="prose prose-lg dark:prose-invert max-w-none
+                        prose-headings:text-foreground prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4
+                        prose-h2:text-3xl prose-h3:text-2xl
+                        prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-6
+                        prose-a:text-primary hover:prose-a:text-primary/80
+                        prose-strong:text-foreground prose-strong:font-semibold
+                        prose-ul:text-foreground prose-ul:my-6
+                        prose-ol:text-foreground prose-ol:my-6
+                        prose-li:text-foreground prose-li:mb-2
+                        prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+                        prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                        prose-pre:bg-muted prose-pre:text-foreground"
+                      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+                    />
+                  );
+                }, [post.body])}
 
                 <SocialShare 
                   title={post.title} 
