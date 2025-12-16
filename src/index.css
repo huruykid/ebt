@@ -2,41 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Spotify-inspired modern dark design system */
+/* Instagram-inspired modern dark design system */
 
 @layer base {
   :root {
-    /* Light mode - clean and minimal */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
+    /* Instagram Dark Mode - Default */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Spotify Green as primary */
-    --primary: 141 76% 48%;
+    /* Instagram gradient pink as primary */
+    --primary: 330 100% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Neutral secondary */
+    /* Dark secondary */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    /* Instagram blue for accents */
+    --accent: 204 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 145 80% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --info: 204 100% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 12%;
+    --ring: 330 100% 60%;
+
+    --radius: 12px;
+
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 330 100% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 330 100% 60%;
+  }
+
+  .light {
+    /* Light mode - kept for compatibility */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 330 100% 60%;
+    --primary-foreground: 0 0% 100%;
+
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary-foreground: 0 0% 0%;
 
     --muted: 0 0% 94%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 141 76% 48%;
+    --accent: 204 100% 55%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 141 76% 48%;
+    --success: 145 80% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 9%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
 
-    --info: 199 89% 48%;
+    --info: 204 100% 55%;
     --info-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -44,68 +96,16 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 96%;
-    --ring: 141 76% 48%;
-
-    --radius: 8px;
+    --ring: 330 100% 60%;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 141 76% 48%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 330 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-accent-foreground: 0 0% 0%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 141 76% 48%;
-  }
-
-  .dark {
-    /* Spotify-inspired dark theme */
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Spotify Green */
-    --primary: 141 76% 48%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
-
-    --accent: 141 76% 48%;
-    --accent-foreground: 0 0% 0%;
-
-    --success: 141 76% 48%;
-    --success-foreground: 0 0% 0%;
-
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 9%;
-
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 18%;
-    --input: 0 0% 15%;
-    --ring: 141 76% 48%;
-
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 141 76% 48%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 141 76% 48%;
+    --sidebar-ring: 330 100% 60%;
   }
 }
 
@@ -115,73 +115,89 @@
   }
 
   html {
-    /* Force dark mode by default */
     color-scheme: dark;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
     min-height: 100vh;
   }
 
-  /* Clean typography */
+  /* Clean typography - Instagram style */
   h1 {
-    @apply text-4xl font-bold tracking-tight text-foreground;
+    @apply text-3xl font-semibold tracking-tight text-foreground;
   }
 
   h2 {
-    @apply text-3xl font-bold tracking-tight text-foreground;
-  }
-
-  h3 {
     @apply text-2xl font-semibold tracking-tight text-foreground;
   }
 
-  h4 {
+  h3 {
     @apply text-xl font-semibold tracking-tight text-foreground;
   }
 
+  h4 {
+    @apply text-lg font-semibold tracking-tight text-foreground;
+  }
+
   h5 {
-    @apply text-lg font-semibold text-foreground;
+    @apply text-base font-semibold text-foreground;
   }
 
   h6 {
-    @apply text-base font-semibold text-foreground;
+    @apply text-sm font-semibold text-foreground;
   }
 
   p {
     @apply text-sm leading-relaxed text-muted-foreground;
   }
 
-  /* Spotify-style button */
-  .btn-spotify {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 font-bold rounded-full px-8 py-3 transition-all duration-200;
+  /* Instagram-style gradient button */
+  .btn-instagram {
+    @apply relative overflow-hidden text-white font-semibold rounded-lg px-6 py-2.5 transition-all duration-200;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
   }
 
-  .btn-spotify-outline {
-    @apply border border-muted-foreground/30 text-foreground hover:border-foreground hover:scale-105 font-bold rounded-full px-8 py-3 transition-all duration-200;
+  .btn-instagram:hover {
+    @apply opacity-90 scale-[1.02];
   }
 
-  /* Spotify-style cards */
-  .card-spotify {
-    @apply bg-card hover:bg-muted/50 rounded-lg p-4 transition-all duration-300;
+  .btn-instagram-outline {
+    @apply border border-border text-foreground hover:bg-secondary font-semibold rounded-lg px-6 py-2.5 transition-all duration-200;
+  }
+
+  /* Instagram-style cards */
+  .card-instagram {
+    @apply bg-card border border-border rounded-lg transition-all duration-200;
   }
 
   .card-hover {
-    @apply bg-card hover:bg-secondary rounded-lg p-4 transition-all duration-200 cursor-pointer;
+    @apply bg-card border border-border hover:bg-secondary/50 rounded-lg transition-all duration-200 cursor-pointer;
   }
 }
 
 /* Custom utility classes */
 @layer utilities {
+  /* Instagram gradient text */
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(141 76% 48% / 0.3);
+  /* Instagram-style gradient border */
+  .border-gradient {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: linear-gradient(black, black) padding-box,
+                linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888) border-box;
+  }
+
+  .glow-pink {
+    box-shadow: 0 0 20px hsl(330 100% 60% / 0.3);
   }
 
   .glass-effect {
@@ -189,28 +205,27 @@
   }
 
   .hover-lift {
-    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+    @apply transition-all duration-200 hover:-translate-y-0.5;
   }
 
-  .spotify-shadow {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  .instagram-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 
-/* Smooth scrollbar for dark theme */
+/* Dark scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(0 0% 10%);
+  background: hsl(0 0% 0%);
 }
 
 ::-webkit-scrollbar-thumb {
   background: hsl(0 0% 25%);
-  border-radius: 6px;
-  border: 3px solid hsl(0 0% 10%);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
