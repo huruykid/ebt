@@ -75,8 +75,8 @@ export const ExploreTrending: React.FC = () => {
           variant="mobile"
         />
 
-        {/* Fixed height container prevents CLS */}
-        <div className="min-h-[154px]">
+        {/* Fixed height container prevents CLS - height includes mt-4 (16px) + CategoryTabs (~154px) */}
+        <div className="h-[170px]">
           <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
         </div>
 
