@@ -917,6 +917,23 @@ export type Database = {
       }
     }
     Functions: {
+      award_contribution_points: {
+        Args: {
+          p_contribution_type: Database["public"]["Enums"]["contribution_type"]
+          p_description?: string
+          p_store_id?: number
+        }
+        Returns: {
+          contribution_type: Database["public"]["Enums"]["contribution_type"]
+          created_at: string
+          description: string
+          id: string
+          points_earned: number
+          store_id: number
+          user_id: string
+          verified: boolean
+        }[]
+      }
       check_and_award_badges: {
         Args: { p_user_id: string }
         Returns: undefined

@@ -64,48 +64,49 @@ export const useGameification = () => {
     },
   });
 
-  // Award points mutation
+  // Award points mutation - uses server-side RPC for validation
   const awardPointsMutation = useMutation({
     mutationFn: async ({
       contributionType,
       storeId,
-      points = 10,
       description
     }: {
       contributionType: ContributionType;
       storeId?: number;
-      points?: number;
       description?: string;
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
       
+      // Use server-side RPC function for secure point calculation
       const { data, error } = await supabase
-        .from('user_points')
-        .insert({
-          user_id: user.id,
-          store_id: storeId,
-          contribution_type: contributionType,
-          points_earned: points,
-          description: description || `Earned ${points} points for ${contributionType.replace('_', ' ')}`,
-        })
-        .select()
-        .single();
+        .rpc('award_contribution_points', {
+          p_contribution_type: contributionType,
+          p_store_id: storeId ?? null,
+          p_description: description ?? null,
+        });
       
       if (error) throw error;
-      return data;
+      return data?.[0]; // RPC returns array
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['user-stats', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['user-badges', user?.id] });
       
-      toast.success(`🎉 +${data.points_earned} points earned!`, {
-        description: data.description,
-      });
+      if (data) {
+        toast.success(`🎉 +${data.points_earned} points earned!`, {
+          description: data.description,
+        });
+      }
     },
-    onError: (error) => {
-      toast.error('Failed to award points', {
-        description: error.message,
-      });
+    onError: (error: Error) => {
+      // Handle duplicate contribution gracefully
+      if (error.message?.includes('Duplicate contribution')) {
+        toast.info('Points already awarded for this action recently');
+      } else {
+        toast.error('Failed to award points', {
+          description: error.message,
+        });
+      }
     },
   });
 
