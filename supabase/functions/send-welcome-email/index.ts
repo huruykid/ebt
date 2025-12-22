@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -22,8 +23,52 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication - validate JWT token properly
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Validate JWT by creating a client with user's auth and verifying
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      console.error('Authentication failed:', userError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if the caller is an admin (only admins can send welcome emails to others)
+    const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: isAdmin, error: roleError } = await supabaseService
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    
+    // If not admin, user can only trigger welcome email for themselves
     const { user_id, email, full_name }: WelcomeEmailRequest = await req.json();
+    
+    if (!isAdmin && user_id !== user.id) {
+      console.error('Non-admin attempted to send email to another user');
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - cannot send email to other users' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const name = full_name || "Friend";
+
+    console.log('📧 Sending welcome email to:', email);
 
     const emailResponse = await resend.emails.send({
       from: "The EBT Store Finder Team <onboarding@resend.dev>",
@@ -109,7 +154,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Welcome email sent successfully to:", email, emailResponse);
+    console.log("✅ Welcome email sent successfully to:", email);
 
     return new Response(JSON.stringify({ success: true, messageId: emailResponse.data?.id }), {
       status: 200,
@@ -121,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-welcome-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An error occurred while sending the email. Please try again.' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

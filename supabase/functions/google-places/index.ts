@@ -47,7 +47,7 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication - this function should require JWT
+    // Verify authentication - validate JWT token properly
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return new Response(
@@ -55,6 +55,27 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Initialize Supabase clients
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Validate JWT by creating a client with user's auth and verifying
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      console.error('Authentication failed:', userError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('🔐 Authenticated user:', user.id);
 
     const { storeName, address, latitude, longitude }: GooglePlacesRequest = await req.json();
     
@@ -103,9 +124,7 @@ serve(async (req) => {
 
     console.log('🔍 Google Places lookup for:', { storeName, address });
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    // Use service role client for database operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Create search query for cache lookup
@@ -276,7 +295,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Google Places API error:', error);
     return new Response(
-      JSON.stringify({ error: error.message, business: null }),
+      JSON.stringify({ error: 'An error occurred while fetching place data. Please try again.', business: null }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
