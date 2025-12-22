@@ -442,7 +442,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in places-proxy function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: 'An error occurred while fetching places data. Please try again later.',
       from: 'error',
       budget_exceeded: false 
     }), {

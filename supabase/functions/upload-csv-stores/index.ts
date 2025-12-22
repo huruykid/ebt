@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message
+        error: 'An error occurred while processing the CSV file. Please try again later.'
       }),
       { 
         status: 500,

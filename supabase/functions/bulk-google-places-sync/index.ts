@@ -228,8 +228,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Bulk sync error:', error);
     return new Response(JSON.stringify({ 
-      error: 'Internal server error',
-      details: error.message 
+      error: 'An error occurred during bulk sync. Please try again later.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
