@@ -403,8 +403,7 @@ Deno.serve(async (req) => {
     
     return new Response(JSON.stringify({
       success: false,
-      message: `Seeding failed: ${error.message}`,
-      error: error.message
+      message: 'An error occurred during comment seeding. Please try again later.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

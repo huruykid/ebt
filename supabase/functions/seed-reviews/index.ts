@@ -184,8 +184,7 @@ Deno.serve(async (req) => {
     
     return new Response(JSON.stringify({
       success: false,
-      message: `Review seeding failed: ${error.message}`,
-      error: error.message
+      message: 'An error occurred during review seeding. Please try again later.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
