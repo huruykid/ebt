@@ -156,7 +156,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         onScroll={checkScrollButtons}
       >
         <nav 
-          className="rounded-xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-start md:justify-center gap-2 md:gap-6 px-3 md:px-6 py-2 md:py-4 min-w-max shadow-md md:shadow-lg"
+          className="rounded-xl bg-white flex items-center justify-start md:justify-center gap-2 md:gap-6 px-3 md:px-6 py-2 md:py-4 min-w-max shadow-sm border border-border"
           role="tablist"
           aria-label="Food categories"
         >
