@@ -80,7 +80,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({
             if (item.requiresAuth && !user && isGuest) {
               return null;
             }
-            return <button key={item.id} onClick={() => handleNavClick(item.id)} className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-primary bg-primary/10' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
+            return <button key={item.id} onClick={() => handleNavClick(item.id)} className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isActive ? 'text-primary bg-primary/10 shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
                   <IconComponent className="h-4 w-4" />
                   <span>{item.label}</span>
                 </button>;

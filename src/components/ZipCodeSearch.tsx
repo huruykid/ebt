@@ -53,34 +53,35 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-3">
-      <div className="flex gap-2">
+    <div className="w-full max-w-lg mx-auto space-y-3">
+      <div className="flex shadow-md rounded-lg overflow-hidden border border-border">
         <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Enter ZIP code (e.g., 90210)"
             value={zipInput}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            className="pr-10"
+            className="pl-12 pr-4 h-12 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base rounded-none"
             maxLength={5}
           />
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         </div>
         <Button 
           onClick={handleSearch}
           disabled={!validateZipCode(zipInput)}
-          className="px-4"
+          className="h-12 px-8 rounded-none text-base font-semibold bg-primary hover:bg-primary/90 transition-all"
         >
+          <Search className="h-5 w-5 mr-2" />
           Search
         </Button>
       </div>
 
       {isSearchActive && (
-        <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
+        <div className="flex items-center justify-between bg-primary/5 border border-primary/20 p-3 rounded-lg">
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-blue-600" />
-            <span className="text-sm text-blue-800 dark:text-blue-200">
+            <MapPin className="h-4 w-4 text-primary" />
+            <span className="text-sm text-foreground font-medium">
               Showing results for ZIP: {activeZip}
             </span>
           </div>
@@ -88,10 +89,10 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
             onClick={handleClear}
             variant="ghost"
             size="sm"
-            className="text-blue-600 hover:text-blue-800"
+            className="text-primary hover:text-primary/80 hover:bg-primary/10"
           >
             <X className="h-4 w-4 mr-1" />
-            Use My Location Instead
+            Clear
           </Button>
         </div>
       )}
