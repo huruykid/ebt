@@ -59,7 +59,7 @@ export const ExploreTrending: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
-      <div className="md:hidden bg-muted flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
+      <div className="md:hidden bg-background flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <HeroSearch
           onZipSearch={handleZipSearch}
           onClearSearch={handleClearSearch}
@@ -75,16 +75,16 @@ export const ExploreTrending: React.FC = () => {
           variant="mobile"
         />
 
-        {/* Fixed height container prevents CLS - height includes mt-4 (16px) + CategoryTabs (~154px) */}
-        <div className="h-[170px]">
-          <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-4 px-3.5" />
+        {/* Compact category tabs */}
+        <div className="min-h-[100px]">
+          <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
         </div>
 
-        <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-4 px-4">
+        <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3">
           {showZipResults ? (
             <div className="w-full">
               {zipLoading ? (
-                <div className="flex justify-center py-8">
+                <div className="flex justify-center py-6">
                   <LoadingSpinner />
                 </div>
               ) : (

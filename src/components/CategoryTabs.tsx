@@ -156,7 +156,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         onScroll={checkScrollButtons}
       >
         <nav 
-          className="rounded-2xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-center gap-6 px-6 py-4 min-w-max shadow-lg"
+          className="rounded-xl bg-gradient-to-r from-neutral-50 to-neutral-100 flex items-center justify-start md:justify-center gap-2 md:gap-6 px-3 md:px-6 py-2 md:py-4 min-w-max shadow-md md:shadow-lg"
           role="tablist"
           aria-label="Food categories"
         >
@@ -167,28 +167,28 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               <button
                 key={category.id}
                 onClick={() => handleCategoryClick(category.id)}
-                className={`flex flex-col items-center justify-center min-w-[80px] px-4 py-4 transition-all duration-300 hover:opacity-80 rounded-2xl hover:scale-110 ${
+                className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[80px] px-2 md:px-4 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
                   isActive 
-                    ? 'bg-gradient-to-br from-white to-gray-50 shadow-xl border-2 border-primary/30 scale-110 transform' 
-                    : 'hover:bg-white/70 hover:shadow-lg'
+                    ? 'bg-gradient-to-br from-white to-gray-50 shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
+                    : 'hover:bg-white/70 hover:shadow-md md:hover:shadow-lg'
                 }`}
                 role="button"
                 aria-pressed={isActive}
               >
-                <div className={`w-12 h-12 flex items-center justify-center mb-2 transition-all duration-300 rounded-full ${
+                <div className={`w-8 h-8 md:w-12 md:h-12 flex items-center justify-center mb-1 md:mb-2 transition-all duration-300 rounded-full ${
                   isActive 
-                    ? 'scale-125 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg' 
-                    : 'hover:scale-110 hover:bg-primary/5'
+                    ? 'scale-110 md:scale-125 bg-gradient-to-br from-primary/10 to-accent/10 shadow-md md:shadow-lg' 
+                    : 'hover:scale-105 md:hover:scale-110 hover:bg-primary/5'
                 }`}>
                   <span className={`transition-all duration-300 ${
-                    isActive ? 'text-4xl drop-shadow-lg' : 'text-3xl grayscale hover:grayscale-0'
+                    isActive ? 'text-2xl md:text-4xl drop-shadow-lg' : 'text-xl md:text-3xl grayscale hover:grayscale-0'
                   }`}>
                     {isActive ? (category.activeIcon || category.icon) : category.icon}
                   </span>
                 </div>
-                <span className={`text-xs font-bold text-center whitespace-nowrap transition-all duration-300 ${
+                <span className={`text-[10px] md:text-xs font-bold text-center whitespace-nowrap transition-all duration-300 ${
                   isActive 
-                    ? 'text-primary scale-110 drop-shadow-sm' 
+                    ? 'text-primary scale-105 md:scale-110 drop-shadow-sm' 
                     : 'text-[#484848] hover:text-primary/80'
                 }`}>
                   {category.name}
