@@ -7,11 +7,11 @@ export const SnapTipsSection: React.FC = () => {
   return (
     <section className="bg-white py-16 border-t" itemScope itemType="https://schema.org/Article">
       <div className="max-w-4xl mx-auto px-6">
-        <Card className="bg-white border-success/20 shadow-lg">
+        <Card className="bg-white border-primary/20 shadow-lg">
           <CardContent className="p-8">
             <header className="text-center mb-6">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <Utensils className="h-8 w-8 text-success" aria-hidden="true" />
+                <Utensils className="h-8 w-8 text-primary" aria-hidden="true" />
                 <h2 className="text-3xl font-bold text-foreground" itemProp="headline">
                   Maximize Your SNAP Benefits in 2025
                 </h2>
@@ -21,10 +21,10 @@ export const SnapTipsSection: React.FC = () => {
               </p>
             </header>
             
-            <div className="bg-card rounded-xl p-6 border border-success/20 shadow-sm" itemScope itemType="https://schema.org/HowTo">
+            <div className="bg-primary/5 rounded-xl p-6 border border-primary/20" itemScope itemType="https://schema.org/HowTo">
               <div className="flex items-start gap-6">
-                <div className="bg-success/10 p-4 rounded-xl hidden sm:block" aria-hidden="true">
-                  <Star className="h-8 w-8 text-success" />
+                <div className="bg-primary/10 p-4 rounded-xl hidden sm:block" aria-hidden="true">
+                  <Star className="h-8 w-8 text-primary" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-foreground mb-3 text-xl" itemProp="name">
@@ -47,7 +47,7 @@ export const SnapTipsSection: React.FC = () => {
                   <Button 
                     asChild 
                     size="lg"
-                    className="bg-success hover:bg-success/90 text-success-foreground hover:scale-105 transition-all duration-200 shadow-md"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-105 transition-all duration-200 shadow-md"
                   >
                     <a 
                       href="/snap-tips" 
