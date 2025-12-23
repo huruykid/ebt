@@ -71,7 +71,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <SEO>
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
         <SearchEngineOptimizer />

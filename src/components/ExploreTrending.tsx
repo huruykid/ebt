@@ -57,9 +57,9 @@ export const ExploreTrending: React.FC = () => {
   const showZipResults = isSearchActive;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Mobile Layout */}
-      <div className="md:hidden bg-background flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
+      <div className="md:hidden bg-white flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <HeroSearch
           onZipSearch={handleZipSearch}
           onClearSearch={handleClearSearch}
@@ -122,7 +122,7 @@ export const ExploreTrending: React.FC = () => {
         />
 
         {/* Category Tabs - Desktop */}
-        <div className="bg-card border-b">
+        <div className="bg-background border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
           </div>

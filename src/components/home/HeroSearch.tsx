@@ -88,7 +88,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   // Desktop layout (unchanged)
   return (
-    <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
+    <div className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="font-bold text-foreground text-4xl mb-4">
