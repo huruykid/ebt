@@ -35,27 +35,66 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 }) => {
   const isMobile = variant === 'mobile';
 
+  if (isMobile) {
+    return (
+      <div className="flex w-full flex-col items-stretch px-4 pt-4 pb-2">
+        {/* Compact mobile header */}
+        <h1 className="text-xl font-bold text-foreground text-center mb-1">
+          Find EBT Stores Near You
+        </h1>
+        <p className="text-xs text-muted-foreground text-center mb-4">
+          Search by ZIP code to find SNAP-accepting stores
+        </p>
+        
+        {/* Prominent search box */}
+        <div className="bg-card rounded-xl p-3 shadow-sm border">
+          <ZipCodeSearch
+            onZipSearch={onZipSearch}
+            onClearSearch={onClearSearch}
+            isSearchActive={isSearchActive}
+            activeZip={activeZip}
+            errorMessage={errorMessage}
+            noResultsMessage={noResultsMessage}
+          />
+        </div>
+        
+        {/* Current location button - shown as secondary option, not intrusive */}
+        {!isSearchActive && latitude && longitude && (
+          <Button
+            onClick={onCurrentLocationSearch}
+            variant="ghost"
+            size="sm"
+            disabled={loading}
+            className="mt-2 text-xs text-muted-foreground"
+          >
+            <Navigation className="h-3 w-3 mr-1.5" />
+            Or use current location
+          </Button>
+        )}
+
+        {/* Subtle location hint - no blocking prompt */}
+        {!isSearchActive && !latitude && !longitude && !loading && (
+          <button
+            onClick={onRequestLocation}
+            className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
+          >
+            <MapPin className="h-3 w-3" />
+            Enable location for nearby stores
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
-    <div className={cn(
-      isMobile ? "flex w-full flex-col items-stretch px-3.5 pt-6" : "bg-gradient-to-br from-primary/5 to-secondary/10 border-b"
-    )}>
-      <div className={cn(
-        isMobile ? "" : "max-w-7xl mx-auto px-6 py-12"
-      )}>
-        <div className={cn(
-          "text-center",
-          isMobile ? "mb-4" : "max-w-3xl mx-auto"
-        )}>
-          <h1 className={cn(
-            "font-bold text-foreground",
-            isMobile ? "text-2xl mb-2" : "text-4xl mb-4"
-          )}>
+    <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center max-w-3xl mx-auto">
+          <h1 className="font-bold text-foreground text-4xl mb-4">
             Find EBT & SNAP-Accepting Stores Near You
           </h1>
-          <p className={cn(
-            "text-muted-foreground",
-            isMobile ? "text-sm px-2" : "text-lg mb-8"
-          )}>
+          <p className="text-muted-foreground text-lg mb-8">
             EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or{" "}
             <a 
               href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
@@ -70,13 +109,8 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         </div>
         
         {/* ZIP Code Search */}
-        <div className={cn(
-          isMobile ? "mb-4 bg-card rounded-lg p-4 shadow-sm border" : "mb-6"
-        )}>
-          <h2 className={cn(
-            "font-medium text-foreground",
-            isMobile ? "text-sm mb-3" : "text-lg mb-3 text-center"
-          )}>
+        <div className="mb-6">
+          <h2 className="font-medium text-foreground text-lg mb-3 text-center">
             Enter your ZIP code or use your current location to find EBT-accepting businesses
           </h2>
           <ZipCodeSearch
@@ -91,15 +125,13 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         
         {/* Current Location Search Button */}
         {!isSearchActive && latitude && longitude && (
-          <div className={cn(
-            isMobile ? "mb-4" : "max-w-2xl mx-auto"
-          )}>
+          <div className="max-w-2xl mx-auto">
             <Button
               onClick={onCurrentLocationSearch}
               variant="outline"
-              size={isMobile ? "default" : "lg"}
+              size="lg"
               disabled={loading}
-              className={isMobile ? "w-full" : "w-full sm:w-auto"}
+              className="w-full sm:w-auto"
             >
               <Navigation className="h-4 w-4 mr-2" />
               Search near your current location
@@ -107,34 +139,17 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           </div>
         )}
 
-        {/* Location prompt for mobile */}
-        {isMobile && !isSearchActive && !latitude && !longitude && !loading && onRequestLocation && (
-          <div className="mb-4 text-center py-4 bg-card rounded-lg border">
-            <div className="text-4xl mb-2">📍</div>
-            <h3 className="text-sm font-medium text-foreground mb-2">Enable Location</h3>
-            <p className="text-xs text-muted-foreground mb-3">
-              Get personalized results for stores near you
-            </p>
-            <Button onClick={onRequestLocation} size="sm" className="w-full">
-              <MapPin className="h-4 w-4 mr-2" />
-              Enable Location Access
-            </Button>
+        {/* Quick Stats */}
+        <div className="flex justify-center gap-8 mt-8 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            <span>Location-based results</span>
           </div>
-        )}
-
-        {/* Quick Stats - Desktop only */}
-        {!isMobile && (
-          <div className="flex justify-center gap-8 mt-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>Location-based results</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              <span>Save your favorites</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Heart className="h-4 w-4" />
+            <span>Save your favorites</span>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

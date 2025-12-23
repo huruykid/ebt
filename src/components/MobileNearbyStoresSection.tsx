@@ -46,19 +46,42 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
     );
   }
 
+  // Show helpful content when no location - not a blocker
   return (
-    <div className="text-center py-8">
-      <div className="text-6xl mb-4">📍</div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">Location Required</h3>
-      <p className="text-muted-foreground mb-4">
-        We need your location to show nearby stores that accept EBT/SNAP benefits.
-      </p>
-      <button
-        onClick={onRequestLocation}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-      >
-        Enable Location
-      </button>
+    <div className="w-full py-4">
+      <div className="bg-card rounded-xl border p-4 mb-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">💡</div>
+          <div className="flex-1">
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              Search by ZIP Code Above
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Enter a ZIP code to find EBT-accepting stores in any area.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-muted/50 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">📍</div>
+          <div className="flex-1">
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              Want Nearby Results?
+            </h3>
+            <p className="text-xs text-muted-foreground mb-2">
+              Enable location to see stores closest to you.
+            </p>
+            <button
+              onClick={onRequestLocation}
+              className="text-xs text-primary font-medium hover:underline"
+            >
+              Enable Location →
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
