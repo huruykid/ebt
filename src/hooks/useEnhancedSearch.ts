@@ -157,21 +157,88 @@ export const useEnhancedSearch = () => {
     return suggestions;
   }, [searchHistory]);
 
+  // Helper function to geocode a location string
+  const geocodeLocation = async (location: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const params = new URLSearchParams({
+        q: location.trim(),
+        format: 'json',
+        addressdetails: '1',
+        limit: '1',
+        countrycodes: 'us',
+      });
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (Array.isArray(data) && data[0]?.lat && data[0]?.lon) {
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      }
+      return null;
+    } catch (e) {
+      console.error('Geocode failed', e);
+      return null;
+    }
+  };
+
+  // Helper function to parse location string
+  const parseLocation = (location: string): { city: string; state: string; zip: string } => {
+    const trimmed = location.trim();
+    
+    // Check for ZIP code (5 digits)
+    const zipMatch = trimmed.match(/^\d{5}$/);
+    if (zipMatch) {
+      return { city: '', state: '', zip: zipMatch[0] };
+    }
+    
+    // Check for City, ST format
+    const cityStateMatch = trimmed.match(/^([^,]+),\s*([A-Za-z]{2})$/i);
+    if (cityStateMatch) {
+      return { city: cityStateMatch[1].trim(), state: cityStateMatch[2].toUpperCase(), zip: '' };
+    }
+    
+    // Check for City, State (full name) format
+    const cityFullStateMatch = trimmed.match(/^([^,]+),\s*([A-Za-z\s]+)$/i);
+    if (cityFullStateMatch) {
+      return { city: cityFullStateMatch[1].trim(), state: '', zip: '' };
+    }
+    
+    // Default: treat as city name
+    return { city: trimmed, state: '', zip: '' };
+  };
+
   // Main search query
   const { data: searchResults, isLoading, error } = useQuery({
     queryKey: ['enhanced-search', searchParams],
     queryFn: async (): Promise<StoreWithDistance[]> => {
+      // Need either a query, location, or current location to search
       if (!searchParams.query.trim() && !searchParams.location && !searchParams.useCurrentLocation) {
         return [];
       }
 
       let results: StoreWithDistance[] = [];
+      let searchLat: number | null = null;
+      let searchLng: number | null = null;
 
-      // Use location-based search if coordinates are available
+      // Determine coordinates for location-based search
       if (searchParams.useCurrentLocation && latitude && longitude) {
+        searchLat = latitude;
+        searchLng = longitude;
+      } else if (searchParams.location) {
+        // Geocode the manual location input
+        const coords = await geocodeLocation(searchParams.location);
+        if (coords) {
+          searchLat = coords.lat;
+          searchLng = coords.lng;
+        }
+      }
+
+      // Use location-based search if we have coordinates
+      if (searchLat !== null && searchLng !== null) {
+        console.log('🔍 Using location-based search with coordinates:', { lat: searchLat, lng: searchLng });
+        
         const { data, error } = await supabase.rpc('get_nearby_stores', {
-          user_lat: latitude,
-          user_lng: longitude,
+          user_lat: searchLat,
+          user_lng: searchLng,
           radius_miles: searchParams.radius || 10,
           store_types: searchParams.storeType || null,
           result_limit: 100
@@ -232,12 +299,19 @@ export const useEnhancedSearch = () => {
           );
         }
       } else {
-        // Use text-based search
+        // Use text-based search with parsed location
+        const parsedLocation = searchParams.location ? parseLocation(searchParams.location) : { city: '', state: '', zip: '' };
+        
+        console.log('🔍 Using text-based search with:', {
+          query: searchParams.query,
+          parsedLocation
+        });
+
         const { data, error } = await supabase.rpc('smart_store_search', {
           search_text: searchParams.query || '',
-          search_city: '', // We'll handle location parsing separately
-          search_state: '',
-          search_zip: '',
+          search_city: parsedLocation.city,
+          search_state: parsedLocation.state,
+          search_zip: parsedLocation.zip,
           similarity_threshold: 0.2,
           result_limit: 100
         });
@@ -292,6 +366,7 @@ export const useEnhancedSearch = () => {
         saveToHistory(searchParams.query, searchParams.location);
       }
 
+      console.log('✅ Search complete:', { resultCount: results.length });
       return results;
     },
     enabled: !!(
