@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 interface EnhancedSearchBarProps {
   className?: string;
   placeholder?: string;
-  onResultsChange?: (results: any[]) => void;
+  onResultsChange?: (results: any[], isLoading?: boolean) => void;
   compact?: boolean;
 }
 
@@ -62,10 +62,11 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     return () => clearTimeout(timer);
   }, [locationValue, searchParams.location, updateSearchParams]);
 
-  // Pass results to parent component
+  // Pass results and loading state to parent component
   useEffect(() => {
-    onResultsChange?.(searchResults);
-  }, [searchResults, onResultsChange]);
+    console.log('EnhancedSearchBar: Passing results to parent:', { resultsCount: searchResults.length, isLoading });
+    onResultsChange?.(searchResults, isLoading);
+  }, [searchResults, isLoading, onResultsChange]);
 
   // Handle clicks outside to close suggestions
   useEffect(() => {

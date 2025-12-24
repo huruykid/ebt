@@ -1,24 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { EnhancedSearchBar } from '@/components/EnhancedSearchBar';
 import { EnhancedSearchResults } from '@/components/EnhancedSearchResults';
 import { MobileSearchInterface } from '@/components/MobileSearchInterface';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
 
 export const EnhancedSearch: React.FC = () => {
   const isMobile = useIsMobile();
-  const {
-    searchResults,
-    isLoading,
-    error
-  } = useEnhancedSearch();
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Search Stores', href: '/search' }
   ];
+
+  // Handle results from the search bar
+  const handleResultsChange = (results: any[], loading?: boolean) => {
+    setSearchResults(results);
+    if (loading !== undefined) {
+      setIsLoading(loading);
+      // Mark as searched once loading starts (meaning a query was triggered)
+      if (loading === true) {
+        setHasSearched(true);
+      }
+    }
+  };
 
   if (isMobile) {
     return (
@@ -66,13 +75,19 @@ export const EnhancedSearch: React.FC = () => {
           </div>
 
           <div className="max-w-4xl mx-auto space-y-8">
-            <EnhancedSearchBar />
+            <EnhancedSearchBar onResultsChange={handleResultsChange} />
             
-            <EnhancedSearchResults
-              stores={searchResults}
-              isLoading={isLoading}
-              error={error}
-            />
+            {hasSearched ? (
+              <EnhancedSearchResults
+                stores={searchResults}
+                isLoading={isLoading}
+                error={null}
+              />
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>Enter a store name or use your location to find nearby EBT-accepting stores.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
