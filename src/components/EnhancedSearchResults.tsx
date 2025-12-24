@@ -21,6 +21,7 @@ interface EnhancedSearchResultsProps {
   error?: Error | null;
   className?: string;
   compact?: boolean;
+  showEmptyPrompt?: boolean;
 }
 
 type SortOption = 'relevance' | 'distance' | 'name' | 'rating' | 'recent';
@@ -31,7 +32,8 @@ export const EnhancedSearchResults: React.FC<EnhancedSearchResultsProps> = ({
   isLoading,
   error,
   className,
-  compact = false
+  compact = false,
+  showEmptyPrompt = false
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('relevance');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -120,6 +122,13 @@ export const EnhancedSearchResults: React.FC<EnhancedSearchResultsProps> = ({
   }
 
   if (stores.length === 0) {
+    if (showEmptyPrompt) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>Enter a store name or use your location to find nearby EBT-accepting stores.</p>
+        </div>
+      );
+    }
     return (
       <Card className="p-12 text-center">
         <div className="text-6xl mb-4">🔍</div>

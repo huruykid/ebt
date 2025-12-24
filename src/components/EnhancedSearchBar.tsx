@@ -7,23 +7,26 @@ import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
 import { SearchSuggestionsDropdown, ActiveFilters } from '@/components/search';
 import { SEARCH_DEFAULTS } from '@/constants/searchConstants';
 import { cn } from '@/lib/utils';
-import type { SearchSuggestion, SearchHistory } from '@/types/searchTypes';
+import type { SearchSuggestion, SearchHistory, StoreWithDistance } from '@/types/searchTypes';
 
 interface EnhancedSearchBarProps {
   className?: string;
   placeholder?: string;
   compact?: boolean;
+  onSearchChange?: (results: StoreWithDistance[], isLoading: boolean, hasSearched: boolean) => void;
 }
 
 export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   className,
   placeholder = "Search for stores like 'Walmart' or 'Pizza'...",
-  compact = false
+  compact = false,
+  onSearchChange
 }) => {
   const {
     searchParams,
     searchResults,
     isLoading,
+    hasSearched,
     suggestions,
     showSuggestions,
     searchHistory,
@@ -39,6 +42,14 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   const [showLocationInput, setShowLocationInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Notify parent of search state changes (skip initial empty state)
+  useEffect(() => {
+    // Only notify parent if there's an active search or results
+    if (hasSearched || searchResults.length > 0 || isLoading) {
+      onSearchChange?.(searchResults, isLoading, hasSearched);
+    }
+  }, [searchResults, isLoading, hasSearched, onSearchChange]);
 
   // Debounced query update
   useEffect(() => {

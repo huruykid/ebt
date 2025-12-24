@@ -16,7 +16,6 @@ export const useEnhancedSearch = () => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const { latitude, longitude } = useGeolocation();
 
   // Load search history from localStorage
@@ -188,19 +187,14 @@ export const useEnhancedSearch = () => {
     gcTime: SEARCH_DEFAULTS.GC_TIME_MS
   });
 
-  // Track search state
-  useEffect(() => {
-    if (searchResults && searchResults.length > 0) {
-      setHasSearched(true);
-    }
-  }, [searchResults]);
-
-  useEffect(() => {
-    const { query, location, useCurrentLocation } = searchParams;
-    if (query.trim() || location || useCurrentLocation) {
-      setHasSearched(true);
-    }
-  }, [searchParams]);
+  // Derive hasSearched from searchParams - this ensures consistent state across hook instances
+  const hasSearched = useMemo(() => {
+    return !!(
+      searchParams.query.trim() || 
+      searchParams.location || 
+      searchParams.useCurrentLocation
+    );
+  }, [searchParams.query, searchParams.location, searchParams.useCurrentLocation]);
 
   // Update suggestions when inputs change
   const currentSuggestions = useMemo(() => 
@@ -221,7 +215,6 @@ export const useEnhancedSearch = () => {
     setSearchParams({ query: '', radius: SEARCH_DEFAULTS.RADIUS_MILES });
     setSuggestions([]);
     setShowSuggestions(false);
-    setHasSearched(false);
   }, []);
 
   const clearHistory = useCallback(() => {
