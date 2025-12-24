@@ -1,38 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { EnhancedSearchBar } from '@/components/EnhancedSearchBar';
 import { EnhancedSearchResults } from '@/components/EnhancedSearchResults';
 import { MobileSearchInterface } from '@/components/MobileSearchInterface';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
 
 export const EnhancedSearch: React.FC = () => {
   const isMobile = useIsMobile();
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  
+  // Use the search hook directly - state is shared via React Query cache
+  const { searchResults, isLoading, hasSearched } = useEnhancedSearch();
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Search Stores', href: '/search' }
   ];
-
-  // Handle results from the search bar
-  const handleResultsChange = React.useCallback((results: any[], loading?: boolean) => {
-    console.log('EnhancedSearch: Received results from search bar:', { resultsCount: results.length, loading });
-    setSearchResults(results);
-    if (loading !== undefined) {
-      setIsLoading(loading);
-      // Mark as searched once loading starts (meaning a query was triggered)
-      if (loading === true) {
-        setHasSearched(true);
-      }
-    }
-    // Also mark as searched if we have results
-    if (results.length > 0) {
-      setHasSearched(true);
-    }
-  }, []);
 
   if (isMobile) {
     return (
@@ -80,7 +64,7 @@ export const EnhancedSearch: React.FC = () => {
           </div>
 
           <div className="max-w-4xl mx-auto space-y-8">
-            <EnhancedSearchBar onResultsChange={handleResultsChange} />
+            <EnhancedSearchBar />
             
             {hasSearched ? (
               <EnhancedSearchResults
