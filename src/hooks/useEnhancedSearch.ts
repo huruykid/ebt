@@ -234,14 +234,14 @@ export const useEnhancedSearch = () => {
 
       // Use location-based search if we have coordinates
       if (searchLat !== null && searchLng !== null) {
-        console.log('🔍 Using location-based search with coordinates:', { lat: searchLat, lng: searchLng });
+        console.log('🔍 Using location-based search with coordinates:', { lat: searchLat, lng: searchLng, query: searchParams.query });
         
         const { data, error } = await supabase.rpc('get_nearby_stores', {
           user_lat: searchLat,
           user_lng: searchLng,
-          radius_miles: searchParams.radius || 10,
+          radius_miles: searchParams.radius || 25, // Increased radius for better coverage
           store_types: searchParams.storeType || null,
-          result_limit: 100
+          result_limit: 200 // Increased limit to ensure we can filter by name
         });
 
         if (error) throw error;
@@ -290,13 +290,16 @@ export const useEnhancedSearch = () => {
           google_icon_mask_base_uri: null
         }));
 
-        // Filter by store name if provided
+        // Filter by store name if provided (fuzzy matching)
         if (searchParams.query.trim()) {
-          const queryLower = searchParams.query.toLowerCase();
-          results = results.filter(store => 
-            store.Store_Name?.toLowerCase().includes(queryLower) ||
-            store.Store_Type?.toLowerCase().includes(queryLower)
-          );
+          const queryLower = searchParams.query.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+          console.log('🔎 Filtering by query:', { query: queryLower, beforeCount: results.length });
+          results = results.filter(store => {
+            const storeName = (store.Store_Name || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
+            const storeType = (store.Store_Type || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
+            return storeName.includes(queryLower) || storeType.includes(queryLower);
+          });
+          console.log('🔎 After filtering:', { afterCount: results.length });
         }
       } else {
         // Use text-based search with parsed location

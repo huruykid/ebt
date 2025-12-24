@@ -18,7 +18,8 @@ export const EnhancedSearch: React.FC = () => {
   ];
 
   // Handle results from the search bar
-  const handleResultsChange = (results: any[], loading?: boolean) => {
+  const handleResultsChange = React.useCallback((results: any[], loading?: boolean) => {
+    console.log('EnhancedSearch: Received results from search bar:', { resultsCount: results.length, loading });
     setSearchResults(results);
     if (loading !== undefined) {
       setIsLoading(loading);
@@ -27,7 +28,11 @@ export const EnhancedSearch: React.FC = () => {
         setHasSearched(true);
       }
     }
-  };
+    // Also mark as searched if we have results
+    if (results.length > 0) {
+      setHasSearched(true);
+    }
+  }, []);
 
   if (isMobile) {
     return (
