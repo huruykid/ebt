@@ -66,6 +66,7 @@ export const useEnhancedSearch = () => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const { latitude, longitude } = useGeolocation();
 
   // Load search history from localStorage
@@ -381,6 +382,20 @@ export const useEnhancedSearch = () => {
     gcTime: 5 * 60 * 1000 // 5 minutes
   });
 
+  // Track when a search has been performed
+  useEffect(() => {
+    if (searchResults && searchResults.length > 0) {
+      setHasSearched(true);
+    }
+  }, [searchResults]);
+
+  // Also mark as searched when query params change
+  useEffect(() => {
+    if (searchParams.query.trim() || searchParams.location || searchParams.useCurrentLocation) {
+      setHasSearched(true);
+    }
+  }, [searchParams.query, searchParams.location, searchParams.useCurrentLocation]);
+
   const updateSearchParams = useCallback((updates: Partial<SearchParams>) => {
     setSearchParams(prev => ({ ...prev, ...updates }));
   }, []);
@@ -389,6 +404,7 @@ export const useEnhancedSearch = () => {
     setSearchParams({ query: '', radius: 10 });
     setSuggestions([]);
     setShowSuggestions(false);
+    setHasSearched(false);
   }, []);
 
   const clearHistory = useCallback(() => {
@@ -414,6 +430,7 @@ export const useEnhancedSearch = () => {
     suggestions,
     showSuggestions,
     searchHistory,
+    hasSearched,
     updateSearchParams,
     clearSearch,
     clearHistory,
