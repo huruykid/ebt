@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useFavorites } from '@/hooks/useFavorites';
-import { StoreCard } from '@/components/StoreCard';
+import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Heart } from 'lucide-react';
 
@@ -46,9 +45,10 @@ export default function Favorites() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {favorites.map((favorite) => (
-                <StoreCard 
+                <UnifiedStoreCard 
                   key={favorite.id} 
                   store={favorite.snap_stores} 
+                  showActions
                 />
               ))}
             </div>

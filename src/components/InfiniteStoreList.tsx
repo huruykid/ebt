@@ -1,6 +1,5 @@
-
 import React, { useEffect } from 'react';
-import { EnhancedStoreCard } from './EnhancedStoreCard';
+import { UnifiedStoreCard } from './UnifiedStoreCard';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import type { StoreWithLocationData } from '@/types/storeTypes';
@@ -50,7 +49,7 @@ export const InfiniteStoreList: React.FC<InfiniteStoreListProps> = ({
   return (
     <div className="space-y-3">
       {allStores.map((store, index) => (
-        <EnhancedStoreCard key={`${store.id}-${index}`} store={store} />
+        <UnifiedStoreCard key={`${store.id}-${index}`} store={store} enhanced />
       ))}
       
       {/* Load more trigger */}
