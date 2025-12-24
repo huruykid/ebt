@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { StoreCard } from '@/components/StoreCard';
+import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { RadiusDropdown } from '@/components/RadiusDropdown';
@@ -115,12 +114,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       </div>
 
-      {/* Store Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
         {stores.map((store) => (
-          <StoreCard 
+          <UnifiedStoreCard 
             key={store.id}
             store={store}
+            enhanced
           />
         ))}
       </div>

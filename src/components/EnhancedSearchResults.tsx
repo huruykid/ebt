@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StoreCard } from '@/components/StoreCard';
+import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -252,9 +252,10 @@ export const EnhancedSearchResults: React.FC<EnhancedSearchResultsProps> = ({
           : "grid-cols-1"
       )}>
         {filteredAndSortedStores.map((store) => (
-          <StoreCard 
+          <UnifiedStoreCard 
             key={store.id}
             store={store}
+            enhanced
           />
         ))}
       </div>

@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StoreCard } from '@/components/StoreCard';
+import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -86,9 +85,10 @@ export const SmartSearchResults: React.FC<SmartSearchResultsProps> = ({
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
         {stores.map((store) => (
-          <StoreCard 
+          <UnifiedStoreCard 
             key={store.id}
             store={store}
+            enhanced
           />
         ))}
       </div>
