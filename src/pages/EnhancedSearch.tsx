@@ -1,22 +1,33 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { SEOHead } from '@/components/SEOHead';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { EnhancedSearchBar } from '@/components/EnhancedSearchBar';
 import { EnhancedSearchResults } from '@/components/EnhancedSearchResults';
 import { MobileSearchInterface } from '@/components/MobileSearchInterface';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
+import type { StoreWithDistance } from '@/types/searchTypes';
 
 export const EnhancedSearch: React.FC = () => {
   const isMobile = useIsMobile();
-  
-  // Use the search hook directly - state is shared via React Query cache
-  const { searchResults, isLoading, hasSearched } = useEnhancedSearch();
+  const [searchState, setSearchState] = useState<{
+    results: StoreWithDistance[];
+    isLoading: boolean;
+    hasSearched: boolean;
+  }>({
+    results: [],
+    isLoading: false,
+    hasSearched: false
+  });
 
   const breadcrumbs = [
     { label: 'Home', href: '/' },
     { label: 'Search Stores', href: '/search' }
   ];
+
+  // Handler to receive results from search bar
+  const handleSearchChange = useCallback((results: StoreWithDistance[], loading: boolean, searched: boolean) => {
+    setSearchState({ results, isLoading: loading, hasSearched: searched });
+  }, []);
 
   if (isMobile) {
     return (
@@ -64,19 +75,14 @@ export const EnhancedSearch: React.FC = () => {
           </div>
 
           <div className="max-w-4xl mx-auto space-y-8">
-            <EnhancedSearchBar />
+            <EnhancedSearchBar onSearchChange={handleSearchChange} />
             
-            {hasSearched ? (
-              <EnhancedSearchResults
-                stores={searchResults}
-                isLoading={isLoading}
-                error={null}
-              />
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>Enter a store name or use your location to find nearby EBT-accepting stores.</p>
-              </div>
-            )}
+            <EnhancedSearchResults
+              stores={searchState.results}
+              isLoading={searchState.isLoading}
+              error={null}
+              showEmptyPrompt={!searchState.hasSearched}
+            />
           </div>
         </div>
       </div>
