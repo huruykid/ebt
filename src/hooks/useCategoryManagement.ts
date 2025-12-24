@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { CATEGORY_RADIUS } from '@/constants/storeSearchConstants';
+import { CATEGORY_RADIUS } from '@/constants/searchConstants';
 
 export const useCategoryManagement = () => {
   const [activeCategory, setActiveCategory] = useState('trending');

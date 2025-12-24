@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { applyGroceryExclusion } from '@/utils/storeFiltering';
-import { CATEGORY_EXCLUSIONS } from '@/constants/storeSearchConstants';
+import { CATEGORY_EXCLUSIONS } from '@/constants/searchConstants';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;

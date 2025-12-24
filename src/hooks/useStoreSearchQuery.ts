@@ -6,7 +6,7 @@ import {
   applyGroceryExclusion,
   applyFarmersMarketFiltering
 } from '@/utils/storeFiltering';
-import { CATEGORY_EXCLUSIONS } from '@/constants/storeSearchConstants';
+import { CATEGORY_EXCLUSIONS } from '@/constants/searchConstants';
 import type { StoreWithDistance, SearchParams } from '@/types/storeSearchTypes';
 
 export const useStoreSearchQuery = (params: SearchParams) => {
