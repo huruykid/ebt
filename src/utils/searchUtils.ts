@@ -13,7 +13,11 @@ export async function geocodeLocation(location: string): Promise<GeoCoordinates 
       countrycodes: 'us',
     });
     
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
     if (!res.ok) return null;
     
     const data = await res.json();
