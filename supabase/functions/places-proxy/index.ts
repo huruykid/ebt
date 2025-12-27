@@ -10,6 +10,7 @@ const corsHeaders = {
 // Environment configuration
 const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const PLACES_BUDGET_USD = parseFloat(Deno.env.get('PLACES_BUDGET_USD') || '250');
 
@@ -23,7 +24,32 @@ const PRICING = {
   TEXT_SEARCH_PRO: { cost: 32.00, freeLimit: 5000 },
 };
 
-const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+// Service role client for database operations
+const supabaseAdmin = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+// Helper to validate authenticated user from request
+async function validateAuth(req: Request): Promise<{ user: any; error: string | null }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader) {
+    return { user: null, error: 'Missing authorization header' };
+  }
+  
+  // Create client with user's auth token to validate
+  const supabaseAuth = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+    global: { headers: { Authorization: authHeader } }
+  });
+  
+  const { data: { user }, error } = await supabaseAuth.auth.getUser();
+  
+  if (error || !user) {
+    console.log('Auth validation failed:', error?.message || 'No user found');
+    return { user: null, error: 'Unauthorized' };
+  }
+  
+  console.log('Authenticated request from user:', user.id);
+  return { user, error: null };
+}
 
 function getCurrentMonth(): string {
   return new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -53,7 +79,7 @@ async function checkCache(query: string | null, paramsHash: string, placeId: str
   
   if (placeId && fieldsHash) {
     // Place Details cache lookup
-    cacheQuery = supabase
+    cacheQuery = supabaseAdmin
       .from('google_places_cache')
       .select('*')
       .eq('place_id', placeId)
@@ -61,7 +87,7 @@ async function checkCache(query: string | null, paramsHash: string, placeId: str
       .single();
   } else if (query) {
     // Text search cache lookup
-    cacheQuery = supabase
+    cacheQuery = supabaseAdmin
       .from('google_places_cache')
       .select('*')
       .eq('search_query', query)
@@ -86,7 +112,7 @@ async function checkBudget(sku: string): Promise<{ allowed: boolean; currentCost
   const month = getCurrentMonth();
   
   // Get current usage
-  const { data: usage } = await supabase
+  const { data: usage } = await supabaseAdmin
     .from('api_usage_ledger')
     .select('estimated_cost_usd')
     .eq('month', month);
@@ -101,7 +127,7 @@ async function checkBudget(sku: string): Promise<{ allowed: boolean; currentCost
   
   if (!allowed) {
     // Log budget event
-    await supabase
+    await supabaseAdmin
       .from('budget_events')
       .insert({
         month,
@@ -119,7 +145,7 @@ async function updateUsageLedger(sku: string) {
   const pricing = PRICING[sku as keyof typeof PRICING];
   
   // Get current free remaining for this SKU
-  const { data: currentUsage } = await supabase
+  const { data: currentUsage } = await supabaseAdmin
     .from('api_usage_ledger')
     .select('free_remaining')
     .eq('month', month)
@@ -136,7 +162,7 @@ async function updateUsageLedger(sku: string) {
   const freeDec = isFree ? 1 : 0;
   
   // Use atomic upsert function
-  const { error } = await supabase.rpc('upsert_usage_ledger', {
+  const { error } = await supabaseAdmin.rpc('upsert_usage_ledger', {
     p_month: month,
     p_sku: sku,
     p_count_inc: countInc,
@@ -173,7 +199,7 @@ async function cacheResult(
   
   try {
     // Upsert to google_places_cache table
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('google_places_cache')
       .upsert(cacheData, { 
         onConflict: placeId ? 'place_id,fields_hash' : 'search_query,params_hash',
@@ -305,7 +331,7 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
     };
 
     // Update the store record using our expanded database function
-    const { error } = await supabase.rpc('update_store_with_google_data', {
+    const { error } = await supabaseAdmin.rpc('update_store_with_google_data', {
       p_store_id: storeId,
       p_place_id: googleData.place_id,
       p_name: googleData.name,
@@ -414,6 +440,16 @@ serve(async (req) => {
   }
 
   try {
+    // Validate authentication first
+    const { user, error: authError } = await validateAuth(req);
+    if (authError || !user) {
+      console.log('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', from: 'error', budget_exceeded: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (!GOOGLE_PLACES_API_KEY) {
       throw new Error('GOOGLE_PLACES_API_KEY not configured');
     }
