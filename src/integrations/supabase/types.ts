@@ -669,26 +669,29 @@ export type Database = {
       }
       store_clicks: {
         Row: {
+          anonymous_session_id: string | null
           clicked_at: string | null
           id: string
           store_id: string
-          user_id: string
+          user_id: string | null
           user_latitude: number
           user_longitude: number
         }
         Insert: {
+          anonymous_session_id?: string | null
           clicked_at?: string | null
           id?: string
           store_id: string
-          user_id: string
+          user_id?: string | null
           user_latitude: number
           user_longitude: number
         }
         Update: {
+          anonymous_session_id?: string | null
           clicked_at?: string | null
           id?: string
           store_id?: string
-          user_id?: string
+          user_id?: string | null
           user_latitude?: number
           user_longitude?: number
         }
@@ -1012,6 +1015,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      insert_store_click_anonymous: {
+        Args: { p_latitude: number; p_longitude: number; p_store_id: string }
+        Returns: undefined
       }
       insert_store_click_with_privacy: {
         Args: {
