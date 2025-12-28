@@ -18,18 +18,16 @@ export const useStoreClickTracking = () => {
         return;
       }
 
-      // Round coordinates to 2 decimals (~1km) for privacy - prevents precise location tracking
-      const roundedLat = Math.round(userLatitude * 100) / 100;
-      const roundedLng = Math.round(userLongitude * 100) / 100;
-
-      const { error } = await supabase
-        .from('store_clicks')
-        .insert({
-          store_id: storeId,
-          user_latitude: roundedLat,
-          user_longitude: roundedLng,
-          user_id: user.id,
-        });
+      // Use privacy-preserving RPC function
+      // This function:
+      // - Never stores user_id (anonymized via daily-rotating session hash)
+      // - Rounds coordinates to ~1km precision
+      // - Cannot be used to track individual users
+      const { error } = await supabase.rpc('insert_store_click_anonymous', {
+        p_store_id: storeId,
+        p_latitude: userLatitude,
+        p_longitude: userLongitude,
+      });
 
       if (error) {
         console.error('Error tracking store click:', error);
