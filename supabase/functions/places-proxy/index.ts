@@ -24,6 +24,13 @@ const PRICING = {
   TEXT_SEARCH_PRO: { cost: 32.00, freeLimit: 5000 },
 };
 
+// Per-user rate limiting configuration
+const USER_RATE_LIMIT = parseInt(Deno.env.get('USER_RATE_LIMIT') || '50'); // Max requests per user per hour
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+
+// In-memory rate limit store (reset on function cold start)
+const userRateLimits: Map<string, { count: number; windowStart: number }> = new Map();
+
 // Service role client for database operations
 const supabaseAdmin = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -49,6 +56,32 @@ async function validateAuth(req: Request): Promise<{ user: any; error: string | 
   
   console.log('Authenticated request from user:', user.id);
   return { user, error: null };
+}
+
+// Check and update per-user rate limit
+function checkUserRateLimit(userId: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const userLimit = userRateLimits.get(userId);
+  
+  // If no record exists or window expired, create new window
+  if (!userLimit || (now - userLimit.windowStart) > RATE_LIMIT_WINDOW_MS) {
+    userRateLimits.set(userId, { count: 1, windowStart: now });
+    return { allowed: true, remaining: USER_RATE_LIMIT - 1, resetIn: RATE_LIMIT_WINDOW_MS };
+  }
+  
+  // Check if user has exceeded limit
+  if (userLimit.count >= USER_RATE_LIMIT) {
+    const resetIn = RATE_LIMIT_WINDOW_MS - (now - userLimit.windowStart);
+    console.log(`Rate limit exceeded for user ${userId}. Requests: ${userLimit.count}/${USER_RATE_LIMIT}`);
+    return { allowed: false, remaining: 0, resetIn };
+  }
+  
+  // Increment count
+  userLimit.count++;
+  const remaining = USER_RATE_LIMIT - userLimit.count;
+  const resetIn = RATE_LIMIT_WINDOW_MS - (now - userLimit.windowStart);
+  
+  return { allowed: true, remaining, resetIn };
 }
 
 function getCurrentMonth(): string {
@@ -447,6 +480,31 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Unauthorized', from: 'error', budget_exceeded: false }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check per-user rate limit
+    const rateLimit = checkUserRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      const resetMinutes = Math.ceil(rateLimit.resetIn / 60000);
+      console.log(`User ${user.id} rate limited. Reset in ${resetMinutes} minutes.`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Rate limit exceeded. Please try again later.', 
+          from: 'error', 
+          budget_exceeded: false,
+          rate_limited: true,
+          reset_in_minutes: resetMinutes
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(rateLimit.resetIn / 1000))
+          } 
+        }
       );
     }
 
