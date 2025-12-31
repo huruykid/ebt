@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
 import { NearbyStores } from './NearbyStores';
-import NoLocationExperience from './NoLocationExperience';
+import { FeaturedStores, PopularCities, TrustSignals } from './home';
 
 interface Props {
   loading: boolean;
@@ -26,7 +25,7 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
     return (
       <div className="py-8">
         <LoadingSpinner />
-        <p className="text-center text-gray-600 mt-4">Getting your location...</p>
+        <p className="text-center text-muted-foreground mt-4 text-sm">Finding stores near you...</p>
       </div>
     );
   }
@@ -46,32 +45,25 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
     );
   }
 
-  // Show helpful content when no location - not a blocker
+  // Show engaging content when no location - NOT an empty state
   return (
-    <div className="w-full py-4">
-      <div className="bg-card rounded-xl border p-4 mb-4">
-        <div className="flex items-start gap-3">
-          <div className="text-2xl">💡</div>
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              Search by ZIP Code Above
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Enter a ZIP code to find EBT-accepting stores in any area.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="w-full space-y-4">
+      {/* Trust signals */}
+      <TrustSignals />
       
-      <div className="bg-muted/50 rounded-xl p-4">
+      {/* Featured stores - show value immediately */}
+      <FeaturedStores />
+      
+      {/* Popular cities for quick browsing */}
+      <PopularCities variant="compact" />
+      
+      {/* Subtle location prompt - not blocking */}
+      <div className="bg-muted/30 rounded-lg p-3 mt-4">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">📍</div>
+          <div className="text-xl">📍</div>
           <div className="flex-1">
-            <h3 className="text-sm font-medium text-foreground mb-1">
-              Want Nearby Results?
-            </h3>
-            <p className="text-xs text-muted-foreground mb-2">
-              Enable location to see stores closest to you.
+            <p className="text-xs text-muted-foreground mb-1.5">
+              Want personalized nearby results?
             </p>
             <button
               onClick={onRequestLocation}

@@ -156,13 +156,8 @@ export const ExploreTrending: React.FC = () => {
                 longitude={longitude}
                 activeCategory={activeCategory}
                 selectedStoreTypes={selectedStoreTypes}
+                onRequestLocation={handleRequestLocation}
               />
-              {(!latitude && !longitude && !loading) && (
-                <NoLocationExperience
-                  onSmartSearch={() => {}}
-                  onRequestLocation={handleRequestLocation}
-                />
-              )}
             </>
           )}
         </div>
