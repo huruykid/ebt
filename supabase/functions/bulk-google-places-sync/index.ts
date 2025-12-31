@@ -31,6 +31,187 @@ interface GooglePlacesResponse {
   error_message?: string;
 }
 
+// ============= NAME SIMILARITY VALIDATION =============
+
+// Common words to ignore in name comparison
+const STOP_WORDS = new Set([
+  'the', 'a', 'an', 'and', 'or', 'of', 'in', 'at', 'to', 'for', 'on', 'by',
+  'inc', 'llc', 'ltd', 'corp', 'corporation', 'company', 'co', 'store', 'stores',
+  'shop', 'market', 'mart', 'supermarket', 'grocery', 'food', 'foods',
+  'restaurant', 'cafe', 'deli', 'bakery', 'pharmacy', 'gas', 'station',
+  '#', 'no', 'number'
+]);
+
+// Known chain names that require exact matching
+const KNOWN_CHAINS = [
+  'walmart', 'target', 'costco', 'kroger', 'safeway', 'albertsons', 'publix',
+  'whole foods', 'trader joe', 'aldi', 'lidl', 'food lion', 'giant', 'wegmans',
+  'cvs', 'walgreens', 'rite aid', '7-eleven', '7 eleven', 'circle k', 'wawa',
+  'sheetz', 'quicktrip', 'racetrac', 'speedway', 'shell', 'chevron', 'exxon',
+  'bp', 'arco', 'mobil', 'sunoco', 'marathon', 'phillips 66',
+  'mcdonalds', 'burger king', 'wendys', 'taco bell', 'subway', 'chick-fil-a',
+  'pizza hut', 'dominos', 'papa johns', 'little caesars', 'chipotle',
+  'starbucks', 'dunkin', 'panera', 'five guys', 'sonic', 'dairy queen',
+  'jack in the box', 'carls jr', 'hardees', 'arbys', 'popeyes', 'kfc',
+  'dollar general', 'dollar tree', 'family dollar', 'big lots'
+];
+
+/**
+ * Normalize a name for comparison
+ */
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')  // Remove punctuation
+    .replace(/\s+/g, ' ')       // Normalize whitespace
+    .trim();
+}
+
+/**
+ * Extract significant words from a name (removing stop words and numbers)
+ */
+function extractSignificantWords(name: string): string[] {
+  return normalizeName(name)
+    .split(' ')
+    .filter(word => word.length > 1 && !STOP_WORDS.has(word) && !/^\d+$/.test(word));
+}
+
+/**
+ * Check if a name matches a known chain
+ */
+function isKnownChain(name: string): string | null {
+  const normalized = normalizeName(name);
+  for (const chain of KNOWN_CHAINS) {
+    if (normalized.includes(chain) || normalized.startsWith(chain.split(' ')[0])) {
+      return chain;
+    }
+  }
+  return null;
+}
+
+/**
+ * Calculate Jaccard similarity between two sets
+ */
+function jaccardSimilarity(set1: string[], set2: string[]): number {
+  const s1 = new Set(set1);
+  const s2 = new Set(set2);
+  const intersection = new Set([...s1].filter(x => s2.has(x)));
+  const union = new Set([...s1, ...s2]);
+  return union.size === 0 ? 0 : intersection.size / union.size;
+}
+
+/**
+ * Calculate Levenshtein distance between two strings
+ */
+function levenshteinDistance(s1: string, s2: string): number {
+  const m = s1.length;
+  const n = s2.length;
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (s1[i - 1] === s2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      }
+    }
+  }
+  return dp[m][n];
+}
+
+/**
+ * Calculate normalized Levenshtein similarity (0-1)
+ */
+function levenshteinSimilarity(s1: string, s2: string): number {
+  const maxLen = Math.max(s1.length, s2.length);
+  if (maxLen === 0) return 1;
+  return 1 - levenshteinDistance(s1, s2) / maxLen;
+}
+
+interface NameValidationResult {
+  isValid: boolean;
+  confidence: number;
+  reason: string;
+  storeName: string;
+  googleName: string;
+}
+
+/**
+ * Validate if Google Places name is a reasonable match for store name
+ * Returns validation result with confidence score and reason
+ */
+function validateNameSimilarity(storeName: string, googleName: string): NameValidationResult {
+  const normalizedStore = normalizeName(storeName);
+  const normalizedGoogle = normalizeName(googleName);
+  
+  // 1. Exact match (after normalization)
+  if (normalizedStore === normalizedGoogle) {
+    return { isValid: true, confidence: 1.0, reason: 'exact_match', storeName, googleName };
+  }
+  
+  // 2. Check if either is a known chain
+  const storeChain = isKnownChain(storeName);
+  const googleChain = isKnownChain(googleName);
+  
+  // If both are different known chains, reject immediately
+  if (storeChain && googleChain && storeChain !== googleChain) {
+    return { 
+      isValid: false, 
+      confidence: 0, 
+      reason: `chain_mismatch: store="${storeChain}" vs google="${googleChain}"`,
+      storeName, 
+      googleName 
+    };
+  }
+  
+  // If Google name is a known chain but store name isn't that chain
+  if (googleChain && !normalizedStore.includes(googleChain)) {
+    return { 
+      isValid: false, 
+      confidence: 0, 
+      reason: `google_is_chain_not_in_store: "${googleChain}"`,
+      storeName, 
+      googleName 
+    };
+  }
+  
+  // 3. Check if one name contains the other
+  if (normalizedStore.includes(normalizedGoogle) || normalizedGoogle.includes(normalizedStore)) {
+    return { isValid: true, confidence: 0.9, reason: 'name_contains', storeName, googleName };
+  }
+  
+  // 4. Word-based similarity
+  const storeWords = extractSignificantWords(storeName);
+  const googleWords = extractSignificantWords(googleName);
+  const jaccardScore = jaccardSimilarity(storeWords, googleWords);
+  
+  // 5. Character-based similarity
+  const levScore = levenshteinSimilarity(normalizedStore, normalizedGoogle);
+  
+  // 6. Combined confidence score (weighted average)
+  const combinedScore = (jaccardScore * 0.6) + (levScore * 0.4);
+  
+  // Threshold: require at least 40% similarity OR at least one significant word match
+  const hasWordOverlap = storeWords.some(w => googleWords.includes(w));
+  const isValid = combinedScore >= 0.4 || (hasWordOverlap && combinedScore >= 0.2);
+  
+  return {
+    isValid,
+    confidence: combinedScore,
+    reason: isValid 
+      ? `similarity_match: jaccard=${jaccardScore.toFixed(2)}, levenshtein=${levScore.toFixed(2)}`
+      : `low_similarity: jaccard=${jaccardScore.toFixed(2)}, levenshtein=${levScore.toFixed(2)}`,
+    storeName,
+    googleName
+  };
+}
+
+// ============= END NAME SIMILARITY VALIDATION =============
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -75,6 +256,7 @@ serve(async (req) => {
 
     let processed = 0;
     let failed = 0;
+    let skippedMismatch = 0;
     const results = [];
 
     // Process each store in the batch
@@ -137,6 +319,33 @@ serve(async (req) => {
             });
         }
 
+        // ============= NAME VALIDATION BEFORE SAVING =============
+        const validation = validateNameSimilarity(store.store_name, businessData.name);
+        
+        if (!validation.isValid) {
+          console.log(`⚠️ Name mismatch rejected: "${store.store_name}" vs Google "${businessData.name}" - ${validation.reason}`);
+          
+          // Mark as failed with mismatch reason
+          await supabase.rpc('update_sync_queue_status', {
+            queue_id: store.queue_id,
+            new_status: 'failed',
+            error_msg: `Name mismatch: store="${store.store_name}" vs google="${businessData.name}" (${validation.reason})`
+          });
+          
+          skippedMismatch++;
+          results.push({
+            store_name: store.store_name,
+            google_name: businessData.name,
+            status: 'skipped_mismatch',
+            reason: validation.reason,
+            confidence: validation.confidence
+          });
+          continue;
+        }
+        
+        console.log(`✅ Name validation passed: "${store.store_name}" ≈ "${businessData.name}" (confidence: ${validation.confidence.toFixed(2)})`);
+        // ============= END NAME VALIDATION =============
+
         // Update the store with Google Places data
         const updateData = {
           google_place_id: businessData.place_id,
@@ -181,12 +390,14 @@ serve(async (req) => {
         processed++;
         results.push({
           store_name: store.store_name,
+          google_name: businessData.name,
           place_id: businessData.place_id,
           rating: businessData.rating,
-          status: 'success'
+          status: 'success',
+          confidence: validation.confidence
         });
 
-        console.log(`✅ Updated: ${store.store_name} (${businessData.place_id})`);
+        console.log(`✅ Updated: ${store.store_name} → ${businessData.name} (${businessData.place_id})`);
 
         // Rate limiting - small delay between API calls
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -212,15 +423,16 @@ serve(async (req) => {
 
     const remaining = queueStats?.length || 0;
 
-    console.log(`📊 Batch complete: ${processed} processed, ${failed} failed, ${remaining} remaining`);
+    console.log(`📊 Batch complete: ${processed} processed, ${skippedMismatch} skipped (mismatch), ${failed} failed, ${remaining} remaining`);
 
     return new Response(JSON.stringify({
       success: true,
       processed,
+      skipped_mismatch: skippedMismatch,
       failed,
       remaining,
       batch_size: batchStores.length,
-      results: results.slice(0, 5) // Show first 5 results
+      results: results.slice(0, 10) // Show first 10 results
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

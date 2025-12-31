@@ -34,6 +34,128 @@ const userRateLimits: Map<string, { count: number; windowStart: number }> = new 
 // Service role client for database operations
 const supabaseAdmin = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
+// ============= NAME SIMILARITY VALIDATION =============
+
+// Common words to ignore in name comparison
+const STOP_WORDS = new Set([
+  'the', 'a', 'an', 'and', 'or', 'of', 'in', 'at', 'to', 'for', 'on', 'by',
+  'inc', 'llc', 'ltd', 'corp', 'corporation', 'company', 'co', 'store', 'stores',
+  'shop', 'market', 'mart', 'supermarket', 'grocery', 'food', 'foods',
+  'restaurant', 'cafe', 'deli', 'bakery', 'pharmacy', 'gas', 'station',
+  '#', 'no', 'number'
+]);
+
+// Known chain names that require exact matching
+const KNOWN_CHAINS = [
+  'walmart', 'target', 'costco', 'kroger', 'safeway', 'albertsons', 'publix',
+  'whole foods', 'trader joe', 'aldi', 'lidl', 'food lion', 'giant', 'wegmans',
+  'cvs', 'walgreens', 'rite aid', '7-eleven', '7 eleven', 'circle k', 'wawa',
+  'sheetz', 'quicktrip', 'racetrac', 'speedway', 'shell', 'chevron', 'exxon',
+  'bp', 'arco', 'mobil', 'sunoco', 'marathon', 'phillips 66',
+  'mcdonalds', 'burger king', 'wendys', 'taco bell', 'subway', 'chick-fil-a',
+  'pizza hut', 'dominos', 'papa johns', 'little caesars', 'chipotle',
+  'starbucks', 'dunkin', 'panera', 'five guys', 'sonic', 'dairy queen',
+  'jack in the box', 'carls jr', 'hardees', 'arbys', 'popeyes', 'kfc',
+  'dollar general', 'dollar tree', 'family dollar', 'big lots'
+];
+
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function extractSignificantWords(name: string): string[] {
+  return normalizeName(name)
+    .split(' ')
+    .filter(word => word.length > 1 && !STOP_WORDS.has(word) && !/^\d+$/.test(word));
+}
+
+function isKnownChain(name: string): string | null {
+  const normalized = normalizeName(name);
+  for (const chain of KNOWN_CHAINS) {
+    if (normalized.includes(chain) || normalized.startsWith(chain.split(' ')[0])) {
+      return chain;
+    }
+  }
+  return null;
+}
+
+function jaccardSimilarity(set1: string[], set2: string[]): number {
+  const s1 = new Set(set1);
+  const s2 = new Set(set2);
+  const intersection = new Set([...s1].filter(x => s2.has(x)));
+  const union = new Set([...s1, ...s2]);
+  return union.size === 0 ? 0 : intersection.size / union.size;
+}
+
+function levenshteinDistance(s1: string, s2: string): number {
+  const m = s1.length, n = s2.length;
+  const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = s1[i - 1] === s2[j - 1] 
+        ? dp[i - 1][j - 1] 
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function levenshteinSimilarity(s1: string, s2: string): number {
+  const maxLen = Math.max(s1.length, s2.length);
+  return maxLen === 0 ? 1 : 1 - levenshteinDistance(s1, s2) / maxLen;
+}
+
+interface NameValidationResult {
+  isValid: boolean;
+  confidence: number;
+  reason: string;
+}
+
+function validateNameSimilarity(storeName: string, googleName: string): NameValidationResult {
+  const normalizedStore = normalizeName(storeName);
+  const normalizedGoogle = normalizeName(googleName);
+  
+  if (normalizedStore === normalizedGoogle) {
+    return { isValid: true, confidence: 1.0, reason: 'exact_match' };
+  }
+  
+  const storeChain = isKnownChain(storeName);
+  const googleChain = isKnownChain(googleName);
+  
+  if (storeChain && googleChain && storeChain !== googleChain) {
+    return { isValid: false, confidence: 0, reason: `chain_mismatch: "${storeChain}" vs "${googleChain}"` };
+  }
+  
+  if (googleChain && !normalizedStore.includes(googleChain)) {
+    return { isValid: false, confidence: 0, reason: `google_is_chain_not_in_store: "${googleChain}"` };
+  }
+  
+  if (normalizedStore.includes(normalizedGoogle) || normalizedGoogle.includes(normalizedStore)) {
+    return { isValid: true, confidence: 0.9, reason: 'name_contains' };
+  }
+  
+  const storeWords = extractSignificantWords(storeName);
+  const googleWords = extractSignificantWords(googleName);
+  const jaccardScore = jaccardSimilarity(storeWords, googleWords);
+  const levScore = levenshteinSimilarity(normalizedStore, normalizedGoogle);
+  const combinedScore = (jaccardScore * 0.6) + (levScore * 0.4);
+  
+  const hasWordOverlap = storeWords.some(w => googleWords.includes(w));
+  const isValid = combinedScore >= 0.4 || (hasWordOverlap && combinedScore >= 0.2);
+  
+  return {
+    isValid,
+    confidence: combinedScore,
+    reason: isValid 
+      ? `similarity_match: ${combinedScore.toFixed(2)}`
+      : `low_similarity: ${combinedScore.toFixed(2)}`
+  };
+}
+
+// ============= END NAME SIMILARITY VALIDATION =============
+
 // Helper to validate authenticated user from request
 async function validateAuth(req: Request): Promise<{ user: any; error: string | null }> {
   const authHeader = req.headers.get('Authorization');
@@ -334,7 +456,7 @@ async function handleTextSearch(params: any) {
   }
 }
 
-async function updateStoreWithGoogleData(storeId: string, placeData: any) {
+async function updateStoreWithGoogleData(storeId: string, placeData: any): Promise<{ success: boolean; reason?: string }> {
   try {
     // Extract comprehensive fields from Google Places response
     const googleData = {
@@ -347,7 +469,6 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
       rating: placeData.rating,
       user_ratings_total: placeData.userRatingCount || placeData.user_ratings_total,
       photos: placeData.photos,
-      // Comprehensive new fields
       types: placeData.types,
       price_level: placeData.priceLevel,
       geometry: placeData.location || placeData.viewport ? {
@@ -363,6 +484,30 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
       reviews: placeData.reviews
     };
 
+    // Fetch the store's original name for validation
+    const { data: store, error: fetchError } = await supabaseAdmin
+      .from('snap_stores')
+      .select('Store_Name')
+      .eq('id', storeId)
+      .single();
+
+    if (fetchError || !store) {
+      console.error('Failed to fetch store for validation:', fetchError);
+      return { success: false, reason: 'store_not_found' };
+    }
+
+    // Validate name similarity before saving
+    if (googleData.name && store.Store_Name) {
+      const validation = validateNameSimilarity(store.Store_Name, googleData.name);
+      
+      if (!validation.isValid) {
+        console.log(`⚠️ Name mismatch rejected for store ${storeId}: "${store.Store_Name}" vs Google "${googleData.name}" - ${validation.reason}`);
+        return { success: false, reason: `name_mismatch: ${validation.reason}` };
+      }
+      
+      console.log(`✅ Name validation passed: "${store.Store_Name}" ≈ "${googleData.name}" (confidence: ${validation.confidence.toFixed(2)})`);
+    }
+
     // Update the store record using our expanded database function
     const { error } = await supabaseAdmin.rpc('update_store_with_google_data', {
       p_store_id: storeId,
@@ -375,7 +520,6 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
       p_rating: googleData.rating,
       p_user_ratings_total: googleData.user_ratings_total,
       p_photos: googleData.photos,
-      // New comprehensive fields
       p_types: googleData.types,
       p_price_level: googleData.price_level,
       p_geometry: googleData.geometry,
@@ -390,11 +534,14 @@ async function updateStoreWithGoogleData(storeId: string, placeData: any) {
 
     if (error) {
       console.error('Failed to update store with Google data:', error);
-    } else {
-      console.log(`Successfully updated store ${storeId} with Google Places data`);
+      return { success: false, reason: error.message };
     }
+    
+    console.log(`Successfully updated store ${storeId} with Google Places data`);
+    return { success: true };
   } catch (error) {
     console.error('Error updating store with Google data:', error);
+    return { success: false, reason: error.message };
   }
 }
 
