@@ -41,6 +41,15 @@ export default function BlogPost() {
     },
   });
 
+  // Sanitize blog content - must be called before any early returns to follow React hooks rules
+  const sanitizedHtml = useMemo(() => {
+    if (!post?.body) return '';
+    return DOMPurify.sanitize(post.body.replace(/\n/g, '<br />'), {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre', 'img', 'span', 'div'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id']
+    });
+  }, [post?.body]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -147,30 +156,22 @@ export default function BlogPost() {
                   </p>
                 )}
 
-                {/* Sanitize blog content to prevent XSS attacks */}
-                {useMemo(() => {
-                  const sanitizedHtml = DOMPurify.sanitize(post.body.replace(/\n/g, '<br />'), {
-                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre', 'img', 'span', 'div'],
-                    ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id']
-                  });
-                  return (
-                    <div 
-                      className="prose prose-lg dark:prose-invert max-w-none
-                        prose-headings:text-foreground prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4
-                        prose-h2:text-3xl prose-h3:text-2xl
-                        prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-6
-                        prose-a:text-primary hover:prose-a:text-primary/80
-                        prose-strong:text-foreground prose-strong:font-semibold
-                        prose-ul:text-foreground prose-ul:my-6
-                        prose-ol:text-foreground prose-ol:my-6
-                        prose-li:text-foreground prose-li:mb-2
-                        prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-                        prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                        prose-pre:bg-muted prose-pre:text-foreground"
-                      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-                    />
-                  );
-                }, [post.body])}
+                {/* Blog content - sanitized above to prevent XSS attacks */}
+                <div 
+                  className="prose prose-lg dark:prose-invert max-w-none
+                    prose-headings:text-foreground prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4
+                    prose-h2:text-3xl prose-h3:text-2xl
+                    prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-6
+                    prose-a:text-primary hover:prose-a:text-primary/80
+                    prose-strong:text-foreground prose-strong:font-semibold
+                    prose-ul:text-foreground prose-ul:my-6
+                    prose-ol:text-foreground prose-ol:my-6
+                    prose-li:text-foreground prose-li:mb-2
+                    prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
+                    prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                    prose-pre:bg-muted prose-pre:text-foreground"
+                  dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+                />
 
                 <SocialShare 
                   title={post.title} 
