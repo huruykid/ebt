@@ -6,14 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Filter, SortAsc, Grid, List } from 'lucide-react';
-import type { Tables } from '@/integrations/supabase/types';
 import { cn } from '@/lib/utils';
-
-type Store = Tables<'snap_stores'>;
-
-interface StoreWithDistance extends Store {
-  distance?: number;
-}
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface EnhancedSearchResultsProps {
   stores: StoreWithDistance[];

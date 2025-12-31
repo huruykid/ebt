@@ -1,4 +1,5 @@
-import type { ParsedLocation, GeoCoordinates, StoreWithDistance } from '@/types/searchTypes';
+import type { ParsedLocation, GeoCoordinates } from '@/types/searchTypes';
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 /**
  * Geocode a location string using Nominatim API

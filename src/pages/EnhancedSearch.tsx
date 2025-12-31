@@ -5,7 +5,7 @@ import { EnhancedSearchBar } from '@/components/EnhancedSearchBar';
 import { EnhancedSearchResults } from '@/components/EnhancedSearchResults';
 import { MobileSearchInterface } from '@/components/MobileSearchInterface';
 import { useIsMobile } from '@/hooks/use-mobile';
-import type { StoreWithDistance } from '@/types/searchTypes';
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 export const EnhancedSearch: React.FC = () => {
   const isMobile = useIsMobile();
