@@ -1,10 +1,5 @@
-import type { Tables } from '@/integrations/supabase/types';
-
-export type Store = Tables<'snap_stores'>;
-
-export interface StoreWithDistance extends Store {
-  distance?: number;
-}
+// Re-export StoreWithDistance from storeTypes for backward compatibility
+export type { StoreWithDistance } from './storeTypes';
 
 export interface SearchSuggestion {
   type: 'store' | 'location' | 'recent';

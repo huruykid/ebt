@@ -7,7 +7,8 @@ import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
 import { SearchSuggestionsDropdown, ActiveFilters } from '@/components/search';
 import { SEARCH_DEFAULTS } from '@/constants/searchConstants';
 import { cn } from '@/lib/utils';
-import type { SearchSuggestion, SearchHistory, StoreWithDistance } from '@/types/searchTypes';
+import type { SearchSuggestion, SearchHistory } from '@/types/searchTypes';
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface EnhancedSearchBarProps {
   className?: string;

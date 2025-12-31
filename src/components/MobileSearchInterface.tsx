@@ -10,7 +10,7 @@ import { EnhancedSearchResults } from './EnhancedSearchResults';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
-import type { StoreWithDistance } from '@/types/searchTypes';
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface MobileSearchInterfaceProps {
   className?: string;

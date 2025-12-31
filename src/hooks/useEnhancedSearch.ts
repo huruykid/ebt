@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { POPULAR_STORES, POPULAR_LOCATIONS, SEARCH_DEFAULTS } from '@/constants/searchConstants';
 import { geocodeLocation, parseLocation, mapToStoreWithDistance, filterStoresByQuery } from '@/utils/searchUtils';
-import type { SearchParams, SearchHistory, SearchSuggestion, StoreWithDistance } from '@/types/searchTypes';
+import type { SearchParams, SearchHistory, SearchSuggestion } from '@/types/searchTypes';
+import type { StoreWithDistance } from '@/types/storeTypes';
 
 const STORAGE_KEY = 'ebt-search-history';
 
