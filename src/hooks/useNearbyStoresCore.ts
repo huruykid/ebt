@@ -149,20 +149,29 @@ export const fetchOptimizedStores = async (
   limit: number,
   storeTypes: string[]
 ): Promise<StoreWithDistance[]> => {
-  const { data, error } = await supabase.rpc('get_nearby_stores', {
-    user_lat: latitude,
-    user_lng: longitude,
-    radius_miles: radius,
-    store_types: storeTypes.length > 0 ? storeTypes : null,
-    result_limit: limit,
-  });
+  try {
+    const { data, error } = await supabase.rpc('get_nearby_stores', {
+      user_lat: latitude,
+      user_lng: longitude,
+      radius_miles: radius,
+      store_types: storeTypes.length > 0 ? storeTypes : null,
+      result_limit: limit,
+    });
 
-  if (error) {
-    console.error('Optimized nearby stores error:', error);
-    throw error;
+    if (error) {
+      console.error('Optimized nearby stores error:', error);
+      throw error;
+    }
+
+    return (data || []).map(mapOptimizedResult);
+  } catch (err) {
+    // Handle network errors gracefully
+    if (err instanceof TypeError && err.message === 'Failed to fetch') {
+      console.warn('Network error fetching stores - returning empty results');
+      return [];
+    }
+    throw err;
   }
-
-  return (data || []).map(mapOptimizedResult);
 };
 
 /**
