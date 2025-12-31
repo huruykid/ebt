@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Search, MapPin, Navigation, Filter, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { EnhancedSearchBar } from './EnhancedSearchBar';
 import { EnhancedSearchResults } from './EnhancedSearchResults';
-import { useEnhancedSearch } from '@/hooks/useEnhancedSearch';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import { cn } from '@/lib/utils';
+import type { StoreWithDistance } from '@/types/searchTypes';
 
 interface MobileSearchInterfaceProps {
   className?: string;
@@ -21,22 +22,61 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
   const isMobile = useIsMobile();
   const [showSearchSheet, setShowSearchSheet] = useState(false);
   const [quickSearchValue, setQuickSearchValue] = useState('');
-  const {
-    searchParams,
-    searchResults,
-    isLoading,
-    error,
-    updateSearchParams,
-    clearSearch,
-    hasCurrentLocation
-  } = useEnhancedSearch();
+  const { latitude, longitude } = useGeolocation();
+  
+  // Shared search state - updated by EnhancedSearchBar via callback
+  const [searchState, setSearchState] = useState<{
+    results: StoreWithDistance[];
+    isLoading: boolean;
+    hasSearched: boolean;
+    activeQuery: string;
+    activeLocation: string;
+    useCurrentLocation: boolean;
+  }>({
+    results: [],
+    isLoading: false,
+    hasSearched: false,
+    activeQuery: '',
+    activeLocation: '',
+    useCurrentLocation: false
+  });
+
+  // Callback to receive search state from EnhancedSearchBar
+  const handleSearchChange = useCallback((
+    results: StoreWithDistance[], 
+    isLoading: boolean, 
+    hasSearched: boolean
+  ) => {
+    setSearchState(prev => ({
+      ...prev,
+      results,
+      isLoading,
+      hasSearched
+    }));
+  }, []);
 
   const handleQuickSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (quickSearchValue.trim()) {
-      updateSearchParams({ query: quickSearchValue });
+      setSearchState(prev => ({
+        ...prev,
+        activeQuery: quickSearchValue,
+        hasSearched: true
+      }));
       setShowSearchSheet(true);
     }
+  };
+
+  const handleClearSearch = () => {
+    setQuickSearchValue('');
+    setSearchState({
+      results: [],
+      isLoading: false,
+      hasSearched: false,
+      activeQuery: '',
+      activeLocation: '',
+      useCurrentLocation: false
+    });
   };
 
   const popularQuickSearches = [
@@ -48,16 +88,18 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
     { text: 'Dollar Store', icon: '💰' }
   ];
 
+  const hasCurrentLocation = !!(latitude && longitude);
+
   if (!isMobile) {
     // Desktop fallback - show regular search
     return (
       <div className={className}>
-        <EnhancedSearchBar />
+        <EnhancedSearchBar onSearchChange={handleSearchChange} />
         <div className="mt-6">
           <EnhancedSearchResults
-            stores={searchResults}
-            isLoading={isLoading}
-            error={error}
+            stores={searchState.results}
+            isLoading={searchState.isLoading}
+            error={null}
           />
         </div>
       </div>
@@ -93,12 +135,14 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
                   <SheetTitle>Advanced Search</SheetTitle>
                 </SheetHeader>
                 <div className="mt-4 h-full overflow-y-auto pb-20">
-                  <EnhancedSearchBar />
+                  <EnhancedSearchBar 
+                    onSearchChange={handleSearchChange}
+                  />
                   <div className="mt-6">
                     <EnhancedSearchResults
-                      stores={searchResults}
-                      isLoading={isLoading}
-                      error={error}
+                      stores={searchState.results}
+                      isLoading={searchState.isLoading}
+                      error={null}
                     />
                   </div>
                 </div>
@@ -116,7 +160,11 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  updateSearchParams({ useCurrentLocation: true, query: quickSearchValue });
+                  setSearchState(prev => ({
+                    ...prev,
+                    useCurrentLocation: true,
+                    hasSearched: true
+                  }));
                   setShowSearchSheet(true);
                 }}
                 className="h-10 px-4"
@@ -137,7 +185,11 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
               key={index}
               onClick={() => {
                 setQuickSearchValue(item.text);
-                updateSearchParams({ query: item.text });
+                setSearchState(prev => ({
+                  ...prev,
+                  activeQuery: item.text,
+                  hasSearched: true
+                }));
                 setShowSearchSheet(true);
               }}
               className="flex items-center gap-2 px-3 py-2 bg-muted rounded-full text-sm hover:bg-muted/80 transition-colors"
@@ -150,31 +202,31 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
       </Card>
 
       {/* Current Search Status */}
-      {(searchParams.query || searchParams.location || searchParams.useCurrentLocation) && (
+      {searchState.hasSearched && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm font-medium">Active Search</span>
             </div>
-            <Button variant="ghost" size="sm" onClick={clearSearch}>
+            <Button variant="ghost" size="sm" onClick={handleClearSearch}>
               <X className="h-4 w-4" />
             </Button>
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {searchParams.query && (
+            {searchState.activeQuery && (
               <Badge variant="secondary">
-                "{searchParams.query}"
+                "{searchState.activeQuery}"
               </Badge>
             )}
-            {searchParams.location && (
+            {searchState.activeLocation && (
               <Badge variant="secondary">
                 <MapPin className="h-3 w-3 mr-1" />
-                {searchParams.location}
+                {searchState.activeLocation}
               </Badge>
             )}
-            {searchParams.useCurrentLocation && (
+            {searchState.useCurrentLocation && (
               <Badge variant="secondary">
                 <Navigation className="h-3 w-3 mr-1" />
                 Current Location
@@ -183,14 +235,14 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
           </div>
 
           <div className="mt-3 text-sm text-muted-foreground">
-            {isLoading ? (
+            {searchState.isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="animate-spin rounded-full h-3 w-3 border border-primary border-t-transparent"></div>
                 Searching...
               </div>
             ) : (
               <>
-                {searchResults.length} store{searchResults.length !== 1 ? 's' : ''} found
+                {searchState.results.length} store{searchState.results.length !== 1 ? 's' : ''} found
               </>
             )}
           </div>
@@ -198,7 +250,7 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
       )}
 
       {/* Quick Results Preview */}
-      {searchResults.length > 0 && !showSearchSheet && (
+      {searchState.results.length > 0 && !showSearchSheet && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium">Search Results</h3>
@@ -207,12 +259,12 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
               size="sm"
               onClick={() => setShowSearchSheet(true)}
             >
-              View All ({searchResults.length})
+              View All ({searchState.results.length})
             </Button>
           </div>
           
           <div className="space-y-2">
-            {searchResults.slice(0, 3).map((store) => (
+            {searchState.results.slice(0, 3).map((store) => (
               <div
                 key={store.id}
                 className="flex items-center justify-between p-2 bg-muted/50 rounded-lg"
