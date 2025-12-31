@@ -94,7 +94,12 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
     // Desktop fallback - show regular search
     return (
       <div className={className}>
-        <EnhancedSearchBar onSearchChange={handleSearchChange} />
+        <EnhancedSearchBar 
+          onSearchChange={handleSearchChange}
+          initialQuery={searchState.activeQuery}
+          initialLocation={searchState.activeLocation}
+          initialUseCurrentLocation={searchState.useCurrentLocation}
+        />
         <div className="mt-6">
           <EnhancedSearchResults
             stores={searchState.results}
@@ -137,6 +142,9 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
                 <div className="mt-4 h-full overflow-y-auto pb-20">
                   <EnhancedSearchBar 
                     onSearchChange={handleSearchChange}
+                    initialQuery={searchState.activeQuery}
+                    initialLocation={searchState.activeLocation}
+                    initialUseCurrentLocation={searchState.useCurrentLocation}
                   />
                   <div className="mt-6">
                     <EnhancedSearchResults
