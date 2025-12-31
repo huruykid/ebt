@@ -74,8 +74,11 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
       // TODO: Save hours to database when backend is ready
       console.log('Adding hours:', hours, 'for store:', store.id);
       
-      // Track the contribution - convert store.id to number since it's a bigint in user_points table
-      trackContribution('store_hours', parseInt(store.id));
+      // Track the contribution - use ObjectId for numeric store_id
+      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
+      if (storeNumericId) {
+        trackContribution('store_hours', storeNumericId);
+      }
       
       // Update the frontend immediately
       if (onHoursAdded) {

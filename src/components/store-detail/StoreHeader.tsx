@@ -182,7 +182,7 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
                 
                 {/* Rating, Distance, and Status Row */}
                 <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <StoreRatingDisplay storeId={parseInt(store.id)} />
+                  {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
                   
                   {userDistance && (
                     <span className="text-sm text-muted-foreground">

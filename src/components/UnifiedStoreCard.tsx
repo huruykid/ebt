@@ -99,7 +99,7 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
                 <StoreRating rating={rating} reviewCount={ratingsTotal} />
               ) : (
                 <>
-                  <StoreRatingDisplay storeId={parseInt(store.id)} />
+                  {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
                   <span className="text-sm text-muted-foreground">No reviews yet</span>
                 </>
               )}
