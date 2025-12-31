@@ -278,9 +278,12 @@ serve(async (req) => {
           console.log(`📋 Using cached data for ${store.store_name}`);
           businessData = cached.business_data;
         } else {
-          // Search Google Places API
-          const searchQuery = `${store.store_name} ${store.store_address} ${store.city} ${store.state}`;
-          const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=place_id,name,formatted_address,geometry,rating,user_ratings_total,opening_hours,photos,formatted_phone_number,website,types,price_level,business_status&key=${googleApiKey}`;
+          // Search Google Places API - try with address first for better accuracy
+          // Remove store numbers from chain names for better matching
+          const cleanStoreName = store.store_name.replace(/\s+\d+$/, '').trim();
+          const searchQuery = `${cleanStoreName} ${store.store_address} ${store.city} ${store.state}`;
+          console.log(`🔎 Search query: "${searchQuery}"`);
+          const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=place_id,name,formatted_address,geometry,rating,user_ratings_total,opening_hours,photos,formatted_phone_number,website,types,price_level,business_status&locationbias=circle:1000@${store.latitude},${store.longitude}&key=${googleApiKey}`;
 
           console.log(`🌐 Calling Google Places API for: ${store.store_name}`);
           
