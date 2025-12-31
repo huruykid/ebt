@@ -74,7 +74,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
             </Link>
             
             <div className="flex items-center gap-2 mt-1">
-              <StoreRatingDisplay storeId={parseInt(store.id)} />
+              {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
               <span className="text-sm text-muted-foreground">No reviews yet</span>
             </div>
           </div>

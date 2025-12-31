@@ -27,10 +27,13 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
     queryKey: ['store-reviews', store.id],
     queryFn: async () => {
       // Use public_reviews view which excludes user_id for privacy
+      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
+      if (!storeNumericId) return [];
+      
       const { data, error } = await supabase
         .from('public_reviews')
         .select('id')
-        .eq('store_id', parseInt(store.id));
+        .eq('store_id', storeNumericId);
 
       if (error) {
         console.error('Error fetching reviews:', error);
@@ -52,13 +55,13 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Community Reviews</CardTitle>
-            <StoreRatingDisplay storeId={parseInt(store.id)} />
+            {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
           </div>
         </CardHeader>
         <CardContent>
-          {showReviewForm ? (
+          {showReviewForm && store.ObjectId ? (
             <ReviewForm 
-              storeId={parseInt(store.id)}
+              storeId={parseInt(store.ObjectId)}
               onSuccess={handleReviewSuccess}
             />
           ) : (
@@ -82,7 +85,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ store }) => {
                 </div>
               )}
 
-              <ReviewList storeId={parseInt(store.id)} />
+              {store.ObjectId && <ReviewList storeId={parseInt(store.ObjectId)} />}
             </>
           )}
         </CardContent>

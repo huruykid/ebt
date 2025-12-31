@@ -81,10 +81,13 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
 
       await Promise.all(uploadPromises);
       
-      // Track contribution for each photo - convert store.id to number since it's a bigint in user_points table
-      selectedFiles.forEach(() => {
-        trackContribution('store_photo', parseInt(store.id));
-      });
+      // Track contribution for each photo - use ObjectId for numeric store_id
+      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
+      if (storeNumericId) {
+        selectedFiles.forEach(() => {
+          trackContribution('store_photo', storeNumericId);
+        });
+      }
 
       toast.success(`${selectedFiles.length} photo(s) uploaded successfully!`);
       setSelectedFiles([]);

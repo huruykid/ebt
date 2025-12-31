@@ -50,8 +50,11 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
       // TODO: Save phone number to database when backend is ready
       console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
       
-      // Track the contribution - convert store.id to number since it's a bigint in user_points table
-      trackContribution('contact_info', parseInt(store.id));
+      // Track the contribution - use ObjectId for numeric store_id
+      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
+      if (storeNumericId) {
+        trackContribution('contact_info', storeNumericId);
+      }
       
       // Update the frontend immediately
       if (onPhoneAdded) {

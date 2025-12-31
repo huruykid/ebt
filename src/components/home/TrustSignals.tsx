@@ -1,25 +1,21 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Users, Star, TrendingUp } from 'lucide-react';
+import { MapPin, Star, TrendingUp } from 'lucide-react';
 
 export const TrustSignals: React.FC = () => {
   const { data: stats } = useQuery({
     queryKey: ['trust-signals-stats'],
     queryFn: async () => {
-      // Get approximate store count
-      const { count: storeCount } = await supabase
-        .from('snap_stores')
-        .select('*', { count: 'exact', head: true });
-
-      // Get review count
-      const { count: reviewCount } = await supabase
-        .from('reviews')
-        .select('*', { count: 'exact', head: true });
+      // Single parallel request for both counts
+      const [storeResult, reviewResult] = await Promise.all([
+        supabase.from('snap_stores').select('*', { count: 'exact', head: true }),
+        supabase.from('reviews').select('*', { count: 'exact', head: true }),
+      ]);
 
       return {
-        storeCount: storeCount || 300000,
-        reviewCount: reviewCount || 0,
+        storeCount: storeResult.count || 300000,
+        reviewCount: reviewResult.count || 0,
       };
     },
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
