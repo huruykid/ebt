@@ -91,8 +91,8 @@ export default function StoreDetailPage() {
     );
   }
 
-  // Generate SEO data for the store - use Google name if available
-  const displayName = googleData?.name || store?.Store_Name;
+  // Generate SEO data for the store - always use Store_Name as authoritative source
+  const displayName = store?.Store_Name;
   const seoTitle = store ? `${displayName} - EBT Store Details | EBT Finder` : "Store Details | EBT Finder";
   const seoDescription = store ? 
     `Find details for ${displayName} at ${googleData?.formatted_address || `${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}. EBT/SNAP accepted. ${googleData?.rating ? `Rated ${googleData.rating} stars.` : ''} View hours, reviews, and directions.` :
