@@ -14,6 +14,9 @@ interface EnhancedSearchBarProps {
   className?: string;
   placeholder?: string;
   compact?: boolean;
+  initialQuery?: string;
+  initialLocation?: string;
+  initialUseCurrentLocation?: boolean;
   onSearchChange?: (results: StoreWithDistance[], isLoading: boolean, hasSearched: boolean) => void;
 }
 
@@ -21,6 +24,9 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   className,
   placeholder = "Search for stores like 'Walmart' or 'Pizza'...",
   compact = false,
+  initialQuery = '',
+  initialLocation = '',
+  initialUseCurrentLocation = false,
   onSearchChange
 }) => {
   const {
@@ -38,11 +44,32 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     hasCurrentLocation
   } = useEnhancedSearch();
 
-  const [inputValue, setInputValue] = useState(searchParams.query);
-  const [locationValue, setLocationValue] = useState(searchParams.location || '');
+  const [inputValue, setInputValue] = useState(initialQuery || searchParams.query);
+  const [locationValue, setLocationValue] = useState(initialLocation || searchParams.location || '');
   const [showLocationInput, setShowLocationInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync with external initial values when they change
+  useEffect(() => {
+    if (initialQuery && initialQuery !== inputValue) {
+      setInputValue(initialQuery);
+      updateSearchParams({ query: initialQuery });
+    }
+  }, [initialQuery]);
+
+  useEffect(() => {
+    if (initialLocation && initialLocation !== locationValue) {
+      setLocationValue(initialLocation);
+      updateSearchParams({ location: initialLocation });
+    }
+  }, [initialLocation]);
+
+  useEffect(() => {
+    if (initialUseCurrentLocation) {
+      updateSearchParams({ useCurrentLocation: true });
+    }
+  }, [initialUseCurrentLocation]);
 
   // Notify parent of search state changes (skip initial empty state)
   useEffect(() => {
