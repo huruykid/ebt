@@ -1,14 +1,54 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { supabase } from '@/integrations/supabase/client';
 
 interface GeolocationState {
   latitude: number | null;
   longitude: number | null;
   error: string | null;
   loading: boolean;
+  source: 'browser' | 'ip' | 'fallback' | null;
+  city?: string;
+  region?: string;
 }
+
+// Try IP-based geolocation as fallback
+const getIPLocation = async (): Promise<GeolocationState> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('ip-geolocation');
+    
+    if (error) {
+      console.error('IP geolocation error:', error);
+      throw error;
+    }
+
+    console.log('IP geolocation result:', data);
+    
+    return {
+      latitude: data.latitude,
+      longitude: data.longitude,
+      error: null,
+      loading: false,
+      source: data.source === 'fallback' ? 'fallback' : 'ip',
+      city: data.city,
+      region: data.region,
+    };
+  } catch (err) {
+    console.error('Failed to get IP location:', err);
+    // Ultimate fallback - US geographic center
+    return {
+      latitude: 39.8283,
+      longitude: -98.5795,
+      error: null,
+      loading: false,
+      source: 'fallback',
+      city: 'United States',
+      region: '',
+    };
+  }
+};
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState<GeolocationState>({
@@ -16,7 +56,14 @@ export const useGeolocation = () => {
     longitude: null,
     error: null,
     loading: true,
+    source: null,
   });
+
+  const tryIPFallback = useCallback(async () => {
+    console.log('Trying IP geolocation fallback...');
+    const ipLocation = await getIPLocation();
+    setLocation(ipLocation);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,13 +76,12 @@ export const useGeolocation = () => {
       setLocation(prev => (typeof updater === 'function' ? (updater as any)(prev) : updater));
     };
 
-    const safetyTimer = setTimeout(() => {
-      setSafe(prev => ({
-        ...prev,
-        error: 'Location request timed out. Please enable location access (While Using the App) and try again.',
-        loading: false,
-      }));
-    }, 15000);
+    const safetyTimer = setTimeout(async () => {
+      // On timeout, try IP fallback instead of just showing error
+      console.log('Browser geolocation timed out, trying IP fallback');
+      const ipLocation = await getIPLocation();
+      setSafe(ipLocation);
+    }, 10000);
 
     const handleSuccess = (position: any) => {
       clearTimeout(safetyTimer);
@@ -44,22 +90,17 @@ export const useGeolocation = () => {
         longitude: position.coords.longitude,
         error: null,
         loading: false,
+        source: 'browser',
       });
     };
 
-    const handleError = (err: any) => {
+    const handleError = async (err: any) => {
       clearTimeout(safetyTimer);
-      let errorMessage = 'Unable to retrieve your location.';
-      const code = err?.code;
-      const msg = String(err?.message || '').toLowerCase();
-      if (code === 1 || msg.includes('permission')) {
-        errorMessage = 'Location access denied or limited. Please allow "While Using the App" in Settings.';
-      } else if (code === 2) {
-        errorMessage = 'Location information is unavailable.';
-      } else if (code === 3) {
-        errorMessage = 'Location request timed out.';
-      }
-      setSafe(prev => ({ ...prev, error: errorMessage, loading: false }));
+      console.log('Browser geolocation failed:', err);
+      
+      // Instead of just showing error, try IP fallback
+      const ipLocation = await getIPLocation();
+      setSafe(ipLocation);
     };
 
     const getNative = async () => {
@@ -67,7 +108,10 @@ export const useGeolocation = () => {
         const perm = await Geolocation.requestPermissions();
         const status = (perm as any)?.location || (perm as any)?.coarseLocation || (perm as any)?.fineLocation;
         if (status && status !== 'granted') {
-          throw { code: 1, message: 'Permission denied' };
+          // Permission denied - use IP fallback
+          const ipLocation = await getIPLocation();
+          setSafe(ipLocation);
+          return;
         }
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
@@ -83,17 +127,14 @@ export const useGeolocation = () => {
     const getWeb = () => {
       if (!('geolocation' in navigator)) {
         clearTimeout(safetyTimer);
-        setSafe(prev => ({
-          ...prev,
-          error: 'Geolocation is not supported by this browser.',
-          loading: false,
-        }));
+        // No browser geolocation - use IP fallback
+        getIPLocation().then(ipLocation => setSafe(ipLocation));
         return;
       }
 
       navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 8000, // Reduced timeout for faster fallback
         maximumAge: 300000, // 5 minutes
       });
     };
@@ -110,5 +151,5 @@ export const useGeolocation = () => {
     };
   }, []);
 
-  return location;
+  return { ...location, tryIPFallback };
 };
