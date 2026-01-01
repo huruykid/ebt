@@ -3,14 +3,18 @@ import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 
 const POPULAR_CITIES = [
-  { name: 'Los Angeles', slug: 'los-angeles-ca', state: 'CA' },
-  { name: 'New York', slug: 'new-york-ny', state: 'NY' },
-  { name: 'Chicago', slug: 'chicago-il', state: 'IL' },
-  { name: 'Houston', slug: 'houston-tx', state: 'TX' },
-  { name: 'Phoenix', slug: 'phoenix-az', state: 'AZ' },
-  { name: 'Philadelphia', slug: 'philadelphia-pa', state: 'PA' },
-  { name: 'San Antonio', slug: 'san-antonio-tx', state: 'TX' },
-  { name: 'San Diego', slug: 'san-diego-ca', state: 'CA' },
+  { name: 'Los Angeles', slug: 'los-angeles', state: 'CA' },
+  { name: 'New York', slug: 'new-york', state: 'NY' },
+  { name: 'Chicago', slug: 'chicago', state: 'IL' },
+  { name: 'Houston', slug: 'houston', state: 'TX' },
+  { name: 'Phoenix', slug: 'phoenix', state: 'AZ' },
+  { name: 'Philadelphia', slug: 'philadelphia', state: 'PA' },
+  { name: 'San Antonio', slug: 'san-antonio', state: 'TX' },
+  { name: 'San Diego', slug: 'san-diego', state: 'CA' },
+  { name: 'Dallas', slug: 'dallas', state: 'TX' },
+  { name: 'Miami', slug: 'miami', state: 'FL' },
+  { name: 'Atlanta', slug: 'atlanta', state: 'GA' },
+  { name: 'Brooklyn', slug: 'brooklyn', state: 'NY' },
 ];
 
 interface PopularCitiesProps {
@@ -18,7 +22,7 @@ interface PopularCitiesProps {
 }
 
 export const PopularCities: React.FC<PopularCitiesProps> = ({ variant = 'compact' }) => {
-  const cities = variant === 'compact' ? POPULAR_CITIES.slice(0, 5) : POPULAR_CITIES;
+  const cities = variant === 'compact' ? POPULAR_CITIES.slice(0, 6) : POPULAR_CITIES;
 
   return (
     <div className="space-y-2">

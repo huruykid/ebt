@@ -12,9 +12,10 @@ import { Card } from '@/components/ui/card';
 
 interface SearchContainerProps {
   initialCity?: string;
+  initialLocation?: { lat: number; lng: number };
 }
 
-export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity }) => {
+export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, initialLocation }) => {
   const {
     searchQuery,
     setSearchQuery,
@@ -41,21 +42,33 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
   } = useLocationBasedSearch();
 
   const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
+  
+  // Track if we've auto-searched with initial location
+  const [hasAutoSearched, setHasAutoSearched] = React.useState(false);
 
-  // If initialCity is provided, set it in the search query
+  // If initialLocation is provided, set it immediately for auto-search
   React.useEffect(() => {
-    if (initialCity && !searchQuery) {
+    if (initialLocation && !hasAutoSearched && !locationSearch) {
+      console.log('SearchContainer: Auto-setting initial location:', initialLocation);
+      setLocationSearch(initialLocation);
+      setHasAutoSearched(true);
+    }
+  }, [initialLocation, hasAutoSearched, locationSearch, setLocationSearch]);
+
+  // If initialCity is provided (without coordinates), set it in the search query
+  React.useEffect(() => {
+    if (initialCity && !searchQuery && !initialLocation) {
       const sanitizedCity = sanitizeString(initialCity);
       setSearchQuery(sanitizedCity);
     }
-  }, [initialCity, searchQuery, setSearchQuery]);
+  }, [initialCity, searchQuery, setSearchQuery, initialLocation]);
 
-  // Set location when geolocation data is available
+  // Set location when geolocation data is available (only if no initial location)
   React.useEffect(() => {
-    if (latitude && longitude) {
+    if (latitude && longitude && !initialLocation && !hasAutoSearched) {
       setLocationSearch({ lat: latitude, lng: longitude });
     }
-  }, [latitude, longitude, setLocationSearch]);
+  }, [latitude, longitude, setLocationSearch, initialLocation, hasAutoSearched]);
 
   const handleRadiusChange = (newRadius: number) => {
     setRadius(newRadius);
@@ -181,16 +194,19 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
     }
   };
 
+  // Show location context when using initial location
+  const showingInitialLocation = initialLocation && locationSearch && 
+    locationSearch.lat === initialLocation.lat && 
+    locationSearch.lng === initialLocation.lng;
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* UPDATED: Two-Field Search Interface */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h1>
+        <h2 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h2>
         <p className="text-muted-foreground">
           Search by store name and location to find stores that accept EBT/SNAP benefits
         </p>
-        {/* Force React to re-render */}
-        <div className="hidden" data-version="v2.0"></div>
       </div>
 
       {/* NEW: Two-Field Search Form */}
@@ -248,7 +264,10 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity })
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
           <MapPin className="h-4 w-4" />
           <span>
-            Results near your current location
+            {showingInitialLocation && initialCity 
+              ? `Showing stores near ${initialCity}`
+              : 'Results near your current location'
+            }
           </span>
           {userZipCode && <span className="ml-1">({userZipCode})</span>}
         </div>
