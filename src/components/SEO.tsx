@@ -39,7 +39,7 @@ export const SEO = memo<SEOProps>(({ children }) => {
     // Authority signals
     setMeta('author', 'EBT Finder Team');
     setMeta('publisher', 'EBT Finder');
-    setMeta('copyright', 'EBT Finder 2025');
+    setMeta('copyright', 'EBT Finder 2026');
     setMeta('application-name', 'EBT Finder');
     setMeta('theme-color', '#8b5cf6');
     
