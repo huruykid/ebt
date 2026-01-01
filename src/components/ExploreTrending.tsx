@@ -18,7 +18,7 @@ export const ExploreTrending: React.FC = () => {
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
   
-  const { latitude, longitude, loading } = useGeolocation();
+  const { latitude, longitude, loading, requestBrowserLocation } = useGeolocation();
 
   const {
     activeZipCode,
@@ -52,23 +52,8 @@ export const ExploreTrending: React.FC = () => {
   };
 
   const handleRequestLocation = () => {
-    // Request browser geolocation permission explicitly
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        () => {
-          // Permission granted - reload to get fresh location
-          window.location.reload();
-        },
-        (error) => {
-          console.log('Location permission denied or error:', error);
-          // Still reload to trigger IP fallback
-          window.location.reload();
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    } else {
-      window.location.reload();
-    }
+    // Request browser location - will fallback to IP if denied
+    requestBrowserLocation();
   };
 
   const showZipResults = isSearchActive;

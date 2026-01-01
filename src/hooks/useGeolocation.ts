@@ -65,6 +65,35 @@ export const useGeolocation = () => {
     setLocation(ipLocation);
   }, []);
 
+  const requestBrowserLocation = useCallback(() => {
+    if (!('geolocation' in navigator)) {
+      // No browser geolocation - use IP fallback silently
+      getIPLocation().then(ipLocation => setLocation(ipLocation));
+      return;
+    }
+
+    setLocation(prev => ({ ...prev, loading: true }));
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          error: null,
+          loading: false,
+          source: 'browser',
+        });
+      },
+      async () => {
+        // Permission denied - silently use IP fallback
+        console.log('Browser location denied, using IP fallback');
+        const ipLocation = await getIPLocation();
+        setLocation(ipLocation);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+    );
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const platform = Capacitor.getPlatform();
@@ -151,5 +180,5 @@ export const useGeolocation = () => {
     };
   }, []);
 
-  return { ...location, tryIPFallback };
+  return { ...location, tryIPFallback, requestBrowserLocation };
 };
