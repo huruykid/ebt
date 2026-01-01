@@ -129,7 +129,7 @@ export const SEOFooter: React.FC = () => {
 
         {/* Bottom Section */}
         <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 EBT Finder. Helping families find SNAP-accepting stores and restaurants across the United States.</p>
+          <p>&copy; 2026 EBT Finder. Helping families find SNAP-accepting stores and restaurants across the United States.</p>
           <p className="mt-2">
             Data sourced from USDA SNAP Retailer Locator. Store information updated regularly for accuracy.
           </p>

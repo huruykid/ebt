@@ -10,8 +10,8 @@ export default function SnapTips() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "Complete 2025 SNAP Tips & Tricks Guide",
-    "description": "Comprehensive guide to maximizing your SNAP benefits in 2025. Learn about eligible items, programs, and money-saving strategies.",
+    "headline": "Complete 2026 SNAP Tips & Tricks Guide",
+    "description": "Comprehensive guide to maximizing your SNAP benefits in 2026. Learn about eligible items, programs, and money-saving strategies.",
     "author": {
       "@type": "Organization",
       "name": "EBT Finder"
@@ -24,14 +24,14 @@ export default function SnapTips() {
         "url": "https://ebtfinder.org/ebt-logo.png"
       }
     },
-    "datePublished": "2025-01-01",
-    "dateModified": "2025-01-15",
+    "datePublished": "2026-01-01",
+    "dateModified": "2026-01-01",
     "url": "https://ebtfinder.org/snap-tips"
   };
 
   const faqData = [
     {
-      question: "What items can I buy with SNAP benefits in 2025?",
+      question: "What items can I buy with SNAP benefits in 2026?",
       answer: "You can buy most food items including fruits, vegetables, meat, dairy, bread, cereals, snacks, and non-alcoholic beverages. Seeds and plants that produce food are also eligible. You cannot buy alcohol, tobacco, vitamins, hot prepared foods (unless you qualify for RMP), or non-food items."
     },
     {
@@ -47,17 +47,17 @@ export default function SnapTips() {
       answer: "Energy drinks are SNAP-eligible if they have a nutrition facts label (like Red Bull, Monster). However, energy drinks with supplement facts labels are not eligible."
     },
     {
-      question: "What's new with SNAP in 2025?",
-      answer: "Key changes include updated income limits, expanded work requirements for some recipients, mandatory EMV chip cards in many states, and new fees for cash withdrawals at some retailers like Walmart."
+      question: "What's new with SNAP in 2026?",
+      answer: "Key updates include adjusted income limits for inflation, continued EMV chip card rollout, expanded online purchasing options, and ongoing work requirement enforcement for able-bodied adults."
     }
   ];
 
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
-        title="Complete 2025 SNAP Tips & Tricks Guide | EBT Finder"
-        description="Comprehensive guide to maximizing your SNAP benefits in 2025. Learn about eligible items, programs, and money-saving strategies."
-        keywords="SNAP benefits 2025, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide"
+        title="Complete 2026 SNAP Tips & Tricks Guide | EBT Finder"
+        description="Comprehensive guide to maximizing your SNAP benefits in 2026. Learn about eligible items, programs, and money-saving strategies."
+        keywords="SNAP benefits 2026, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide"
         canonicalUrl="https://ebtfinder.org/snap-tips"
         structuredData={structuredData}
       />
@@ -71,10 +71,10 @@ export default function SnapTips() {
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           <header className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              SNAP Tips & Tricks: 2025 Complete Guide
+              SNAP Tips & Tricks: 2026 Complete Guide
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Maximize your EBT benefits with these expert tips, policy updates, and money-saving strategies updated for 2025.
+              Maximize your EBT benefits with these expert tips, policy updates, and money-saving strategies updated for 2026.
             </p>
           </header>
 
@@ -187,7 +187,7 @@ export default function SnapTips() {
                 <Badge>Rhode Island</Badge>
               </div>
               <div className="bg-success/10 p-4 rounded-lg">
-                <p className="text-sm text-success font-medium">2025 Update: Virginia expanded RMP access for eligible SNAP users</p>
+                <p className="text-sm text-success font-medium">2026 Update: More states expanding RMP access for eligible SNAP users</p>
               </div>
             </CardContent>
           </Card>
@@ -298,31 +298,31 @@ export default function SnapTips() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-warning" />
-                2025 Policy Updates & Important Changes
+                2026 Policy Updates & Important Changes
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-warning/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-warning mb-2">New Work Requirements (Effective Sept 1, 2025)</h4>
+                <h4 className="font-semibold text-warning mb-2">Work Requirements (In Effect)</h4>
                 <ul className="text-sm space-y-1 text-muted-foreground">
                   <li>• Able-bodied adults under 55 must work/train/study 20 hours/week</li>
-                  <li>• Veterans and ages 55-64 now included in requirements</li>
-                  <li>• Dependent cutoff age dropped from 18 to 7</li>
-                  <li>• Violation = only 3 months of SNAP in 3 years</li>
+                  <li>• Veterans and ages 55-64 included in requirements</li>
+                  <li>• Dependent cutoff age is 7</li>
+                  <li>• Non-compliance = only 3 months of SNAP in 3 years</li>
                 </ul>
               </div>
 
               <div className="bg-primary/10 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary mb-2">EMV Chip EBT Cards</h4>
                 <p className="text-sm text-muted-foreground">
-                  California and Oklahoma began rolling out EMV chip-enabled EBT cards for enhanced security against skimming.
+                  Most states have now rolled out EMV chip-enabled EBT cards for enhanced security against skimming.
                 </p>
               </div>
 
               <div className="bg-destructive/10 p-4 rounded-lg">
-                <h4 className="font-semibold text-destructive mb-2">Walmart Fee Reinstated</h4>
+                <h4 className="font-semibold text-destructive mb-2">Online Shopping Fees</h4>
                 <p className="text-sm text-muted-foreground">
-                  As of April 2025, Walmart reinstated a $6.99 minimum basket fee for SNAP EBT customers placing grocery pickup or delivery orders under $35.
+                  Be aware of minimum basket fees when placing grocery pickup or delivery orders with SNAP EBT at major retailers.
                 </p>
               </div>
             </CardContent>
@@ -331,7 +331,7 @@ export default function SnapTips() {
           {/* Income Eligibility */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Current Income Eligibility Limits (Oct 2024 - Sept 2025)</CardTitle>
+              <CardTitle>Current Income Eligibility Limits (Oct 2025 - Sept 2026)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
@@ -382,7 +382,7 @@ export default function SnapTips() {
           {/* Disclaimer */}
           <div className="text-center">
             <p className="text-xs text-muted-foreground">
-              This information is current as of September 2025. SNAP policies and eligibility requirements may vary by state. 
+              This information is current as of January 2026. SNAP policies and eligibility requirements may vary by state. 
               Always consult your local SNAP office for the most current information specific to your area.
             </p>
           </div>
