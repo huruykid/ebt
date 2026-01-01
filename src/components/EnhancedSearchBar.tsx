@@ -144,12 +144,21 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     setShowLocationInput(false);
   };
 
+  const handleSearch = () => {
+    setShowSuggestions(false);
+    // Trigger immediate search by updating params
+    updateSearchParams({ 
+      query: inputValue, 
+      location: locationValue 
+    });
+  };
+
   const hasQuery = inputValue.trim() || locationValue.trim() || searchParams.useCurrentLocation;
 
   // Compact version for mobile/embedded use
   if (compact) {
     return (
-      <div ref={containerRef} className={cn("relative w-full", className)}>
+      <div ref={containerRef} className={cn("relative w-full space-y-3", className)}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -160,6 +169,7 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
               setShowSuggestions(true);
             }}
             onFocus={() => setShowSuggestions(true)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder={placeholder}
             className="pl-10 pr-10 h-12 text-base rounded-xl border-2 border-primary/20 focus:border-primary/40"
           />
@@ -175,6 +185,19 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
             </Button>
           )}
         </div>
+
+        <Button 
+          onClick={handleSearch} 
+          className="w-full h-11"
+          disabled={!hasQuery || isLoading}
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-background border-t-transparent mr-2" />
+          ) : (
+            <Search className="h-4 w-4 mr-2" />
+          )}
+          Search Stores
+        </Button>
 
         {showSuggestions && (
           <SearchSuggestionsDropdown
@@ -252,6 +275,21 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
             </div>
           )}
         </div>
+
+        {/* Search Button */}
+        <Button 
+          onClick={handleSearch} 
+          size="lg"
+          className="w-full h-12 text-base font-semibold"
+          disabled={!hasQuery || isLoading}
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-background border-t-transparent mr-2" />
+          ) : (
+            <Search className="h-5 w-5 mr-2" />
+          )}
+          Search Stores
+        </Button>
 
         {/* Active Filters */}
         <ActiveFilters
