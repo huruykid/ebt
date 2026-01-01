@@ -34,14 +34,10 @@ export const ExploreTrending: React.FC = () => {
     selectedNamePatterns: []
   });
 
-  const handleLocationSearch = (lat: number, lng: number) => {
-    console.log('Location search:', lat, lng);
-    navigate('/search');
-  };
-
   const handleCurrentLocationSearch = () => {
     if (latitude && longitude) {
-      handleLocationSearch(latitude, longitude);
+      // Pass location via URL params so search page can auto-search
+      navigate(`/search?lat=${latitude}&lng=${longitude}`);
     }
   };
 
