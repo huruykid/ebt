@@ -1,21 +1,19 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { supabase } from '@/integrations/supabase/client';
-
-interface GeolocationState {
-  latitude: number | null;
-  longitude: number | null;
-  error: string | null;
-  loading: boolean;
-  source: 'browser' | 'ip' | 'fallback' | null;
-  city?: string;
-  region?: string;
-}
+import {
+  GeolocationResult,
+  createInitialGeolocationState,
+  createBrowserLocationResult,
+  createIPLocationResult,
+  createFallbackLocationResult,
+  mergeGeolocationOptions,
+  DEFAULT_FALLBACK_LOCATION,
+} from '@/lib/core';
 
 // Try IP-based geolocation as fallback
-const getIPLocation = async (): Promise<GeolocationState> => {
+const getIPLocation = async (): Promise<GeolocationResult> => {
   try {
     const { data, error } = await supabase.functions.invoke('ip-geolocation');
     
@@ -26,38 +24,22 @@ const getIPLocation = async (): Promise<GeolocationState> => {
 
     console.log('IP geolocation result:', data);
     
-    return {
+    return createIPLocationResult({
       latitude: data.latitude,
       longitude: data.longitude,
-      error: null,
-      loading: false,
-      source: data.source === 'fallback' ? 'fallback' : 'ip',
       city: data.city,
       region: data.region,
-    };
+      source: data.source === 'fallback' ? 'fallback' : 'ip',
+    });
   } catch (err) {
     console.error('Failed to get IP location:', err);
     // Ultimate fallback - US geographic center
-    return {
-      latitude: 39.8283,
-      longitude: -98.5795,
-      error: null,
-      loading: false,
-      source: 'fallback',
-      city: 'United States',
-      region: '',
-    };
+    return createFallbackLocationResult();
   }
 };
 
 export const useGeolocation = () => {
-  const [location, setLocation] = useState<GeolocationState>({
-    latitude: null,
-    longitude: null,
-    error: null,
-    loading: true,
-    source: null,
-  });
+  const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
 
   const tryIPFallback = useCallback(async () => {
     console.log('Trying IP geolocation fallback...');
@@ -74,15 +56,14 @@ export const useGeolocation = () => {
 
     setLocation(prev => ({ ...prev, loading: true }));
 
+    const options = mergeGeolocationOptions();
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          error: null,
-          loading: false,
-          source: 'browser',
-        });
+        setLocation(createBrowserLocationResult(
+          position.coords.latitude,
+          position.coords.longitude
+        ));
       },
       async () => {
         // Permission denied - silently use IP fallback
@@ -90,7 +71,7 @@ export const useGeolocation = () => {
         const ipLocation = await getIPLocation();
         setLocation(ipLocation);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      options
     );
   }, []);
 
@@ -100,7 +81,7 @@ export const useGeolocation = () => {
     const isNative = platform !== 'web';
     const isIOS = platform === 'ios';
 
-    const setSafe = (updater: ((prev: GeolocationState) => GeolocationState) | GeolocationState) => {
+    const setSafe = (updater: ((prev: GeolocationResult) => GeolocationResult) | GeolocationResult) => {
       if (cancelled) return;
       setLocation(prev => (typeof updater === 'function' ? (updater as any)(prev) : updater));
     };
@@ -114,13 +95,10 @@ export const useGeolocation = () => {
 
     const handleSuccess = (position: any) => {
       clearTimeout(safetyTimer);
-      setSafe({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        error: null,
-        loading: false,
-        source: 'browser',
-      });
+      setSafe(createBrowserLocationResult(
+        position.coords.latitude,
+        position.coords.longitude
+      ));
     };
 
     const handleError = async (err: any) => {
@@ -142,10 +120,11 @@ export const useGeolocation = () => {
           setSafe(ipLocation);
           return;
         }
+        const options = mergeGeolocationOptions();
         const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutes
+          enableHighAccuracy: options.enableHighAccuracy,
+          timeout: options.timeout,
+          maximumAge: options.maximumAge,
         });
         handleSuccess(position);
       } catch (err) {
@@ -161,11 +140,8 @@ export const useGeolocation = () => {
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
-        enableHighAccuracy: true,
-        timeout: 8000, // Reduced timeout for faster fallback
-        maximumAge: 300000, // 5 minutes
-      });
+      const options = mergeGeolocationOptions({ timeout: 8000 }); // Reduced timeout for faster fallback
+      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
     };
 
     if (isNative && !isIOS) {
