@@ -50,39 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-      badges: {
-        Row: {
-          badge_type: Database["public"]["Enums"]["badge_type"]
-          contributions_required: number | null
-          created_at: string | null
-          description: string
-          icon: string | null
-          id: string
-          name: string
-          points_required: number | null
-        }
-        Insert: {
-          badge_type: Database["public"]["Enums"]["badge_type"]
-          contributions_required?: number | null
-          created_at?: string | null
-          description: string
-          icon?: string | null
-          id?: string
-          name: string
-          points_required?: number | null
-        }
-        Update: {
-          badge_type?: Database["public"]["Enums"]["badge_type"]
-          contributions_required?: number | null
-          created_at?: string | null
-          description?: string
-          icon?: string | null
-          id?: string
-          name?: string
-          points_required?: number | null
-        }
-        Relationships: []
-      }
       blog_categories: {
         Row: {
           created_at: string
@@ -735,68 +702,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_badges: {
-        Row: {
-          badge_id: string
-          earned_at: string | null
-          id: string
-          user_id: string
-        }
-        Insert: {
-          badge_id: string
-          earned_at?: string | null
-          id?: string
-          user_id: string
-        }
-        Update: {
-          badge_id?: string
-          earned_at?: string | null
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_badges_badge_id_fkey"
-            columns: ["badge_id"]
-            isOneToOne: false
-            referencedRelation: "badges"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_points: {
-        Row: {
-          contribution_type: Database["public"]["Enums"]["contribution_type"]
-          created_at: string | null
-          description: string | null
-          id: string
-          points_earned: number
-          store_id: number | null
-          user_id: string
-          verified: boolean | null
-        }
-        Insert: {
-          contribution_type: Database["public"]["Enums"]["contribution_type"]
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          points_earned?: number
-          store_id?: number | null
-          user_id: string
-          verified?: boolean | null
-        }
-        Update: {
-          contribution_type?: Database["public"]["Enums"]["contribution_type"]
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          points_earned?: number
-          store_id?: number | null
-          user_id?: string
-          verified?: boolean | null
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -920,27 +825,6 @@ export type Database = {
       }
     }
     Functions: {
-      award_contribution_points: {
-        Args: {
-          p_contribution_type: Database["public"]["Enums"]["contribution_type"]
-          p_description?: string
-          p_store_id?: number
-        }
-        Returns: {
-          contribution_type: Database["public"]["Enums"]["contribution_type"]
-          created_at: string
-          description: string
-          id: string
-          points_earned: number
-          store_id: number
-          user_id: string
-          verified: boolean
-        }[]
-      }
-      check_and_award_badges: {
-        Args: { p_user_id: string }
-        Returns: undefined
-      }
       cleanup_old_store_clicks: { Args: never; Returns: undefined }
       get_nearby_stores: {
         Args: {
@@ -994,19 +878,6 @@ export type Database = {
           google_place_id: string
           id: string
           store_name: string
-        }[]
-      }
-      get_user_stats: {
-        Args: { target_user_id?: string }
-        Returns: {
-          hours_count: number
-          photos_count: number
-          reviews_count: number
-          stores_contributed_to: number
-          total_contributions: number
-          total_points: number
-          user_id: string
-          verified_contributions: number
         }[]
       }
       has_role: {
@@ -1106,21 +977,6 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
-      badge_type:
-        | "neighborhood_scout"
-        | "snap_hero"
-        | "photo_contributor"
-        | "reviewer"
-        | "info_verifier"
-        | "community_helper"
-      contribution_type:
-        | "store_hours"
-        | "store_photo"
-        | "store_review"
-        | "store_tag"
-        | "contact_info"
-        | "report_incorrect_info"
-        | "verify_info"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1249,23 +1105,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
-      badge_type: [
-        "neighborhood_scout",
-        "snap_hero",
-        "photo_contributor",
-        "reviewer",
-        "info_verifier",
-        "community_helper",
-      ],
-      contribution_type: [
-        "store_hours",
-        "store_photo",
-        "store_review",
-        "store_tag",
-        "contact_info",
-        "report_incorrect_info",
-        "verify_info",
-      ],
     },
   },
 } as const

@@ -7,7 +7,6 @@ import { StarRating } from './StarRating';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { reviewSchema, type ReviewInput } from '@/lib/validationSchemas';
@@ -20,7 +19,6 @@ interface ReviewFormProps {
 
 export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) => {
   const { user } = useAuth();
-  const { trackContribution } = useContributionTracking();
   const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
@@ -61,9 +59,6 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
       return data;
     },
     onSuccess: () => {
-      // Track the contribution
-      trackContribution('store_review', storeId);
-      
       // Reset form
       setRating(0);
       setReviewText('');

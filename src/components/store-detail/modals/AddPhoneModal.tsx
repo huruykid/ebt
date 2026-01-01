@@ -15,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
-import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -32,7 +31,6 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { trackContribution } = useContributionTracking();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,12 +47,6 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
     try {
       // TODO: Save phone number to database when backend is ready
       console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
-      
-      // Track the contribution - use ObjectId for numeric store_id
-      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
-      if (storeNumericId) {
-        trackContribution('contact_info', storeNumericId);
-      }
       
       // Update the frontend immediately
       if (onPhoneAdded) {
@@ -91,8 +83,7 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
               Add Phone Number
             </DialogTitle>
             <DialogDescription>
-              Help the community by adding the phone number for {store.Store_Name}. 
-              You'll earn 15 points for this contribution.
+              Help the community by adding the phone number for {store.Store_Name}.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
@@ -125,7 +116,7 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         action="add contact information"
-        description="Create an account or sign in to contribute store information and earn 15 points for helping the community."
+        description="Create an account or sign in to contribute store information and help the community."
       />
     </>
   );
