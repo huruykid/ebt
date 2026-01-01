@@ -36,8 +36,8 @@ export const ExploreTrending: React.FC = () => {
 
   const handleCurrentLocationSearch = () => {
     if (latitude && longitude) {
-      // Pass location via URL params so search page can auto-search
-      navigate(`/search?lat=${latitude}&lng=${longitude}`);
+      // Clear any active ZIP search to show nearby stores section
+      handleClearSearch();
     }
   };
 
