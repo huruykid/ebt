@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { CategoryTabs } from './CategoryTabs';
 import { StoreList } from './StoreList';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -16,6 +16,7 @@ export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const navigate = useNavigate();
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   const { latitude, longitude, loading } = useGeolocation();
 
@@ -38,6 +39,10 @@ export const ExploreTrending: React.FC = () => {
     if (latitude && longitude) {
       // Clear any active ZIP search to show nearby stores section
       handleClearSearch();
+      // Smooth scroll to results
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -76,9 +81,9 @@ export const ExploreTrending: React.FC = () => {
           <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
         </div>
 
-        <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3 pb-6">
+        <main ref={resultsRef} className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3 pb-6">
           {showZipResults ? (
-            <div className="w-full">
+            <div className="w-full animate-fade-in">
               {zipLoading ? (
                 <div className="flex justify-center py-6">
                   <LoadingSpinner />
