@@ -125,13 +125,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         
         {/* Current Location Search Button */}
         {!isSearchActive && latitude && longitude && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto flex justify-center">
             <Button
               onClick={onCurrentLocationSearch}
               variant="outline"
               size="lg"
               disabled={loading}
-              className="w-full sm:w-auto"
             >
               <Navigation className="h-4 w-4 mr-2" />
               Search near your current location
