@@ -119,7 +119,7 @@ export const generateMetaDescription = (pageType: string, data: any): string => 
       return `Search results for EBT and SNAP-approved stores${data.location ? ` near ${data.location}` : ''}. Find grocery stores, restaurants, and markets accepting food stamps.`;
     
     case 'snap-tips':
-      return 'Complete 2025 SNAP tips and tricks guide. Learn how to maximize your benefits, eligible items, Double Up programs, and money-saving strategies.';
+      return 'Complete 2026 SNAP tips and tricks guide. Learn how to maximize your benefits, eligible items, Double Up programs, and money-saving strategies.';
     
     default:
       return 'Find stores, restaurants, and markets that accept EBT and SNAP benefits near you. Search by location, store type, or ZIP code. Free and mobile-friendly.';

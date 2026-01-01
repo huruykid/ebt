@@ -1,3 +1,4 @@
+import React from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
@@ -29,6 +30,51 @@ export default function SnapTips() {
     "url": "https://ebtfinder.org/snap-tips"
   };
 
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Apply for SNAP Benefits",
+    "description": "Step-by-step guide to apply for SNAP (food stamps) benefits in the United States.",
+    "totalTime": "PT30M",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "0"
+    },
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Check Eligibility",
+        "text": "Review income limits for your household size. Single person: $1,632 gross monthly. Four-person household: $3,380 gross monthly.",
+        "position": 1
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Gather Required Documents",
+        "text": "Collect proof of identity, income, expenses, and household composition. This includes pay stubs, utility bills, and IDs.",
+        "position": 2
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Submit Application",
+        "text": "Apply online through your state's SNAP portal, in-person at your local SNAP office, or by mail/fax depending on your state.",
+        "position": 3
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Complete Interview",
+        "text": "Schedule and complete a phone or in-person interview with a SNAP caseworker to verify your information.",
+        "position": 4
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Receive EBT Card",
+        "text": "Once approved, receive your EBT card by mail. Benefits are loaded monthly and can be used at authorized retailers.",
+        "position": 5
+      }
+    ]
+  };
+
   const faqData = [
     {
       question: "What items can I buy with SNAP benefits in 2026?",
@@ -52,12 +98,26 @@ export default function SnapTips() {
     }
   ];
 
+  // Inject HowTo schema
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.id = 'howto-schema';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(howToSchema);
+    document.head.appendChild(script);
+    
+    return () => {
+      const existing = document.getElementById('howto-schema');
+      if (existing) existing.remove();
+    };
+  }, []);
+
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
         title="Complete 2026 SNAP Tips & Tricks Guide | EBT Finder"
         description="Comprehensive guide to maximizing your SNAP benefits in 2026. Learn about eligible items, programs, and money-saving strategies."
-        keywords="SNAP benefits 2026, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide"
+        keywords="SNAP benefits 2026, EBT tips, Double Up Food Bucks, SNAP eligible items, Restaurant Meals Program, SNAP policy updates, EBT tricks, food assistance guide, how to apply for SNAP"
         canonicalUrl="https://ebtfinder.org/snap-tips"
         structuredData={structuredData}
       />

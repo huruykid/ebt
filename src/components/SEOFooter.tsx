@@ -5,6 +5,7 @@ import { ExternalLink } from 'lucide-react';
 
 export const SEOFooter: React.FC = () => {
   const topCities = [
+    { name: 'New York', slug: 'new-york' },
     { name: 'Los Angeles', slug: 'los-angeles' },
     { name: 'Chicago', slug: 'chicago-ebt' },
     { name: 'Houston', slug: 'houston' },
@@ -13,14 +14,17 @@ export const SEOFooter: React.FC = () => {
     { name: 'San Antonio', slug: 'san-antonio' },
     { name: 'San Diego', slug: 'san-diego' },
     { name: 'Dallas', slug: 'dallas' },
-    { name: 'San Jose', slug: 'san-jose' },
-    { name: 'Austin', slug: 'austin' },
-    { name: 'Jacksonville', slug: 'jacksonville' },
-    { name: 'Fort Worth', slug: 'fort-worth' },
-    { name: 'Columbus', slug: 'columbus' },
-    { name: 'Charlotte', slug: 'charlotte' },
+    { name: 'Miami', slug: 'miami' },
+    { name: 'Atlanta', slug: 'atlanta' },
+    { name: 'Denver', slug: 'denver' },
+    { name: 'Seattle', slug: 'seattle' },
+    { name: 'Boston', slug: 'boston' },
+    { name: 'Detroit', slug: 'detroit' },
     { name: 'San Francisco', slug: 'san-francisco' },
-    { name: 'Fresno', slug: 'fresno' }
+    { name: 'Austin', slug: 'austin' },
+    { name: 'Las Vegas', slug: 'las-vegas' },
+    { name: 'Memphis', slug: 'memphis' },
+    { name: 'Baltimore', slug: 'baltimore' }
   ];
 
   return (

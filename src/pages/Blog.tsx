@@ -1,12 +1,13 @@
 import { SEOHead } from '@/components/SEOHead';
+import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { BlogPostForm } from '@/components/blog/BlogPostForm';
 import { BlogPostList } from '@/components/blog/BlogPostList';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
@@ -36,13 +37,59 @@ export default function Blog() {
     },
   });
 
+  // Add ItemList schema for blog listing
+  useEffect(() => {
+    if (posts.length > 0) {
+      const itemListSchema = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "SNAP Savvy Blog Articles",
+        "description": "Articles about maximizing SNAP benefits, EBT tips, and food assistance resources",
+        "numberOfItems": posts.length,
+        "itemListElement": posts.slice(0, 10).map((post, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": {
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "description": post.excerpt || post.meta_description || '',
+            "url": `https://ebtfinder.org/blog/${post.slug}`,
+            "datePublished": post.published_at || post.created_at,
+            "author": {
+              "@type": "Organization",
+              "name": post.author
+            }
+          }
+        }))
+      };
+
+      const script = document.createElement('script');
+      script.id = 'blog-itemlist-schema';
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(itemListSchema);
+      document.head.appendChild(script);
+
+      return () => {
+        const existing = document.getElementById('blog-itemlist-schema');
+        if (existing) existing.remove();
+      };
+    }
+  }, [posts]);
+
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Blog', url: '/blog' }
+  ];
+
   return (
     <>
       <SEOHead
         title="SNAP Savvy Blog - EBT Tips, Recipes & Resources | EBT Finder"
         description="Discover practical tips to maximize your SNAP benefits, find EBT-friendly recipes, and learn about programs that help stretch your food budget."
-        keywords="SNAP tips, EBT recipes, food stamp resources, maximize SNAP benefits, budget recipes"
+        keywords="SNAP tips, EBT recipes, food stamp resources, maximize SNAP benefits, budget recipes, SNAP blog, EBT guide"
+        canonicalUrl="https://ebtfinder.org/blog"
       />
+      <BreadcrumbSchema items={breadcrumbItems} />
       
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -119,6 +166,7 @@ export default function Blog() {
                       src={post.featured_image}
                       alt={post.title}
                       className="w-full h-48 object-cover rounded-lg mb-4"
+                      loading="lazy"
                     />
                   )}
                   

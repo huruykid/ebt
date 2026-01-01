@@ -24,12 +24,12 @@ export function ArticleSchema({ post }: ArticleSchemaProps) {
         "name": "EBT Finder",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://ebtfinder.com/primary-logo.png"
+          "url": "https://ebtfinder.org/primary-logo.png"
         }
       },
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": `https://ebtfinder.com/blog/${post.slug}`
+        "@id": `https://ebtfinder.org/blog/${post.slug}`
       },
       "articleSection": post.blog_categories?.name || "SNAP Benefits",
       "keywords": post.blog_categories?.name || "SNAP, EBT, food assistance"
