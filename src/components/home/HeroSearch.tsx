@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
 import { MapPin, Heart, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { trackLocationSearch } from '@/utils/analytics';
 
 interface HeroSearchProps {
   onZipSearch: (zipCode: string) => void;
@@ -62,7 +63,10 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         {!isSearchActive && latitude && longitude && (
           <div className="flex justify-center mt-3">
             <Button
-              onClick={onCurrentLocationSearch}
+              onClick={() => {
+                trackLocationSearch(true);
+                onCurrentLocationSearch();
+              }}
               variant="secondary"
               size="sm"
               disabled={loading}
@@ -129,7 +133,10 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
         {!isSearchActive && latitude && longitude && (
           <div className="max-w-2xl mx-auto flex justify-center">
             <Button
-              onClick={onCurrentLocationSearch}
+              onClick={() => {
+                trackLocationSearch(true);
+                onCurrentLocationSearch();
+              }}
               variant="outline"
               size="lg"
               disabled={loading}
