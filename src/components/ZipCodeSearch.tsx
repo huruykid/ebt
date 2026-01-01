@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { trackZipCodeSearch } from '@/utils/analytics';
 
 interface ZipCodeSearchProps {
   onZipSearch: (zipCode: string) => void;
@@ -32,6 +32,7 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
   const handleSearch = () => {
     const trimmedZip = zipInput.trim();
     if (validateZipCode(trimmedZip)) {
+      trackZipCodeSearch(trimmedZip);
       onZipSearch(trimmedZip);
     }
   };
