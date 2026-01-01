@@ -1,14 +1,12 @@
-
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CategorySearchResults } from '@/components/store-search/CategorySearchResults';
 import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin, Search, Navigation } from 'lucide-react';
-import { sanitizeString, isValidZipCode } from '@/utils/security';
+import { sanitizeString } from '@/utils/security';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -21,7 +19,6 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
     setSearchQuery,
     activeCategory,
     selectedStoreTypes,
-    selectedNamePatterns,
     locationSearch,
     setLocationSearch,
     sortBy,
@@ -33,30 +30,28 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
     error,
     handleCategoryChange,
     userZipCode,
-    selectedCity,
-    selectedState,
-    selectedZip,
     setSelectedZip,
     handleLocationSelect,
     clearLocationSelection,
   } = useLocationBasedSearch();
 
-  const { latitude, longitude, error: geoError, loading: geoLoading } = useGeolocation();
+  const { latitude, longitude, loading: geoLoading } = useGeolocation();
   
   // Track if we've auto-searched with initial location
-  const [hasAutoSearched, setHasAutoSearched] = React.useState(false);
+  const [hasAutoSearched, setHasAutoSearched] = useState(false);
+  const [storeNameInput, setStoreNameInput] = useState('');
+  const [locationInput, setLocationInput] = useState('');
 
   // If initialLocation is provided, set it immediately for auto-search
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialLocation && !hasAutoSearched && !locationSearch) {
-      console.log('SearchContainer: Auto-setting initial location:', initialLocation);
       setLocationSearch(initialLocation);
       setHasAutoSearched(true);
     }
   }, [initialLocation, hasAutoSearched, locationSearch, setLocationSearch]);
 
   // If initialCity is provided (without coordinates), set it in the search query
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialCity && !searchQuery && !initialLocation) {
       const sanitizedCity = sanitizeString(initialCity);
       setSearchQuery(sanitizedCity);
@@ -64,48 +59,17 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   }, [initialCity, searchQuery, setSearchQuery, initialLocation]);
 
   // Set location when geolocation data is available (only if no initial location)
-  React.useEffect(() => {
+  useEffect(() => {
     if (latitude && longitude && !initialLocation && !hasAutoSearched) {
       setLocationSearch({ lat: latitude, lng: longitude });
     }
   }, [latitude, longitude, setLocationSearch, initialLocation, hasAutoSearched]);
 
-  const handleRadiusChange = (newRadius: number) => {
+  const handleRadiusChange = useCallback((newRadius: number) => {
     setRadius(newRadius);
-  };
+  }, [setRadius]);
 
-  const handleSearch = (query: string) => {
-    console.log('SearchContainer: handleSearch called with:', query);
-    
-    // Sanitize the input query
-    const sanitizedQuery = sanitizeString(query);
-    setSearchQuery(sanitizedQuery);
-    
-    // Check if the query looks like a zip code (5 digits)
-    if (isValidZipCode(sanitizedQuery)) {
-      console.log('SearchContainer: Detected zip code search:', sanitizedQuery);
-      // For zip code searches, clear location search to force text-based search
-      setLocationSearch(null);
-    }
-  };
-
-  const handleLocationSearch = (lat: number, lng: number) => {
-    console.log('SearchContainer: handleLocationSearch called with:', lat, lng);
-    
-    // Validate coordinates
-    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-      setLocationSearch({ lat, lng });
-      // Clear the text search query when using location search
-      setSearchQuery('');
-    } else {
-      console.error('Invalid coordinates provided:', lat, lng);
-    }
-  };
-
-  const [storeNameInput, setStoreNameInput] = React.useState(searchQuery);
-  const [locationInput, setLocationInput] = React.useState('');
-
-  const geocode = async (q: string): Promise<{ lat: number; lng: number } | null> => {
+  const geocode = useCallback(async (q: string): Promise<{ lat: number; lng: number } | null> => {
     try {
       const params = new URLSearchParams({
         q: q.trim(),
@@ -122,13 +86,12 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
       }
       return null;
-    } catch (e) {
-      console.error('Geocode failed', e);
+    } catch {
       return null;
     }
-  };
+  }, []);
 
-  const handleBothFieldsSearch = async () => {
+  const handleBothFieldsSearch = useCallback(async () => {
     const sanitizedStoreName = sanitizeString(storeNameInput);
     const sanitizedLocation = sanitizeString(locationInput);
 
@@ -159,7 +122,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
       return;
     }
 
-    if (sanitizedLocation && !zipMatch && !cityStateMatch) {
+    if (sanitizedLocation) {
       // Free-form location: attempt geocode
       const coords = await geocode(sanitizedLocation);
       if (coords) setLocationSearch(coords);
@@ -170,38 +133,40 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
     if (sanitizedStoreName) {
       // Name only: keep existing geolocation if available
       setSearchQuery(sanitizedStoreName);
-      return;
     }
+  }, [storeNameInput, locationInput, setSelectedZip, clearLocationSelection, geocode, setLocationSearch, setSearchQuery, handleLocationSelect]);
 
-    // If nothing provided, do nothing
-  };
-
-  const handleUseCurrentLocation = () => {
+  const handleUseCurrentLocation = useCallback(() => {
     if (latitude && longitude) {
       setLocationSearch({ lat: latitude, lng: longitude });
-      setLocationInput(''); // Clear location input
+      setLocationInput('');
       setSelectedZip('');
       clearLocationSelection();
       
-      // If we have a store name, keep it for smart search (name + location)
       if (storeNameInput.trim()) {
         const sanitizedStoreName = sanitizeString(storeNameInput);
         setSearchQuery(sanitizedStoreName);
       } else {
-        // Clear search query to use pure location search
         setSearchQuery('');
       }
     }
-  };
+  }, [latitude, longitude, setLocationSearch, setSelectedZip, clearLocationSelection, storeNameInput, setSearchQuery]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleBothFieldsSearch();
+    }
+  }, [handleBothFieldsSearch]);
 
   // Show location context when using initial location
   const showingInitialLocation = initialLocation && locationSearch && 
     locationSearch.lat === initialLocation.lat && 
     locationSearch.lng === initialLocation.lng;
 
+  const isSearchDisabled = !storeNameInput.trim() && !locationInput.trim() && !locationSearch;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* UPDATED: Two-Field Search Interface */}
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h2>
         <p className="text-muted-foreground">
@@ -209,47 +174,53 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         </p>
       </div>
 
-      {/* NEW: Two-Field Search Form */}
       <Card className="p-6 mb-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20">
         <div className="space-y-4">
-          {/* Store Name Field */}
           <div>
-            <label className="block text-sm font-semibold mb-2 text-foreground">Store Name (Optional)</label>
+            <label className="block text-sm font-semibold mb-2 text-foreground">
+              Store Name (Optional)
+            </label>
             <Input
               type="text"
               placeholder="e.g., Walmart, McDonald's, Target..."
               value={storeNameInput}
               onChange={(e) => setStoreNameInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
+              onKeyDown={handleKeyDown}
               className="w-full h-12 text-base"
             />
           </div>
 
-          {/* Location Field */}
           <div>
-            <label className="block text-sm font-semibold mb-2 text-foreground">Location</label>
-            <div className="flex gap-3 items-center">
+            <label className="block text-sm font-semibold mb-2 text-foreground">
+              Location
+            </label>
+            <div className="flex gap-3 items-center flex-wrap sm:flex-nowrap">
               <Input
                 type="text"
                 placeholder="City, ST or ZIP (e.g., Fresno, CA or 90210)"
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleBothFieldsSearch()}
-                className="flex-1 h-12 text-base"
+                onKeyDown={handleKeyDown}
+                className="flex-1 h-12 text-base min-w-0"
               />
               {latitude && longitude && (
-                <Button onClick={handleUseCurrentLocation} variant="outline" disabled={geoLoading} className="h-12 px-4">
+                <Button 
+                  onClick={handleUseCurrentLocation} 
+                  variant="outline" 
+                  disabled={geoLoading} 
+                  className="h-12 px-4 shrink-0"
+                >
                   <Navigation className="h-4 w-4 mr-2" />
-                  Use My Location
+                  <span className="hidden sm:inline">Use My Location</span>
+                  <span className="sm:hidden">My Location</span>
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Search Button */}
           <Button 
             onClick={handleBothFieldsSearch} 
-            disabled={!storeNameInput.trim() && !locationInput.trim() && !locationSearch}
+            disabled={isSearchDisabled}
             className="w-full h-12 text-base font-semibold"
             size="lg"
           >
@@ -259,7 +230,6 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         </div>
       </Card>
 
-      {/* Location Display */}
       {locationSearch && (
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
           <MapPin className="h-4 w-4" />
@@ -273,16 +243,12 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         </div>
       )}
 
-      {/* Search Query Display */}
       {searchQuery && !locationSearch && (
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
-          <span>
-            Search results for: "{searchQuery}"
-          </span>
+          <span>Search results for: "{searchQuery}"</span>
         </div>
       )}
 
-      {/* Category Search Results with Tabs */}
       <div className="mt-6">
         <CategorySearchResults
           stores={stores}
