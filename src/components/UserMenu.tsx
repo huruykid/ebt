@@ -2,14 +2,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { PointsDisplay } from '@/components/gamification/PointsDisplay';
-import { useGameification } from '@/hooks/useGameification';
 import { toast } from 'sonner';
 import { escapeHtml } from '@/utils/security';
 
 export const UserMenu: React.FC = () => {
   const { user, signOut } = useAuth();
-  const { userStats } = useGameification();
   const [showMenu, setShowMenu] = useState(false);
 
   const handleSignOut = async () => {
@@ -36,11 +33,6 @@ export const UserMenu: React.FC = () => {
         <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
           {emailInitial}
         </div>
-        {userStats && (
-          <div className="hidden sm:block">
-            <PointsDisplay userStats={userStats} compact={true} />
-          </div>
-        )}
       </button>
 
       {showMenu && (
@@ -48,11 +40,6 @@ export const UserMenu: React.FC = () => {
           <div className="px-4 py-2 border-b text-sm text-gray-600">
             <span dangerouslySetInnerHTML={{ __html: safeEmail }} />
           </div>
-          {userStats && (
-            <div className="px-4 py-3 border-b">
-              <PointsDisplay userStats={userStats} compact={true} />
-            </div>
-          )}
           <button
             onClick={handleSignOut}
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

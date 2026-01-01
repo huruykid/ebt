@@ -5,7 +5,6 @@ import { Upload, X, Camera } from 'lucide-react';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 import { validateImageUpload } from '@/utils/security';
@@ -20,7 +19,6 @@ interface AddPhotoModalProps {
 
 export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, store }) => {
   const { user } = useAuth();
-  const { trackContribution } = useContributionTracking();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -80,14 +78,6 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
       });
 
       await Promise.all(uploadPromises);
-      
-      // Track contribution for each photo - use ObjectId for numeric store_id
-      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
-      if (storeNumericId) {
-        selectedFiles.forEach(() => {
-          trackContribution('store_photo', storeNumericId);
-        });
-      }
 
       toast.success(`${selectedFiles.length} photo(s) uploaded successfully!`);
       setSelectedFiles([]);
@@ -167,11 +157,6 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
                 {uploading ? 'Uploading...' : `Upload ${selectedFiles.length} Photo(s)`}
               </Button>
             </div>
-
-            {/* Points Info */}
-            <div className="text-center text-xs text-muted-foreground">
-              Earn 10 points for each photo uploaded
-            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -180,7 +165,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({ isOpen, onClose, s
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         action="upload photos"
-        description="Create an account or sign in to upload photos and help the community discover great stores. You'll earn points for each photo!"
+        description="Create an account or sign in to upload photos and help the community discover great stores."
       />
     </>
   );

@@ -15,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoginPromptModal } from '@/components/LoginPromptModal';
 import { useAuth } from '@/contexts/AuthContext';
-import { useContributionTracking } from '@/hooks/useContributionTracking';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -44,7 +43,6 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { trackContribution } = useContributionTracking();
 
   const handleDayToggle = (day: string) => {
     setHours(prev => ({
@@ -73,12 +71,6 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
     try {
       // TODO: Save hours to database when backend is ready
       console.log('Adding hours:', hours, 'for store:', store.id);
-      
-      // Track the contribution - use ObjectId for numeric store_id
-      const storeNumericId = store.ObjectId ? parseInt(store.ObjectId) : null;
-      if (storeNumericId) {
-        trackContribution('store_hours', storeNumericId);
-      }
       
       // Update the frontend immediately
       if (onHoursAdded) {
@@ -114,8 +106,7 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
               Add Store Hours
             </DialogTitle>
             <DialogDescription>
-              Help the community by adding the operating hours for {store.Store_Name}. 
-              You'll earn 20 points for this contribution.
+              Help the community by adding the operating hours for {store.Store_Name}.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
@@ -169,7 +160,7 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         action="add store hours"
-        description="Create an account or sign in to contribute store information and earn 20 points for helping the community."
+        description="Create an account or sign in to contribute store information and help the community."
       />
     </>
   );
