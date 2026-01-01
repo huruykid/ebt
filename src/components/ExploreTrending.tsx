@@ -52,7 +52,23 @@ export const ExploreTrending: React.FC = () => {
   };
 
   const handleRequestLocation = () => {
-    window.location.reload();
+    // Request browser geolocation permission explicitly
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          // Permission granted - reload to get fresh location
+          window.location.reload();
+        },
+        (error) => {
+          console.log('Location permission denied or error:', error);
+          // Still reload to trigger IP fallback
+          window.location.reload();
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      window.location.reload();
+    }
   };
 
   const showZipResults = isSearchActive;
