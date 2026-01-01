@@ -58,18 +58,20 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </div>
         
-        {/* Current location button - shown as secondary option, not intrusive */}
+        {/* Current location button - shown as secondary option, visible but not intrusive */}
         {!isSearchActive && latitude && longitude && (
-          <Button
-            onClick={onCurrentLocationSearch}
-            variant="ghost"
-            size="sm"
-            disabled={loading}
-            className="mt-2 text-xs text-muted-foreground"
-          >
-            <Navigation className="h-3 w-3 mr-1.5" />
-            Or use current location
-          </Button>
+          <div className="flex justify-center mt-3">
+            <Button
+              onClick={onCurrentLocationSearch}
+              variant="secondary"
+              size="sm"
+              disabled={loading}
+              className="text-sm"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Or use current location
+            </Button>
+          </div>
         )}
 
         {/* Subtle location hint - no blocking prompt */}
