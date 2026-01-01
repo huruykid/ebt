@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Search, MapPin, Navigation, Filter, X } from 'lucide-react';
+import { Search, MapPin, Navigation, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { EnhancedSearchBar } from './EnhancedSearchBar';
@@ -23,6 +23,7 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
   const [showSearchSheet, setShowSearchSheet] = useState(false);
   const [quickSearchValue, setQuickSearchValue] = useState('');
   const { latitude, longitude } = useGeolocation();
+  const [locationValue, setLocationValue] = useState('');
   
   // Shared search state - updated by EnhancedSearchBar via callback
   const [searchState, setSearchState] = useState<{
@@ -57,10 +58,11 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
 
   const handleQuickSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (quickSearchValue.trim()) {
+    if (quickSearchValue.trim() || locationValue.trim()) {
       setSearchState(prev => ({
         ...prev,
         activeQuery: quickSearchValue,
+        activeLocation: locationValue,
         hasSearched: true
       }));
       setShowSearchSheet(true);
@@ -69,6 +71,7 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
 
   const handleClearSearch = () => {
     setQuickSearchValue('');
+    setLocationValue('');
     setSearchState({
       results: [],
       isLoading: false,
@@ -78,15 +81,6 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
       useCurrentLocation: false
     });
   };
-
-  const popularQuickSearches = [
-    { text: 'McDonald\'s', icon: '🍟' },
-    { text: 'Walmart', icon: '🛒' },
-    { text: 'Subway', icon: '🥪' },
-    { text: 'Pizza', icon: '🍕' },
-    { text: 'Grocery', icon: '🥬' },
-    { text: 'Dollar Store', icon: '💰' }
-  ];
 
   const hasCurrentLocation = !!(latitude && longitude);
 
@@ -113,61 +107,36 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Quick Search Bar */}
+      {/* Search Card with Store & Location inputs */}
       <Card className="p-4">
         <form onSubmit={handleQuickSearch} className="space-y-3">
+          {/* Store Name Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
             <Input
               value={quickSearchValue}
               onChange={(e) => setQuickSearchValue(e.target.value)}
-              placeholder="Quick search for stores..."
-              className="pl-10 pr-10 h-12 text-base rounded-xl"
+              placeholder="Store name (e.g. Walmart, McDonald's)"
+              className="pl-10 h-12 text-base rounded-xl"
             />
-            <Sheet open={showSearchSheet} onOpenChange={setShowSearchSheet}>
-              <SheetTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                >
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[90vh] overflow-hidden">
-                <SheetHeader>
-                  <SheetTitle>Advanced Search</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4 h-full overflow-y-auto pb-20">
-                  <EnhancedSearchBar 
-                    onSearchChange={handleSearchChange}
-                    initialQuery={searchState.activeQuery}
-                    initialLocation={searchState.activeLocation}
-                    initialUseCurrentLocation={searchState.useCurrentLocation}
-                  />
-                  <div className="mt-6">
-                    <EnhancedSearchResults
-                      stores={searchState.results}
-                      isLoading={searchState.isLoading}
-                      error={null}
-                    />
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
 
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1 h-10">
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
+          {/* Location Input */}
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+            <Input
+              value={locationValue}
+              onChange={(e) => setLocationValue(e.target.value)}
+              placeholder="City, State or ZIP code"
+              className="pl-10 pr-12 h-12 text-base rounded-xl"
+            />
             {hasCurrentLocation && (
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 onClick={() => {
+                  setLocationValue('');
                   setSearchState(prev => ({
                     ...prev,
                     useCurrentLocation: true,
@@ -175,39 +144,46 @@ export const MobileSearchInterface: React.FC<MobileSearchInterfaceProps> = ({
                   }));
                   setShowSearchSheet(true);
                 }}
-                className="h-10 px-4"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                title="Use my location"
               >
                 <Navigation className="h-4 w-4" />
               </Button>
             )}
           </div>
+
+          {/* Search Button */}
+          <Button type="submit" className="w-full h-11">
+            <Search className="h-4 w-4 mr-2" />
+            Search Stores
+          </Button>
         </form>
+
+        {/* Advanced Search Sheet */}
+        <Sheet open={showSearchSheet} onOpenChange={setShowSearchSheet}>
+          <SheetContent side="bottom" className="h-[90vh] overflow-hidden">
+            <SheetHeader>
+              <SheetTitle>Search Results</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4 h-full overflow-y-auto pb-20">
+              <EnhancedSearchBar 
+                onSearchChange={handleSearchChange}
+                initialQuery={searchState.activeQuery}
+                initialLocation={searchState.activeLocation}
+                initialUseCurrentLocation={searchState.useCurrentLocation}
+              />
+              <div className="mt-6">
+                <EnhancedSearchResults
+                  stores={searchState.results}
+                  isLoading={searchState.isLoading}
+                  error={null}
+                />
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </Card>
 
-      {/* Quick Search Pills */}
-      <Card className="p-4">
-        <h3 className="font-medium mb-3 text-sm">Popular Searches</h3>
-        <div className="flex flex-wrap gap-2">
-          {popularQuickSearches.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setQuickSearchValue(item.text);
-                setSearchState(prev => ({
-                  ...prev,
-                  activeQuery: item.text,
-                  hasSearched: true
-                }));
-                setShowSearchSheet(true);
-              }}
-              className="flex items-center gap-2 px-3 py-2 bg-muted rounded-full text-sm hover:bg-muted/80 transition-colors"
-            >
-              <span>{item.icon}</span>
-              {item.text}
-            </button>
-          ))}
-        </div>
-      </Card>
 
       {/* Current Search Status */}
       {searchState.hasSearched && (
