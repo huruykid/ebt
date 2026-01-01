@@ -72,26 +72,29 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ item
       <div className="max-w-7xl mx-auto px-6 py-3">
         <Breadcrumb>
           <BreadcrumbList className="flex-nowrap overflow-x-auto">
-            {breadcrumbItems.map((item, index) => (
-              <React.Fragment key={`breadcrumb-${index}`}>
-                <BreadcrumbItem>
-                  {index === breadcrumbItems.length - 1 ? (
-                    <BreadcrumbPage className="inline-flex items-center gap-1">
-                      {index === 0 && <Home className="h-4 w-4" />}
-                      {item.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link to={item.href || '#'} className="inline-flex items-center gap-1 hover:text-foreground">
+            {breadcrumbItems.map((item, index) => {
+              const isLast = index === breadcrumbItems.length - 1;
+              return (
+                <React.Fragment key={`breadcrumb-${index}`}>
+                  <BreadcrumbItem>
+                    {isLast ? (
+                      <BreadcrumbPage className="inline-flex items-center gap-1">
                         {index === 0 && <Home className="h-4 w-4" />}
                         {item.label}
-                      </Link>
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
-              </React.Fragment>
-            ))}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link to={item.href || '#'} className="inline-flex items-center gap-1 hover:text-foreground">
+                          {index === 0 && <Home className="h-4 w-4" />}
+                          {item.label}
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {!isLast && <BreadcrumbSeparator />}
+                </React.Fragment>
+              );
+            })}
           </BreadcrumbList>
         </Breadcrumb>
       </div>

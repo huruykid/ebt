@@ -80,7 +80,7 @@ export const ExploreTrending: React.FC = () => {
           <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
         </div>
 
-        <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3">
+        <main className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3 pb-6">
           {showZipResults ? (
             <div className="w-full">
               {zipLoading ? (
@@ -102,6 +102,12 @@ export const ExploreTrending: React.FC = () => {
               onRequestLocation={handleRequestLocation}
             />
           )}
+          
+          {/* Mobile SNAP Tips & FAQ */}
+          <div className="w-full mt-6 space-y-4">
+            <SnapTipsSection />
+            <FAQSection />
+          </div>
         </main>
       </div>
 
