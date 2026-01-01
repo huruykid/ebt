@@ -51,3 +51,36 @@ export {
   matchesSearchQuery,
   getStoreTypeDisplayName,
 } from './store-utils';
+
+// Geolocation types
+export type {
+  GeolocationSource,
+  GeolocationResult,
+  IPGeolocationResponse,
+  GeolocationOptions,
+} from './geolocation-types';
+
+export {
+  DEFAULT_FALLBACK_LOCATION,
+  DEFAULT_GEOLOCATION_OPTIONS,
+} from './geolocation-types';
+
+// Geolocation utilities
+export {
+  createInitialGeolocationState,
+  createBrowserLocationResult,
+  createIPLocationResult,
+  createFallbackLocationResult,
+  createErrorLocationResult,
+  hasValidCoordinates,
+  isValidLatitude,
+  isValidLongitude,
+  isValidCoordinates,
+  determineGeolocationStrategy,
+  mergeGeolocationOptions,
+  shouldUseIPFallback,
+  getGeolocationErrorMessage,
+  processIPGeolocationResponse,
+  getLocationSourcePriority,
+  getBetterLocation,
+} from './geolocation';
