@@ -99,10 +99,18 @@ const AppContent = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               
-              {/* City Pages */}
+              {/* City Pages - Dynamic route handles all cities */}
               <Route path="/los-angeles" element={<CityPage />} />
-              <Route path="/chicago-ebt" element={<CityPage />} />
+              <Route path="/new-york" element={<CityPage />} />
+              <Route path="/brooklyn" element={<CityPage />} />
+              <Route path="/chicago" element={<CityPage />} />
               <Route path="/houston" element={<CityPage />} />
+              <Route path="/miami" element={<CityPage />} />
+              <Route path="/atlanta" element={<CityPage />} />
+              <Route path="/denver" element={<CityPage />} />
+              <Route path="/seattle" element={<CityPage />} />
+              <Route path="/boston" element={<CityPage />} />
+              <Route path="/detroit" element={<CityPage />} />
               <Route path="/phoenix" element={<CityPage />} />
               <Route path="/philadelphia" element={<CityPage />} />
               <Route path="/san-antonio" element={<CityPage />} />
@@ -116,7 +124,12 @@ const AppContent = () => {
               <Route path="/charlotte" element={<CityPage />} />
               <Route path="/san-francisco" element={<CityPage />} />
               <Route path="/fresno" element={<CityPage />} />
-              <Route path="/:citySlug" element={<CityPage />} />
+              <Route path="/indianapolis" element={<CityPage />} />
+              <Route path="/sacramento" element={<CityPage />} />
+              <Route path="/orlando" element={<CityPage />} />
+              <Route path="/las-vegas" element={<CityPage />} />
+              <Route path="/memphis" element={<CityPage />} />
+              <Route path="/baltimore" element={<CityPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -33,7 +33,7 @@ export const PopularCities: React.FC<PopularCitiesProps> = ({ variant = 'compact
         {cities.map((city) => (
           <Link
             key={city.slug}
-            to={`/city/${city.slug}`}
+            to={`/${city.slug}`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary text-secondary-foreground rounded-full text-xs font-medium transition-colors"
           >
             <MapPin className="h-3 w-3" />

@@ -285,12 +285,12 @@ const CityPage: React.FC = () => {
   const seoTitle = `Find EBT Stores in ${city.name}, ${city.state} | EBT Finder`;
   const seoDescription = `Discover EBT and SNAP-accepting stores in ${city.name}, ${city.state}. Find grocery stores, restaurants, and markets near you. Search by ZIP code: ${city.zipCodes.slice(0, 5).join(', ')} and more.`;
   const seoKeywords = `EBT stores ${city.name}, SNAP benefits ${city.state}, ${city.name} grocery stores EBT, food assistance ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}, RMP restaurants ${city.name}`;
-  const canonicalUrl = `https://ebtfinder.org/city/${actualCitySlug}`;
+  const canonicalUrl = `https://ebtfinder.org/${actualCitySlug}`;
 
   // Breadcrumb data for SEO
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
-    { name: city.name, url: `/city/${actualCitySlug}` }
+    { name: city.name, url: `/${actualCitySlug}` }
   ];
 
   // Enhanced structured data for city page
