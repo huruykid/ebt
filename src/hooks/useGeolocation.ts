@@ -39,7 +39,6 @@ const getIPLocation = async (): Promise<GeolocationResult> => {
 };
 
 export const useGeolocation = () => {
-  // Start with loading: true - auto-request location on first visit
   const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
   const [hasRequested, setHasRequested] = useState(false);
 
@@ -106,13 +105,13 @@ export const useGeolocation = () => {
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
   }, []);
 
-  // Auto-request location on first visit
+  // IP-first approach: silently get IP location on first visit (no browser prompt)
   useEffect(() => {
     if (!hasRequested) {
       setHasRequested(true);
-      requestBrowserLocation();
+      getIPLocation().then(ipLocation => setLocation(ipLocation));
     }
-  }, [hasRequested, requestBrowserLocation]);
+  }, [hasRequested]);
 
   return { ...location, tryIPFallback, requestBrowserLocation };
 };

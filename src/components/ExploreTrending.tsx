@@ -11,6 +11,7 @@ import NoLocationExperience from './NoLocationExperience';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
 import { HeroSearch, SnapTipsSection } from './home';
+import { LocationAccuracyBanner } from './LocationAccuracyBanner';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -18,7 +19,7 @@ export const ExploreTrending: React.FC = () => {
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
   
-  const { latitude, longitude, loading, requestBrowserLocation } = useGeolocation();
+  const { latitude, longitude, loading, source, city, region, requestBrowserLocation } = useGeolocation();
 
   const {
     activeZipCode,
@@ -87,6 +88,19 @@ export const ExploreTrending: React.FC = () => {
         </div>
 
         <main ref={resultsRef} className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3 pb-6">
+          {/* Location accuracy banner - mobile */}
+          {!showZipResults && (
+            <div className="w-full mb-3">
+              <LocationAccuracyBanner
+                source={source}
+                loading={loading}
+                onUpgradeLocation={requestBrowserLocation}
+                city={city}
+                region={region}
+              />
+            </div>
+          )}
+          
           {showZipResults ? (
             <div className="w-full animate-fade-in">
               {zipLoading ? (
@@ -142,6 +156,19 @@ export const ExploreTrending: React.FC = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Location accuracy banner - desktop */}
+          {!showZipResults && (
+            <div className="mb-6">
+              <LocationAccuracyBanner
+                source={source}
+                loading={loading}
+                onUpgradeLocation={requestBrowserLocation}
+                city={city}
+                region={region}
+              />
+            </div>
+          )}
+          
           {showZipResults ? (
             <div className="space-y-4">
               <div className="text-center">
