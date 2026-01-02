@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,6 @@ import {
   createIPLocationResult,
   createFallbackLocationResult,
   mergeGeolocationOptions,
-  DEFAULT_FALLBACK_LOCATION,
 } from '@/lib/core';
 
 // Try IP-based geolocation as fallback
@@ -40,7 +39,7 @@ const getIPLocation = async (): Promise<GeolocationResult> => {
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
-  const [hasRequested, setHasRequested] = useState(false);
+  const hasRequestedRef = useRef(false);
 
   const tryIPFallback = useCallback(async () => {
     console.log('Trying IP geolocation fallback...');
@@ -106,12 +105,13 @@ export const useGeolocation = () => {
   }, []);
 
   // IP-first approach: silently get IP location on first visit (no browser prompt)
+  // Using ref to prevent duplicate calls from React strict mode or re-renders
   useEffect(() => {
-    if (!hasRequested) {
-      setHasRequested(true);
-      getIPLocation().then(ipLocation => setLocation(ipLocation));
-    }
-  }, [hasRequested]);
+    if (hasRequestedRef.current) return;
+    hasRequestedRef.current = true;
+    
+    getIPLocation().then(ipLocation => setLocation(ipLocation));
+  }, []);
 
   return { ...location, tryIPFallback, requestBrowserLocation };
 };
