@@ -39,11 +39,9 @@ const getIPLocation = async (): Promise<GeolocationResult> => {
 };
 
 export const useGeolocation = () => {
-  // Start with loading: false - location only requested on user action
-  const [location, setLocation] = useState<GeolocationResult>({
-    ...createInitialGeolocationState(),
-    loading: false,
-  });
+  // Start with loading: true - auto-request location on first visit
+  const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
+  const [hasRequested, setHasRequested] = useState(false);
 
   const tryIPFallback = useCallback(async () => {
     console.log('Trying IP geolocation fallback...');
@@ -107,6 +105,14 @@ export const useGeolocation = () => {
     const options = mergeGeolocationOptions({ timeout: 10000 });
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
   }, []);
+
+  // Auto-request location on first visit
+  useEffect(() => {
+    if (!hasRequested) {
+      setHasRequested(true);
+      requestBrowserLocation();
+    }
+  }, [hasRequested, requestBrowserLocation]);
 
   return { ...location, tryIPFallback, requestBrowserLocation };
 };
