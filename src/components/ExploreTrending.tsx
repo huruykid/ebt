@@ -36,14 +36,18 @@ export const ExploreTrending: React.FC = () => {
   });
 
   const handleCurrentLocationSearch = () => {
-    if (latitude && longitude) {
-      // Clear any active ZIP search to show nearby stores section
-      handleClearSearch();
-      // Smooth scroll to results
-      setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+    // If we don't have location yet, request it
+    if (!latitude || !longitude) {
+      requestBrowserLocation();
+      return;
     }
+    
+    // Already have location - clear any active ZIP search to show nearby stores
+    handleClearSearch();
+    // Smooth scroll to results
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleCategoryChange = (categoryId: string, storeTypes?: string[]) => {
