@@ -9,6 +9,7 @@ interface SearchEventParams {
   search_method: SearchMethod;
   zip_code?: string;
   has_location?: boolean;
+  permission_requested?: boolean;
 }
 
 /**
@@ -26,6 +27,7 @@ export const trackSearchEvent = (params: SearchEventParams): void => {
     search_method: params.search_method,
     zip_code: params.zip_code || null,
     has_location: params.has_location || false,
+    permission_requested: params.permission_requested || false,
   });
 };
 
@@ -41,10 +43,12 @@ export const trackZipCodeSearch = (zipCode: string): void => {
 
 /**
  * Track current location search specifically
+ * @param permissionRequested - true if location permission is being requested for the first time
  */
-export const trackLocationSearch = (hasLocation: boolean): void => {
+export const trackLocationSearch = (permissionRequested: boolean): void => {
   trackSearchEvent({
     search_method: 'current_location',
-    has_location: hasLocation,
+    has_location: !permissionRequested,
+    permission_requested: permissionRequested,
   });
 };

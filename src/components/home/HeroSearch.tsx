@@ -59,12 +59,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </div>
         
-        {/* Current location button - shown as secondary option, visible but not intrusive */}
-        {!isSearchActive && latitude && longitude && (
+        {/* Current location button - always visible when no search is active */}
+        {!isSearchActive && (
           <div className="flex justify-center mt-3">
             <Button
               onClick={() => {
-                trackLocationSearch(true);
+                trackLocationSearch(!latitude || !longitude);
                 onCurrentLocationSearch();
               }}
               variant="secondary"
@@ -72,21 +72,10 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
               disabled={loading}
               className="text-sm"
             >
-              <Navigation className="h-4 w-4 mr-2" />
-              Or use current location
+              <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
+              {loading ? 'Getting location...' : 'Or use current location'}
             </Button>
           </div>
-        )}
-
-        {/* Subtle location hint - no blocking prompt */}
-        {!isSearchActive && !latitude && !longitude && !loading && (
-          <button
-            onClick={onRequestLocation}
-            className="mt-2 text-xs text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
-          >
-            <MapPin className="h-3 w-3" />
-            Enable location for nearby stores
-          </button>
         )}
       </div>
     );
@@ -129,20 +118,20 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </div>
         
-        {/* Current Location Search Button */}
-        {!isSearchActive && latitude && longitude && (
+        {/* Current Location Search Button - always visible */}
+        {!isSearchActive && (
           <div className="max-w-2xl mx-auto flex justify-center">
             <Button
               onClick={() => {
-                trackLocationSearch(true);
+                trackLocationSearch(!latitude || !longitude);
                 onCurrentLocationSearch();
               }}
               variant="outline"
               size="lg"
               disabled={loading}
             >
-              <Navigation className="h-4 w-4 mr-2" />
-              Search near your current location
+              <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
+              {loading ? 'Getting your location...' : 'Search near your current location'}
             </Button>
           </div>
         )}
