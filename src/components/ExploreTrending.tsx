@@ -120,6 +120,7 @@ export const ExploreTrending: React.FC = () => {
               selectedStoreTypes={selectedStoreTypes}
               onSmartSearch={() => {}}
               onRequestLocation={handleRequestLocation}
+              locationSource={source}
             />
           )}
           
@@ -196,6 +197,7 @@ export const ExploreTrending: React.FC = () => {
                 activeCategory={activeCategory}
                 selectedStoreTypes={selectedStoreTypes}
                 onRequestLocation={handleRequestLocation}
+                locationSource={source}
               />
             </>
           )}

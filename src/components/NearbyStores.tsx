@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useInfiniteNearbyStores } from '@/hooks/useInfiniteNearbyStores';
 import { InfiniteStoreList } from './InfiniteStoreList';
 import { LoadingSpinner } from './LoadingSpinner';
+import { NoStoresFound } from './NoStoresFound';
 import { SortDropdown, type SortOption } from './SortDropdown';
 import { RadiusDropdown } from './RadiusDropdown';
 import { sortStores } from '@/utils/storeSorting';
@@ -16,6 +17,8 @@ interface NearbyStoresProps {
   category?: string;
   storeTypes?: string[];
   useOptimized?: boolean;
+  locationSource?: 'ip' | 'browser' | 'fallback' | null;
+  onRequestLocation?: () => void;
 }
 
 export const NearbyStores: React.FC<NearbyStoresProps> = ({
@@ -25,7 +28,9 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
   limit = 20,
   category = 'trending',
   storeTypes = [],
-  useOptimized = true
+  useOptimized = true,
+  locationSource,
+  onRequestLocation
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [radius, setRadius] = useState(initialRadius);
@@ -62,13 +67,14 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
   const allStores = data?.pages?.flat() || [];
   
   if (allStores.length === 0) {
-    return <div className="text-center py-8">
-        <div className="text-6xl mb-4">📍</div>
-        <p className="text-muted-foreground">No stores found within {radius} miles.</p>
-        <div className="mt-4">
-          <RadiusDropdown value={radius} onChange={setRadius} />
-        </div>
-      </div>;
+    return (
+      <NoStoresFound
+        radius={radius}
+        onRadiusChange={setRadius}
+        onRequestLocation={onRequestLocation}
+        locationSource={locationSource}
+      />
+    );
   }
 
   // Sort all stores based on the selected option - only if data exists
