@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Simple in-memory rate limiting (per instance)
+// Simple in-memory rate limiting by IP (per instance)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_REQUESTS = 10;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
@@ -35,37 +34,16 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      console.log('IP Geolocation: No authorization header');
-      return new Response(JSON.stringify({ error: 'Authorization required' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // Get client IP from headers (Supabase sets these)
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+      || req.headers.get('x-real-ip') 
+      || 'unknown';
 
-    // Verify the JWT token
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    console.log('IP Geolocation request for IP:', clientIP);
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      console.log('IP Geolocation: Invalid auth token', authError?.message);
-      return new Response(JSON.stringify({ error: 'Invalid authorization' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Rate limiting by user ID
-    if (isRateLimited(user.id)) {
-      console.log('IP Geolocation: Rate limited for user', user.id);
+    // Rate limiting by IP address (protects against abuse without requiring auth)
+    if (isRateLimited(clientIP)) {
+      console.log('IP Geolocation: Rate limited for IP', clientIP);
       return new Response(JSON.stringify({ 
         error: 'Rate limit exceeded. Please try again later.',
         latitude: 39.8283,
@@ -79,13 +57,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    // Get client IP from headers (Supabase sets these)
-    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
-      || req.headers.get('x-real-ip') 
-      || 'unknown';
-
-    console.log('IP Geolocation request for user:', user.id, 'IP:', clientIP);
 
     // Use ip-api.com (free, no API key needed, 45 requests/minute limit)
     const response = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,message,lat,lon,city,regionName,country`);
