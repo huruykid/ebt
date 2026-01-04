@@ -93,6 +93,9 @@ export const DesktopNearbyStoresSection: React.FC<Props> = ({
     );
   }
 
+  // Use larger radius for approximate IP-based locations
+  const defaultRadius = locationSource === 'ip' || locationSource === 'fallback' ? 25 : 10;
+
   if (latitude && longitude) {
     return (
       <div>
@@ -120,13 +123,13 @@ export const DesktopNearbyStoresSection: React.FC<Props> = ({
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            Showing results within 10 miles
+            Showing results within {defaultRadius} miles
           </p>
         </div>
         <NearbyStores 
           latitude={latitude} 
           longitude={longitude} 
-          radius={10} 
+          radius={defaultRadius} 
           limit={20} 
           category={activeCategory} 
           storeTypes={selectedStoreTypes}
