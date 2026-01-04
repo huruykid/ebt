@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
-import { MapPin, Heart, Navigation } from 'lucide-react';
+import { CheckBalanceModal } from '@/components/CheckBalanceModal';
+import { MapPin, Heart, Navigation, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackLocationSearch } from '@/utils/analytics';
 
@@ -59,9 +60,9 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </div>
         
-        {/* Current location button - always visible when no search is active */}
+        {/* Action buttons */}
         {!isSearchActive && (
-          <div className="flex justify-center mt-3">
+          <div className="flex flex-wrap justify-center gap-2 mt-3">
             <Button
               onClick={() => {
                 trackLocationSearch(!latitude || !longitude);
@@ -73,8 +74,16 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
               className="text-sm"
             >
               <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
-              {loading ? 'Getting location...' : 'Or use current location'}
+              {loading ? 'Getting location...' : 'Use current location'}
             </Button>
+            <CheckBalanceModal 
+              trigger={
+                <Button variant="outline" size="sm" className="text-sm">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Check balance
+                </Button>
+              }
+            />
           </div>
         )}
       </div>
@@ -136,8 +145,8 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           </div>
         )}
 
-        {/* Quick Stats */}
-        <div className="flex justify-center gap-8 mt-8 text-sm text-muted-foreground">
+        {/* Quick Stats & Actions */}
+        <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
             <span>Location-based results</span>
@@ -146,6 +155,14 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             <Heart className="h-4 w-4" />
             <span>Save your favorites</span>
           </div>
+          <CheckBalanceModal 
+            trigger={
+              <button className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                <CreditCard className="h-4 w-4" />
+                <span>Check EBT balance</span>
+              </button>
+            }
+          />
         </div>
       </div>
     </div>
