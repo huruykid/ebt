@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useOptimizedNearbyStores } from '@/hooks/useOptimizedNearbyStores';
 import { StoreList } from './StoreList';
 import { LoadingSpinner } from './LoadingSpinner';
+import { NoStoresFound } from './NoStoresFound';
 import { SortDropdown, type SortOption } from './SortDropdown';
 import { RadiusDropdown } from './RadiusDropdown';
 import { sortStores } from '@/utils/storeSorting';
@@ -15,6 +16,8 @@ interface OptimizedNearbyStoresProps {
   limit?: number;
   category?: string;
   storeTypes?: string[];
+  locationSource?: 'ip' | 'browser' | 'fallback' | null;
+  onRequestLocation?: () => void;
 }
 
 export const OptimizedNearbyStores: React.FC<OptimizedNearbyStoresProps> = ({
@@ -23,7 +26,9 @@ export const OptimizedNearbyStores: React.FC<OptimizedNearbyStoresProps> = ({
   radius: initialRadius = 10,
   limit = 50,
   category = 'trending',
-  storeTypes = []
+  storeTypes = [],
+  locationSource,
+  onRequestLocation
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [radius, setRadius] = useState(initialRadius);
@@ -54,13 +59,12 @@ export const OptimizedNearbyStores: React.FC<OptimizedNearbyStoresProps> = ({
 
   if (!stores || stores.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">📍</div>
-        <p className="text-muted-foreground">No stores found within {radius} miles.</p>
-        <div className="mt-4">
-          <RadiusDropdown value={radius} onChange={setRadius} />
-        </div>
-      </div>
+      <NoStoresFound
+        radius={radius}
+        onRadiusChange={setRadius}
+        onRequestLocation={onRequestLocation}
+        locationSource={locationSource}
+      />
     );
   }
 

@@ -12,6 +12,7 @@ interface Props {
   activeCategory: string;
   selectedStoreTypes: string[];
   onRequestLocation?: () => void;
+  locationSource?: 'ip' | 'browser' | 'fallback' | null;
 }
 
 export const DesktopNearbyStoresSection: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const DesktopNearbyStoresSection: React.FC<Props> = ({
   activeCategory,
   selectedStoreTypes,
   onRequestLocation,
+  locationSource,
 }) => {
   // Show engaging content while loading OR when no location
   // This ensures users always see value immediately
@@ -127,7 +129,9 @@ export const DesktopNearbyStoresSection: React.FC<Props> = ({
           radius={10} 
           limit={20} 
           category={activeCategory} 
-          storeTypes={selectedStoreTypes} 
+          storeTypes={selectedStoreTypes}
+          locationSource={locationSource}
+          onRequestLocation={onRequestLocation}
         />
       </div>
     );

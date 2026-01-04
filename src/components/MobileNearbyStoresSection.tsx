@@ -11,6 +11,7 @@ interface Props {
   selectedStoreTypes: string[];
   onSmartSearch: (query: string) => void;
   onRequestLocation: () => void;
+  locationSource?: 'ip' | 'browser' | 'fallback' | null;
 }
 
 export const MobileNearbyStoresSection: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
   activeCategory,
   selectedStoreTypes,
   onRequestLocation,
+  locationSource,
 }) => {
   if (loading) {
     return (
@@ -40,6 +42,8 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
           limit={20}
           category={activeCategory}
           storeTypes={selectedStoreTypes}
+          locationSource={locationSource}
+          onRequestLocation={onRequestLocation}
         />
       </div>
     );
