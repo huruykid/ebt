@@ -32,13 +32,16 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
     );
   }
 
+  // Use larger radius for approximate IP-based locations
+  const defaultRadius = locationSource === 'ip' || locationSource === 'fallback' ? 25 : 10;
+
   if (latitude && longitude) {
     return (
       <div className="w-full">
         <NearbyStores
           latitude={latitude}
           longitude={longitude}
-          radius={10}
+          radius={defaultRadius}
           limit={20}
           category={activeCategory}
           storeTypes={selectedStoreTypes}
