@@ -52,3 +52,40 @@ export const trackLocationSearch = (permissionRequested: boolean): void => {
     permission_requested: permissionRequested,
   });
 };
+
+/**
+ * Track featured store click for recommendation optimization
+ */
+export const trackFeaturedStoreClick = (storeId: string, storeName: string, city: string, state: string): void => {
+  if (typeof window.gtag === 'undefined') {
+    console.debug('[Analytics] Featured store click:', { storeId, storeName, city, state });
+    return;
+  }
+
+  window.gtag('event', 'featured_store_click', {
+    event_category: 'engagement',
+    event_label: storeName,
+    store_id: storeId,
+    store_name: storeName,
+    store_city: city,
+    store_state: state,
+  });
+};
+
+/**
+ * Track popular city click for recommendation optimization
+ */
+export const trackCityClick = (cityName: string, citySlug: string, state: string): void => {
+  if (typeof window.gtag === 'undefined') {
+    console.debug('[Analytics] City click:', { cityName, citySlug, state });
+    return;
+  }
+
+  window.gtag('event', 'city_click', {
+    event_category: 'engagement',
+    event_label: cityName,
+    city_name: cityName,
+    city_slug: citySlug,
+    city_state: state,
+  });
+};

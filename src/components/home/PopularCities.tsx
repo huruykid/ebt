@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
+import { trackCityClick } from '@/utils/analytics';
 
 const POPULAR_CITIES = [
   { name: 'Los Angeles', slug: 'los-angeles', state: 'CA' },
@@ -24,6 +25,10 @@ interface PopularCitiesProps {
 export const PopularCities: React.FC<PopularCitiesProps> = ({ variant = 'compact' }) => {
   const cities = variant === 'compact' ? POPULAR_CITIES.slice(0, 6) : POPULAR_CITIES;
 
+  const handleCityClick = (city: typeof POPULAR_CITIES[0]) => {
+    trackCityClick(city.name, city.slug, city.state);
+  };
+
   return (
     <div className="space-y-2">
       <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -34,6 +39,7 @@ export const PopularCities: React.FC<PopularCitiesProps> = ({ variant = 'compact
           <Link
             key={city.slug}
             to={`/${city.slug}`}
+            onClick={() => handleCityClick(city)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary text-secondary-foreground rounded-full text-xs font-medium transition-colors"
           >
             <MapPin className="h-3 w-3" />

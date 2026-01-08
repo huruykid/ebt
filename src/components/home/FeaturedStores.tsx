@@ -5,21 +5,12 @@ import { Link } from 'react-router-dom';
 import { MapPin, Star, ArrowRight } from 'lucide-react';
 import { StoreTypeBadge } from '@/components/store';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Popular cities with coordinates for fetching sample stores
-const POPULAR_CITIES = [
-  { name: 'Los Angeles', state: 'CA', lat: 34.0522, lng: -118.2437 },
-  { name: 'New York', state: 'NY', lat: 40.7128, lng: -74.0060 },
-  { name: 'Chicago', state: 'IL', lat: 41.8781, lng: -87.6298 },
-  { name: 'Houston', state: 'TX', lat: 29.7604, lng: -95.3698 },
-  { name: 'Phoenix', state: 'AZ', lat: 33.4484, lng: -112.0740 },
-];
+import { trackFeaturedStoreClick } from '@/utils/analytics';
 
 export const FeaturedStores: React.FC = () => {
   const { data: featuredStores, isLoading } = useQuery({
     queryKey: ['featured-stores'],
     queryFn: async () => {
-      // Fetch a sample of stores from different popular cities
       const { data, error } = await supabase
         .from('snap_stores')
         .select('id, Store_Name, City, State, Store_Type, google_rating, google_user_ratings_total')
@@ -31,7 +22,7 @@ export const FeaturedStores: React.FC = () => {
       if (error) throw error;
       return data;
     },
-    staleTime: 1000 * 60 * 30, // Cache for 30 minutes
+    staleTime: 1000 * 60 * 30,
   });
 
   if (isLoading) {
@@ -48,6 +39,15 @@ export const FeaturedStores: React.FC = () => {
   }
 
   if (!featuredStores?.length) return null;
+
+  const handleStoreClick = (store: typeof featuredStores[0]) => {
+    trackFeaturedStoreClick(
+      store.id,
+      store.Store_Name || 'Unknown',
+      store.City || 'Unknown',
+      store.State || 'Unknown'
+    );
+  };
 
   return (
     <div className="space-y-3">
@@ -66,6 +66,7 @@ export const FeaturedStores: React.FC = () => {
           <Link
             key={store.id}
             to={`/store/${store.id}`}
+            onClick={() => handleStoreClick(store)}
             className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all"
           >
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
