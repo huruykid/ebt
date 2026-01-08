@@ -1,13 +1,24 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Globe, MapPin, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Routes that should bypass geo-blocking
+const BYPASS_ROUTES = ['/og-preview'];
+
 export const GeoBlockingOverlay = () => {
+  const location = useLocation();
   const [isBlocked, setIsBlocked] = useState(false);
   const [countryName, setCountryName] = useState('');
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
+    // Skip geo-blocking for bypass routes
+    if (BYPASS_ROUTES.includes(location.pathname)) {
+      setIsChecking(false);
+      return;
+    }
+
     const checkLocation = async () => {
       try {
         // Check if user already dismissed (session storage)
