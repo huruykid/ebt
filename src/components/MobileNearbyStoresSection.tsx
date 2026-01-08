@@ -1,7 +1,9 @@
 import React from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
 import { NearbyStores } from './NearbyStores';
 import { FeaturedStores, PopularCities, TrustSignals } from './home';
+import { MapPin, Navigation } from 'lucide-react';
+import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 interface Props {
   loading: boolean;
@@ -23,21 +25,29 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
   onRequestLocation,
   locationSource,
 }) => {
-  if (loading) {
-    return (
-      <div className="py-8">
-        <LoadingSpinner />
-        <p className="text-center text-muted-foreground mt-4 text-sm">Finding stores near you...</p>
-      </div>
-    );
-  }
-
   // Use larger radius for approximate IP-based locations
   const defaultRadius = locationSource === 'ip' || locationSource === 'fallback' ? 25 : 10;
+  const hasLocation = latitude !== null && longitude !== null;
 
-  if (latitude && longitude) {
-    return (
-      <div className="w-full">
+  return (
+    <div className="w-full space-y-4">
+      {/* Always show trust signals first - instant value */}
+      <TrustSignals />
+      
+      {/* Show content based on location state */}
+      {loading && !hasLocation ? (
+        // Skeleton loading while fetching location - shows intent without blocking
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Navigation className="h-3 w-3 animate-pulse" />
+            <span>Finding stores near you...</span>
+          </div>
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : hasLocation ? (
+        // Location available - show nearby stores
         <NearbyStores
           latitude={latitude}
           longitude={longitude}
@@ -48,39 +58,34 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
           locationSource={locationSource}
           onRequestLocation={onRequestLocation}
         />
-      </div>
-    );
-  }
-
-  // Show engaging content when no location - NOT an empty state
-  return (
-    <div className="w-full space-y-4">
-      {/* Trust signals */}
-      <TrustSignals />
-      
-      {/* Featured stores - show value immediately */}
-      <FeaturedStores />
-      
-      {/* Popular cities for quick browsing */}
-      <PopularCities variant="compact" />
-      
-      {/* Subtle location prompt - not blocking */}
-      <div className="bg-muted/30 rounded-lg p-3 mt-4">
-        <div className="flex items-start gap-3">
-          <div className="text-xl">📍</div>
-          <div className="flex-1">
-            <p className="text-xs text-muted-foreground mb-1.5">
-              Want personalized nearby results?
-            </p>
-            <button
-              onClick={onRequestLocation}
-              className="text-xs text-primary font-medium hover:underline"
+      ) : (
+        // No location - show featured content immediately
+        <>
+          <FeaturedStores />
+          <PopularCities variant="compact" />
+          
+          {/* Inline location prompt - subtle, not blocking */}
+          <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground">
+                See stores closest to you
+              </p>
+            </div>
+            <Button 
+              onClick={onRequestLocation} 
+              size="sm" 
+              variant="ghost"
+              className="text-xs h-7 px-2"
             >
-              Enable Location →
-            </button>
+              <Navigation className="h-3 w-3 mr-1" />
+              Enable
+            </Button>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
