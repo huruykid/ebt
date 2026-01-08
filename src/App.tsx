@@ -31,7 +31,7 @@ const Support = lazy(() => import("./pages/Support"));
 const SnapTips = lazy(() => import("./pages/SnapTips"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
-const TwitterCardPreview = lazy(() => import("./components/TwitterCardPreview").then(m => ({ default: m.TwitterCardPreview })));
+const TwitterCardPreview = lazy(() => import("./components/TwitterCardPreview"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
