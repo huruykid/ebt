@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Twitter, Facebook, Linkedin } from 'lucide-react';
 
-export const TwitterCardPreview = () => {
+const TwitterCardPreview = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   
   const ogData = {
@@ -155,3 +155,5 @@ export const TwitterCardPreview = () => {
     </div>
   );
 };
+
+export default TwitterCardPreview;
