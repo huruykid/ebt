@@ -18,7 +18,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   keywords,
   canonicalUrl,
   structuredData,
-  ogImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=630&fit=crop&auto=format",
+  ogImage = "https://ebtfinder.org/og-image.png",
   ogType = "website",
   twitterCard = "summary_large_image"
 }) => {
