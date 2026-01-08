@@ -51,6 +51,7 @@ serve(async (req) => {
         city: 'United States',
         region: '',
         country: 'US',
+        countryCode: 'US',
         source: 'fallback'
       }), {
         status: 429,
@@ -59,7 +60,8 @@ serve(async (req) => {
     }
 
     // Use ip-api.com (free, no API key needed, 45 requests/minute limit)
-    const response = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,message,lat,lon,city,regionName,country`);
+    // Added countryCode field for geo-blocking
+    const response = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,message,lat,lon,city,regionName,country,countryCode`);
     
     if (!response.ok) {
       throw new Error(`IP API responded with status: ${response.status}`);
@@ -77,6 +79,7 @@ serve(async (req) => {
         city: 'United States',
         region: '',
         country: 'US',
+        countryCode: 'US',
         source: 'fallback'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -89,6 +92,7 @@ serve(async (req) => {
       city: data.city || '',
       region: data.regionName || '',
       country: data.country || '',
+      countryCode: data.countryCode || '',
       source: 'ip'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -104,6 +108,7 @@ serve(async (req) => {
       city: 'United States',
       region: '',
       country: 'US',
+      countryCode: 'US',
       source: 'fallback',
       error: error.message
     }), {

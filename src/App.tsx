@@ -12,6 +12,7 @@ import { SearchEngineOptimizer } from "@/components/SearchEngineOptimizer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEO } from "@/components/SEO";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { GeoBlockingOverlay } from "@/components/GeoBlockingOverlay";
 
 // Eagerly loaded - critical path
 import Index from "./pages/Index";
@@ -72,6 +73,9 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Geo-blocking overlay for non-US visitors */}
+      <GeoBlockingOverlay />
+      
       <SEO>
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
         <SearchEngineOptimizer />
