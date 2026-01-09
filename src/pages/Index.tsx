@@ -76,6 +76,7 @@ export default function Index() {
         description="Find stores, restaurants, and markets that accept EBT and SNAP benefits near you. Search 300,000+ locations nationwide. Free, accurate, and updated daily."
         keywords="EBT stores near me, SNAP benefits, food stamps, EBT accepted here, grocery stores EBT, RMP restaurants, farmers markets EBT, food assistance"
         canonicalUrl="https://ebtfinder.org"
+        ogImage="https://ebtfinder.org/og-image.png"
         structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
