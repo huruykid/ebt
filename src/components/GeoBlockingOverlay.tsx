@@ -15,11 +15,6 @@ export const GeoBlockingOverlay = () => {
   const [countryName, setCountryName] = useState('');
   const [isChecking, setIsChecking] = useState(true);
 
-  // Bypass geo-blocking in development mode
-  if (DEV_BYPASS_GEO_BLOCK) {
-    return null;
-  }
-
   useEffect(() => {
     // Skip geo-blocking for bypass routes
     if (BYPASS_ROUTES.includes(location.pathname)) {
@@ -58,7 +53,12 @@ export const GeoBlockingOverlay = () => {
     };
 
     checkLocation();
-  }, []);
+  }, [location.pathname]);
+
+  // Bypass geo-blocking in development mode
+  if (DEV_BYPASS_GEO_BLOCK) {
+    return null;
+  }
 
   // Don't render anything while checking or if not blocked
   if (isChecking || !isBlocked) {
