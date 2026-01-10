@@ -6,11 +6,19 @@ import { supabase } from '@/integrations/supabase/client';
 // Routes that should bypass geo-blocking
 const BYPASS_ROUTES = ['/og-preview'];
 
+// Set to true to disable geo-blocking during development
+const DEV_BYPASS_GEO_BLOCK = true;
+
 export const GeoBlockingOverlay = () => {
   const location = useLocation();
   const [isBlocked, setIsBlocked] = useState(false);
   const [countryName, setCountryName] = useState('');
   const [isChecking, setIsChecking] = useState(true);
+
+  // Bypass geo-blocking in development mode
+  if (DEV_BYPASS_GEO_BLOCK) {
+    return null;
+  }
 
   useEffect(() => {
     // Skip geo-blocking for bypass routes
