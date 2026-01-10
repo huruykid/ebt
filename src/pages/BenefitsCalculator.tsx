@@ -1,3 +1,4 @@
+// SNAP Benefits Calculator Page
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calculator, AlertTriangle, CheckCircle2, XCircle, ExternalLink, ArrowLeft, Info, Shield } from 'lucide-react';
