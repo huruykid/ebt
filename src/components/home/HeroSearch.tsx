@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
 import { CheckBalanceModal } from '@/components/CheckBalanceModal';
-import { MapPin, Heart, Navigation, CreditCard } from 'lucide-react';
+import { MapPin, Heart, Navigation, CreditCard, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackLocationSearch } from '@/utils/analytics';
 
@@ -84,6 +85,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
                 </Button>
               }
             />
+            <Button asChild variant="outline" size="sm" className="text-sm">
+              <Link to="/benefits-calculator">
+                <Calculator className="h-4 w-4 mr-2" />
+                Calculator
+              </Link>
+            </Button>
           </div>
         )}
       </div>
@@ -163,6 +170,13 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
               </button>
             }
           />
+          <Link 
+            to="/benefits-calculator" 
+            className="flex items-center gap-2 hover:text-primary transition-colors"
+          >
+            <Calculator className="h-4 w-4" />
+            <span>Benefits calculator</span>
+          </Link>
         </div>
       </div>
     </div>
