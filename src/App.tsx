@@ -31,6 +31,7 @@ const Support = lazy(() => import("./pages/Support"));
 const SnapTips = lazy(() => import("./pages/SnapTips"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const BenefitsCalculator = lazy(() => import("./pages/BenefitsCalculator"));
 const TwitterCardPreview = lazy(() => import("./components/TwitterCardPreview"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -103,6 +104,7 @@ const AppContent = () => {
               <Route path="/snap-tips" element={<SnapTips />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/benefits-calculator" element={<BenefitsCalculator />} />
               <Route path="/og-preview" element={<TwitterCardPreview />} />
               
               {/* City Pages - Dynamic route handles all cities */}
