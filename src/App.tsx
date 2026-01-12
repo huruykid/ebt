@@ -25,6 +25,7 @@ const Mission = lazy(() => import("./pages/Mission"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const Profile = lazy(() => import("./pages/Profile"));
 const CityPage = lazy(() => import("./pages/CityPage"));
+const StatePage = lazy(() => import("./pages/StatePage"));
 const EbtChipCard = lazy(() => import("./pages/EbtChipCard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Support = lazy(() => import("./pages/Support"));
@@ -106,6 +107,9 @@ const AppContent = () => {
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/benefits-calculator" element={<BenefitsCalculator />} />
               <Route path="/og-preview" element={<TwitterCardPreview />} />
+              
+              {/* State Pages - All 50 states + DC */}
+              <Route path="/state/:stateSlug" element={<StatePage />} />
               
               {/* City Pages - Dynamic route handles all cities */}
               <Route path="/los-angeles" element={<CityPage />} />
