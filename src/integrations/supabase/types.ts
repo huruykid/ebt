@@ -511,6 +511,92 @@ export type Database = {
           },
         ]
       }
+      snap_blog_budget: {
+        Row: {
+          ai_generation_cost_usd: number
+          articles_fetched: number
+          created_at: string
+          id: string
+          perplexity_cost_usd: number
+          posts_generated: number
+          total_cost_usd: number | null
+          updated_at: string
+          week_start: string
+          weekly_limit_usd: number
+        }
+        Insert: {
+          ai_generation_cost_usd?: number
+          articles_fetched?: number
+          created_at?: string
+          id?: string
+          perplexity_cost_usd?: number
+          posts_generated?: number
+          total_cost_usd?: number | null
+          updated_at?: string
+          week_start: string
+          weekly_limit_usd?: number
+        }
+        Update: {
+          ai_generation_cost_usd?: number
+          articles_fetched?: number
+          created_at?: string
+          id?: string
+          perplexity_cost_usd?: number
+          posts_generated?: number
+          total_cost_usd?: number | null
+          updated_at?: string
+          week_start?: string
+          weekly_limit_usd?: number
+        }
+        Relationships: []
+      }
+      snap_news_articles: {
+        Row: {
+          blog_post_id: string | null
+          created_at: string
+          fetched_at: string
+          id: string
+          processed: boolean
+          publish_date: string | null
+          publisher: string
+          source_url: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          blog_post_id?: string | null
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          processed?: boolean
+          publish_date?: string | null
+          publisher: string
+          source_url: string
+          summary: string
+          title: string
+        }
+        Update: {
+          blog_post_id?: string | null
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          processed?: boolean
+          publish_date?: string | null
+          publisher?: string
+          source_url?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "snap_news_articles_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       snap_stores: {
         Row: {
           Additional_Address: string | null
@@ -825,7 +911,32 @@ export type Database = {
       }
     }
     Functions: {
+      check_snap_blog_budget: {
+        Args: { estimated_cost?: number }
+        Returns: boolean
+      }
       cleanup_old_store_clicks: { Args: never; Returns: undefined }
+      get_current_week_budget: {
+        Args: never
+        Returns: {
+          ai_generation_cost_usd: number
+          articles_fetched: number
+          created_at: string
+          id: string
+          perplexity_cost_usd: number
+          posts_generated: number
+          total_cost_usd: number | null
+          updated_at: string
+          week_start: string
+          weekly_limit_usd: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "snap_blog_budget"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_nearby_stores: {
         Args: {
           radius_miles?: number
@@ -933,6 +1044,32 @@ export type Database = {
           truncated_lat: number
           truncated_lng: number
         }[]
+      }
+      update_snap_blog_budget: {
+        Args: {
+          ai_cost?: number
+          articles_count?: number
+          perplexity_cost?: number
+          posts_count?: number
+        }
+        Returns: {
+          ai_generation_cost_usd: number
+          articles_fetched: number
+          created_at: string
+          id: string
+          perplexity_cost_usd: number
+          posts_generated: number
+          total_cost_usd: number | null
+          updated_at: string
+          week_start: string
+          weekly_limit_usd: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "snap_blog_budget"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       update_store_with_google_data: {
         Args: {
