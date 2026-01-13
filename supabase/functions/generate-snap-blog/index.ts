@@ -6,8 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Estimated cost per Lovable AI call
+// Estimated costs per Lovable AI call
 const AI_COST_PER_CALL = 0.03; // ~$0.03 per blog generation
+const IMAGE_COST_PER_CALL = 0.02; // ~$0.02 per image generation
 
 function generateSlug(title: string): string {
   return title
@@ -253,6 +254,73 @@ Create an SEO-optimized blog post that helps SNAP users understand this news and
           continue;
         }
 
+        // Generate featured image for the blog post
+        let featuredImageUrl: string | null = null;
+        try {
+          console.log('Generating featured image for:', blogTitle);
+          const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image-preview',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Create a professional blog header image for an article about SNAP food assistance. The article topic is: "${blogTitle}". 
+                  
+Style requirements:
+- Clean, modern illustration style (NOT photorealistic)
+- Warm, hopeful colors (greens, oranges, soft blues)
+- Related to food, grocery shopping, family meals, or community support
+- 16:9 aspect ratio, suitable for a blog header
+- No text or words in the image
+- Friendly and welcoming feeling`
+                }
+              ],
+              modalities: ['image', 'text']
+            }),
+          });
+
+          if (imageResponse.ok) {
+            const imageData = await imageResponse.json();
+            const base64Image = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+            
+            if (base64Image && base64Image.startsWith('data:image')) {
+              // Extract base64 data and upload to Supabase Storage
+              const base64Data = base64Image.split(',')[1];
+              const imageBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+              const fileName = `snap-blog-${Date.now()}.png`;
+              
+              const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('blog-images')
+                .upload(fileName, imageBuffer, {
+                  contentType: 'image/png',
+                  upsert: false
+                });
+
+              if (uploadError) {
+                console.error('Failed to upload image:', uploadError);
+              } else {
+                // Get public URL
+                const { data: urlData } = supabase.storage
+                  .from('blog-images')
+                  .getPublicUrl(fileName);
+                featuredImageUrl = urlData?.publicUrl || null;
+                console.log('Image uploaded:', featuredImageUrl);
+                totalAiCost += IMAGE_COST_PER_CALL;
+              }
+            }
+          } else {
+            console.error('Image generation failed:', imageResponse.status);
+          }
+        } catch (imageError) {
+          console.error('Error generating image:', imageError);
+          // Continue without image - not a fatal error
+        }
+
         // Generate SEO meta fields
         const metaTitle = blogTitle.substring(0, 60);
 
@@ -268,6 +336,7 @@ Create an SEO-optimized blog post that helps SNAP users understand this news and
             excerpt: excerpt,
             meta_title: metaTitle,
             meta_description: metaDescription,
+            featured_image: featuredImageUrl,
             is_published: true,
             published_at: new Date().toISOString()
           }])
