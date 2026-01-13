@@ -80,6 +80,18 @@ verify_jwt = true
 [functions.bulk-google-places-sync]
 verify_jwt = false
 
+[functions.fetch-snap-news]
+verify_jwt = false
+
+[functions.generate-snap-blog]
+verify_jwt = false
+
+[functions.snap-blog-scheduler]
+verify_jwt = false
+
+[functions.generate-sitemap]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 ip_version = "ipv6"
