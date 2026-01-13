@@ -6,8 +6,9 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { BlogPostForm } from '@/components/blog/BlogPostForm';
 import { BlogPostList } from '@/components/blog/BlogPostList';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
@@ -17,6 +18,7 @@ export default function Blog() {
   const { isAdmin } = useUserRoles();
   const [showForm, setShowForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostWithCategory | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: posts = [], isLoading } = useQuery<BlogPostWithCategory[]>({
     queryKey: ['blog-posts'],
@@ -37,7 +39,19 @@ export default function Blog() {
     },
   });
 
-  // Add ItemList schema for blog listing
+  // Filter posts based on search query
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery.trim()) return posts;
+    
+    const query = searchQuery.toLowerCase();
+    return posts.filter(post => 
+      post.title.toLowerCase().includes(query) ||
+      post.excerpt?.toLowerCase().includes(query) ||
+      post.body?.toLowerCase().includes(query) ||
+      post.blog_categories?.name?.toLowerCase().includes(query) ||
+      post.author?.toLowerCase().includes(query)
+    );
+  }, [posts, searchQuery]);
   useEffect(() => {
     if (posts.length > 0) {
       const itemListSchema = {
@@ -94,9 +108,35 @@ export default function Blog() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">SNAP Savvy Blog</h1>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-lg text-muted-foreground mb-6">
             Your resource for maximizing SNAP benefits, finding resources, and stretching your food budget.
           </p>
+
+          {/* Search Bar */}
+          <div className="relative mb-8">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {searchQuery && (
+            <p className="text-sm text-muted-foreground mb-4">
+              {filteredPosts.length} {filteredPosts.length === 1 ? 'result' : 'results'} for "{searchQuery}"
+            </p>
+          )}
 
           {isAdmin && (
             <Tabs defaultValue="list" className="mb-8">
@@ -142,7 +182,14 @@ export default function Blog() {
           <div className="space-y-6">
             {isLoading ? (
               <p className="text-muted-foreground">Loading articles...</p>
-            ) : posts.length === 0 ? (
+            ) : filteredPosts.length === 0 && searchQuery ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground mb-2">No articles found for "{searchQuery}"</p>
+                <Button variant="outline" onClick={() => setSearchQuery('')}>
+                  Clear search
+                </Button>
+              </div>
+            ) : filteredPosts.length === 0 ? (
               <article className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
                 <h2 className="text-2xl font-semibold mb-2">Coming Soon: Blog Articles</h2>
                 <p className="text-muted-foreground mb-4">
@@ -156,7 +203,7 @@ export default function Blog() {
                 </div>
               </article>
             ) : (
-              posts.map((post) => (
+              filteredPosts.map((post) => (
                 <article
                   key={post.id}
                   className="border border-border rounded-lg p-6 hover:shadow-lg transition-shadow"
