@@ -123,7 +123,7 @@ serve(async (req) => {
       }
 
       try {
-        // Generate blog post using Lovable AI
+        // Generate blog post using Lovable AI with tool calling for structured output
         const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -161,7 +161,7 @@ Important rules:
                 role: 'user',
                 content: `Write a blog post about this SNAP news:
 
-Title: ${article.title}
+Original Title: ${article.title}
 Publisher: ${article.publisher}
 Date: ${article.publish_date || 'Recent'}
 Summary: ${article.summary}
@@ -171,6 +171,38 @@ Create an SEO-optimized blog post that helps SNAP users understand this news and
               }
             ],
             temperature: 0.3,
+            tools: [
+              {
+                type: 'function',
+                function: {
+                  name: 'create_blog_post',
+                  description: 'Create a structured blog post with SEO-optimized title',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      seo_title: {
+                        type: 'string',
+                        description: 'SEO-optimized title (50-60 chars) that is descriptive and includes key terms like SNAP, state names, or specific changes. Example: "Minnesota SNAP Benefits Cut 15% in March 2026: What to Know"'
+                      },
+                      meta_description: {
+                        type: 'string',
+                        description: 'Meta description (150-160 chars) summarizing the key points for search results'
+                      },
+                      excerpt: {
+                        type: 'string',
+                        description: 'Short excerpt (1-2 sentences) for blog listing pages'
+                      },
+                      body: {
+                        type: 'string',
+                        description: 'Full blog post content in markdown with the required sections'
+                      }
+                    },
+                    required: ['seo_title', 'meta_description', 'excerpt', 'body']
+                  }
+                }
+              }
+            ],
+            tool_choice: { type: 'function', function: { name: 'create_blog_post' } }
           }),
         });
 
@@ -189,22 +221,38 @@ Create an SEO-optimized blog post that helps SNAP users understand this news and
         }
 
         const aiData = await aiResponse.json();
-        const blogContent = aiData.choices?.[0]?.message?.content || '';
+        
+        // Extract structured output from tool call
+        let blogTitle = article.title;
+        let blogContent = '';
+        let metaDescription = article.summary.substring(0, 160);
+        let excerpt = article.summary;
+
+        const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+        if (toolCall?.function?.arguments) {
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
+            blogTitle = args.seo_title || blogTitle;
+            blogContent = args.body || '';
+            metaDescription = args.meta_description || metaDescription;
+            excerpt = args.excerpt || excerpt;
+          } catch (parseErr) {
+            console.error('Failed to parse tool call arguments:', parseErr);
+            // Fallback to regular content
+            blogContent = aiData.choices?.[0]?.message?.content || '';
+          }
+        } else {
+          // Fallback if no tool call
+          blogContent = aiData.choices?.[0]?.message?.content || '';
+        }
 
         if (!blogContent) {
           console.error('Empty blog content generated');
           continue;
         }
 
-        // Create blog post title
-        const blogTitle = article.title.includes('SNAP') 
-          ? article.title 
-          : `SNAP Update: ${article.title}`;
-
         // Generate SEO meta fields
         const metaTitle = blogTitle.substring(0, 60);
-        const metaDescription = `${article.summary.substring(0, 140)}...`;
-        const excerpt = article.summary;
 
         // Insert blog post
         const { data: newPost, error: insertError } = await supabase

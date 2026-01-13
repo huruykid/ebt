@@ -68,13 +68,7 @@ serve(async (req) => {
       );
     }
 
-    // Search for recent SNAP news using Perplexity
-    const searchQueries = [
-      'SNAP food stamps policy changes updates this week',
-      'SNAP benefits news federal state policy 2025',
-      'food assistance program updates USDA SNAP'
-    ];
-
+    // Search for recent SNAP news using Perplexity with structured output
     const allArticles: Array<{
       title: string;
       publisher: string;
@@ -83,7 +77,6 @@ serve(async (req) => {
       source_url: string;
     }> = [];
 
-    // Use one query to minimize API costs
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -95,15 +88,49 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: `You are a news research assistant. Find the most recent SNAP (Supplemental Nutrition Assistance Program) news articles from the past week. Focus on policy changes, benefit updates, state-level changes, and federal policy decisions. Only include news from reputable sources.` 
+            content: `You are a news research assistant specializing in SNAP (Supplemental Nutrition Assistance Program) news. Find recent news articles and extract structured information. Always provide descriptive, specific titles that summarize what the article is about.` 
           },
           { 
             role: 'user', 
-            content: `Find the latest SNAP food stamps news from the past 7 days. For each article found, provide: title, publisher name, publication date (YYYY-MM-DD format if known), a 2-3 sentence summary, and the source URL. Focus on significant policy changes, benefit adjustments, or program updates.` 
+            content: `Find the latest SNAP food stamps news from the past 7 days. Return up to 5 articles as a JSON array. Each article must have:
+- title: A descriptive headline (e.g., "Minnesota SNAP Benefits Face 15% Reduction Starting March 2026")
+- publisher: The news source name
+- publish_date: Date in YYYY-MM-DD format or null if unknown
+- summary: 2-3 sentence summary of what changed and why it matters
+- source_url: The full URL to the article
+
+Focus on: benefit changes, policy updates, state-level news, federal program changes, eligibility changes.
+Return ONLY valid JSON array, no other text.` 
           }
         ],
         search_recency_filter: 'week',
         temperature: 0.1,
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'snap_news_articles',
+            schema: {
+              type: 'object',
+              properties: {
+                articles: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      publisher: { type: 'string' },
+                      publish_date: { type: 'string' },
+                      summary: { type: 'string' },
+                      source_url: { type: 'string' }
+                    },
+                    required: ['title', 'publisher', 'summary', 'source_url']
+                  }
+                }
+              },
+              required: ['articles']
+            }
+          }
+        }
       }),
     });
 
@@ -120,34 +147,57 @@ serve(async (req) => {
     console.log('Perplexity response:', content.substring(0, 500));
     console.log('Citations:', citations);
 
-    // Parse the response to extract article information
-    // This is a simple extraction - the AI response should contain structured info
-    const articleMatches = content.match(/(?:^|\n)(?:\d+\.\s*)?(?:\*\*)?([^*\n]+?)(?:\*\*)?\s*[-–]\s*([^\n]+)/gm) || [];
-    
-    // Process citations as potential articles
-    for (const citation of citations.slice(0, 5)) { // Limit to 5 articles per run
-      try {
-        const url = new URL(citation);
-        const publisher = url.hostname.replace('www.', '');
-        
-        // Check if this URL already exists
-        const { data: existing } = await supabase
-          .from('snap_news_articles')
-          .select('id')
-          .eq('source_url', citation)
-          .single();
+    // Parse structured JSON response
+    try {
+      const parsed = JSON.parse(content);
+      const articles = parsed.articles || parsed || [];
+      
+      for (const article of articles.slice(0, 5)) {
+        if (article.title && article.source_url) {
+          // Check if this URL already exists
+          const { data: existing } = await supabase
+            .from('snap_news_articles')
+            .select('id')
+            .eq('source_url', article.source_url)
+            .single();
 
-        if (!existing) {
-          allArticles.push({
-            title: `SNAP News Update from ${publisher}`,
-            publisher: publisher,
-            publish_date: null,
-            summary: `Recent SNAP-related news article. See source for full details.`,
-            source_url: citation
-          });
+          if (!existing) {
+            allArticles.push({
+              title: article.title,
+              publisher: article.publisher || new URL(article.source_url).hostname.replace('www.', ''),
+              publish_date: article.publish_date || null,
+              summary: article.summary || 'SNAP-related news update. See source for details.',
+              source_url: article.source_url
+            });
+          }
         }
-      } catch (e) {
-        console.log('Invalid citation URL:', citation);
+      }
+    } catch (parseError) {
+      console.error('Failed to parse structured response:', parseError);
+      // Fallback: use citations with generic titles
+      for (const citation of citations.slice(0, 5)) {
+        try {
+          const url = new URL(citation);
+          const publisher = url.hostname.replace('www.', '');
+          
+          const { data: existing } = await supabase
+            .from('snap_news_articles')
+            .select('id')
+            .eq('source_url', citation)
+            .single();
+
+          if (!existing) {
+            allArticles.push({
+              title: `SNAP Policy Update: ${publisher}`,
+              publisher: publisher,
+              publish_date: null,
+              summary: `Recent SNAP-related news from ${publisher}. See source for full details.`,
+              source_url: citation
+            });
+          }
+        } catch (e) {
+          console.log('Invalid citation URL:', citation);
+        }
       }
     }
 
