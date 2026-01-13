@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Phone, Clock, Globe } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface OpeningHours {
   open_now?: boolean;
@@ -24,8 +25,10 @@ export const StoreContactInfo: React.FC<StoreContactInfoProps> = ({
     if (openingHours?.open_now !== undefined) {
       return openingHours.open_now ? 'Open Now' : 'Closed';
     }
-    return 'Hours not available';
+    return null;
   };
+
+  const openStatus = getOpenStatus();
 
   return (
     <div className="space-y-1 text-sm text-muted-foreground">
@@ -34,7 +37,7 @@ export const StoreContactInfo: React.FC<StoreContactInfoProps> = ({
           <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <span className="truncate">{address}</span>
           {distance !== undefined && (
-            <span className="text-xs whitespace-nowrap">• {distance.toFixed(1)} mi</span>
+            <span className="text-xs whitespace-nowrap font-medium text-foreground">• {distance.toFixed(1)} mi</span>
           )}
         </div>
       )}
@@ -46,7 +49,20 @@ export const StoreContactInfo: React.FC<StoreContactInfoProps> = ({
 
       <div className="flex items-center gap-2">
         <Clock className="h-4 w-4 flex-shrink-0" />
-        <span>{getOpenStatus()}</span>
+        {openStatus ? (
+          <Badge 
+            variant={openStatus === 'Open Now' ? 'default' : 'secondary'}
+            className={
+              openStatus === 'Open Now' 
+                ? 'bg-success text-success-foreground text-xs px-2 py-0' 
+                : 'bg-muted text-muted-foreground text-xs px-2 py-0'
+            }
+          >
+            {openStatus}
+          </Badge>
+        ) : (
+          <span className="text-xs">Hours not available</span>
+        )}
       </div>
 
       {website && (
