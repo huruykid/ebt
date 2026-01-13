@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { RadiusDropdown } from '@/components/RadiusDropdown';
 import { BudgetWarningBanner } from '@/components/BudgetWarningBanner';
+import { OpenNowFilter } from '@/components/OpenNowFilter';
+import { filterOpenNowStores } from '@/utils/storeHoursUtils';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -23,6 +25,8 @@ interface SearchResultsProps {
   onSortChange: (sort: SortOption) => void;
   radius?: number;
   onRadiusChange?: (radius: number) => void;
+  openNowFilter?: boolean;
+  onOpenNowChange?: (enabled: boolean) => void;
 }
 
 export const SearchResults: React.FC<SearchResultsProps> = ({
@@ -35,8 +39,21 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   sortBy,
   onSortChange,
   radius = 10,
-  onRadiusChange
+  onRadiusChange,
+  openNowFilter: externalOpenNowFilter,
+  onOpenNowChange: externalOnOpenNowChange
 }) => {
+  // Use internal state if external props not provided
+  const [internalOpenNowFilter, setInternalOpenNowFilter] = useState(false);
+  
+  const openNowFilter = externalOpenNowFilter ?? internalOpenNowFilter;
+  const onOpenNowChange = externalOnOpenNowChange ?? setInternalOpenNowFilter;
+  
+  // Filter stores based on open now status
+  const filteredStores = useMemo(() => {
+    if (!openNowFilter) return stores;
+    return filterOpenNowStores(stores);
+  }, [stores, openNowFilter]);
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -81,6 +98,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     );
   }
 
+  // Calculate stats for display
+  const openNowCount = filterOpenNowStores(stores).length;
+  const hasOpenNowData = openNowCount > 0 || stores.some(s => s.google_opening_hours);
+
   return (
     <div className="space-y-6">
       {/* Budget Warning */}
@@ -91,15 +112,27 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <p className="text-sm text-muted-foreground">
-              Found {stores.length} store{stores.length !== 1 ? 's' : ''}
+              Found {filteredStores.length} store{filteredStores.length !== 1 ? 's' : ''}
+              {openNowFilter && ` open now`}
               {locationSearch && ` within ${radius} miles`}
               {activeCategory !== 'trending' && selectedStoreTypes.length > 0 && (
                 <span> in {activeCategory}</span>
               )}
+              {openNowFilter && filteredStores.length < stores.length && (
+                <span className="text-muted-foreground/70"> ({stores.length} total)</span>
+              )}
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Open Now Filter */}
+            {hasOpenNowData && (
+              <OpenNowFilter
+                isEnabled={openNowFilter}
+                onToggle={onOpenNowChange}
+              />
+            )}
+            
             {locationSearch && onRadiusChange && (
               <RadiusDropdown 
                 value={radius} 
@@ -114,8 +147,27 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       </div>
 
+      {/* No stores open message */}
+      {openNowFilter && filteredStores.length === 0 && stores.length > 0 && (
+        <div className="text-center py-6">
+          <div className="card-gradient rounded-spotify-lg p-6 border-2 border-warning/20">
+            <div className="text-4xl mb-3">🕐</div>
+            <h3 className="text-lg font-semibold mb-2">No stores currently open</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              {stores.length} store{stores.length !== 1 ? 's' : ''} found, but none appear to be open right now.
+            </p>
+            <button
+              onClick={() => onOpenNowChange(false)}
+              className="text-sm text-primary hover:text-primary/80 font-medium"
+            >
+              Show all stores →
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-        {stores.map((store) => (
+        {filteredStores.map((store) => (
           <UnifiedStoreCard 
             key={store.id}
             store={store}
