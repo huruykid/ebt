@@ -54,20 +54,20 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Weekly budget limit of $2.00 reached',
+          message: 'Weekly budget limit of $0.15 reached (3 posts/week max)',
           budgetExceeded: true 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get unprocessed news articles
+    // Get unprocessed news articles - limit to 1 per run for quality focus
     const { data: articles, error: fetchError } = await supabase
       .from('snap_news_articles')
       .select('*')
       .eq('processed', false)
       .order('fetched_at', { ascending: false })
-      .limit(3); // Process up to 3 articles per run
+      .limit(1); // Process only 1 article per run for higher quality
 
     if (fetchError) {
       throw new Error(`Failed to fetch articles: ${fetchError.message}`);
@@ -136,33 +136,41 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: `You are a helpful writer creating informative blog posts about SNAP (Supplemental Nutrition Assistance Program) news for SNAP users. 
+                content: `You are an expert content writer creating HIGH-QUALITY, in-depth blog posts about SNAP (Supplemental Nutrition Assistance Program) news for SNAP users.
+
+Your goal is to create content that genuinely helps readers and ranks well in search engines.
 
 Your tone should be:
-- Helpful and supportive
-- Neutral and factual
+- Helpful, warm, and supportive
+- Authoritative yet accessible
 - Easy to understand (8th grade reading level)
-- Empathetic to SNAP recipients
+- Empathetic to SNAP recipients' real concerns
 
-CRITICAL FORMATTING RULES:
-- Write in natural flowing paragraphs, NOT with headers before every section
-- Do NOT overuse markdown headers (##) - use them sparingly, only 1-2 per article maximum
-- Start with an engaging opening paragraph that summarizes the news
-- Use short, digestible paragraphs (2-4 sentences each)
-- Use bullet points only when listing specific items or action steps
-- End with practical next steps or a helpful conclusion
-- The content should read like a helpful news article, not a structured template
+QUALITY STANDARDS:
+- Write comprehensive, well-researched content (600-800 words)
+- Start with a compelling hook that draws readers in
+- Provide REAL VALUE - actionable information readers can use
+- Include specific details: dates, dollar amounts, percentages when available
+- Explain the "why" behind changes, not just the "what"
+- Address common questions readers might have
+- End with clear, practical next steps
 
-Important content rules:
-- Do not make claims not supported by the source
-- If details are unclear, say what is known and what is not confirmed
-- Include relevant dates and locations when available
-- Keep the post between 400-600 words
-- Mention the source naturally within the text`
+FORMATTING RULES:
+- Write in natural, flowing paragraphs
+- Use markdown headers (##) sparingly - maximum 2 per article
+- Use bullet points only for action items or key takeaways
+- Include the source attribution naturally in the text
+- NO templated structure - each article should feel unique
+
+AVOID:
+- Generic filler content
+- Repetitive phrasing
+- Overly formal or bureaucratic language
+- Making claims not supported by the source`
               },
               {
                 role: 'user',
-                content: `Write a blog post about this SNAP news:
+                content: `Write a HIGH-QUALITY, in-depth blog post about this SNAP news:
 
 Original Title: ${article.title}
 Publisher: ${article.publisher}
@@ -170,7 +178,11 @@ Date: ${article.publish_date || 'Recent'}
 Summary: ${article.summary}
 Source: ${article.source_url}
 
-Create an SEO-optimized blog post that helps SNAP users understand this news and what it means for them.`
+Create an authoritative, SEO-optimized blog post (600-800 words) that:
+1. Helps SNAP users truly understand this news
+2. Explains what it means for their daily lives
+3. Provides actionable next steps they can take
+4. Answers questions they're likely to have`
               }
             ],
             temperature: 0.3,
@@ -337,8 +349,8 @@ Style requirements:
             meta_title: metaTitle,
             meta_description: metaDescription,
             featured_image: featuredImageUrl,
-            is_published: true,
-            published_at: new Date().toISOString()
+            is_published: false, // Draft for review
+            published_at: null // Will be set when manually published
           }])
           .select('id')
           .single();
