@@ -349,8 +349,8 @@ Style requirements:
             meta_title: metaTitle,
             meta_description: metaDescription,
             featured_image: featuredImageUrl,
-            is_published: false, // Draft for review
-            published_at: null // Will be set when manually published
+            is_published: true,
+            published_at: new Date().toISOString()
           }])
           .select('id')
           .single();
