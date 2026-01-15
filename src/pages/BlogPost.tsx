@@ -14,6 +14,7 @@ import { TableOfContents } from '@/components/blog/TableOfContents';
 import { SocialShare } from '@/components/blog/SocialShare';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -41,10 +42,12 @@ export default function BlogPost() {
     },
   });
 
-  // Sanitize blog content - must be called before any early returns to follow React hooks rules
+  // Parse Markdown and sanitize blog content
   const sanitizedHtml = useMemo(() => {
     if (!post?.body) return '';
-    return DOMPurify.sanitize(post.body.replace(/\n/g, '<br />'), {
+    // Parse markdown to HTML, then sanitize
+    const htmlContent = marked.parse(post.body, { async: false }) as string;
+    return DOMPurify.sanitize(htmlContent, {
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre', 'img', 'span', 'div'],
       ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id']
     });
