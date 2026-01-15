@@ -1038,6 +1038,7 @@ export type Database = {
           zip_code: string
         }[]
       }
+      trigger_snap_blog_scheduler: { Args: never; Returns: undefined }
       truncate_coordinates: {
         Args: { lat: number; lng: number }
         Returns: {
