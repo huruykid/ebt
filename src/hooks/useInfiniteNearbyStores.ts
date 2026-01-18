@@ -4,6 +4,7 @@ import {
   fetchFallbackStores,
   calculateTrendingScores,
   sortByTrending,
+  applyCategoryFiltering,
   type StoreWithDistance,
 } from './useNearbyStoresCore';
 
@@ -43,25 +44,33 @@ export const useInfiniteNearbyStores = ({
       let stores: StoreWithDistance[];
 
       if (useOptimized) {
-        // For optimized path, fetch all up to current page then slice
+        // For optimized path, fetch extra to account for filtering, then slice after filtering
+        const fetchLimit = (pageSize + offset) * 2; // Fetch 2x to account for category filtering
         const allStores = await fetchOptimizedStores(
           latitude,
           longitude,
           radius,
-          pageSize + offset,
+          fetchLimit,
           storeTypes
         );
-        stores = allStores.slice(offset, offset + pageSize);
+        
+        // GLOBAL: Apply category-specific filtering before slicing
+        const filteredStores = applyCategoryFiltering(allStores, category);
+        stores = filteredStores.slice(offset, offset + pageSize);
       } else {
         stores = await fetchFallbackStores(
           latitude,
           longitude,
           radius,
-          pageSize,
+          pageSize * 2, // Fetch extra to account for filtering
           storeTypes,
           [],
           offset
         );
+        
+        // GLOBAL: Apply category-specific filtering
+        stores = applyCategoryFiltering(stores, category);
+        stores = stores.slice(0, pageSize);
       }
 
       // Apply trending sort if needed

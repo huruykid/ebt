@@ -6,6 +6,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { calculateDistance } from '@/lib/core/distance';
 import type { Tables } from '@/integrations/supabase/types';
+import { applyGroceryExclusion, applyFarmersMarketFiltering } from '@/utils/storeFiltering';
 
 type Store = Tables<'snap_stores'>;
 
@@ -137,6 +138,35 @@ export const sortByTrending = (
 
     return (a.distance || 0) - (b.distance || 0);
   });
+};
+
+/**
+ * Apply category-specific filtering to stores
+ * This is the GLOBAL function for category filtering - used by all nearby store hooks
+ */
+export const applyCategoryFiltering = (
+  stores: StoreWithDistance[],
+  category?: string
+): StoreWithDistance[] => {
+  if (!category || category === 'trending' || stores.length === 0) {
+    return stores;
+  }
+
+  if (category === 'grocery') {
+    console.log(`🏪 [Global] Applying grocery exclusions: ${stores.length} stores`);
+    const filtered = applyGroceryExclusion(stores);
+    console.log(`🏪 [Global] After grocery filtering: ${filtered.length} stores`);
+    return filtered;
+  }
+
+  if (category === 'farmersmarket') {
+    console.log(`🥕 [Global] Applying farmers market filtering: ${stores.length} stores`);
+    const filtered = applyFarmersMarketFiltering(stores);
+    console.log(`🥕 [Global] After farmers market filtering: ${filtered.length} stores`);
+    return filtered;
+  }
+
+  return stores;
 };
 
 /**
