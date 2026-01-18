@@ -1,13 +1,9 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { applyCategoryFiltering, type StoreWithDistance } from './useNearbyStoresCore';
 
 type Store = Tables<'snap_stores'>;
-
-interface StoreWithDistance extends Store {
-  distance?: number;
-}
 
 interface UseOptimizedNearbyStoresProps {
   latitude: number;
@@ -15,6 +11,7 @@ interface UseOptimizedNearbyStoresProps {
   radius?: number;
   limit?: number;
   storeTypes?: string[];
+  category?: string;
 }
 
 interface OptimizedNearbyResult {
@@ -35,17 +32,21 @@ export const useOptimizedNearbyStores = ({
   longitude,
   radius = 10,
   limit = 50,
-  storeTypes = []
+  storeTypes = [],
+  category
 }: UseOptimizedNearbyStoresProps) => {
   return useQuery({
-    queryKey: ['optimized-nearby-stores', latitude, longitude, radius, limit, storeTypes],
+    queryKey: ['optimized-nearby-stores', latitude, longitude, radius, limit, storeTypes, category],
     queryFn: async (): Promise<StoreWithDistance[]> => {
+      // Fetch extra stores to account for category filtering
+      const fetchLimit = limit * 2;
+      
       const { data, error } = await supabase.rpc('get_nearby_stores', {
         user_lat: latitude,
         user_lng: longitude,
         radius_miles: radius,
         store_types: storeTypes.length > 0 ? storeTypes : null,
-        result_limit: limit
+        result_limit: fetchLimit
       });
 
       if (error) {
@@ -56,7 +57,7 @@ export const useOptimizedNearbyStores = ({
       console.log('Optimized nearby search results:', data?.length || 0, 'stores found');
       
       // Convert the raw results to the correct format
-      const convertedResults = (data || []).map((result: OptimizedNearbyResult) => ({
+      let convertedResults = (data || []).map((result: OptimizedNearbyResult) => ({
         id: result.id,
         Store_Name: result.store_name,
         Store_Street_Address: result.store_street_address,
@@ -100,7 +101,11 @@ export const useOptimizedNearbyStores = ({
         google_icon_mask_base_uri: null,
       })) as StoreWithDistance[];
       
-      return convertedResults;
+      // GLOBAL: Apply category-specific filtering
+      convertedResults = applyCategoryFiltering(convertedResults, category);
+      
+      // Return only the requested limit after filtering
+      return convertedResults.slice(0, limit);
     },
     enabled: !!(latitude && longitude),
     staleTime: 5 * 60 * 1000, // 5 minutes

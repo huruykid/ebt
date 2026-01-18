@@ -38,7 +38,8 @@ export const OptimizedNearbyStores: React.FC<OptimizedNearbyStoresProps> = ({
     longitude,
     radius,
     limit,
-    storeTypes
+    storeTypes,
+    category
   });
 
   if (isLoading) {

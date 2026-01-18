@@ -14,6 +14,7 @@ export interface SearchParams {
   useCurrentLocation?: boolean;
   radius?: number;
   storeType?: string[];
+  category?: string;
 }
 
 export interface SearchHistory {

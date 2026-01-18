@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { POPULAR_STORES, POPULAR_LOCATIONS, SEARCH_DEFAULTS } from '@/constants/searchConstants';
 import { geocodeLocation, parseLocation, mapToStoreWithDistance, filterStoresByQuery } from '@/utils/searchUtils';
+import { applyCategoryFiltering } from '@/hooks/useNearbyStoresCore';
 import type { SearchParams, SearchHistory, SearchSuggestion } from '@/types/searchTypes';
 import type { StoreWithDistance } from '@/types/storeTypes';
 
@@ -113,7 +114,7 @@ export const useEnhancedSearch = () => {
   const { data: searchResults, isLoading, error } = useQuery({
     queryKey: ['enhanced-search', searchParams],
     queryFn: async (): Promise<StoreWithDistance[]> => {
-      const { query, location, useCurrentLocation, radius, storeType } = searchParams;
+      const { query, location, useCurrentLocation, radius, storeType, category } = searchParams;
       
       if (!query.trim() && !location && !useCurrentLocation) {
         return [];
@@ -143,7 +144,7 @@ export const useEnhancedSearch = () => {
           user_lng: searchLng,
           radius_miles: radius || SEARCH_DEFAULTS.RADIUS_MILES,
           store_types: storeType || null,
-          result_limit: SEARCH_DEFAULTS.RESULT_LIMIT
+          result_limit: SEARCH_DEFAULTS.RESULT_LIMIT * 2 // Fetch extra for filtering
         });
 
         if (error) throw error;
@@ -154,6 +155,9 @@ export const useEnhancedSearch = () => {
         if (query.trim()) {
           results = filterStoresByQuery(results, query);
         }
+        
+        // GLOBAL: Apply category-specific filtering
+        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
       } else {
         // Text-based search
         const parsedLocation = location ? parseLocation(location) : { city: '', state: '', zip: '' };
@@ -164,12 +168,15 @@ export const useEnhancedSearch = () => {
           search_state: parsedLocation.state,
           search_zip: parsedLocation.zip,
           similarity_threshold: SEARCH_DEFAULTS.SIMILARITY_THRESHOLD,
-          result_limit: SEARCH_DEFAULTS.TEXT_SEARCH_LIMIT
+          result_limit: SEARCH_DEFAULTS.TEXT_SEARCH_LIMIT * 2 // Fetch extra for filtering
         });
 
         if (error) throw error;
 
         results = (data || []).map((store: any) => mapToStoreWithDistance(store, false));
+        
+        // GLOBAL: Apply category-specific filtering
+        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
       }
 
       // Save successful search to history

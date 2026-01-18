@@ -4,6 +4,7 @@ import {
   fetchFallbackStores,
   calculateTrendingScores,
   sortByTrending,
+  applyCategoryFiltering,
   type StoreWithDistance,
 } from './useNearbyStoresCore';
 
@@ -47,17 +48,21 @@ export const useNearbyStores = ({
       let stores: StoreWithDistance[];
 
       if (shouldUseOptimized) {
-        stores = await fetchOptimizedStores(latitude, longitude, radius, limit * 2, storeTypes);
+        // Fetch more stores to account for filtering
+        stores = await fetchOptimizedStores(latitude, longitude, radius, limit * 3, storeTypes);
       } else {
         stores = await fetchFallbackStores(
           latitude,
           longitude,
           radius,
-          limit * 2,
+          limit * 3,
           category !== 'trending' ? storeTypes : [],
           category !== 'trending' ? namePatterns : []
         );
       }
+
+      // GLOBAL: Apply category-specific filtering (grocery excludes farmers markets, etc.)
+      stores = applyCategoryFiltering(stores, category);
 
       // Apply trending sort if needed
       if (category === 'trending' && stores.length > 0) {
