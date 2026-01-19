@@ -6,9 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Estimated costs per Lovable AI call
-const AI_COST_PER_CALL = 0.03; // ~$0.03 per blog generation
-const IMAGE_COST_PER_CALL = 0.02; // ~$0.02 per image generation
+// Note: Blog generation uses Lovable credits - no separate budget tracking needed
 
 function generateSlug(title: string): string {
   return title
@@ -40,26 +38,7 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Check budget before proceeding
-    const { data: budgetCheck, error: budgetError } = await supabase
-      .rpc('check_snap_blog_budget', { estimated_cost: AI_COST_PER_CALL });
-
-    if (budgetError) {
-      console.error('Budget check error:', budgetError);
-      throw new Error('Failed to check budget');
-    }
-
-    if (!budgetCheck) {
-      console.log('Weekly budget limit reached, skipping blog generation');
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'Weekly budget limit of $0.15 reached (3 posts/week max)',
-          budgetExceeded: true 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Blog generation uses Lovable credits directly - no budget cap
 
     // Get unprocessed news articles - limit to 1 per run for quality focus
     const { data: articles, error: fetchError } = await supabase
@@ -111,17 +90,8 @@ serve(async (req) => {
     }
 
     const postsCreated: string[] = [];
-    let totalAiCost = 0;
 
     for (const article of articles) {
-      // Check budget again before each generation
-      const { data: canProceed } = await supabase
-        .rpc('check_snap_blog_budget', { estimated_cost: AI_COST_PER_CALL });
-
-      if (!canProceed) {
-        console.log('Budget limit reached during processing');
-        break;
-      }
 
       try {
         // Generate blog post using Lovable AI with tool calling for structured output
@@ -322,7 +292,6 @@ Style requirements:
                   .getPublicUrl(fileName);
                 featuredImageUrl = urlData?.publicUrl || null;
                 console.log('Image uploaded:', featuredImageUrl);
-                totalAiCost += IMAGE_COST_PER_CALL;
               }
             }
           } else {
@@ -370,7 +339,6 @@ Style requirements:
           .eq('id', article.id);
 
         postsCreated.push(blogTitle);
-        totalAiCost += AI_COST_PER_CALL;
 
       } catch (articleError) {
         console.error(`Error processing article ${article.id}:`, articleError);
@@ -382,32 +350,12 @@ Style requirements:
       }
     }
 
-    // Update budget tracking
-    if (postsCreated.length > 0) {
-      await supabase.rpc('update_snap_blog_budget', {
-        perplexity_cost: 0,
-        ai_cost: totalAiCost,
-        articles_count: 0,
-        posts_count: postsCreated.length
-      });
-    }
-
-    // Get current budget status
-    const { data: budgetStatus } = await supabase
-      .rpc('get_current_week_budget');
-
     return new Response(
       JSON.stringify({
         success: true,
         postsCreated: postsCreated.length,
         postTitles: postsCreated,
-        articlesProcessed: articles.length,
-        budget: budgetStatus ? {
-          weekStart: budgetStatus.week_start,
-          spent: budgetStatus.total_cost_usd,
-          limit: budgetStatus.weekly_limit_usd,
-          remaining: budgetStatus.weekly_limit_usd - budgetStatus.total_cost_usd
-        } : null
+        articlesProcessed: articles.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
