@@ -24,7 +24,7 @@ export const CityPageSEO: React.FC<CityPageSEOProps> = ({
   
   const title = `EBT Stores in ${locationString} | Find SNAP-Approved Locations`;
   const description = `Find ${storeCount || 'hundreds of'} EBT and SNAP-approved stores in ${locationString}. Search grocery stores, restaurants, farmers markets, and more accepting food stamps.`;
-  const canonicalUrl = `https://ebtfinder.org/city/${cityName}`;
+  const canonicalUrl = `https://ebtfinder.org/city/${cityName.toLowerCase().replace(/\s+/g, '-')}`;
 
   const structuredData = {
     "@context": "https://schema.org",

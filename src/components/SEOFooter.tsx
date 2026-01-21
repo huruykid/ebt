@@ -7,7 +7,7 @@ export const SEOFooter: React.FC = () => {
   const topCities = [
     { name: 'New York', slug: 'new-york' },
     { name: 'Los Angeles', slug: 'los-angeles' },
-    { name: 'Chicago', slug: 'chicago-ebt' },
+    { name: 'Chicago', slug: 'chicago' },
     { name: 'Houston', slug: 'houston' },
     { name: 'Phoenix', slug: 'phoenix' },
     { name: 'Philadelphia', slug: 'philadelphia' },
@@ -58,7 +58,7 @@ export const SEOFooter: React.FC = () => {
               {topCities.map((city, index) => (
                 <span key={city.slug}>
                   <Link 
-                    to={`/${city.slug}`} 
+                    to={`/city/${city.slug}`} 
                     className="text-primary hover:text-primary/80 hover:underline"
                   >
                     {city.name}

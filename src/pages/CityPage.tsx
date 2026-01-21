@@ -266,8 +266,9 @@ const CityPage: React.FC = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
   const location = useLocation();
   
-  // Extract city slug from pathname (removes leading slash)
-  const actualCitySlug = citySlug || location.pathname.slice(1);
+  // Extract city slug - handle both /city/:citySlug and legacy /:citySlug routes
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const actualCitySlug = citySlug || (pathSegments[0] === 'city' ? pathSegments[1] : pathSegments[0]);
   const city = actualCitySlug && cityData[actualCitySlug] ? cityData[actualCitySlug] : null;
 
   if (!city) {
@@ -281,16 +282,16 @@ const CityPage: React.FC = () => {
     );
   }
 
-  // Generate SEO data
+  // Generate SEO data - use /city/ prefix for canonical URLs
   const seoTitle = `Find EBT Stores in ${city.name}, ${city.state} | EBT Finder`;
   const seoDescription = `Discover EBT and SNAP-accepting stores in ${city.name}, ${city.state}. Find grocery stores, restaurants, and markets near you. Search by ZIP code: ${city.zipCodes.slice(0, 5).join(', ')} and more.`;
   const seoKeywords = `EBT stores ${city.name}, SNAP benefits ${city.state}, ${city.name} grocery stores EBT, food assistance ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}, RMP restaurants ${city.name}`;
-  const canonicalUrl = `https://ebtfinder.org/${actualCitySlug}`;
+  const canonicalUrl = `https://ebtfinder.org/city/${actualCitySlug}`;
 
   // Breadcrumb data for SEO
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
-    { name: city.name, url: `/${actualCitySlug}` }
+    { name: city.name, url: `/city/${actualCitySlug}` }
   ];
 
   // Enhanced structured data for city page
