@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,7 @@ import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSection';
 import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
 import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
+import { useRecentlyViewedStores } from '@/hooks/useRecentlyViewedStores';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -28,6 +29,7 @@ export default function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [storeHours, setStoreHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
+  const { trackView } = useRecentlyViewedStores();
 
   const { data: store, isLoading, error } = useQuery({
     queryKey: ['store', id],
@@ -52,6 +54,13 @@ export default function StoreDetailPage() {
     },
     enabled: !!id,
   });
+
+  // Track store view when store is loaded
+  useEffect(() => {
+    if (store?.id) {
+      trackView(store.id);
+    }
+  }, [store?.id, trackView]);
 
   // Get stored Google Places data from the database (no API calls)
   const googleData = useStoredGooglePlaces(store);

@@ -10,7 +10,8 @@ import DesktopNearbyStoresSection from './DesktopNearbyStoresSection';
 import NoLocationExperience from './NoLocationExperience';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
-import { HeroSearch, SnapTipsSection } from './home';
+import { HeroSearch, SnapTipsSection, PersonalizedDashboard } from './home';
+import { useAuth } from '@/contexts/AuthContext';
 import { LocationAccuracyBanner } from './LocationAccuracyBanner';
 
 export const ExploreTrending: React.FC = () => {
@@ -18,6 +19,7 @@ export const ExploreTrending: React.FC = () => {
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>([]);
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   
   const { latitude, longitude, loading, source, city, region, requestBrowserLocation } = useGeolocation();
 
@@ -81,6 +83,13 @@ export const ExploreTrending: React.FC = () => {
           onRequestLocation={handleRequestLocation}
           variant="mobile"
         />
+
+        {/* Personalized Dashboard - Mobile */}
+        {user && !showZipResults && (
+          <div className="px-3 mt-3">
+            <PersonalizedDashboard latitude={latitude} longitude={longitude} />
+          </div>
+        )}
 
         {/* Compact category tabs */}
         <div className="min-h-[100px]">
@@ -157,6 +166,13 @@ export const ExploreTrending: React.FC = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Personalized Dashboard - Desktop */}
+          {user && !showZipResults && (
+            <div className="mb-8">
+              <PersonalizedDashboard latitude={latitude} longitude={longitude} />
+            </div>
+          )}
+
           {/* Location accuracy banner - desktop */}
           {!showZipResults && (
             <div className="mb-6">
