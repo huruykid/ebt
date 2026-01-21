@@ -281,10 +281,7 @@ export default function Mission() {
           {/* Helpful Programs Section */}
           <div className="mb-12">
             <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <img src="/primary-logo.svg" alt="Primary logo" className="h-8 w-auto" />
-                <h2 className="text-2xl font-semibold text-foreground">Helpful Programs</h2>
-              </div>
+              <h2 className="text-2xl font-semibold text-foreground mb-4">Helpful Programs</h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Beyond EBT, there are many other programs available to support low-income families. 
                 Explore these resources to find additional assistance.
