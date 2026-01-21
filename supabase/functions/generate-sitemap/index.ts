@@ -217,14 +217,14 @@ serve(async (req) => {
     }
 
     if (type === 'cities') {
-      // City pages sitemap
+      // City pages sitemap - use /city/ prefix for SEO consistency
       let citiesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
       for (const city of CITY_PAGES) {
         citiesXml += `
   <url>
-    <loc>${SITE_URL}/${city}</loc>
+    <loc>${SITE_URL}/city/${city}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
