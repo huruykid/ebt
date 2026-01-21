@@ -111,7 +111,10 @@ const AppContent = () => {
               {/* State Pages - All 50 states + DC */}
               <Route path="/state/:stateSlug" element={<StatePage />} />
               
-              {/* City Pages - Dynamic route handles all cities */}
+              {/* City Pages - Single dynamic route */}
+              <Route path="/city/:citySlug" element={<CityPage />} />
+              
+              {/* Legacy city routes for backward compatibility */}
               <Route path="/los-angeles" element={<CityPage />} />
               <Route path="/new-york" element={<CityPage />} />
               <Route path="/brooklyn" element={<CityPage />} />
@@ -119,29 +122,11 @@ const AppContent = () => {
               <Route path="/houston" element={<CityPage />} />
               <Route path="/miami" element={<CityPage />} />
               <Route path="/atlanta" element={<CityPage />} />
-              <Route path="/denver" element={<CityPage />} />
-              <Route path="/seattle" element={<CityPage />} />
-              <Route path="/boston" element={<CityPage />} />
-              <Route path="/detroit" element={<CityPage />} />
               <Route path="/phoenix" element={<CityPage />} />
               <Route path="/philadelphia" element={<CityPage />} />
               <Route path="/san-antonio" element={<CityPage />} />
               <Route path="/san-diego" element={<CityPage />} />
               <Route path="/dallas" element={<CityPage />} />
-              <Route path="/san-jose" element={<CityPage />} />
-              <Route path="/austin" element={<CityPage />} />
-              <Route path="/jacksonville" element={<CityPage />} />
-              <Route path="/fort-worth" element={<CityPage />} />
-              <Route path="/columbus" element={<CityPage />} />
-              <Route path="/charlotte" element={<CityPage />} />
-              <Route path="/san-francisco" element={<CityPage />} />
-              <Route path="/fresno" element={<CityPage />} />
-              <Route path="/indianapolis" element={<CityPage />} />
-              <Route path="/sacramento" element={<CityPage />} />
-              <Route path="/orlando" element={<CityPage />} />
-              <Route path="/las-vegas" element={<CityPage />} />
-              <Route path="/memphis" element={<CityPage />} />
-              <Route path="/baltimore" element={<CityPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
