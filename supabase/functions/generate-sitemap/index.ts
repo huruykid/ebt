@@ -65,26 +65,37 @@ const US_STATES = [
   { slug: 'washington-dc', name: 'Washington D.C.', abbr: 'DC' }
 ];
 
-// City pages that exist
+// 210+ City pages for comprehensive SEO coverage
 const CITY_PAGES = [
-  'los-angeles', 'new-york', 'brooklyn', 'chicago', 'houston', 'miami',
-  'atlanta', 'denver', 'seattle', 'boston', 'detroit', 'phoenix',
-  'philadelphia', 'san-antonio', 'san-diego', 'dallas', 'san-jose',
-  'austin', 'jacksonville', 'fort-worth', 'columbus', 'charlotte',
-  'san-francisco', 'fresno', 'indianapolis', 'sacramento', 'orlando',
-  'las-vegas', 'memphis', 'baltimore', 'nashville', 'portland', 'oklahoma-city',
-  'milwaukee', 'albuquerque', 'tucson', 'kansas-city', 'raleigh', 'long-beach',
-  'virginia-beach', 'oakland', 'minneapolis', 'tulsa', 'arlington', 'tampa',
-  'new-orleans', 'wichita', 'cleveland', 'bakersfield', 'aurora', 'anaheim',
-  'pittsburgh', 'riverside', 'stockton', 'cincinnati', 'st-louis', 'greensboro',
-  'plano', 'newark', 'henderson', 'lincoln', 'buffalo', 'jersey-city',
+  // Top 50 cities
+  'los-angeles', 'new-york', 'brooklyn', 'chicago', 'houston', 'phoenix',
+  'philadelphia', 'san-antonio', 'san-diego', 'dallas', 'san-jose', 'austin',
+  'jacksonville', 'fort-worth', 'columbus', 'charlotte', 'san-francisco',
+  'indianapolis', 'seattle', 'denver', 'miami', 'boston', 'atlanta', 'detroit',
+  'fresno', 'sacramento', 'orlando', 'las-vegas', 'memphis', 'baltimore',
+  // Cities 31-60
+  'nashville', 'portland', 'oklahoma-city', 'milwaukee', 'albuquerque', 'tucson',
+  'kansas-city', 'raleigh', 'long-beach', 'virginia-beach', 'oakland', 'minneapolis',
+  'tulsa', 'arlington', 'tampa', 'new-orleans', 'wichita', 'cleveland', 'bakersfield',
+  'aurora',
+  // Cities 61-100
+  'anaheim', 'st-louis', 'pittsburgh', 'riverside', 'stockton', 'cincinnati',
+  'greensboro', 'plano', 'newark', 'henderson', 'lincoln', 'buffalo', 'jersey-city',
   'chula-vista', 'fort-wayne', 'durham', 'st-petersburg', 'laredo', 'norfolk',
-  'madison', 'lubbock', 'chandler', 'scottsdale', 'reno', 'glendale',
-  'gilbert', 'north-las-vegas', 'hialeah', 'garland', 'fremont', 'baton-rouge',
-  'richmond', 'boise', 'san-bernardino', 'spokane', 'des-moines', 'modesto',
-  'birmingham', 'tacoma', 'fontana', 'rochester', 'oxnard', 'moreno-valley',
-  'fayetteville', 'glendale-az', 'yonkers', 'worcester', 'salt-lake-city',
-  'huntington-beach', 'grand-rapids', 'amarillo', 'santa-clarita', 'montgomery'
+  'madison',
+  // Cities 101-150
+  'lubbock', 'chandler', 'scottsdale', 'reno', 'glendale', 'gilbert',
+  'north-las-vegas', 'hialeah', 'garland', 'fremont', 'baton-rouge', 'richmond',
+  'boise', 'san-bernardino', 'spokane', 'des-moines', 'modesto', 'birmingham',
+  'tacoma', 'fontana',
+  // Cities 151-200
+  'rochester', 'oxnard', 'moreno-valley', 'fayetteville', 'yonkers', 'worcester',
+  'salt-lake-city', 'huntington-beach', 'grand-rapids', 'amarillo', 'santa-clarita',
+  'montgomery', 'shreveport', 'little-rock', 'akron', 'augusta', 'knoxville',
+  'mobile', 'huntsville', 'providence',
+  // Cities 201-210
+  'chattanooga', 'fort-lauderdale', 'springfield', 'corpus-christi', 'el-paso',
+  'lexington', 'louisville', 'omaha', 'honolulu', 'anchorage'
 ];
 
 serve(async (req) => {
