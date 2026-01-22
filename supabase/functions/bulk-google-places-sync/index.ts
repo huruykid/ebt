@@ -6,6 +6,34 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Rate limiting: 5 requests per minute per IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_REQUESTS = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+function getClientIP(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+    || req.headers.get('x-real-ip') 
+    || 'unknown';
+}
+
+function isRateLimited(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  
+  if (record.count >= RATE_LIMIT_REQUESTS) {
+    return true;
+  }
+  
+  record.count++;
+  return false;
+}
+
 interface GooglePlacesResponse {
   candidates?: Array<{
     place_id: string;
@@ -215,6 +243,16 @@ function validateNameSimilarity(storeName: string, googleName: string): NameVali
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  // Rate limiting check
+  const clientIP = getClientIP(req);
+  if (isRateLimited(clientIP)) {
+    console.log(`Rate limited: ${clientIP}`);
+    return new Response(
+      JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+      { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   try {

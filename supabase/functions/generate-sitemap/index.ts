@@ -7,6 +7,34 @@ const corsHeaders = {
   'Content-Type': 'application/xml',
 };
 
+// Rate limiting: 30 requests per minute per IP (sitemap is frequently crawled)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_REQUESTS = 30;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+function getClientIP(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+    || req.headers.get('x-real-ip') 
+    || 'unknown';
+}
+
+function isRateLimited(identifier: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  
+  if (record.count >= RATE_LIMIT_REQUESTS) {
+    return true;
+  }
+  
+  record.count++;
+  return false;
+}
+
 const SITE_URL = 'https://ebtfinder.org';
 const URLS_PER_SITEMAP = 45000; // Google limit is 50k, leave buffer
 
@@ -102,6 +130,16 @@ serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Rate limiting check
+  const clientIP = getClientIP(req);
+  if (isRateLimited(clientIP)) {
+    console.log(`Rate limited: ${clientIP}`);
+    return new Response(
+      '<?xml version="1.0" encoding="UTF-8"?><error>Rate limit exceeded</error>',
+      { status: 429, headers: corsHeaders }
+    );
   }
 
   const url = new URL(req.url);
