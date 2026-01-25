@@ -11,12 +11,13 @@ import { UserReviews } from '@/components/profile/UserReviews';
 import { AccountSettings } from '@/components/profile/AccountSettings';
 import { AppPreferences } from '@/components/profile/AppPreferences';
 import { SupportLinks } from '@/components/profile/SupportLinks';
+import { SavedListsView } from '@/components/lists/SavedListsView';
 import { useFavorites } from '@/hooks/useFavorites';
-import { User, Settings, MessageSquare, Heart, HelpCircle, LogOut, Mail, Lock, UserPlus } from 'lucide-react';
+import { User, Settings, MessageSquare, Heart, HelpCircle, LogOut, Mail, Lock, UserPlus, FolderHeart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
-type ProfileSection = 'info' | 'reviews' | 'settings' | 'preferences' | 'support';
+type ProfileSection = 'info' | 'reviews' | 'lists' | 'settings' | 'preferences' | 'support';
 
 const AuthInterface = () => {
   const { signIn, signUp } = useAuth();
@@ -226,6 +227,7 @@ export default function ProfilePage() {
   const sectionItems = [
     { id: 'info' as ProfileSection, label: 'Profile Info', icon: User },
     { id: 'reviews' as ProfileSection, label: 'My Reviews', icon: MessageSquare },
+    { id: 'lists' as ProfileSection, label: 'My Lists', icon: FolderHeart },
     { id: 'settings' as ProfileSection, label: 'Account Settings', icon: Settings },
     { id: 'preferences' as ProfileSection, label: 'App Preferences', icon: Settings },
     { id: 'support' as ProfileSection, label: 'Help & Support', icon: HelpCircle },
@@ -237,6 +239,8 @@ export default function ProfilePage() {
         return <UserProfileInfo />;
       case 'reviews':
         return <UserReviews />;
+      case 'lists':
+        return <SavedListsView />;
       case 'settings':
         return <AccountSettings />;
       case 'preferences':

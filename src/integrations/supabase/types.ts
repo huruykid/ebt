@@ -329,6 +329,45 @@ export type Database = {
           },
         ]
       }
+      list_stores: {
+        Row: {
+          added_at: string
+          id: string
+          list_id: string
+          notes: string | null
+          store_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          list_id: string
+          notes?: string | null
+          store_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          list_id?: string
+          notes?: string | null
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_stores_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "user_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_stores_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -379,6 +418,38 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_verifications: {
+        Row: {
+          id: string
+          is_accurate: boolean
+          price_id: string
+          user_id: string
+          verified_at: string
+        }
+        Insert: {
+          id?: string
+          is_accurate: boolean
+          price_id: string
+          user_id: string
+          verified_at?: string
+        }
+        Update: {
+          id?: string
+          is_accurate?: boolean
+          price_id?: string
+          user_id?: string
+          verified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_verifications_price_id_fkey"
+            columns: ["price_id"]
+            isOneToOne: false
+            referencedRelation: "store_prices"
             referencedColumns: ["id"]
           },
         ]
@@ -825,6 +896,127 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      store_prices: {
+        Row: {
+          expires_at: string | null
+          id: string
+          is_sale: boolean | null
+          price: number
+          product_name: string
+          reported_at: string
+          store_id: string
+          unit: string | null
+          user_id: string
+          verified_count: number | null
+        }
+        Insert: {
+          expires_at?: string | null
+          id?: string
+          is_sale?: boolean | null
+          price: number
+          product_name: string
+          reported_at?: string
+          store_id: string
+          unit?: string | null
+          user_id: string
+          verified_count?: number | null
+        }
+        Update: {
+          expires_at?: string | null
+          id?: string
+          is_sale?: boolean | null
+          price?: number
+          product_name?: string
+          reported_at?: string
+          store_id?: string
+          unit?: string | null
+          user_id?: string
+          verified_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_prices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_updates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          store_id: string
+          title: string
+          update_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          store_id: string
+          title: string
+          update_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          store_id?: string
+          title?: string
+          update_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_updates_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
