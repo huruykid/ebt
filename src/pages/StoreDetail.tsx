@@ -21,6 +21,8 @@ import { GoogleReviewsSection } from '@/components/store-detail/GoogleReviewsSec
 import { EnhancedGooglePlacesInfo } from '@/components/store-detail/EnhancedGooglePlacesInfo';
 import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import { useRecentlyViewedStores } from '@/hooks/useRecentlyViewedStores';
+import { StorePricesList } from '@/components/prices/StorePricesList';
+import { AddToListButton } from '@/components/lists/AddToListButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -168,15 +170,21 @@ export default function StoreDetailPage() {
             
             {/* Main Content */}
             <div className="space-y-6">
-              {/* Store Header */}
-              <StoreHeader 
-                store={store} 
-              />
+              {/* Store Header with Add to List action */}
+              <div className="flex items-start justify-between gap-4">
+                <StoreHeader store={store} />
+                <AddToListButton 
+                  storeId={store.id} 
+                  storeName={displayName || store.Store_Name || 'Store'} 
+                  variant="button"
+                />
+              </div>
 
               {/* Content Grid - Mobile-first responsive layout */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Reviews Section - First on mobile, second column on desktop */}
                 <div className="xl:col-span-2 order-1 space-y-6">
+                  <StorePricesList storeId={store.id} storeName={displayName || store.Store_Name || 'Store'} />
                   <GoogleReviewsSection store={store} />
                   <ReviewSection store={store} />
                   <StoreComments storeId={store.id} storeName={store.Store_Name} />

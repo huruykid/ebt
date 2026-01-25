@@ -13,6 +13,7 @@ import { FAQSection } from './FAQSection';
 import { HeroSearch, SnapTipsSection, PersonalizedDashboard } from './home';
 import { useAuth } from '@/contexts/AuthContext';
 import { LocationAccuracyBanner } from './LocationAccuracyBanner';
+import { StoreUpdatesFeed } from './feed/StoreUpdatesFeed';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
