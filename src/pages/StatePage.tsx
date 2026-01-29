@@ -144,7 +144,7 @@ const StatePage: React.FC = () => {
                 {cities.slice(0, 12).map((city) => (
                   <Link
                     key={city.slug}
-                    to={`/${city.slug}`}
+                    to={`/city/${city.slug}`}
                     className="flex items-center justify-between p-3 bg-background rounded-lg border hover:border-primary transition-colors group"
                   >
                     <span className="font-medium text-foreground group-hover:text-primary">

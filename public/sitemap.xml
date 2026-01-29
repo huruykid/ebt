@@ -42,183 +42,183 @@
     <priority>0.6</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
-  <!-- City Pages -->
+  <!-- City Pages - Canonical /city/ prefix -->
   <url>
-    <loc>https://ebtfinder.org/los-angeles</loc>
+    <loc>https://ebtfinder.org/city/los-angeles</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/new-york</loc>
+    <loc>https://ebtfinder.org/city/new-york</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/brooklyn</loc>
+    <loc>https://ebtfinder.org/city/brooklyn</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/chicago</loc>
+    <loc>https://ebtfinder.org/city/chicago</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/houston</loc>
+    <loc>https://ebtfinder.org/city/houston</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/miami</loc>
+    <loc>https://ebtfinder.org/city/miami</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/atlanta</loc>
+    <loc>https://ebtfinder.org/city/atlanta</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/denver</loc>
+    <loc>https://ebtfinder.org/city/denver</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/seattle</loc>
+    <loc>https://ebtfinder.org/city/seattle</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/boston</loc>
+    <loc>https://ebtfinder.org/city/boston</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/detroit</loc>
+    <loc>https://ebtfinder.org/city/detroit</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/phoenix</loc>
+    <loc>https://ebtfinder.org/city/phoenix</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/philadelphia</loc>
+    <loc>https://ebtfinder.org/city/philadelphia</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/san-antonio</loc>
+    <loc>https://ebtfinder.org/city/san-antonio</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/san-diego</loc>
+    <loc>https://ebtfinder.org/city/san-diego</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/dallas</loc>
+    <loc>https://ebtfinder.org/city/dallas</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/san-jose</loc>
+    <loc>https://ebtfinder.org/city/san-jose</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/austin</loc>
+    <loc>https://ebtfinder.org/city/austin</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/jacksonville</loc>
+    <loc>https://ebtfinder.org/city/jacksonville</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/fort-worth</loc>
+    <loc>https://ebtfinder.org/city/fort-worth</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/columbus</loc>
+    <loc>https://ebtfinder.org/city/columbus</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/charlotte</loc>
+    <loc>https://ebtfinder.org/city/charlotte</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/san-francisco</loc>
+    <loc>https://ebtfinder.org/city/san-francisco</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/fresno</loc>
+    <loc>https://ebtfinder.org/city/fresno</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/indianapolis</loc>
+    <loc>https://ebtfinder.org/city/indianapolis</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/sacramento</loc>
+    <loc>https://ebtfinder.org/city/sacramento</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/orlando</loc>
+    <loc>https://ebtfinder.org/city/orlando</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/las-vegas</loc>
+    <loc>https://ebtfinder.org/city/las-vegas</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/memphis</loc>
+    <loc>https://ebtfinder.org/city/memphis</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
   </url>
   <url>
-    <loc>https://ebtfinder.org/baltimore</loc>
+    <loc>https://ebtfinder.org/city/baltimore</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>2026-01-01</lastmod>
