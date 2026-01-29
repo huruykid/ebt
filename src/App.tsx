@@ -114,7 +114,7 @@ const AppContent = () => {
               {/* City Pages - Single dynamic route */}
               <Route path="/city/:citySlug" element={<CityPage />} />
               
-              {/* Legacy city routes for backward compatibility */}
+              {/* Legacy city routes - CityPage handles redirect to /city/ prefix */}
               <Route path="/los-angeles" element={<CityPage />} />
               <Route path="/new-york" element={<CityPage />} />
               <Route path="/brooklyn" element={<CityPage />} />
@@ -127,6 +127,9 @@ const AppContent = () => {
               <Route path="/san-antonio" element={<CityPage />} />
               <Route path="/san-diego" element={<CityPage />} />
               <Route path="/dallas" element={<CityPage />} />
+              
+              {/* Explicit 404 route for SEO (returns proper 404 page) */}
+              <Route path="/not-found" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

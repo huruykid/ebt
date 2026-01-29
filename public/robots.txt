@@ -6,12 +6,24 @@ Allow: /
 Allow: /search
 Allow: /snap-tips
 Allow: /mission
-Allow: /los-angeles
-Allow: /new-york
-Allow: /chicago
-Allow: /houston
-Allow: /miami
+# Use /city/ prefix for city pages (canonical URLs)
+Allow: /city/
+Allow: /state/
 Allow: /store/
+
+# Block legacy city URLs (they redirect to /city/ prefix)
+Disallow: /los-angeles
+Disallow: /new-york
+Disallow: /brooklyn
+Disallow: /chicago
+Disallow: /houston
+Disallow: /miami
+Disallow: /atlanta
+Disallow: /phoenix
+Disallow: /philadelphia
+Disallow: /san-antonio
+Disallow: /san-diego
+Disallow: /dallas
 
 # Block unnecessary crawling to save crawl budget
 Disallow: /auth

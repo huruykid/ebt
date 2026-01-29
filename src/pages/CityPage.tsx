@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useParams, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { SEOFooter } from '@/components/SEOFooter';
@@ -17,18 +17,18 @@ const CityPage: React.FC = () => {
   
   // Extract city slug - handle both /city/:citySlug and legacy /:citySlug routes
   const pathSegments = location.pathname.split('/').filter(Boolean);
+  const isLegacyRoute = pathSegments.length === 1 && pathSegments[0] !== 'city';
   const actualCitySlug = citySlug || (pathSegments[0] === 'city' ? pathSegments[1] : pathSegments[0]);
   const city = actualCitySlug && cityData[actualCitySlug] ? cityData[actualCitySlug] : null;
 
+  // Redirect legacy routes to canonical /city/ URLs (fixes "Alternate page with proper canonical tag")
+  if (isLegacyRoute && city) {
+    return <Navigate to={`/city/${actualCitySlug}`} replace />;
+  }
+
+  // If city not found, redirect to 404 (fixes "Soft 404" issue)
   if (!city) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">City Not Found</h1>
-          <p className="text-muted-foreground">The city page you're looking for doesn't exist.</p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/not-found" replace />;
   }
 
   // Generate SEO data - use /city/ prefix for canonical URLs
