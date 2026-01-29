@@ -17,12 +17,12 @@ const popularStores = [
 ];
 
 const popularCities = [
-  { name: 'Los Angeles', path: '/los-angeles' },
-  { name: 'New York', path: '/new-york' },
-  { name: 'Chicago', path: '/chicago-ebt' },
-  { name: 'Houston', path: '/houston' },
-  { name: 'Phoenix', path: '/phoenix' },
-  { name: 'Philadelphia', path: '/philadelphia' },
+  { name: 'Los Angeles', path: '/city/los-angeles' },
+  { name: 'New York', path: '/city/new-york' },
+  { name: 'Chicago', path: '/city/chicago' },
+  { name: 'Houston', path: '/city/houston' },
+  { name: 'Phoenix', path: '/city/phoenix' },
+  { name: 'Philadelphia', path: '/city/philadelphia' },
 ];
 
 const NoLocationExperience: React.FC<NoLocationExperienceProps> = ({
