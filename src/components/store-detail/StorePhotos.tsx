@@ -97,18 +97,17 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
   const [userPhotos, setUserPhotos] = useState<UserPhoto[]>([]);
   const [photoSource, setPhotoSource] = useState<'google' | 'user'>('google');
   
-  // Fetch user-uploaded photos
+  // Fetch user-uploaded photos using public view (excludes user_id for privacy)
   const fetchUserPhotos = useCallback(async () => {
     try {
-      // Cast to any to work around type generation timing
-      const { data, error } = await (supabase
-        .from('store_photos' as any)
+      const { data, error } = await supabase
+        .from('public_store_photos' as any)
         .select('id, file_path, created_at')
         .eq('store_id', store.id)
-        .order('created_at', { ascending: false }) as any);
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setUserPhotos((data as UserPhoto[]) || []);
+      setUserPhotos((data as unknown as UserPhoto[]) || []);
     } catch (error) {
       console.error('Error fetching user photos:', error);
     }

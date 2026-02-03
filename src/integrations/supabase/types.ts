@@ -449,6 +449,13 @@ export type Database = {
             foreignKeyName: "price_verifications_price_id_fkey"
             columns: ["price_id"]
             isOneToOne: false
+            referencedRelation: "public_store_prices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_verifications_price_id_fkey"
+            columns: ["price_id"]
+            isOneToOne: false
             referencedRelation: "store_prices"
             referencedColumns: ["id"]
           },
@@ -1044,6 +1051,42 @@ export type Database = {
       }
     }
     Views: {
+      public_price_verifications: {
+        Row: {
+          id: string | null
+          is_accurate: boolean | null
+          price_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          id?: string | null
+          is_accurate?: boolean | null
+          price_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          id?: string | null
+          is_accurate?: boolean | null
+          price_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_verifications_price_id_fkey"
+            columns: ["price_id"]
+            isOneToOne: false
+            referencedRelation: "public_store_prices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_verifications_price_id_fkey"
+            columns: ["price_id"]
+            isOneToOne: false
+            referencedRelation: "store_prices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_reviews: {
         Row: {
           created_at: string | null
@@ -1097,6 +1140,85 @@ export type Database = {
           user_name?: string | null
         }
         Relationships: []
+      }
+      public_store_photos: {
+        Row: {
+          created_at: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string | null
+          store_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_photos_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_store_prices: {
+        Row: {
+          expires_at: string | null
+          id: string | null
+          is_sale: boolean | null
+          price: number | null
+          product_name: string | null
+          reported_at: string | null
+          store_id: string | null
+          unit: string | null
+          verified_count: number | null
+        }
+        Insert: {
+          expires_at?: string | null
+          id?: string | null
+          is_sale?: boolean | null
+          price?: number | null
+          product_name?: string | null
+          reported_at?: string | null
+          store_id?: string | null
+          unit?: string | null
+          verified_count?: number | null
+        }
+        Update: {
+          expires_at?: string | null
+          id?: string | null
+          is_sale?: boolean | null
+          price?: number | null
+          product_name?: string | null
+          reported_at?: string | null
+          store_id?: string | null
+          unit?: string | null
+          verified_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_prices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews_public: {
         Row: {
