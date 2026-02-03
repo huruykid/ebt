@@ -3,10 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+// Public price interface (excludes user_id for privacy)
 export interface StorePrice {
   id: string;
   store_id: string;
-  user_id: string;
   product_name: string;
   price: number;
   unit: string;
@@ -21,21 +21,21 @@ export const useStorePrices = (storeId: string | null) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch prices for a store (only non-expired)
+  // Fetch prices for a store using public view (excludes user_id for privacy)
   const { data: prices = [], isLoading } = useQuery({
     queryKey: ['store-prices', storeId],
     queryFn: async () => {
       if (!storeId) return [];
 
       const { data, error } = await supabase
-        .from('store_prices')
+        .from('public_store_prices' as any)
         .select('*')
         .eq('store_id', storeId)
         .gte('expires_at', new Date().toISOString())
         .order('reported_at', { ascending: false });
 
       if (error) throw error;
-      return data as StorePrice[];
+      return (data as unknown as StorePrice[]) || [];
     },
     enabled: !!storeId,
   });
@@ -121,22 +121,15 @@ export const useStorePrices = (storeId: string | null) => {
   };
 };
 
-// Hook for trending prices across all stores
+// Hook for trending prices across all stores (uses public view for privacy)
 export const useTrendingPrices = (limit = 10) => {
   return useQuery({
     queryKey: ['trending-prices', limit],
     queryFn: async () => {
+      // Use public view to exclude user_id, then join with stores
       const { data, error } = await supabase
-        .from('store_prices')
-        .select(`
-          *,
-          snap_stores (
-            id,
-            Store_Name,
-            City,
-            State
-          )
-        `)
+        .from('public_store_prices' as any)
+        .select('*')
         .gte('expires_at', new Date().toISOString())
         .order('verified_count', { ascending: false })
         .order('reported_at', { ascending: false })
