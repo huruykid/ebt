@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TriggerBlogSchedulerButton } from '@/components/admin/TriggerBlogSchedulerButton';
 
 export default function Blog() {
   const { isAdmin } = useUserRoles();
@@ -140,13 +141,16 @@ export default function Blog() {
 
           {isAdmin && (
             <Tabs defaultValue="list" className="mb-8">
-              <TabsList>
-                <TabsTrigger value="list">Manage Articles</TabsTrigger>
-                <TabsTrigger value="create">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {editingPost ? 'Edit Article' : 'Create New'}
-                </TabsTrigger>
-              </TabsList>
+              <div className="flex items-center justify-between mb-4">
+                <TabsList>
+                  <TabsTrigger value="list">Manage Articles</TabsTrigger>
+                  <TabsTrigger value="create">
+                    <Plus className="mr-2 h-4 w-4" />
+                    {editingPost ? 'Edit Article' : 'Create New'}
+                  </TabsTrigger>
+                </TabsList>
+                <TriggerBlogSchedulerButton />
+              </div>
               
               <TabsContent value="list" className="mt-4">
                 <BlogPostList 
