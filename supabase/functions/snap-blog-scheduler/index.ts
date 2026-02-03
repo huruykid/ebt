@@ -56,7 +56,7 @@ serve(async (req) => {
     const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       throw new Error('Supabase credentials not configured');
     }
 
@@ -73,7 +73,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
     
     // Check if using service role key (for cron jobs)
-    const isServiceRole = token === SUPABASE_SERVICE_ROLE_KEY;
+    const isServiceRole = SUPABASE_SERVICE_ROLE_KEY && token === SUPABASE_SERVICE_ROLE_KEY;
     
     if (!isServiceRole) {
       // If not service role, validate JWT and check admin role
@@ -112,6 +112,11 @@ serve(async (req) => {
       console.log('Blog scheduler triggered by service role (cron job)');
     }
 
+    // Use service role key if available, otherwise use the admin's auth header
+    const authHeaderForCalls = SUPABASE_SERVICE_ROLE_KEY 
+      ? `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` 
+      : authHeader;
+
     const results = {
       fetchNews: null as any,
       generateBlog: null as any,
@@ -124,7 +129,7 @@ serve(async (req) => {
       const fetchResponse = await fetch(`${SUPABASE_URL}/functions/v1/fetch-snap-news`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          'Authorization': authHeaderForCalls,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({})
@@ -158,7 +163,7 @@ serve(async (req) => {
       const generateResponse = await fetch(`${SUPABASE_URL}/functions/v1/generate-snap-blog`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          'Authorization': authHeaderForCalls,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({})
