@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useInfiniteNearbyStores } from '@/hooks/useInfiniteNearbyStores';
 import { InfiniteStoreList } from './InfiniteStoreList';
 import { LoadingSpinner } from './LoadingSpinner';
 import { NoStoresFound } from './NoStoresFound';
 import { SortDropdown, type SortOption } from './SortDropdown';
 import { RadiusDropdown } from './RadiusDropdown';
+import { PullToRefresh } from './PullToRefresh';
 import { sortStores } from '@/utils/storeSorting';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { MapPin, Zap } from 'lucide-react';
 
 interface NearbyStoresProps {
@@ -34,6 +36,7 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
 }) => {
   const [sortBy, setSortBy] = useState<SortOption>('distance');
   const [radius, setRadius] = useState(initialRadius);
+  const isMobile = useIsMobile();
 
   const {
     data,
@@ -41,7 +44,8 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     error,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    refetch
   } = useInfiniteNearbyStores({
     latitude,
     longitude,
@@ -51,6 +55,10 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
     storeTypes,
     useOptimized
   });
+
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   if (isLoading && !data) {
     return <div className="flex justify-center py-8">
@@ -80,7 +88,8 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
   // Sort all stores based on the selected option - only if data exists
   const sortedPages = data?.pages ? data.pages.map(page => sortStores(page, sortBy)) : [];
 
-  return <div className="space-y-4">
+  const storeContent = (
+    <div className="space-y-4">
       {/* Header with sort dropdown and radius selector */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-2">
@@ -109,5 +118,17 @@ export const NearbyStores: React.FC<NearbyStoresProps> = ({
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
       />
-    </div>;
+    </div>
+  );
+
+  // Wrap with pull-to-refresh on mobile
+  if (isMobile) {
+    return (
+      <PullToRefresh onRefresh={handleRefresh}>
+        {storeContent}
+      </PullToRefresh>
+    );
+  }
+
+  return storeContent;
 };
