@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { StarRating } from './StarRating';
 import { Card, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { HelpfulVoteButtons } from '@/components/gamification';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Review {
@@ -46,7 +46,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   if (error) {
     return (
       <div className="text-center p-8">
-        <p className="text-red-600">Error loading reviews. Please try again later.</p>
+        <p className="text-destructive">Error loading reviews. Please try again later.</p>
       </div>
     );
   }
@@ -54,8 +54,8 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   if (!reviews || reviews.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600 mb-2">No reviews yet</p>
-        <p className="text-gray-500 text-sm">Be the first to review this store!</p>
+        <p className="text-muted-foreground mb-2">No reviews yet</p>
+        <p className="text-muted-foreground/70 text-sm">Be the first to review this store!</p>
       </div>
     );
   }
@@ -63,25 +63,30 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   return (
     <div className="space-y-4">
       {reviews.map((review) => (
-        <Card key={review.id}>
+        <Card key={review.id} className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <StarRating rating={review.rating} readonly size="sm" />
-                  <span className="text-sm font-medium">Anonymous User</span>
+                  <StarRating rating={review.rating || 0} readonly size="sm" />
+                  <span className="text-sm font-medium text-foreground">Anonymous User</span>
                 </div>
-                <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(review.created_at || ''), { addSuffix: true })}
                 </p>
               </div>
             </div>
             
             {review.review_text && (
-              <p className="text-gray-700 text-sm leading-relaxed">
+              <p className="text-foreground/80 text-sm leading-relaxed mb-3">
                 {review.review_text}
               </p>
             )}
+            
+            {/* Helpful vote buttons */}
+            <div className="pt-2 border-t border-border/50">
+              <HelpfulVoteButtons reviewId={review.id || ''} />
+            </div>
           </CardContent>
         </Card>
       ))}
