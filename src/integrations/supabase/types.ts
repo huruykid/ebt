@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          contribution_count: number | null
+          contribution_type: string | null
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          is_secret: boolean | null
+          name: string
+          points_required: number | null
+          slug: string
+        }
+        Insert: {
+          contribution_count?: number | null
+          contribution_type?: string | null
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          is_secret?: boolean | null
+          name: string
+          points_required?: number | null
+          slug: string
+        }
+        Update: {
+          contribution_count?: number | null
+          contribution_type?: string | null
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          is_secret?: boolean | null
+          name?: string
+          points_required?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string
@@ -217,6 +256,36 @@ export type Database = {
         }
         Relationships: []
       }
+      contribution_history: {
+        Row: {
+          contribution_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          points_awarded: number
+          reference_id: string | null
+          user_id: string
+        }
+        Insert: {
+          contribution_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          points_awarded: number
+          reference_id?: string | null
+          user_id: string
+        }
+        Update: {
+          contribution_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          points_awarded?: number
+          reference_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string | null
@@ -329,6 +398,52 @@ export type Database = {
           },
         ]
       }
+      helpful_votes: {
+        Row: {
+          created_at: string
+          id: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_helpful: boolean
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_helpful?: boolean
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "public_reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "helpful_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       list_stores: {
         Row: {
           added_at: string
@@ -392,6 +507,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          badge_notifications: boolean | null
+          created_at: string
+          email_digest: boolean | null
+          id: string
+          price_alerts: boolean | null
+          push_enabled: boolean | null
+          store_updates: boolean | null
+          updated_at: string
+          user_id: string
+          weekly_summary: boolean | null
+        }
+        Insert: {
+          badge_notifications?: boolean | null
+          created_at?: string
+          email_digest?: boolean | null
+          id?: string
+          price_alerts?: boolean | null
+          push_enabled?: boolean | null
+          store_updates?: boolean | null
+          updated_at?: string
+          user_id: string
+          weekly_summary?: boolean | null
+        }
+        Update: {
+          badge_notifications?: boolean | null
+          created_at?: string
+          email_digest?: boolean | null
+          id?: string
+          price_alerts?: boolean | null
+          push_enabled?: boolean | null
+          store_updates?: boolean | null
+          updated_at?: string
+          user_id?: string
+          weekly_summary?: boolean | null
+        }
+        Relationships: []
+      }
       post_tags: {
         Row: {
           post_id: string
@@ -418,6 +572,47 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_notified_at: string | null
+          product_name: string
+          store_id: string
+          target_price: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_notified_at?: string | null
+          product_name: string
+          store_id: string
+          target_price?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_notified_at?: string | null
+          product_name?: string
+          store_id?: string
+          target_price?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_alerts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
             referencedColumns: ["id"]
           },
         ]
@@ -866,6 +1061,41 @@ export type Database = {
         }
         Relationships: []
       }
+      store_follows: {
+        Row: {
+          created_at: string
+          id: string
+          notify_on_price_drops: boolean | null
+          notify_on_updates: boolean | null
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notify_on_price_drops?: boolean | null
+          notify_on_updates?: boolean | null
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notify_on_price_drops?: boolean | null
+          notify_on_updates?: boolean | null
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_follows_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "snap_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_photos: {
         Row: {
           created_at: string
@@ -992,6 +1222,38 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          notified: boolean | null
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          notified?: boolean | null
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          notified?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_lists: {
         Row: {
           created_at: string
@@ -1020,6 +1282,78 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          reference_id: string | null
+          reference_type: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          lifetime_points: number
+          longest_streak: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          lifetime_points?: number
+          longest_streak?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          lifetime_points?: number
+          longest_streak?: number
+          total_points?: number
           updated_at?: string
           user_id?: string
         }
@@ -1263,6 +1597,22 @@ export type Database = {
       }
     }
     Functions: {
+      award_contribution_points: {
+        Args: {
+          p_contribution_type: string
+          p_metadata?: Json
+          p_reference_id?: string
+          p_user_id: string
+        }
+        Returns: number
+      }
+      check_and_award_badges: {
+        Args: { p_user_id: string }
+        Returns: {
+          badge_name: string
+          badge_slug: string
+        }[]
+      }
       check_snap_blog_budget: {
         Args: { estimated_cost?: number }
         Returns: boolean
@@ -1322,6 +1672,14 @@ export type Database = {
           store_address: string
           store_id: string
           store_name: string
+        }[]
+      }
+      get_review_helpful_counts: {
+        Args: { p_review_ids: string[] }
+        Returns: {
+          helpful_count: number
+          not_helpful_count: number
+          review_id: string
         }[]
       }
       get_store_click_analytics: {

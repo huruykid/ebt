@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock, Navigation, ExternalLink, MoreVertical } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +9,8 @@ import { AddPhoneModal } from './modals/AddPhoneModal';
 import { AddHoursModal } from './modals/AddHoursModal';
 import { ReportIssueModal } from './modals/ReportIssueModal';
 import { ClaimBusinessModal } from './modals/ClaimBusinessModal';
+import { FollowButton } from '@/components/gamification';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -210,26 +211,31 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
                 )}
               </div>
               
-              {/* More Options Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <ClaimBusinessModal store={store}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      Claim Business
-                    </DropdownMenuItem>
-                  </ClaimBusinessModal>
-                  <ReportIssueModal store={store}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                      Report Issue
-                    </DropdownMenuItem>
-                  </ReportIssueModal>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <FavoriteButton storeId={store.id} />
+                <FollowButton storeId={store.id} variant="icon" />
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <ClaimBusinessModal store={store}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        Claim Business
+                      </DropdownMenuItem>
+                    </ClaimBusinessModal>
+                    <ReportIssueModal store={store}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                        Report Issue
+                      </DropdownMenuItem>
+                    </ReportIssueModal>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
             {/* Primary Action Buttons */}

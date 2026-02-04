@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Clock, Sparkles, ChevronRight, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useRecentlyViewedStores } from '@/hooks/useRecentlyViewedStores';
 import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommendations';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserPoints } from '@/hooks/useUserPoints';
+import { PointsDisplay, BadgesDisplay, StreakIndicator } from '@/components/gamification';
 import type { Store } from '@/types/storeTypes';
 
 interface MiniStoreCardProps {
@@ -137,6 +139,14 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   const { favorites, isLoading: favoritesLoading } = useFavorites();
   const { recentStores, isLoading: recentLoading } = useRecentlyViewedStores();
   const { recommendations, isLoading: recommendationsLoading, hasPreferences } = usePersonalizedRecommendations(latitude, longitude);
+  const { trackDailyVisit, points } = useUserPoints();
+
+  // Track daily visit when dashboard loads (awards 1 point per day)
+  useEffect(() => {
+    if (user) {
+      trackDailyVisit.mutate();
+    }
+  }, [user]);
 
   // Don't show if user is not logged in
   if (!user) return null;
@@ -150,14 +160,21 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   const hasContent = favoriteStores.length > 0 || recentStores.length > 0 || recommendations.length > 0;
   const isLoading = favoritesLoading || recentLoading || recommendationsLoading;
 
-  // Show loading state or nothing if no content
-  if (!hasContent && !isLoading) return null;
-
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex items-center gap-2 mb-2">
-        <h2 className="text-lg font-semibold text-foreground">Your Dashboard</h2>
-        <Badge variant="outline" className="text-xs">Personalized</Badge>
+      {/* Gamification Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground">Your Dashboard</h2>
+          <Badge variant="outline" className="text-xs">Personalized</Badge>
+        </div>
+        <StreakIndicator />
+      </div>
+
+      {/* Points and Badges Row */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <PointsDisplay />
+        <BadgesDisplay limit={5} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

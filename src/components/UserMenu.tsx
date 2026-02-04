@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { escapeHtml } from '@/utils/security';
+import { NotificationBell, PointsDisplay } from '@/components/gamification';
 
 export const UserMenu: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -25,12 +25,16 @@ export const UserMenu: React.FC = () => {
   const emailInitial = user.email ? user.email.charAt(0).toUpperCase() : '?';
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center gap-2">
+      {/* Notification Bell */}
+      <NotificationBell />
+      
+      {/* User Avatar */}
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+        className="flex items-center space-x-2 text-foreground hover:text-foreground/80"
       >
-        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
           {emailInitial}
         </div>
       </button>
