@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Globe, MapPin, Info } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useIPGeolocation } from '@/hooks/useIPGeolocation';
 
 // Routes that should bypass geo-blocking
 const BYPASS_ROUTES = ['/og-preview'];
@@ -11,59 +10,40 @@ const DEV_BYPASS_GEO_BLOCK = true;
 
 export const GeoBlockingOverlay = () => {
   const location = useLocation();
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [countryName, setCountryName] = useState('');
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    // Skip geo-blocking for bypass routes
-    if (BYPASS_ROUTES.includes(location.pathname)) {
-      setIsChecking(false);
-      return;
-    }
-
-    const checkLocation = async () => {
-      try {
-        // Check if user already dismissed (session storage)
-        const dismissed = sessionStorage.getItem('geo-block-dismissed');
-        if (dismissed) {
-          setIsChecking(false);
-          return;
-        }
-
-        const { data, error } = await supabase.functions.invoke('ip-geolocation');
-        
-        if (error) {
-          console.error('Geo check error:', error);
-          setIsChecking(false);
-          return;
-        }
-
-        // Check if country code is not US (and not empty/fallback)
-        const countryCode = data?.countryCode || '';
-        if (countryCode && countryCode !== 'US') {
-          setIsBlocked(true);
-          setCountryName(data?.country || 'your country');
-        }
-      } catch (err) {
-        console.error('Geo blocking check failed:', err);
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    checkLocation();
-  }, [location.pathname]);
+  
+  // Use the shared, cached IP geolocation hook
+  const { data, loading } = useIPGeolocation();
 
   // Bypass geo-blocking in development mode
   if (DEV_BYPASS_GEO_BLOCK) {
     return null;
   }
 
-  // Don't render anything while checking or if not blocked
-  if (isChecking || !isBlocked) {
+  // Skip geo-blocking for bypass routes
+  if (BYPASS_ROUTES.includes(location.pathname)) {
     return null;
   }
+
+  // Check if user already dismissed (session storage)
+  const dismissed = sessionStorage.getItem('geo-block-dismissed');
+  if (dismissed) {
+    return null;
+  }
+
+  // Don't render anything while checking or if not blocked
+  if (loading || !data) {
+    return null;
+  }
+
+  // Check if country code is not US (and not empty/fallback)
+  const countryCode = data.countryCode || '';
+  const isBlocked = countryCode && countryCode !== 'US';
+
+  if (!isBlocked) {
+    return null;
+  }
+
+  const countryName = data.country || 'your country';
 
   return (
     <div className="fixed inset-0 z-[9999] bg-background/95 backdrop-blur-sm flex items-center justify-center p-4">

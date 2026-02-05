@@ -13,7 +13,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { SEO } from "@/components/SEO";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { GeoBlockingOverlay } from "@/components/GeoBlockingOverlay";
-
 // Eagerly loaded - critical path
 import Index from "./pages/Index";
 

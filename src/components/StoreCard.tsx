@@ -7,7 +7,7 @@ import { ShareStore } from './ShareStore';
 import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
 import { StoreTypeBadge, EbtAcceptedBadge, IncentiveProgramBadge, StoreContactInfo } from './store';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
-import { useGeolocation } from '@/hooks/useGeolocation';
+import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatStoreAddress } from '@/utils/storeUtils';
@@ -21,7 +21,8 @@ interface StoreCardProps {
 
 export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   const { trackStoreClick } = useStoreClickTracking();
-  const { latitude, longitude } = useGeolocation();
+  // Use cached location synchronously to avoid triggering additional API calls
+  const cachedLocation = getCachedIPGeolocation();
 
   // Fetch latest comment for this store
   const { data: latestComment } = useQuery({
@@ -41,8 +42,8 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   });
 
   const handleStoreClick = () => {
-    if (latitude && longitude) {
-      trackStoreClick(store.id, latitude, longitude);
+    if (cachedLocation) {
+      trackStoreClick(store.id, cachedLocation.latitude, cachedLocation.longitude);
     }
   };
 

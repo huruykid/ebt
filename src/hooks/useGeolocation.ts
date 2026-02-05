@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
-import { supabase } from '@/integrations/supabase/client';
 import {
   GeolocationResult,
   createInitialGeolocationState,
@@ -10,41 +9,45 @@ import {
   createFallbackLocationResult,
   mergeGeolocationOptions,
 } from '@/lib/core';
+import { useIPGeolocation, getCachedIPGeolocation } from './useIPGeolocation';
 
-// Try IP-based geolocation as fallback
-const getIPLocation = async (): Promise<GeolocationResult> => {
-  try {
-    const { data, error } = await supabase.functions.invoke('ip-geolocation');
-    
-    if (error) {
-      console.error('IP geolocation error:', error);
-      throw error;
-    }
+// Convert IP geolocation data to GeolocationResult format
+const convertIPDataToResult = (data: {
+  latitude: number;
+  longitude: number;
+  city: string;
+  region: string;
+  source: 'ip' | 'fallback';
+}): GeolocationResult => {
+  return createIPLocationResult({
+    latitude: data.latitude,
+    longitude: data.longitude,
+    city: data.city,
+    region: data.region,
+    source: data.source,
+  });
+};
 
-    console.log('IP geolocation result:', data);
-    
-    return createIPLocationResult({
-      latitude: data.latitude,
-      longitude: data.longitude,
-      city: data.city,
-      region: data.region,
-      source: data.source === 'fallback' ? 'fallback' : 'ip',
-    });
-  } catch (err) {
-    console.error('Failed to get IP location:', err);
-    // Ultimate fallback - US geographic center
-    return createFallbackLocationResult();
+// Get IP location using cached data (synchronous if available)
+const getIPLocationFromCache = (): GeolocationResult => {
+  const cached = getCachedIPGeolocation();
+  if (cached) {
+    return convertIPDataToResult(cached);
   }
+  return createFallbackLocationResult();
 };
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
   const hasRequestedRef = useRef(false);
+  
+  // Subscribe to the shared IP geolocation store
+  const { data: ipData, loading: ipLoading } = useIPGeolocation();
 
-  const tryIPFallback = useCallback(async () => {
+  const tryIPFallback = useCallback(() => {
     console.log('Trying IP geolocation fallback...');
     setLocation(prev => ({ ...prev, loading: true }));
-    const ipLocation = await getIPLocation();
+    const ipLocation = getIPLocationFromCache();
     setLocation(ipLocation);
   }, []);
 
@@ -62,10 +65,10 @@ export const useGeolocation = () => {
       ));
     };
 
-    const handleError = async () => {
-      // Permission denied or error - silently use IP fallback
+    const handleError = () => {
+      // Permission denied or error - silently use IP fallback from cache
       console.log('Browser location denied/failed, using IP fallback');
-      const ipLocation = await getIPLocation();
+      const ipLocation = getIPLocationFromCache();
       setLocation(ipLocation);
     };
 
@@ -76,7 +79,7 @@ export const useGeolocation = () => {
           const perm = await Geolocation.requestPermissions();
           const status = (perm as any)?.location || (perm as any)?.coarseLocation || (perm as any)?.fineLocation;
           if (status && status !== 'granted') {
-            const ipLocation = await getIPLocation();
+            const ipLocation = getIPLocationFromCache();
             setLocation(ipLocation);
             return;
           }
@@ -96,7 +99,7 @@ export const useGeolocation = () => {
 
     // Web platform handling
     if (!('geolocation' in navigator)) {
-      getIPLocation().then(ipLocation => setLocation(ipLocation));
+      setLocation(getIPLocationFromCache());
       return;
     }
 
@@ -104,14 +107,21 @@ export const useGeolocation = () => {
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
   }, []);
 
-  // IP-first approach: silently get IP location on first visit (no browser prompt)
-  // Using ref to prevent duplicate calls from React strict mode or re-renders
+  // Use the shared IP geolocation data when it becomes available
   useEffect(() => {
     if (hasRequestedRef.current) return;
+    
+    // Wait for IP data to load
+    if (ipLoading) return;
+    
     hasRequestedRef.current = true;
     
-    getIPLocation().then(ipLocation => setLocation(ipLocation));
-  }, []);
+    if (ipData) {
+      setLocation(convertIPDataToResult(ipData));
+    } else {
+      setLocation(createFallbackLocationResult());
+    }
+  }, [ipData, ipLoading]);
 
   return { ...location, tryIPFallback, requestBrowserLocation };
 };
