@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useStoreUpdates, StoreUpdate } from '@/hooks/useStoreUpdates';
-import { useGeolocation } from '@/hooks/useGeolocation';
+import { useIPGeolocation } from '@/hooks/useIPGeolocation';
 
 const UPDATE_ICONS: Record<StoreUpdate['update_type'], React.ReactNode> = {
   review: <MessageSquare className="h-4 w-4" />,
@@ -37,13 +37,13 @@ export const StoreUpdatesFeed: React.FC<StoreUpdatesFeedProps> = ({
   limit = 20,
   showNearby = true,
 }) => {
-  const { latitude, longitude } = useGeolocation();
+  const { data: ipData } = useIPGeolocation();
   
   const { updates, isLoading } = useStoreUpdates({
     storeId,
     limit,
-    userLat: showNearby ? latitude || undefined : undefined,
-    userLng: showNearby ? longitude || undefined : undefined,
+    userLat: showNearby && ipData ? ipData.latitude : undefined,
+    userLng: showNearby && ipData ? ipData.longitude : undefined,
   });
 
   if (isLoading) {
@@ -94,7 +94,7 @@ export const StoreUpdatesFeed: React.FC<StoreUpdatesFeedProps> = ({
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
           {title}
-          {showNearby && latitude && (
+          {showNearby && ipData && (
             <Badge variant="secondary" className="ml-auto text-xs">
               <MapPin className="h-3 w-3 mr-1" />
               Nearby

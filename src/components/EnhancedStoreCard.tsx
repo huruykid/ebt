@@ -4,7 +4,7 @@ import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
 import { StoreTypeBadge, EbtAcceptedBadge, IncentiveProgramBadge, StoreContactInfo, StoreRating, StorePhotoDisplay } from './store';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
-import { useGeolocation } from '@/hooks/useGeolocation';
+import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
 import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import { formatStoreAddress, getStorePhotos } from '@/utils/storeUtils';
 import type { StoreWithDistance } from '@/types/storeTypes';
@@ -15,12 +15,13 @@ interface EnhancedStoreCardProps {
 
 export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) => {
   const { trackStoreClick } = useStoreClickTracking();
-  const { latitude, longitude } = useGeolocation();
+  // Use cached location synchronously to avoid triggering additional API calls
+  const cachedLocation = getCachedIPGeolocation();
   const googlePlacesData = useStoredGooglePlaces(store);
 
   const handleStoreClick = () => {
-    if (latitude && longitude) {
-      trackStoreClick(store.id, latitude, longitude);
+    if (cachedLocation) {
+      trackStoreClick(store.id, cachedLocation.latitude, cachedLocation.longitude);
     }
   };
 
