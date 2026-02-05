@@ -68,7 +68,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     const name = full_name || "Friend";
 
-    console.log('📧 Sending welcome email to:', email);
+    // Mask email for privacy-compliant logging (GDPR/CCPA)
+    const maskedEmail = email.replace(/^(.{2})(.*)(@.*)$/, '$1***$3');
+    console.log('📧 Sending welcome email to:', maskedEmail);
 
     const emailResponse = await resend.emails.send({
       from: "The EBT Store Finder Team <onboarding@resend.dev>",
@@ -154,7 +156,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("✅ Welcome email sent successfully to:", email);
+    console.log("✅ Welcome email sent successfully to:", maskedEmail);
 
     return new Response(JSON.stringify({ success: true, messageId: emailResponse.data?.id }), {
       status: 200,

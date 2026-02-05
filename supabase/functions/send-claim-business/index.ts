@@ -182,7 +182,9 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Claim business email sent successfully:", emailResponse);
+    // Mask email for privacy-compliant logging
+    const maskedEmail = sanitizedOwnerEmail.replace(/^(.{2})(.*)(@.*)$/, '$1***$3');
+    console.log("Claim business email sent successfully for:", maskedEmail);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,

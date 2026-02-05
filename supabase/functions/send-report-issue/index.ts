@@ -142,7 +142,9 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Report issue email sent successfully:", emailResponse);
+    // Mask email for privacy-compliant logging
+    const maskedEmail = sanitizedUserEmail ? sanitizedUserEmail.replace(/^(.{2})(.*)(@.*)$/, '$1***$3') : 'anonymous';
+    console.log("Report issue email sent successfully for store:", sanitizedStoreId, "reporter:", maskedEmail);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
