@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { POPULAR_STORES, POPULAR_LOCATIONS, SEARCH_DEFAULTS } from '@/constants/searchConstants';
-import { geocodeLocation, parseLocation, mapToStoreWithDistance, filterStoresByQuery } from '@/utils/searchUtils';
+import { geocodeLocation, parseLocation, mapToStoreWithDistance } from '@/utils/searchUtils';
 import { applyCategoryFiltering } from '@/hooks/useNearbyStoresCore';
+import { calculateDistance } from '@/utils/distanceCalculation';
 import type { SearchParams, SearchHistory, SearchSuggestion } from '@/types/searchTypes';
 import type { StoreWithDistance } from '@/types/storeTypes';
 
@@ -122,61 +123,123 @@ export const useEnhancedSearch = () => {
 
       let searchLat: number | null = null;
       let searchLng: number | null = null;
+      let geocodedCoords: { lat: number; lng: number } | null = null;
 
       // Determine coordinates
       if (useCurrentLocation && latitude && longitude) {
         searchLat = latitude;
         searchLng = longitude;
       } else if (location) {
-        const coords = await geocodeLocation(location);
-        if (coords) {
-          searchLat = coords.lat;
-          searchLng = coords.lng;
+        geocodedCoords = await geocodeLocation(location);
+        if (geocodedCoords) {
+          searchLat = geocodedCoords.lat;
+          searchLng = geocodedCoords.lng;
         }
       }
 
       let results: StoreWithDistance[];
 
-      // Location-based search
-      if (searchLat !== null && searchLng !== null) {
-        const { data, error } = await supabase.rpc('get_nearby_stores', {
-          user_lat: searchLat,
-          user_lng: searchLng,
-          radius_miles: radius || SEARCH_DEFAULTS.RADIUS_MILES,
-          store_types: storeType || null,
-          result_limit: SEARCH_DEFAULTS.RESULT_LIMIT * 2 // Fetch extra for filtering
-        });
+      // Parse location for smart_store_search
+      const parsedLocation = location ? parseLocation(location) : { city: '', state: '', zip: '' };
 
-        if (error) throw error;
-
-        results = (data || []).map((store: any) => mapToStoreWithDistance(store, true));
-
-        // Apply name filter if query provided
-        if (query.trim()) {
-          results = filterStoresByQuery(results, query);
-        }
+      // COMBINED SEARCH: When we have BOTH a query AND a location, use smart_store_search
+      // with city/state params to get relevant stores, then calculate distances
+      if (query.trim() && (parsedLocation.city || parsedLocation.state || parsedLocation.zip)) {
+        console.log('🔍 Combined search: query + location using smart_store_search');
         
-        // GLOBAL: Apply category-specific filtering
-        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
-      } else {
-        // Text-based search
-        const parsedLocation = location ? parseLocation(location) : { city: '', state: '', zip: '' };
-
-        const { data, error } = await supabase.rpc('smart_store_search', {
-          search_text: query || '',
+        const { data, error: searchError } = await supabase.rpc('smart_store_search', {
+          search_text: query.trim(),
           search_city: parsedLocation.city,
           search_state: parsedLocation.state,
           search_zip: parsedLocation.zip,
           similarity_threshold: SEARCH_DEFAULTS.SIMILARITY_THRESHOLD,
-          result_limit: SEARCH_DEFAULTS.TEXT_SEARCH_LIMIT * 2 // Fetch extra for filtering
+          result_limit: SEARCH_DEFAULTS.TEXT_SEARCH_LIMIT * 2
         });
 
-        if (error) throw error;
+        if (searchError) throw searchError;
+
+        results = (data || []).map((store: any) => {
+          const mapped = mapToStoreWithDistance(store, false);
+          // Calculate distance if we have coordinates
+          if (searchLat !== null && searchLng !== null && store.latitude && store.longitude) {
+            const distance = calculateDistance(
+              searchLat,
+              searchLng,
+              store.latitude,
+              store.longitude
+            );
+            mapped.distance = distance;
+          }
+          return mapped;
+        });
+
+        // Sort by distance if we have coordinates
+        if (searchLat !== null && searchLng !== null) {
+          results.sort((a, b) => (a.distance || 999) - (b.distance || 999));
+        }
+        
+        // Apply category-specific filtering
+        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
+      }
+      // LOCATION-ONLY SEARCH: No query, just browsing stores near a location
+      else if (searchLat !== null && searchLng !== null && !query.trim()) {
+        console.log('🔍 Location-only search using get_nearby_stores');
+        
+        const { data, error: nearbyError } = await supabase.rpc('get_nearby_stores', {
+          user_lat: searchLat,
+          user_lng: searchLng,
+          radius_miles: radius || SEARCH_DEFAULTS.RADIUS_MILES,
+          store_types: storeType || null,
+          result_limit: SEARCH_DEFAULTS.RESULT_LIMIT * 2
+        });
+
+        if (nearbyError) throw nearbyError;
+
+        results = (data || []).map((store: any) => mapToStoreWithDistance(store, true));
+        
+        // Apply category-specific filtering
+        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
+      }
+      // TEXT-ONLY SEARCH: Query without location (nationwide search)
+      else if (query.trim()) {
+        console.log('🔍 Text-only search using smart_store_search');
+        
+        const { data, error: textError } = await supabase.rpc('smart_store_search', {
+          search_text: query.trim(),
+          search_city: '',
+          search_state: '',
+          search_zip: '',
+          similarity_threshold: SEARCH_DEFAULTS.SIMILARITY_THRESHOLD,
+          result_limit: SEARCH_DEFAULTS.TEXT_SEARCH_LIMIT * 2
+        });
+
+        if (textError) throw textError;
 
         results = (data || []).map((store: any) => mapToStoreWithDistance(store, false));
         
-        // GLOBAL: Apply category-specific filtering
+        // Apply category-specific filtering
         results = applyCategoryFiltering(results, category) as StoreWithDistance[];
+      }
+      // CURRENT LOCATION ONLY: No query, using device location
+      else if (useCurrentLocation && searchLat !== null && searchLng !== null) {
+        console.log('🔍 Current location search using get_nearby_stores');
+        
+        const { data, error: nearbyError } = await supabase.rpc('get_nearby_stores', {
+          user_lat: searchLat,
+          user_lng: searchLng,
+          radius_miles: radius || SEARCH_DEFAULTS.RADIUS_MILES,
+          store_types: storeType || null,
+          result_limit: SEARCH_DEFAULTS.RESULT_LIMIT * 2
+        });
+
+        if (nearbyError) throw nearbyError;
+
+        results = (data || []).map((store: any) => mapToStoreWithDistance(store, true));
+        
+        // Apply category-specific filtering
+        results = applyCategoryFiltering(results, category) as StoreWithDistance[];
+      } else {
+        results = [];
       }
 
       // Save successful search to history
