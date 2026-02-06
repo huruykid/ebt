@@ -79,31 +79,37 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     }
   }, [searchResults, isLoading, hasSearched, onSearchChange]);
 
-  // Use refs to track whether we're doing a manual search (button click)
-  // This avoids stale closure issues with debounce
-  const isManualSearchRef = useRef(false);
+  // Track if a manual search was triggered - timestamp to prevent debounce from firing after
+  const manualSearchTimeRef = useRef(0);
 
   // Debounced query update - only for auto-search as you type
   useEffect(() => {
-    // Skip debounced update if a manual search was just triggered
-    if (isManualSearchRef.current) {
-      isManualSearchRef.current = false;
+    // Skip debounced update if a manual search happened within the debounce window
+    const timeSinceManual = Date.now() - manualSearchTimeRef.current;
+    if (timeSinceManual < SEARCH_DEFAULTS.DEBOUNCE_MS + 100) {
       return;
     }
+    
     const timer = setTimeout(() => {
-      if (inputValue !== searchParams.query) {
+      // Only update if value actually changed and not during manual search
+      if (inputValue !== searchParams.query && Date.now() - manualSearchTimeRef.current > SEARCH_DEFAULTS.DEBOUNCE_MS) {
         updateSearchParams({ query: inputValue });
       }
     }, SEARCH_DEFAULTS.DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [inputValue, searchParams.query, updateSearchParams]);
 
-  // Debounced location update - only for auto-search as you type
+  // Debounced location update - only for auto-search as you type  
   useEffect(() => {
-    // Skip debounced update if a manual search was just triggered
-    if (isManualSearchRef.current) return;
+    // Skip debounced update if a manual search happened within the debounce window
+    const timeSinceManual = Date.now() - manualSearchTimeRef.current;
+    if (timeSinceManual < SEARCH_DEFAULTS.LOCATION_DEBOUNCE_MS + 100) {
+      return;
+    }
+    
     const timer = setTimeout(() => {
-      if (locationValue !== searchParams.location) {
+      // Only update if value actually changed and not during manual search
+      if (locationValue !== searchParams.location && Date.now() - manualSearchTimeRef.current > SEARCH_DEFAULTS.LOCATION_DEBOUNCE_MS) {
         updateSearchParams({ location: locationValue });
       }
     }, SEARCH_DEFAULTS.LOCATION_DEBOUNCE_MS);
@@ -157,8 +163,8 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   const handleSearch = () => {
     setShowSuggestions(false);
-    // Mark as manual search to skip debounce effects, then update params immediately
-    isManualSearchRef.current = true;
+    // Record the time of manual search to prevent debounce effects from firing
+    manualSearchTimeRef.current = Date.now();
     updateSearchParams({ 
       query: inputValue, 
       location: locationValue 
