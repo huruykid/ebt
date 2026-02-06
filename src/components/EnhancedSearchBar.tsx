@@ -79,25 +79,33 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     }
   }, [searchResults, isLoading, hasSearched, onSearchChange]);
 
-  // Debounced query update
+  // Track if we should skip debounce (when search button is clicked)
+  const [skipDebounce, setSkipDebounce] = useState(false);
+
+  // Debounced query update - only for auto-search as you type
   useEffect(() => {
+    if (skipDebounce) {
+      setSkipDebounce(false);
+      return;
+    }
     const timer = setTimeout(() => {
       if (inputValue !== searchParams.query) {
         updateSearchParams({ query: inputValue });
       }
     }, SEARCH_DEFAULTS.DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [inputValue, searchParams.query, updateSearchParams]);
+  }, [inputValue, searchParams.query, updateSearchParams, skipDebounce]);
 
-  // Debounced location update
+  // Debounced location update - only for auto-search as you type
   useEffect(() => {
+    if (skipDebounce) return;
     const timer = setTimeout(() => {
       if (locationValue !== searchParams.location) {
         updateSearchParams({ location: locationValue });
       }
     }, SEARCH_DEFAULTS.LOCATION_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [locationValue, searchParams.location, updateSearchParams]);
+  }, [locationValue, searchParams.location, updateSearchParams, skipDebounce]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -146,7 +154,8 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   const handleSearch = () => {
     setShowSuggestions(false);
-    // Trigger immediate search by updating params
+    // Skip debounce and immediately update params with current input values
+    setSkipDebounce(true);
     updateSearchParams({ 
       query: inputValue, 
       location: locationValue 
