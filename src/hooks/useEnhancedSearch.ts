@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -20,6 +20,16 @@ export const useEnhancedSearch = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistory[]>([]);
   const { latitude, longitude } = useGeolocation();
+  
+  // Use ref to track the "active" search params that React Query should use
+  // This is updated synchronously before triggering the query
+  const activeSearchRef = useRef<SearchParams>({
+    query: '',
+    radius: SEARCH_DEFAULTS.RADIUS_MILES
+  });
+  
+  // Counter to force query re-execution
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   // Load search history from localStorage
   useEffect(() => {
@@ -113,9 +123,13 @@ export const useEnhancedSearch = () => {
 
   // Main search query with React Query
   const { data: searchResults, isLoading, error } = useQuery({
-    queryKey: ['enhanced-search', searchParams],
+    queryKey: ['enhanced-search', searchParams, searchTrigger],
     queryFn: async (): Promise<StoreWithDistance[]> => {
-      const { query, location, useCurrentLocation, radius, storeType, category } = searchParams;
+      // Use the activeSearchRef which is updated synchronously before triggering
+      const currentParams = activeSearchRef.current;
+      const { query, location, useCurrentLocation, radius, storeType, category } = currentParams;
+      
+      console.log('🔍 useEnhancedSearch queryFn executing with:', { query, location, useCurrentLocation });
       
       if (!query.trim() && !location && !useCurrentLocation) {
         return [];
@@ -139,8 +153,9 @@ export const useEnhancedSearch = () => {
 
       let results: StoreWithDistance[];
 
-      // Parse location for smart_store_search
+      // Parse location for smart_store_search - use the location from searchParams directly
       const parsedLocation = location ? parseLocation(location) : { city: '', state: '', zip: '' };
+      console.log('📍 Parsed location:', parsedLocation, 'from:', location);
 
       // COMBINED SEARCH: When we have BOTH a query AND a location, use smart_store_search
       // with city/state params to get relevant stores, then calculate distances
@@ -279,7 +294,12 @@ export const useEnhancedSearch = () => {
 
   // Actions
   const updateSearchParams = useCallback((updates: Partial<SearchParams>) => {
-    setSearchParams(prev => ({ ...prev, ...updates }));
+    // Update ref synchronously so the queryFn has immediate access to new values
+    const newParams = { ...activeSearchRef.current, ...updates };
+    activeSearchRef.current = newParams;
+    setSearchParams(newParams);
+    // Increment trigger to force query re-execution
+    setSearchTrigger(prev => prev + 1);
   }, []);
 
   const clearSearch = useCallback(() => {

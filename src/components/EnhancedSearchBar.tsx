@@ -79,13 +79,15 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     }
   }, [searchResults, isLoading, hasSearched, onSearchChange]);
 
-  // Track if we should skip debounce (when search button is clicked)
-  const [skipDebounce, setSkipDebounce] = useState(false);
+  // Use refs to track whether we're doing a manual search (button click)
+  // This avoids stale closure issues with debounce
+  const isManualSearchRef = useRef(false);
 
   // Debounced query update - only for auto-search as you type
   useEffect(() => {
-    if (skipDebounce) {
-      setSkipDebounce(false);
+    // Skip debounced update if a manual search was just triggered
+    if (isManualSearchRef.current) {
+      isManualSearchRef.current = false;
       return;
     }
     const timer = setTimeout(() => {
@@ -94,18 +96,19 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
       }
     }, SEARCH_DEFAULTS.DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [inputValue, searchParams.query, updateSearchParams, skipDebounce]);
+  }, [inputValue, searchParams.query, updateSearchParams]);
 
   // Debounced location update - only for auto-search as you type
   useEffect(() => {
-    if (skipDebounce) return;
+    // Skip debounced update if a manual search was just triggered
+    if (isManualSearchRef.current) return;
     const timer = setTimeout(() => {
       if (locationValue !== searchParams.location) {
         updateSearchParams({ location: locationValue });
       }
     }, SEARCH_DEFAULTS.LOCATION_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [locationValue, searchParams.location, updateSearchParams, skipDebounce]);
+  }, [locationValue, searchParams.location, updateSearchParams]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -154,8 +157,8 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
 
   const handleSearch = () => {
     setShowSuggestions(false);
-    // Skip debounce and immediately update params with current input values
-    setSkipDebounce(true);
+    // Mark as manual search to skip debounce effects, then update params immediately
+    isManualSearchRef.current = true;
     updateSearchParams({ 
       query: inputValue, 
       location: locationValue 
