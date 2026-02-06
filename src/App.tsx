@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { IPGeolocationProvider } from "@/contexts/IPGeolocationContext";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HeaderNavigation } from "@/components/HeaderNavigation";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
@@ -146,15 +147,17 @@ const AppContent = () => {
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <IPGeolocationProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </IPGeolocationProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
