@@ -27,9 +27,6 @@ export const useEnhancedSearch = () => {
     query: '',
     radius: SEARCH_DEFAULTS.RADIUS_MILES
   });
-  
-  // Counter to force query re-execution
-  const [searchTrigger, setSearchTrigger] = useState(0);
 
   // Load search history from localStorage
   useEffect(() => {
@@ -123,7 +120,7 @@ export const useEnhancedSearch = () => {
 
   // Main search query with React Query
   const { data: searchResults, isLoading, error } = useQuery({
-    queryKey: ['enhanced-search', searchParams, searchTrigger],
+    queryKey: ['enhanced-search', searchParams.query, searchParams.location, searchParams.useCurrentLocation, searchParams.storeType, searchParams.category, searchParams.radius],
     queryFn: async (): Promise<StoreWithDistance[]> => {
       // Use the activeSearchRef which is updated synchronously before triggering
       const currentParams = activeSearchRef.current;
@@ -298,8 +295,6 @@ export const useEnhancedSearch = () => {
     const newParams = { ...activeSearchRef.current, ...updates };
     activeSearchRef.current = newParams;
     setSearchParams(newParams);
-    // Increment trigger to force query re-execution
-    setSearchTrigger(prev => prev + 1);
   }, []);
 
   const clearSearch = useCallback(() => {
