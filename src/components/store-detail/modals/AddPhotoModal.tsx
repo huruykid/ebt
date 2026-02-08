@@ -165,6 +165,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
             <DialogTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5" />
               Add Photos to {store.Store_Name}
+              <span className="text-xs font-normal text-muted-foreground ml-auto">(+10 pts each)</span>
             </DialogTitle>
           </DialogHeader>
           

@@ -122,6 +122,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({ storeId, onSuccess }) =>
           className="w-full"
         >
           {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
+          {!submitReviewMutation.isPending && <span className="ml-1.5 text-xs opacity-80">(+15 pts)</span>}
         </Button>
       </form>
 

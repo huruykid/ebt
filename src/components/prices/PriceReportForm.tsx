@@ -85,6 +85,7 @@ export const PriceReportForm: React.FC<PriceReportFormProps> = ({
           <Button variant="outline" size="sm">
             <DollarSign className="h-4 w-4 mr-1" />
             Report Price
+            <span className="ml-1 text-xs opacity-70">(+5 pts)</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
