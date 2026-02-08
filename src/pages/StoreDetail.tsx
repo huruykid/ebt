@@ -23,6 +23,7 @@ import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import { useRecentlyViewedStores } from '@/hooks/useRecentlyViewedStores';
 import { StorePricesList } from '@/components/prices/StorePricesList';
 import { AddToListButton } from '@/components/lists/AddToListButton';
+import { useNavigationReferrer } from '@/hooks/useNavigationReferrer';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -32,6 +33,7 @@ export default function StoreDetailPage() {
   const navigate = useNavigate();
   const [storeHours, setStoreHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
   const { trackView } = useRecentlyViewedStores();
+  const { referrerPath, referrerLabel } = useNavigationReferrer();
 
   const { data: store, isLoading, error } = useQuery({
     queryKey: ['store', id],
@@ -83,12 +85,12 @@ export default function StoreDetailPage() {
         <div className="min-h-screen bg-background p-4">
           <div className="max-w-4xl mx-auto">
             <Button 
-              onClick={() => navigate('/search')} 
+              onClick={() => navigate(referrerPath)} 
               variant="outline" 
               className="mb-4"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Search
+              {referrerLabel}
             </Button>
             <Card>
               <CardContent className="p-8 text-center">
@@ -148,12 +150,12 @@ export default function StoreDetailPage() {
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <Button 
-              onClick={() => navigate(-1)} 
+              onClick={() => navigate(referrerPath)} 
               variant="ghost" 
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Search
+              {referrerLabel}
             </Button>
           </div>
         </div>

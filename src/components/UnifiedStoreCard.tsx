@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
@@ -18,6 +18,7 @@ import {
 } from './store';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
+import { saveNavigationReferrer } from '@/hooks/useNavigationReferrer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatStoreAddress, getStorePhotos } from '@/utils/storeUtils';
@@ -38,6 +39,7 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
 }) => {
   const { trackStoreClick } = useStoreClickTracking();
   const cachedLocation = getCachedIPGeolocation();
+  const location = useLocation();
 
   // Only fetch latest comment if showing actions (basic card mode)
   const { data: latestComment } = useQuery({
@@ -59,6 +61,9 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
   });
 
   const handleStoreClick = () => {
+    // Save current location as referrer for back navigation
+    saveNavigationReferrer(location.pathname + location.search);
+    
     if (cachedLocation) {
       trackStoreClick(store.id, cachedLocation.latitude, cachedLocation.longitude);
     }
