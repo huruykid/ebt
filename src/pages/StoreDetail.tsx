@@ -173,8 +173,8 @@ export default function StoreDetailPage() {
             {/* Store Header - Full width on mobile */}
             <StoreHeader store={store} />
             
-            {/* Add to List - Separate row on mobile for cleaner layout */}
-            <div className="flex justify-end md:hidden">
+            {/* Add to List - inline on desktop only */}
+            <div className="hidden md:flex justify-end">
               <AddToListButton 
                 storeId={store.id} 
                 storeName={displayName || store.Store_Name || 'Store'} 

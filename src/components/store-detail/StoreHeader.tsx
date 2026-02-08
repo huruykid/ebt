@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock, Navigation, ExternalLink, MoreVertical, Edit3, Gift } from 'lucide-react';
+import { Star, MapPin, Tag, Utensils, Building2, Phone, Clock, Navigation, ExternalLink, MoreVertical, Gift } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,19 +11,18 @@ import { ReportIssueModal } from './modals/ReportIssueModal';
 import { ClaimBusinessModal } from './modals/ClaimBusinessModal';
 import { FollowButton } from '@/components/gamification';
 import { FavoriteButton } from '@/components/FavoriteButton';
-import { DataQualityBadge, calculateStoreCompleteness } from '@/components/store';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
 
 interface StoreHeaderProps {
   store: Store;
-  userDistance?: number; // Distance in miles
+  userDistance?: number;
   reviewCount?: number;
   averageRating?: number;
 }
 
-export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, reviewCount = 0, averageRating = 0 }) => {
+export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance }) => {
   const [addedHours, setAddedHours] = useState<Record<string, { open: string; close: string; closed: boolean }> | null>(null);
   const [addedPhone, setAddedPhone] = useState<string | null>(null);
 
@@ -34,42 +33,23 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
       store.State,
       store.Zip_Code
     ].filter(Boolean);
-    
     return parts.join(', ');
   };
 
   const openInMaps = () => {
     const address = encodeURIComponent(formatAddress());
-    const url = `https://www.google.com/maps/search/?api=1&query=${address}`;
-    window.open(url, '_blank');
+    window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
   };
 
   const callStore = () => {
     const phone = getDisplayPhone();
-    if (phone) {
-      window.location.href = `tel:${phone}`;
-    }
+    if (phone) window.location.href = `tel:${phone}`;
   };
 
   const openWebsite = () => {
     const website = store.google_website;
     if (website) {
-      const url = website.startsWith('http') ? website : `https://${website}`;
-      window.open(url, '_blank');
-    }
-  };
-
-  const getStoreTypeIcon = (type: string | null) => {
-    switch (type?.toLowerCase()) {
-      case 'supermarket':
-      case 'super store':
-        return Building2;
-      case 'convenience store':
-        return Building2;
-      case 'grocery store':
-        return Building2;
-      default:
-        return Building2;
+      window.open(website.startsWith('http') ? website : `https://${website}`, '_blank');
     }
   };
 
@@ -80,16 +60,11 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
         return 'bg-primary/10 text-primary border-primary/20';
       case 'convenience store':
         return 'bg-secondary/10 text-secondary-foreground border-secondary/20';
-      case 'grocery store':
-        return 'bg-accent/10 text-accent-foreground border-accent/20';
       default:
         return 'bg-muted/10 text-muted-foreground border-muted/20';
     }
   };
 
-  const StoreTypeIcon = getStoreTypeIcon(store.Store_Type);
-
-  // Check if store accepts hot foods (RMP)
   const isRmpEnrolled = store.Incentive_Program?.toLowerCase().includes('rmp') || 
                        store.Incentive_Program?.toLowerCase().includes('restaurant meals program');
 
@@ -104,59 +79,40 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
   const formatTodayHours = (hours: Record<string, { open: string; close: string; closed: boolean }>) => {
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     const todayHours = hours[today];
-    
     if (!todayHours) return 'Hours available';
-    
-    if (todayHours.closed) {
-      return 'Closed today';
-    }
-    
+    if (todayHours.closed) return 'Closed today';
     return `${todayHours.open} - ${todayHours.close}`;
   };
 
   const formatGoogleHours = () => {
     if (!store.google_opening_hours) return null;
-    
     try {
-      // Handle both string and object formats
       const openingHours = typeof store.google_opening_hours === 'string' 
         ? JSON.parse(store.google_opening_hours) 
         : store.google_opening_hours;
-        
-      if (openingHours.weekday_text && openingHours.weekday_text.length > 0) {
-        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const todayIndex = today === 0 ? 6 : today - 1; // Convert to Monday = 0 format
+      if (openingHours.weekday_text?.length > 0) {
+        const today = new Date().getDay();
+        const todayIndex = today === 0 ? 6 : today - 1;
         return openingHours.weekday_text[todayIndex] || openingHours.weekday_text[0];
       }
     } catch (error) {
       console.warn('Error parsing Google opening hours:', error);
     }
-    
     return null;
   };
 
-  const getDisplayPhone = () => {
-    return addedPhone || store.google_formatted_phone_number;
-  };
+  const getDisplayPhone = () => addedPhone || store.google_formatted_phone_number;
 
   const getDisplayHours = () => {
-    if (addedHours) {
-      return formatTodayHours(addedHours);
-    }
-    
+    if (addedHours) return formatTodayHours(addedHours);
     const googleHours = formatGoogleHours();
-    if (googleHours) {
-      // Extract just the hours part after the day name
-      return googleHours.split(': ')[1] || googleHours;
-    }
-    
+    if (googleHours) return googleHours.split(': ')[1] || googleHours;
     return null;
   };
 
   const getOpenStatus = () => {
     try {
       if (store.google_opening_hours) {
-        // Handle both string and object formats
         const openingHours = typeof store.google_opening_hours === 'string' 
           ? JSON.parse(store.google_opening_hours) 
           : store.google_opening_hours;
@@ -169,214 +125,144 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
   };
 
   const isOpenNow = getOpenStatus();
+  const hasMissingData = !getDisplayPhone() || !getDisplayHours();
 
-    const completeness = calculateStoreCompleteness(store);
-    const hasMissingData = !getDisplayPhone() || !getDisplayHours();
-
-    return (
-    <Card className="overflow-hidden border-0 shadow-lg">
-      <CardContent className="p-3 sm:p-5 lg:p-6">
-        <div className="space-y-3 sm:space-y-4 md:space-y-5">
-          {/* Store Name, Rating, and Status */}
-          <div className="space-y-3 md:space-y-4">
-            {/* Mobile: Store name, then status, then actions in clean rows */}
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight flex-1 min-w-0">
-                  {store.Store_Name}
-                </h1>
-                
-                {/* Desktop action buttons - inline */}
-                <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-                  <FavoriteButton storeId={store.id} />
-                  <FollowButton storeId={store.id} variant="icon" />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <ClaimBusinessModal store={store}>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                          Claim Business
-                        </DropdownMenuItem>
-                      </ClaimBusinessModal>
-                      <ReportIssueModal store={store}>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                          Report Issue
-                        </DropdownMenuItem>
-                      </ReportIssueModal>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              
-              {/* Rating row */}
-              <div className="flex items-center gap-2 mb-2">
-                {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
-                <DataQualityBadge {...completeness} />
-              </div>
-              
-              {/* Status and Hours row */}
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                {isOpenNow !== null && (
-                  <Badge variant={isOpenNow ? "secondary" : "outline"} className={
-                    isOpenNow 
-                      ? "bg-green-50 text-green-700 border-green-200" 
-                      : "bg-red-50 text-red-700 border-red-200"
-                  }>
-                    <Clock className="h-3 w-3 mr-1" />
-                    {isOpenNow ? 'Open Now' : 'Closed'}
-                  </Badge>
-                )}
-                
-                {getDisplayHours() && (
-                  <span className="text-muted-foreground">
-                    Today: {getDisplayHours()}
-                  </span>
-                )}
-                
-                {userDistance && (
-                  <span className="text-muted-foreground">
-                    • {userDistance.toFixed(1)} mi
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            {/* Mobile action buttons - full width row */}
-            <div className="flex sm:hidden items-center gap-2">
-              <FavoriteButton storeId={store.id} />
-              <FollowButton storeId={store.id} variant="icon" />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <ClaimBusinessModal store={store}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      Claim Business
-                    </DropdownMenuItem>
-                  </ClaimBusinessModal>
-                  <ReportIssueModal store={store}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                      Report Issue
-                    </DropdownMenuItem>
-                  </ReportIssueModal>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Primary Action Buttons - Flex layout for consistent sizing */}
-            <div className="flex flex-wrap gap-2">
-              {getDisplayPhone() && (
-                <Button onClick={callStore} size="sm" className="flex-1 min-w-[100px]">
-                  <Phone className="h-4 w-4 mr-1.5" />
-                  Call
+  return (
+    <Card className="overflow-hidden border-0 shadow-md">
+      <CardContent className="p-3 sm:p-4">
+        {/* Row 1: Name + Actions */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground leading-tight flex-1 min-w-0 line-clamp-2">
+            {store.Store_Name}
+          </h1>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <FavoriteButton storeId={store.id} variant="icon" />
+            <FollowButton storeId={store.id} variant="icon" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
-              )}
-              
-              <Button onClick={openInMaps} variant="outline" size="sm" className="flex-1 min-w-[100px]">
-                <Navigation className="h-4 w-4 mr-1.5" />
-                Directions
-              </Button>
-              
-              {store.google_website && (
-                <Button onClick={openWebsite} variant="outline" size="sm" className="flex-1 min-w-[100px]">
-                  <ExternalLink className="h-4 w-4 mr-1.5" />
-                  Website
-                </Button>
-              )}
-            </div>
-
-            {/* Store Badges - Compact Display */}
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                <Tag className="h-3 w-3 mr-1" />
-                EBT Accepted
-              </Badge>
-              
-              {isRmpEnrolled && (
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  <Utensils className="h-3 w-3 mr-1" />
-                  Hot Foods
-                </Badge>
-              )}
-              
-              {store.Store_Type && (
-                <Badge variant="secondary" className={`${getStoreTypeColor(store.Store_Type)} border`}>
-                  <StoreTypeIcon className="h-3 w-3 mr-1" />
-                  {store.Store_Type}
-                </Badge>
-              )}
-              
-              {store.Incentive_Program && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                  <Star className="h-3 w-3 mr-1" />
-                  {store.Incentive_Program}
-                </Badge>
-              )}
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <ClaimBusinessModal store={store}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    Claim Business
+                  </DropdownMenuItem>
+                </ClaimBusinessModal>
+                <ReportIssueModal store={store}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                    Report Issue
+                  </DropdownMenuItem>
+                </ReportIssueModal>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+        </div>
 
-          {/* Address Card - Simplified */}
-          <div className="bg-muted/30 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <MapPin className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-foreground font-medium mb-1">
-                  {formatAddress() || 'Address not available'}
-                </p>
-                
-                {/* Display hours if available */}
-                {getDisplayHours() && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      Today: {getDisplayHours()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Help Complete This Listing - Prominent CTA Section */}
-          {hasMissingData && (
-            <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Edit3 className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold text-foreground text-sm">Help Complete This Listing</h3>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {!getDisplayPhone() && (
-                  <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
-                )}
-                {!getDisplayHours() && (
-                  <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
-                )}
-              </div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Gift className="h-3 w-3" />
-                <span>Earn points for every contribution!</span>
-              </div>
-            </div>
+        {/* Row 2: Rating + Status + Hours - Inline */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm mb-3">
+          {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
+          
+          {isOpenNow !== null && (
+            <Badge variant="outline" className={`text-xs py-0 h-5 ${
+              isOpenNow 
+                ? "bg-green-50 text-green-700 border-green-200" 
+                : "bg-red-50 text-red-700 border-red-200"
+            }`}>
+              {isOpenNow ? 'Open' : 'Closed'}
+            </Badge>
           )}
-
-          {/* EBT Information */}
-          {store.Incentive_Program && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
-                <Star className="h-4 w-4" />
-                Incentive Program Available
-              </h3>
-              <p className="text-green-800 text-sm">{store.Incentive_Program}</p>
-            </div>
+          
+          {getDisplayHours() && (
+            <span className="text-xs text-muted-foreground">
+              {getDisplayHours()}
+            </span>
+          )}
+          
+          {userDistance && (
+            <span className="text-xs text-muted-foreground">
+              {userDistance.toFixed(1)} mi
+            </span>
           )}
         </div>
+
+        {/* Row 3: Address - Compact */}
+        <div className="flex items-start gap-2 mb-3">
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-muted-foreground leading-tight">
+            {formatAddress() || 'Address not available'}
+          </p>
+        </div>
+
+        {/* Row 4: Action Buttons - Full width, equal sizing */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {getDisplayPhone() ? (
+            <Button onClick={callStore} size="sm" className="w-full">
+              <Phone className="h-4 w-4 mr-1.5" />
+              Call
+            </Button>
+          ) : (
+            <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
+          )}
+          
+          <Button onClick={openInMaps} variant="outline" size="sm" className="w-full">
+            <Navigation className="h-4 w-4 mr-1.5" />
+            Directions
+          </Button>
+        </div>
+
+        {/* Row 5: Secondary Actions */}
+        {(store.google_website || !getDisplayHours()) && (
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            {store.google_website && (
+              <Button onClick={openWebsite} variant="ghost" size="sm" className="w-full text-muted-foreground">
+                <ExternalLink className="h-4 w-4 mr-1.5" />
+                Website
+              </Button>
+            )}
+            {!getDisplayHours() && (
+              <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
+            )}
+          </div>
+        )}
+
+        {/* Row 6: Badges - Compact inline */}
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs py-0 h-5">
+            <Tag className="h-2.5 w-2.5 mr-1" />
+            EBT
+          </Badge>
+          
+          {isRmpEnrolled && (
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs py-0 h-5">
+              <Utensils className="h-2.5 w-2.5 mr-1" />
+              Hot Foods
+            </Badge>
+          )}
+          
+          {store.Store_Type && (
+            <Badge variant="outline" className={`${getStoreTypeColor(store.Store_Type)} text-xs py-0 h-5`}>
+              <Building2 className="h-2.5 w-2.5 mr-1" />
+              {store.Store_Type}
+            </Badge>
+          )}
+          
+          {store.Incentive_Program && !isRmpEnrolled && (
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs py-0 h-5">
+              <Star className="h-2.5 w-2.5 mr-1" />
+              Incentive
+            </Badge>
+          )}
+        </div>
+
+        {/* Contribution CTA - Minimal, only shown when both missing */}
+        {hasMissingData && !getDisplayPhone() && !getDisplayHours() && (
+          <div className="flex items-center gap-1 mt-3 pt-2 border-t text-xs text-muted-foreground">
+            <Gift className="h-3 w-3" />
+            <span>Help complete this listing and earn points!</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
