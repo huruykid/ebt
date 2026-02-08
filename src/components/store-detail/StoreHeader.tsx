@@ -175,92 +175,117 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
 
     return (
     <Card className="overflow-hidden border-0 shadow-lg">
-      <CardContent className="p-6 lg:p-8">
-        <div className="space-y-6">
+      <CardContent className="p-4 sm:p-6 lg:p-8">
+        <div className="space-y-4 md:space-y-6">
           {/* Store Name, Rating, and Status */}
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight">
-                    {store.Store_Name}
-                  </h1>
-                  <DataQualityBadge {...completeness} />
-                </div>
+          <div className="space-y-3 md:space-y-4">
+            {/* Mobile: Store name, then status, then actions in clean rows */}
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground leading-tight flex-1 min-w-0">
+                  {store.Store_Name}
+                </h1>
                 
-                {/* Rating, Distance, and Status Row */}
-                <div className="flex flex-wrap items-center gap-3 mb-3">
-                  {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
-                  
-                  {userDistance && (
-                    <span className="text-sm text-muted-foreground">
-                      • {userDistance.toFixed(1)} miles away
-                    </span>
-                  )}
-                  
-                  {isOpenNow !== null && (
-                    <Badge variant={isOpenNow ? "secondary" : "outline"} className={
-                      isOpenNow 
-                        ? "bg-green-50 text-green-700 border-green-200" 
-                        : "bg-red-50 text-red-700 border-red-200"
-                    }>
-                      <Clock className="h-3 w-3 mr-1" />
-                      {isOpenNow ? 'Open Now' : 'Closed'}
-                    </Badge>
-                  )}
+                {/* Desktop action buttons - inline */}
+                <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                  <FavoriteButton storeId={store.id} />
+                  <FollowButton storeId={store.id} variant="icon" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <ClaimBusinessModal store={store}>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          Claim Business
+                        </DropdownMenuItem>
+                      </ClaimBusinessModal>
+                      <ReportIssueModal store={store}>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                          Report Issue
+                        </DropdownMenuItem>
+                      </ReportIssueModal>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-
-                {/* Today's Hours */}
-                {getDisplayHours() && (
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Today: {getDisplayHours()}
-                  </p>
-                )}
               </div>
               
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <FavoriteButton storeId={store.id} />
-                <FollowButton storeId={store.id} variant="icon" />
+              {/* Rating row */}
+              <div className="flex items-center gap-2 mb-2">
+                {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
+                <DataQualityBadge {...completeness} />
+              </div>
+              
+              {/* Status and Hours row */}
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                {isOpenNow !== null && (
+                  <Badge variant={isOpenNow ? "secondary" : "outline"} className={
+                    isOpenNow 
+                      ? "bg-green-50 text-green-700 border-green-200" 
+                      : "bg-red-50 text-red-700 border-red-200"
+                  }>
+                    <Clock className="h-3 w-3 mr-1" />
+                    {isOpenNow ? 'Open Now' : 'Closed'}
+                  </Badge>
+                )}
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <ClaimBusinessModal store={store}>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        Claim Business
-                      </DropdownMenuItem>
-                    </ClaimBusinessModal>
-                    <ReportIssueModal store={store}>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                        Report Issue
-                      </DropdownMenuItem>
-                    </ReportIssueModal>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {getDisplayHours() && (
+                  <span className="text-muted-foreground">
+                    Today: {getDisplayHours()}
+                  </span>
+                )}
+                
+                {userDistance && (
+                  <span className="text-muted-foreground">
+                    • {userDistance.toFixed(1)} mi
+                  </span>
+                )}
               </div>
             </div>
+            
+            {/* Mobile action buttons - full width row */}
+            <div className="flex sm:hidden items-center gap-2">
+              <FavoriteButton storeId={store.id} />
+              <FollowButton storeId={store.id} variant="icon" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <ClaimBusinessModal store={store}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Claim Business
+                    </DropdownMenuItem>
+                  </ClaimBusinessModal>
+                  <ReportIssueModal store={store}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                      Report Issue
+                    </DropdownMenuItem>
+                  </ReportIssueModal>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-            {/* Primary Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Primary Action Buttons - Grid on mobile for better fit */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3">
               {getDisplayPhone() && (
-                <Button onClick={callStore} size="lg" className="flex-1">
+                <Button onClick={callStore} size="default" className="sm:flex-1">
                   <Phone className="h-4 w-4 mr-2" />
                   Call Now
                 </Button>
               )}
               
-              <Button onClick={openInMaps} variant="outline" size="lg" className="flex-1">
+              <Button onClick={openInMaps} variant="outline" size="default" className="sm:flex-1">
                 <Navigation className="h-4 w-4 mr-2" />
                 Directions
               </Button>
               
               {store.google_website && (
-                <Button onClick={openWebsite} variant="outline" size="lg" className="flex-1">
+                <Button onClick={openWebsite} variant="outline" size="default" className="sm:flex-1 col-span-2 sm:col-span-1">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Website
                 </Button>
