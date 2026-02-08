@@ -1,6 +1,6 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Store } from 'lucide-react';
+import { getBrandLogo } from '@/utils/brandLogos';
 
 interface StorePhotoProps {
   storeName: string;
@@ -14,57 +14,41 @@ const getDefaultStoreImage = (storeType: string | null, storeName: string) => {
   const name = storeName?.toLowerCase() || '';
   const type = storeType?.toLowerCase() || '';
   
-  // Chain-specific images with more variety
-  if (name.includes('pizza hut')) return 'photo-1513104890138-7c749659a591'; // Pizza
-  if (name.includes('dominos') || name.includes("domino's")) return 'photo-1571066811602-716837d681de'; // Different pizza
-  if (name.includes('subway')) return 'photo-1555396273-367ea4eb4db5'; // Sandwich
-  if (name.includes('mcdonalds') || name.includes("mcdonald's")) return 'photo-1571091718767-18b5b1457add'; // Burger
-  if (name.includes('burger king')) return 'photo-1568901346375-23c9450c58cd'; // Different burger
-  if (name.includes('starbucks')) return 'photo-1461023058943-07fcbe16d735'; // Coffee
-  if (name.includes('dunkin')) return 'photo-1509042239860-f550ce710b93'; // Different coffee
-  if (name.includes('kfc')) return 'photo-1626645738196-c2a7c87a8f58'; // Fried chicken
-  if (name.includes('taco bell')) return 'photo-1565299624946-b28f40a0ca4b'; // Tacos
-  if (name.includes('chipotle')) return 'photo-1599974579688-8dbdd335c77f'; // Mexican food
-  if (name.includes('walmart')) return 'photo-1601598851547-4302969d0f8a'; // Retail store
-  if (name.includes('target')) return 'photo-1441986300917-64674bd600d8'; // Different retail
-  if (name.includes('cvs') || name.includes('walgreens')) return 'photo-1576671081837-49000212a370'; // Pharmacy
-  if (name.includes('7-eleven') || name.includes('circle k')) return 'photo-1578662996442-48f60103fc96'; // Convenience
-  
   // Store type based images with more variety
   if (type.includes('supermarket') || type.includes('super store')) {
     const supermarketImages = [
-      'photo-1556909114-f6e7ad7d3136', // Main grocery
-      'photo-1542838132-92c53300491e', // Produce section
-      'photo-1578662996442-48f60103fc96', // Store aisle
-      'photo-1601598851547-4302969d0f8a'  // Shopping carts
+      'photo-1556909114-f6e7ad7d3136',
+      'photo-1542838132-92c53300491e',
+      'photo-1578662996442-48f60103fc96',
+      'photo-1601598851547-4302969d0f8a'
     ];
     return supermarketImages[Math.floor(Math.abs(hashString(name)) % supermarketImages.length)];
   }
   
   if (type.includes('convenience')) {
     const convenienceImages = [
-      'photo-1578662996442-48f60103fc96', // Store front
-      'photo-1576671081837-49000212a370', // Interior
-      'photo-1441986300917-64674bd600d8'   // Products
+      'photo-1578662996442-48f60103fc96',
+      'photo-1576671081837-49000212a370',
+      'photo-1441986300917-64674bd600d8'
     ];
     return convenienceImages[Math.floor(Math.abs(hashString(name)) % convenienceImages.length)];
   }
   
   if (type.includes('grocery')) {
     const groceryImages = [
-      'photo-1542838132-92c53300491e', // Fresh produce
-      'photo-1556909114-f6e7ad7d3136', // Store interior
-      'photo-1584464491033-06628f3a6b7b'  // Shopping basket
+      'photo-1542838132-92c53300491e',
+      'photo-1556909114-f6e7ad7d3136',
+      'photo-1584464491033-06628f3a6b7b'
     ];
     return groceryImages[Math.floor(Math.abs(hashString(name)) % groceryImages.length)];
   }
   
   // Generic fallback with variety
   const genericImages = [
-    'photo-1556909114-f6e7ad7d3136', // Generic store 1
-    'photo-1441986300917-64674bd600d8', // Generic store 2
-    'photo-1578662996442-48f60103fc96', // Generic store 3
-    'photo-1542838132-92c53300491e'   // Generic store 4
+    'photo-1556909114-f6e7ad7d3136',
+    'photo-1441986300917-64674bd600d8',
+    'photo-1578662996442-48f60103fc96',
+    'photo-1542838132-92c53300491e'
   ];
   return genericImages[Math.floor(Math.abs(hashString(name)) % genericImages.length)];
 };
@@ -75,7 +59,7 @@ const hashString = (str: string): number => {
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return hash;
 };
@@ -86,6 +70,29 @@ export const StorePhoto: React.FC<StorePhotoProps> = ({
   storeType,
   className = "w-full h-32 object-cover rounded-t-lg" 
 }) => {
+  const [logoError, setLogoError] = useState(false);
+  
+  // Check if this is a known brand
+  const brandInfo = getBrandLogo(storeName);
+  
+  // If it's a known brand and logo hasn't errored, show the brand logo
+  if (brandInfo && !logoError) {
+    return (
+      <div 
+        className={`${className} bg-white flex items-center justify-center p-3`}
+      >
+        <img
+          src={brandInfo.logoUrl}
+          alt={`${storeName} logo`}
+          className="max-h-20 max-w-24 object-contain"
+          onError={() => setLogoError(true)}
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+  
+  // Fallback to Unsplash image
   const defaultImageId = getDefaultStoreImage(storeType, storeName);
   const imageUrl = `https://images.unsplash.com/${defaultImageId}?auto=format&fit=crop&w=400&h=200&q=80`;
   

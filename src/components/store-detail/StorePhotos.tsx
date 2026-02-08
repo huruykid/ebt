@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ShareStore } from '@/components/ShareStore';
 import { AddPhotoModal } from './modals/AddPhotoModal';
 import { supabase } from '@/integrations/supabase/client';
+import { getBrandLogoHighRes, isKnownBrand } from '@/utils/brandLogos';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -24,22 +25,6 @@ interface StorePhotosProps {
 const getDefaultStoreImage = (storeType: string | null, storeName: string | null) => {
   const name = storeName?.toLowerCase() || '';
   const type = storeType?.toLowerCase() || '';
-  
-  // Chain-specific images with more variety
-  if (name.includes('pizza hut')) return 'photo-1513104890138-7c749659a591';
-  if (name.includes('dominos') || name.includes("domino's")) return 'photo-1571066811602-716837d681de';
-  if (name.includes('subway')) return 'photo-1555396273-367ea4eb4db5';
-  if (name.includes('mcdonalds') || name.includes("mcdonald's")) return 'photo-1571091718767-18b5b1457add';
-  if (name.includes('burger king')) return 'photo-1568901346375-23c9450c58cd';
-  if (name.includes('starbucks')) return 'photo-1461023058943-07fcbe16d735';
-  if (name.includes('dunkin')) return 'photo-1509042239860-f550ce710b93';
-  if (name.includes('kfc')) return 'photo-1626645738196-c2a7c87a8f58';
-  if (name.includes('taco bell')) return 'photo-1565299624946-b28f40a0ca4b';
-  if (name.includes('chipotle')) return 'photo-1599974579688-8dbdd335c77f';
-  if (name.includes('walmart')) return 'photo-1601598851547-4302969d0f8a';
-  if (name.includes('target')) return 'photo-1441986300917-64674bd600d8';
-  if (name.includes('cvs') || name.includes('walgreens')) return 'photo-1576671081837-49000212a370';
-  if (name.includes('7-eleven') || name.includes('circle k')) return 'photo-1578662996442-48f60103fc96';
   
   // Store type based images
   if (type.includes('supermarket') || type.includes('super store')) {
@@ -96,6 +81,11 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [userPhotos, setUserPhotos] = useState<UserPhoto[]>([]);
   const [photoSource, setPhotoSource] = useState<'google' | 'user'>('google');
+  const [logoError, setLogoError] = useState(false);
+  
+  // Check if this is a known brand
+  const isBrand = isKnownBrand(store.Store_Name);
+  const brandLogoUrl = getBrandLogoHighRes(store.Store_Name);
   
   // Fetch user-uploaded photos using public view (excludes user_id for privacy)
   const fetchUserPhotos = useCallback(async () => {
@@ -195,15 +185,39 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
     setCurrentPhotoIndex(0);
   };
 
+  // Determine if we should show brand logo hero (no photos but known brand)
+  const showBrandLogoHero = !hasGooglePhotos && !hasUserPhotos && isBrand && brandLogoUrl && !logoError;
+
   return (
     <div 
-      className="relative h-64 md:h-80 bg-cover bg-center overflow-hidden"
-      style={{ backgroundImage: `url(${getCurrentBackgroundImage()})` }}
+      className={`relative h-64 md:h-80 overflow-hidden ${showBrandLogoHero ? 'bg-white' : 'bg-cover bg-center'}`}
+      style={showBrandLogoHero ? undefined : { backgroundImage: `url(${getCurrentBackgroundImage()})` }}
     >
-      {/* Improved overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+      {/* Show brand logo hero when no photos available for known brands */}
+      {showBrandLogoHero ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/20 to-muted/40">
+          <div className="text-center">
+            <div className="bg-white rounded-2xl p-8 shadow-lg inline-block mb-4">
+              <img
+                src={brandLogoUrl}
+                alt={`${storeName} logo`}
+                className="max-h-24 md:max-h-32 max-w-48 md:max-w-64 object-contain"
+                onError={() => setLogoError(true)}
+              />
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+              {storeName}
+            </h1>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Improved overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+        </>
+      )}
       
-      {/* Photo source toggle */}
+      {/* Photo source toggle - only show when we have photos */}
       {(hasGooglePhotos || hasUserPhotos) && (
         <div className="absolute top-4 left-4 flex gap-1 z-10">
           {hasGooglePhotos && (
@@ -211,7 +225,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
               onClick={() => handleSourceChange('google')}
               className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                 photoSource === 'google'
-                  ? 'bg-white text-gray-900'
+                  ? 'bg-white text-foreground'
                   : 'bg-black/50 text-white hover:bg-black/70'
               }`}
             >
@@ -223,7 +237,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
               onClick={() => handleSourceChange('user')}
               className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors flex items-center gap-1 ${
                 photoSource === 'user'
-                  ? 'bg-white text-gray-900'
+                  ? 'bg-white text-foreground'
                   : 'bg-black/50 text-white hover:bg-black/70'
               }`}
             >
@@ -277,70 +291,91 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
         </div>
       )}
       
-      {/* Content overlay */}
-      <div className="absolute inset-0 flex items-center justify-center text-white">
-        <div className="text-center space-y-6 px-4 max-w-4xl">
-          <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg text-white [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
-            {storeName}
-          </h1>
-          
-          {/* Photo Thumbnail Gallery */}
-          {hasCurrentPhotos && currentPhotos.length > 1 && (
-            <div className="flex justify-center">
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
-                <div className="flex gap-2 max-w-sm overflow-x-auto scrollbar-hide">
-                  {currentPhotos.map((_, index) => {
-                    const thumbnailUrl = getPhotoUrl(index);
-                    
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentPhotoIndex(index)}
-                        className={`relative w-16 h-12 md:w-20 md:h-14 rounded-md overflow-hidden transition-all duration-200 flex-shrink-0 ${
-                          index === currentPhotoIndex 
-                            ? 'ring-2 ring-white shadow-lg scale-105' 
-                            : 'ring-1 ring-white/40 hover:ring-white/80 hover:scale-105'
-                        }`}
-                      >
-                        <img
-                          src={thumbnailUrl}
-                          alt={`Store photo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        {index === currentPhotoIndex && (
-                          <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="text-xs text-white/80 mt-2 text-center">
-                  {currentPhotos.length} photos from {photoSource === 'google' ? 'Google Places' : 'Community'}
+      {/* Content overlay - don't show when brand logo hero is active */}
+      {!showBrandLogoHero && (
+        <div className="absolute inset-0 flex items-center justify-center text-white">
+          <div className="text-center space-y-6 px-4 max-w-4xl">
+            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg text-white [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
+              {storeName}
+            </h1>
+            
+            {/* Photo Thumbnail Gallery */}
+            {hasCurrentPhotos && currentPhotos.length > 1 && (
+              <div className="flex justify-center">
+                <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
+                  <div className="flex gap-2 max-w-sm overflow-x-auto scrollbar-hide">
+                    {currentPhotos.map((_, index) => {
+                      const thumbnailUrl = getPhotoUrl(index);
+                      
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentPhotoIndex(index)}
+                          className={`relative w-16 h-12 md:w-20 md:h-14 rounded-md overflow-hidden transition-all duration-200 flex-shrink-0 ${
+                            index === currentPhotoIndex 
+                              ? 'ring-2 ring-white shadow-lg scale-105' 
+                              : 'ring-1 ring-white/40 hover:ring-white/80 hover:scale-105'
+                          }`}
+                        >
+                          <img
+                            src={thumbnailUrl}
+                            alt={`Store photo ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          {index === currentPhotoIndex && (
+                            <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="text-xs text-white/80 mt-2 text-center">
+                    {currentPhotos.length} photos from {photoSource === 'google' ? 'Google Places' : 'Community'}
+                  </div>
                 </div>
               </div>
+            )}
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                onClick={() => setShowAddPhotoModal(true)}
+                variant="secondary"
+                className="bg-white/95 text-foreground hover:bg-white font-medium shadow-lg"
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                Add Photos
+              </Button>
+              <ShareStore 
+                store={store}
+                variant="button"
+                className="bg-white/20 text-white border-white/40 hover:bg-white/30 hover:text-white shadow-lg backdrop-blur-sm font-medium"
+              />
             </div>
-          )}
-          
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button 
-              onClick={() => setShowAddPhotoModal(true)}
-              variant="secondary"
-              className="bg-white/95 text-gray-900 hover:bg-white font-medium shadow-lg"
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              Add Photos
-            </Button>
-            <ShareStore 
-              store={store}
-              variant="button"
-              className="bg-white/20 text-white border-white/40 hover:bg-white/30 hover:text-white shadow-lg backdrop-blur-sm font-medium"
-            />
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Action buttons for brand logo hero */}
+      {showBrandLogoHero && (
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
+          <Button 
+            onClick={() => setShowAddPhotoModal(true)}
+            variant="secondary"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-lg"
+          >
+            <Camera className="h-4 w-4 mr-2" />
+            Add Photos
+          </Button>
+          <ShareStore 
+            store={store}
+            variant="button"
+            className="bg-muted text-foreground border-border hover:bg-muted/80 shadow-lg font-medium"
+          />
+        </div>
+      )}
 
       <AddPhotoModal
         isOpen={showAddPhotoModal}
