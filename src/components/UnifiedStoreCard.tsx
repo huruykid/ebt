@@ -5,7 +5,17 @@ import { StorePhoto } from './StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
 import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
-import { StoreTypeBadge, EbtAcceptedBadge, IncentiveProgramBadge, StoreContactInfo, StoreRating, StorePhotoDisplay } from './store';
+import { 
+  StoreTypeBadge, 
+  EbtAcceptedBadge, 
+  IncentiveProgramBadge, 
+  StoreContactInfo, 
+  StoreRating, 
+  StorePhotoDisplay,
+  DataQualityBadge,
+  calculateStoreCompleteness,
+  QuickActionButtons,
+} from './store';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
 import { useQuery } from '@tanstack/react-query';
@@ -61,6 +71,9 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
   const openingHours = store.google_opening_hours as { open_now?: boolean } | null;
   const phone = store.google_formatted_phone_number;
   const website = store.google_website;
+  
+  // Calculate data completeness for badge
+  const completeness = calculateStoreCompleteness(store);
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -84,15 +97,18 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
 
         {/* Content */}
         <div className="flex-1 p-4 min-w-0">
-          {/* Store Title and Rating */}
+          {/* Store Title, Rating, and Data Quality Badge */}
           <div className="mb-2">
-            <Link 
-              to={`/store/${store.id}`}
-              onClick={handleStoreClick}
-              className="text-lg font-semibold text-foreground hover:text-primary transition-colors block truncate"
-            >
-              {store.Store_Name}
-            </Link>
+            <div className="flex items-start justify-between gap-2">
+              <Link 
+                to={`/store/${store.id}`}
+                onClick={handleStoreClick}
+                className="text-lg font-semibold text-foreground hover:text-primary transition-colors block truncate flex-1"
+              >
+                {store.Store_Name}
+              </Link>
+              <DataQualityBadge {...completeness} />
+            </div>
             
             <div className="flex items-center gap-2 mt-1">
               {enhanced && rating ? (
@@ -100,7 +116,6 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
               ) : (
                 <>
                   {store.ObjectId && <StoreRatingDisplay storeId={parseInt(store.ObjectId)} />}
-                  <span className="text-sm text-muted-foreground">No reviews yet</span>
                 </>
               )}
             </div>
@@ -154,15 +169,24 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
           <StoreContactInfo
             address={fullAddress}
             distance={store.distance}
-            phone={phone || (showActions ? undefined : 'Phone coming soon')}
+            phone={phone}
             openingHours={openingHours}
             website={website}
+            hideEmptyFields={true}
           />
 
-          {/* Favorites and Share */}
-          <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border">
-            <FavoriteButton storeId={store.id} variant="icon" />
-            <ShareStore store={store} variant="icon" />
+          {/* Quick Actions and Favorites */}
+          <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
+            <QuickActionButtons 
+              phone={phone}
+              address={fullAddress}
+              storeName={store.Store_Name || ''}
+              variant="compact"
+            />
+            <div className="flex items-center gap-1">
+              <FavoriteButton storeId={store.id} variant="icon" />
+              <ShareStore store={store} variant="icon" />
+            </div>
           </div>
         </div>
       </div>

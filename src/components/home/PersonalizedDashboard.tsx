@@ -11,6 +11,7 @@ import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommend
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { PointsDisplay, BadgesDisplay, StreakIndicator } from '@/components/gamification';
+import { GettingStartedChecklist } from '@/components/onboarding/GettingStartedChecklist';
 import type { Store } from '@/types/storeTypes';
 
 interface MiniStoreCardProps {
@@ -162,6 +163,9 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Getting Started Checklist - Only for new users */}
+      <GettingStartedChecklist />
+
       {/* Gamification Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">

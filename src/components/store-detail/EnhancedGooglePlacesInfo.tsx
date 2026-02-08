@@ -1,8 +1,9 @@
 import React from 'react';
-import { Phone, Globe, Clock, Star, MapPin, ExternalLink } from 'lucide-react';
+import { Phone, Globe, Clock, Star, MapPin, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { StoredGooglePlacesData } from '@/hooks/useStoredGooglePlaces';
 
 interface EnhancedGooglePlacesInfoProps {
@@ -59,12 +60,29 @@ export const EnhancedGooglePlacesInfo: React.FC<EnhancedGooglePlacesInfoProps> =
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-xl font-bold">
-                {googleData.name || storeName}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Verified business information from Google 
-                {googleData.cached && <span className="text-yellow-600">• Cached data</span>}
+              <div className="flex items-center gap-2 mb-1">
+                <CardTitle className="text-xl font-bold">
+                  {googleData.name || storeName}
+                </CardTitle>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="bg-success/10 text-success border-success/20 gap-1">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Verified
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Information verified by Google Places</p>
+                      {googleData.cached && (
+                        <p className="text-xs text-muted-foreground">Last updated from cache</p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Verified business information from Google
               </p>
             </div>
             <div className="text-right">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock, Navigation, ExternalLink, MoreVertical } from 'lucide-react';
+import { Star, MapPin, Tag, Globe, Utensils, Building2, Phone, Clock, Navigation, ExternalLink, MoreVertical, Edit3, Gift } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { ReportIssueModal } from './modals/ReportIssueModal';
 import { ClaimBusinessModal } from './modals/ClaimBusinessModal';
 import { FollowButton } from '@/components/gamification';
 import { FavoriteButton } from '@/components/FavoriteButton';
+import { DataQualityBadge, calculateStoreCompleteness } from '@/components/store';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -169,7 +170,10 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
 
   const isOpenNow = getOpenStatus();
 
-  return (
+    const completeness = calculateStoreCompleteness(store);
+    const hasMissingData = !getDisplayPhone() || !getDisplayHours();
+
+    return (
     <Card className="overflow-hidden border-0 shadow-lg">
       <CardContent className="p-6 lg:p-8">
         <div className="space-y-6">
@@ -177,9 +181,12 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 leading-tight">
-                  {store.Store_Name}
-                </h1>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight">
+                    {store.Store_Name}
+                  </h1>
+                  <DataQualityBadge {...completeness} />
+                </div>
                 
                 {/* Rating, Distance, and Status Row */}
                 <div className="flex flex-wrap items-center gap-3 mb-3">
@@ -308,19 +315,31 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
                     </span>
                   </div>
                 )}
-                
-                {/* Inline actions for missing data */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {!getDisplayPhone() && (
-                    <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
-                  )}
-                  {!getDisplayHours() && (
-                    <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
-                  )}
-                </div>
               </div>
             </div>
           </div>
+
+          {/* Help Complete This Listing - Prominent CTA Section */}
+          {hasMissingData && (
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Edit3 className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold text-foreground text-sm">Help Complete This Listing</h3>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {!getDisplayPhone() && (
+                  <AddPhoneModal store={store} onPhoneAdded={handlePhoneAdded} />
+                )}
+                {!getDisplayHours() && (
+                  <AddHoursModal store={store} onHoursAdded={handleHoursAdded} />
+                )}
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Gift className="h-3 w-3" />
+                <span>Earn points for every contribution!</span>
+              </div>
+            </div>
+          )}
 
           {/* EBT Information */}
           {store.Incentive_Program && (

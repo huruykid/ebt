@@ -1,12 +1,16 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Phone, Clock, Star, Camera } from 'lucide-react';
 
 interface SearchFilters {
   storeType: string;
   incentiveProgram: string;
   hasCoordinates: boolean;
+  hasPhone: boolean;
+  hasHours: boolean;
+  hasRating: boolean;
+  hasPhotos: boolean;
 }
 
 interface StoreFiltersProps {
@@ -68,35 +72,62 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
     onFiltersChange({
       storeType: '',
       incentiveProgram: '',
-      hasCoordinates: false
+      hasCoordinates: false,
+      hasPhone: false,
+      hasHours: false,
+      hasRating: false,
+      hasPhotos: false,
     });
   };
 
-  const hasActiveFilters = filters.storeType || filters.incentiveProgram || filters.hasCoordinates;
+  const hasActiveFilters = filters.storeType || filters.incentiveProgram || filters.hasCoordinates ||
+    filters.hasPhone || filters.hasHours || filters.hasRating || filters.hasPhotos;
+
+  // Toggle button component for data completeness filters
+  const FilterToggle: React.FC<{
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    icon: React.ReactNode;
+    label: string;
+  }> = ({ checked, onChange, icon, label }) => (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
+        checked 
+          ? 'bg-primary/10 border-primary/30 text-primary' 
+          : 'bg-background border-border text-muted-foreground hover:bg-muted/50'
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+    <div className="border border-border rounded-lg p-4 bg-card shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-gray-900">Filter Results</h3>
+        <h3 className="text-base font-semibold text-foreground">Filter Results</h3>
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-primary hover:text-primary/80 font-medium"
           >
             Clear all
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Store Type and Incentive Program - Row 1 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Store Type
           </label>
           <select
             value={filters.storeType}
             onChange={(e) => handleFilterChange('storeType', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
           >
             <option value="">All types</option>
             {storeTypes?.map((type) => (
@@ -105,21 +136,16 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
               </option>
             ))}
           </select>
-          {storeTypes && (
-            <div className="text-xs text-gray-500 mt-1">
-              {storeTypes.length} type{storeTypes.length !== 1 ? 's' : ''} available
-            </div>
-          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Incentive Program
           </label>
           <select
             value={filters.incentiveProgram}
             onChange={(e) => handleFilterChange('incentiveProgram', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
           >
             <option value="">All programs</option>
             {incentivePrograms?.map((program) => (
@@ -128,24 +154,53 @@ export const StoreFilters: React.FC<StoreFiltersProps> = ({ filters, onFiltersCh
               </option>
             ))}
           </select>
-          {incentivePrograms && (
-            <div className="text-xs text-gray-500 mt-1">
-              {incentivePrograms.length} program{incentivePrograms.length !== 1 ? 's' : ''} available
-            </div>
-          )}
         </div>
+      </div>
 
-        <div className="flex items-end">
-          <label className="flex items-center space-x-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={filters.hasCoordinates}
-              onChange={(e) => handleFilterChange('hasCoordinates', e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span>Show on map only</span>
-          </label>
+      {/* Data Completeness Filters - Row 2 */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Show stores with complete info
+        </label>
+        <div className="flex flex-wrap gap-2">
+          <FilterToggle
+            checked={filters.hasPhone}
+            onChange={(checked) => handleFilterChange('hasPhone', checked)}
+            icon={<Phone className="h-4 w-4" />}
+            label="Has Phone"
+          />
+          <FilterToggle
+            checked={filters.hasHours}
+            onChange={(checked) => handleFilterChange('hasHours', checked)}
+            icon={<Clock className="h-4 w-4" />}
+            label="Has Hours"
+          />
+          <FilterToggle
+            checked={filters.hasRating}
+            onChange={(checked) => handleFilterChange('hasRating', checked)}
+            icon={<Star className="h-4 w-4" />}
+            label="Has Rating"
+          />
+          <FilterToggle
+            checked={filters.hasPhotos}
+            onChange={(checked) => handleFilterChange('hasPhotos', checked)}
+            icon={<Camera className="h-4 w-4" />}
+            label="Has Photos"
+          />
         </div>
+      </div>
+
+      {/* Map filter - kept for backward compatibility */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <label className="flex items-center space-x-2 text-sm text-foreground">
+          <input
+            type="checkbox"
+            checked={filters.hasCoordinates}
+            onChange={(e) => handleFilterChange('hasCoordinates', e.target.checked)}
+            className="rounded border-border text-primary focus:ring-primary"
+          />
+          <span>Show on map only</span>
+        </label>
       </div>
     </div>
   );
