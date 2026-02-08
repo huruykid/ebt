@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
 import { CheckBalanceModal } from '@/components/CheckBalanceModal';
+import { TrustSignals } from '@/components/home/TrustSignals';
 import { MapPin, Heart, Navigation, CreditCard, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackLocationSearch } from '@/utils/analytics';
@@ -41,12 +42,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   if (isMobile) {
     return (
       <div className="flex w-full flex-col items-stretch px-4 pt-4 pb-2">
-        {/* Compact mobile header */}
+        {/* Compact mobile header - benefit focused */}
         <h1 className="text-xl font-bold text-foreground text-center mb-1">
-          Find EBT Stores Near You
+          Find 300,000+ EBT Stores
         </h1>
         <p className="text-xs text-muted-foreground text-center mb-4">
-          Search by ZIP code to find SNAP-accepting stores
+          Grocery stores, restaurants & markets accepting SNAP
         </p>
         
         {/* Prominent search box */}
@@ -59,6 +60,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             errorMessage={errorMessage}
             noResultsMessage={noResultsMessage}
           />
+        </div>
+        
+        {/* Trust signals - social proof */}
+        <div className="mt-3">
+          <TrustSignals />
         </div>
         
         {/* Action buttons */}
@@ -103,19 +109,10 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="font-bold text-foreground text-4xl mb-4">
-            Find EBT & SNAP-Accepting Stores Near You
+            Find 300,000+ Stores That Accept Your EBT Card
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            EBT Finder helps you quickly find nearby stores and restaurants that accept SNAP/EBT benefits. Search by ZIP code, filter by grocery, convenience, or{" "}
-            <a 
-              href="https://www.fns.usda.gov/snap/retailer/restaurant-meals-program"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors underline"
-            >
-              hot food (RMP)
-            </a>
-            , and read community reviews before you go.
+            Instantly find grocery stores, restaurants, and farmers markets that accept SNAP/EBT benefits. Filter by store type, read community reviews, and get directions.
           </p>
         </div>
         
@@ -132,6 +129,11 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             errorMessage={errorMessage}
             noResultsMessage={noResultsMessage}
           />
+        </div>
+        
+        {/* Trust signals - social proof */}
+        <div className="max-w-2xl mx-auto mb-6">
+          <TrustSignals />
         </div>
         
         {/* Current Location Search Button - always visible */}

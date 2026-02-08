@@ -1,6 +1,6 @@
 import React from 'react';
 import { NearbyStores } from './NearbyStores';
-import { FeaturedStores, PopularCities, TrustSignals } from './home';
+import { FeaturedStores, PopularCities } from './home';
 import { MapPin, Navigation } from 'lucide-react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
@@ -31,9 +31,6 @@ export const MobileNearbyStoresSection: React.FC<Props> = ({
 
   return (
     <div className="w-full space-y-4">
-      {/* Always show trust signals first - instant value */}
-      <TrustSignals />
-      
       {/* Show content based on location state */}
       {loading && !hasLocation ? (
         // Skeleton loading while fetching location - shows intent without blocking
