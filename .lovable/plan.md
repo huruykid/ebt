@@ -1,200 +1,130 @@
 
-# Brand Logo Display for National Chains
+# Fix Back Button Navigation Plan
 
-## Overview
-
-This plan adds official brand logos for well-known national stores (e.g., Walmart, McDonald's, Taco Bell, Target) as the primary image on store cards and detail pages. When a recognized brand is detected, its logo will be displayed prominently instead of a generic placeholder image.
+This plan addresses the inconsistent and unreliable back button behavior on the Store Detail page and other locations in the app.
 
 ---
 
-## Current State Analysis
+## Problems Identified
 
-The codebase has **three photo display components** that need to be updated:
-
-| Component | Location | Usage |
-|-----------|----------|-------|
-| `StorePhotoDisplay` | `src/components/store/StorePhoto.tsx` | UnifiedStoreCard, EnhancedStoreCard |
-| `StorePhoto` | `src/components/StorePhoto.tsx` | Fallback in UnifiedStoreCard |
-| `StorePhotos` | `src/components/store-detail/StorePhotos.tsx` | Store detail page hero |
-
-Currently, these components use:
-1. Google Places photos (when available)
-2. Unsplash stock photos matched by store name/type (fallback)
+| Issue | Location | Impact |
+|-------|----------|--------|
+| `navigate(-1)` unreliable | `StoreDetail.tsx` line 151 | Users who land directly on page or after refresh get broken navigation |
+| Misleading label | "Back to Search" when user came from Favorites, City page, or Home | Confuses users |
+| Inconsistent pattern | Error state uses `/search`, main page uses `navigate(-1)` | Unpredictable behavior |
+| No referrer tracking | No way to know where user came from | Cannot provide contextual back navigation |
 
 ---
 
-## Implementation Approach
+## Solution Overview
 
-### Use CDN-Hosted Brand Logos
-
-Rather than storing logos locally (which would require licensing agreements), use a reliable CDN service that provides brand logos. Options include:
-
-- **Clearbit Logo API** (free, widely used): `https://logo.clearbit.com/:domain`
-- **Brand Fetch API** (requires API key)
-- **Simple Icons** (for tech brands, limited retail)
-
-**Recommended**: Use Clearbit Logo API with a local fallback mapping of known brand domains.
+Implement a smart back button that:
+1. Tracks where the user came from (referrer page)
+2. Shows contextual label ("Back to Search", "Back to Favorites", etc.)
+3. Falls back to `/search` when referrer is unknown
+4. Preserves search state in URL parameters (future enhancement)
 
 ---
 
-## Phase 1: Create Brand Logo Utility
+## Phase 1: Create Referrer Tracking Hook
 
-### New File: `src/utils/brandLogos.ts`
+### New File: `src/hooks/useNavigationReferrer.ts`
 
-Create a centralized utility that:
-1. Maps store names to their official domains
-2. Generates logo URLs via Clearbit
-3. Provides fallback handling
+Create a hook that stores the referrer page in session storage when navigating to store details.
+
+**Functionality:**
+- When user clicks on a store card, store the current path as referrer
+- On store detail page, read the referrer to determine back destination
+- Clear referrer after use to prevent stale data
+
+**Tracked Referrer Types:**
+- `/search` or `/search?...` - "Back to Search"
+- `/favorites` - "Back to Favorites"
+- `/` (home page) - "Back to Home"
+- `/city/...` - "Back to [City Name]"
+- `/state/...` - "Back to [State Name]"
+- Unknown/direct - "Back to Search" (default)
+
+---
+
+## Phase 2: Update Store Detail Page
+
+### File: `src/pages/StoreDetail.tsx`
+
+**Changes:**
+
+1. Import and use the new referrer hook
+2. Replace `navigate(-1)` with smart navigation:
 
 ```text
-Brand Mapping (examples):
-- "walmart" → walmart.com → logo.clearbit.com/walmart.com
-- "mcdonald's" → mcdonalds.com
-- "taco bell" → tacobell.com
-- "target" → target.com
-- "cvs" → cvs.com
-- "walgreens" → walgreens.com
-- "7-eleven" → 7-eleven.com
-- "starbucks" → starbucks.com
-- "dunkin" → dunkindonuts.com
-- "burger king" → bk.com
-- "kfc" → kfc.com
-- "subway" → subway.com
-- "chipotle" → chipotle.com
-- "domino's" → dominos.com
-- "pizza hut" → pizzahut.com
-- "costco" → costco.com
-- "kroger" → kroger.com
-- "safeway" → safeway.com
-- "albertsons" → albertsons.com
-- "publix" → publix.com
-- "aldi" → aldi.us
-- "trader joe's" → traderjoes.com
-- "whole foods" → wholefoodsmarket.com
-- "dollar general" → dollargeneral.com
-- "dollar tree" → dollartree.com
-- "family dollar" → familydollar.com
+Before (line 151):
+onClick={() => navigate(-1)}
+
+After:
+onClick={() => navigate(referrerPath)}
 ```
 
-**Utility Functions:**
+3. Update button label dynamically:
+
 ```text
-- getBrandLogo(storeName: string): { logoUrl: string; brandName: string } | null
-- isKnownBrand(storeName: string): boolean
-- getBrandDomain(storeName: string): string | null
+Before:
+"Back to Search"
+
+After:
+"{referrerLabel}" (e.g., "Back to Favorites", "Back to Home")
 ```
 
----
-
-## Phase 2: Create Brand Logo Component
-
-### New File: `src/components/store/BrandLogo.tsx`
-
-A reusable component that displays brand logos with:
-- Clean white background for logo visibility
-- Fallback to existing behavior if logo fails to load
-- Consistent sizing for cards vs. detail pages
-
-**Props:**
-```text
-interface BrandLogoProps {
-  storeName: string | null;
-  storeType?: string | null;
-  variant: 'card' | 'detail' | 'hero';
-  className?: string;
-  fallbackElement?: React.ReactNode;
-}
-```
-
-**Behavior:**
-- `card` variant: 96x96px or 128x128px logo centered
-- `detail` variant: Larger logo for detail page header
-- `hero` variant: Large centered logo for StorePhotos hero section
+4. Make error state consistent with main button behavior
 
 ---
 
-## Phase 3: Update Store Photo Components
+## Phase 3: Update Store Card Components
 
-### 3.1 Update `StorePhotoDisplay` (store/StorePhoto.tsx)
+### Files to Modify:
+- `src/components/UnifiedStoreCard.tsx`
+- `src/components/EnhancedStoreCard.tsx`
+- `src/components/home/FeaturedStores.tsx`
 
-**Current logic:**
-1. Try Google Photos → show image
-2. Fallback → MapPin icon placeholder
+**Changes:**
 
-**New logic:**
-1. Check if brand logo available → show `BrandLogo`
-2. Try Google Photos → show image
-3. Fallback → MapPin icon placeholder
-
-### 3.2 Update `StorePhoto` (StorePhoto.tsx)
-
-**Current logic:**
-1. Match store name to Unsplash photo
-2. Display with overlay
-
-**New logic:**
-1. Check if brand logo available → show `BrandLogo`
-2. Fallback to Unsplash-based image
-
-### 3.3 Update `StorePhotos` (store-detail/StorePhotos.tsx)
-
-**Current logic:**
-1. Show Google photos carousel
-2. Fallback to Unsplash background
-
-**New logic:**
-1. If no Google/user photos AND is known brand → display hero with brand logo
-2. Keep existing photo carousel behavior when photos exist
-3. Fallback to Unsplash for unknown stores without photos
-
----
-
-## Phase 4: Update UnifiedStoreCard Integration
-
-### File: `src/components/UnifiedStoreCard.tsx`
-
-Update the photo section to prioritize brand logos:
+When a store card is clicked (navigating to store detail), save the current page as the referrer:
 
 ```text
-Current (lines 82-96):
-- enhanced && photos → StorePhotoDisplay
-- else → StorePhoto (Unsplash fallback)
-
-New:
-- isKnownBrand(store.Store_Name) && !hasGooglePhotos → BrandLogo
-- enhanced && photos → StorePhotoDisplay  
-- else → StorePhoto (Unsplash fallback)
+onClick={() => {
+  saveReferrer(location.pathname + location.search);
+  navigate(`/store/${store.id}`);
+}}
 ```
 
 ---
 
-## Visual Design
+## Phase 4: Add Fallback for Direct Links
 
-### Store Card Layout (with brand logo)
+### File: `src/pages/StoreDetail.tsx`
+
+When no referrer is found (user landed directly on page):
+- Default to `/search` as back destination
+- Show "Back to Search" label
+- Optionally show a different visual indicator that this is a fallback
+
+---
+
+## Implementation Details
+
+### Session Storage Key
 ```text
-┌─────────────────────────────────────────────┐
-│ ┌─────────┐  Store Name          ★ 4.2     │
-│ │         │  Grocery Store • EBT  Verified │
-│ │ [LOGO]  │  📍 123 Main St • 2.3 mi       │
-│ │         │  ────────────────────────────  │
-│ └─────────┘  [📞 Call] [🧭 Directions] [❤️] │
-└─────────────────────────────────────────────┘
+Key: "ebt_nav_referrer"
+Value: { path: "/search?zip=90210", label: "Search Results" }
 ```
 
-### Store Detail Hero (with brand logo)
+### Referrer Label Mapping
 ```text
-┌────────────────────────────────────────────────────────┐
-│                                                        │
-│              ┌─────────────────────────┐               │
-│              │                         │               │
-│              │      [BRAND LOGO]       │               │
-│              │                         │               │
-│              └─────────────────────────┘               │
-│                                                        │
-│                   Walmart Supercenter                  │
-│                                                        │
-│            [Add Photos]  [Share]                       │
-│                                                        │
-└────────────────────────────────────────────────────────┘
+/ → "Home"
+/search → "Search Results"
+/favorites → "Favorites"
+/city/los-angeles → "Los Angeles Stores"
+/state/california → "California Stores"
+/blog → "Blog"
 ```
 
 ---
@@ -203,42 +133,37 @@ New:
 
 | Action | File | Description |
 |--------|------|-------------|
-| Create | `src/utils/brandLogos.ts` | Brand name → logo URL mapping utility |
-| Create | `src/components/store/BrandLogo.tsx` | Reusable brand logo display component |
-| Update | `src/components/store/StorePhoto.tsx` | Prioritize brand logo in `StorePhotoDisplay` |
-| Update | `src/components/StorePhoto.tsx` | Add brand logo check before Unsplash fallback |
-| Update | `src/components/store-detail/StorePhotos.tsx` | Show brand logo in hero when no photos |
-| Update | `src/components/UnifiedStoreCard.tsx` | Integrate brand logo priority |
-| Update | `src/components/store/index.ts` | Export new `BrandLogo` component |
+| Create | `src/hooks/useNavigationReferrer.ts` | New hook for tracking page referrer |
+| Update | `src/pages/StoreDetail.tsx` | Use smart back navigation instead of `navigate(-1)` |
+| Update | `src/components/UnifiedStoreCard.tsx` | Save referrer before navigating to store |
+| Update | `src/components/EnhancedStoreCard.tsx` | Save referrer before navigating to store |
+| Update | `src/components/home/FeaturedStores.tsx` | Save referrer for nearby stores section |
 
 ---
 
-## Technical Considerations
+## Future Enhancement: URL-Based Search State
 
-### Logo Loading Strategy
-- Use `onError` handler to gracefully fall back if Clearbit logo unavailable
-- Cache logo availability check in component state
-- Preload logos for visible stores if performance needed
+For the search state persistence issue mentioned in the context, a follow-up enhancement would persist search parameters in the URL:
 
-### Brand Matching Logic
-- Case-insensitive matching
-- Handle variations: "McDonald's", "McDonalds", "MCDONALD'S"
-- Match partial names: "Walmart Supercenter" → "walmart"
-- Priority order: exact match → starts with → contains
+```text
+/search?zip=90210&radius=10&openNow=true
+```
 
-### Logo Presentation
-- White/light background container for dark logos
-- Consistent padding (12-16px)
-- Maintain aspect ratio, contain within bounds
-- Subtle border/shadow for visual definition
+This allows:
+- Back button naturally preserves search state
+- Shareable search URLs
+- Browser history works correctly
+
+This is noted for a future implementation as it requires changes to the search components.
 
 ---
 
-## Testing Considerations
+## Testing Checklist
 
 After implementation:
-1. Search for "Walmart" → verify logo displays on cards
-2. Open a McDonald's store detail → verify hero shows logo
-3. Test unknown store → verify fallback to Unsplash works
-4. Test store with Google photos → verify photos still prioritized
-5. Test on mobile viewport for sizing
+1. Navigate from Search to Store Detail then back - verify returns to search
+2. Navigate from Favorites to Store Detail then back - verify returns to favorites
+3. Navigate from Home nearby stores to Store Detail then back - verify returns to home
+4. Open store detail directly via URL - verify back goes to /search with "Back to Search" label
+5. Navigate from City page to Store Detail then back - verify returns to city page
+6. Test mobile and desktop viewports
