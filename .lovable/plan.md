@@ -1,250 +1,244 @@
 
-# User-Friendly Experience Improvements Plan
-
-✅ **COMPLETED** - All 5 phases implemented
-
----
+# Brand Logo Display for National Chains
 
 ## Overview
 
-Based on the current codebase analysis:
-- Only ~10% of stores have complete Google Places data (hours, phone, photos)
-- Community features (reviews, price reports) have minimal usage
-- Store cards show "not available" placeholders that create visual noise
-- No onboarding exists for new users to understand available features
-
-This plan addresses these issues through 5 focused improvements.
+This plan adds official brand logos for well-known national stores (e.g., Walmart, McDonald's, Taco Bell, Target) as the primary image on store cards and detail pages. When a recognized brand is detected, its logo will be displayed prominently instead of a generic placeholder image.
 
 ---
 
-## Phase 1: Clean Up Store Cards (Quick Wins)
+## Current State Analysis
 
-### 1.1 Hide Empty Data Instead of "Not Available"
+The codebase has **three photo display components** that need to be updated:
 
-**Current Problem:**  
-`StoreContactInfo.tsx` always shows phone and hours rows, displaying "Phone not available" and "Hours not available" text that clutters the UI.
+| Component | Location | Usage |
+|-----------|----------|-------|
+| `StorePhotoDisplay` | `src/components/store/StorePhoto.tsx` | UnifiedStoreCard, EnhancedStoreCard |
+| `StorePhoto` | `src/components/StorePhoto.tsx` | Fallback in UnifiedStoreCard |
+| `StorePhotos` | `src/components/store-detail/StorePhotos.tsx` | Store detail page hero |
 
-**Solution:**  
-Only render rows when data exists. Replace missing data prompts with subtle contribution CTAs.
-
-**Files to Modify:**
-- `src/components/store/StoreContactInfo.tsx`
-
-**Changes:**
-```text
-Before:
-- Always shows: Phone icon + "Phone not available"
-- Always shows: Clock icon + "Hours not available"
-
-After:
-- Only show phone row if phone exists
-- Only show hours row if hours data exists
-- Add optional "Help improve this listing" link at bottom
-```
-
-### 1.2 Add Data Completeness Indicator
-
-**New Component:** `DataQualityBadge`
-
-Show users which stores have verified/complete information at a glance.
-
-**Files to Create:**
-- `src/components/store/DataQualityBadge.tsx`
-
-**Logic:**
-```text
-Calculate completeness score:
-- Has Google rating: +25%
-- Has phone number: +25%
-- Has opening hours: +25%
-- Has photos: +25%
-
-Display:
-- 75-100%: "Verified" badge (green)
-- 50-74%: "Basic Info" badge (yellow)
-- <50%: No badge (or subtle "Limited info" text)
-```
-
-**Files to Modify:**
-- `src/components/UnifiedStoreCard.tsx` - Add badge near store name
+Currently, these components use:
+1. Google Places photos (when available)
+2. Unsplash stock photos matched by store name/type (fallback)
 
 ---
 
-## Phase 2: Quick Action Buttons on Store Cards
+## Implementation Approach
 
-### 2.1 Add One-Tap Call & Directions Buttons
+### Use CDN-Hosted Brand Logos
 
-**Current Problem:**  
-Users must navigate to the store detail page to call or get directions.
+Rather than storing logos locally (which would require licensing agreements), use a reliable CDN service that provides brand logos. Options include:
 
-**Solution:**  
-Add compact action buttons directly on the store card for stores with phone numbers.
+- **Clearbit Logo API** (free, widely used): `https://logo.clearbit.com/:domain`
+- **Brand Fetch API** (requires API key)
+- **Simple Icons** (for tech brands, limited retail)
 
-**Files to Modify:**
-- `src/components/UnifiedStoreCard.tsx`
-- `src/components/store/StoreContactInfo.tsx`
-
-**New Layout:**
-```text
-┌─────────────────────────────────────────┐
-│ [Photo] │ Store Name          ★ 4.2    │
-│         │ Grocery Store • EBT           │
-│         │ 📍 123 Main St • 2.3 mi       │
-│         │ ───────────────────────       │
-│         │ [📞 Call] [🧭 Directions] [❤️]│
-└─────────────────────────────────────────┘
-```
-
-**Implementation:**
-- `Call` button: Only show if `google_formatted_phone_number` exists
-- `Directions` button: Always show (uses address)
-- Keep existing Favorite and Share buttons
+**Recommended**: Use Clearbit Logo API with a local fallback mapping of known brand domains.
 
 ---
 
-## Phase 3: Enhanced Search Filters
+## Phase 1: Create Brand Logo Utility
 
-### 3.1 Add "Has Complete Info" Filters
+### New File: `src/utils/brandLogos.ts`
 
-**Current Problem:**  
-Users can't filter to find stores with verified hours, phone numbers, or reviews.
+Create a centralized utility that:
+1. Maps store names to their official domains
+2. Generates logo URLs via Clearbit
+3. Provides fallback handling
 
-**Solution:**  
-Add filter toggles for data completeness.
-
-**Files to Modify:**
-- `src/components/StoreFilters.tsx`
-
-**New Filters:**
 ```text
-☐ Has Phone Number
-☐ Has Store Hours  
-☐ Has Reviews/Ratings
-☐ Has Photos
+Brand Mapping (examples):
+- "walmart" → walmart.com → logo.clearbit.com/walmart.com
+- "mcdonald's" → mcdonalds.com
+- "taco bell" → tacobell.com
+- "target" → target.com
+- "cvs" → cvs.com
+- "walgreens" → walgreens.com
+- "7-eleven" → 7-eleven.com
+- "starbucks" → starbucks.com
+- "dunkin" → dunkindonuts.com
+- "burger king" → bk.com
+- "kfc" → kfc.com
+- "subway" → subway.com
+- "chipotle" → chipotle.com
+- "domino's" → dominos.com
+- "pizza hut" → pizzahut.com
+- "costco" → costco.com
+- "kroger" → kroger.com
+- "safeway" → safeway.com
+- "albertsons" → albertsons.com
+- "publix" → publix.com
+- "aldi" → aldi.us
+- "trader joe's" → traderjoes.com
+- "whole foods" → wholefoodsmarket.com
+- "dollar general" → dollargeneral.com
+- "dollar tree" → dollartree.com
+- "family dollar" → familydollar.com
 ```
 
-**Database Query Changes:**
-Update the `smart_store_search` RPC or add client-side filtering for:
-- `google_formatted_phone_number IS NOT NULL`
-- `google_opening_hours IS NOT NULL`
-- `google_rating IS NOT NULL`
-- `google_photos IS NOT NULL`
-
----
-
-## Phase 4: First-Time User Onboarding
-
-### 4.1 Create Getting Started Checklist
-
-**Current Problem:**  
-New users don't know about community features like reviews, price reports, or saved lists.
-
-**Solution:**  
-Add an onboarding checklist that appears for new logged-in users.
-
-**Files to Create:**
-- `src/components/onboarding/GettingStartedChecklist.tsx`
-- `src/hooks/useOnboardingProgress.ts`
-
-**Checklist Items:**
+**Utility Functions:**
 ```text
-Getting Started with EBT Finder:
-✓ Create an account
-☐ Save your first store to favorites
-☐ Leave a review for a store you've visited
-☐ Report a price to help the community
-☐ Follow a store for updates
-```
-
-**Storage:**
-- Track progress in `localStorage` (no database needed)
-- Show checklist in `PersonalizedDashboard.tsx` for users with incomplete progress
-- Dismiss after all items complete or user clicks "Skip"
-
-### 4.2 Add Contribution Points Awareness
-
-**Current Problem:**  
-Users don't realize they can earn points for contributions.
-
-**Solution:**  
-Add subtle point prompts near contribution actions.
-
-**Files to Modify:**
-- `src/components/reviews/ReviewForm.tsx` - Add "+15 points" hint
-- `src/components/prices/PriceReportForm.tsx` - Add "+5 points" hint
-- `src/components/store-detail/modals/AddPhotoModal.tsx` - Add "+10 points" hint
-
-**Example:**
-```text
-"Leave a Review" button → "Leave a Review (+15 pts)"
+- getBrandLogo(storeName: string): { logoUrl: string; brandName: string } | null
+- isKnownBrand(storeName: string): boolean
+- getBrandDomain(storeName: string): string | null
 ```
 
 ---
 
-## Phase 5: Store Detail Page Improvements
+## Phase 2: Create Brand Logo Component
 
-### 5.1 Reorganize Missing Data CTAs
+### New File: `src/components/store/BrandLogo.tsx`
 
-**Current State:**  
-`StoreHeader.tsx` already has `AddPhoneModal` and `AddHoursModal` but they're subtle.
+A reusable component that displays brand logos with:
+- Clean white background for logo visibility
+- Fallback to existing behavior if logo fails to load
+- Consistent sizing for cards vs. detail pages
 
-**Solution:**  
-Make contribution CTAs more prominent for stores with missing data.
-
-**Files to Modify:**
-- `src/components/store-detail/StoreHeader.tsx`
-
-**New Section (when data is missing):**
+**Props:**
 ```text
-┌─────────────────────────────────────────┐
-│ 📝 Help Complete This Listing           │
-│                                         │
-│ [Add Phone Number]  [Add Store Hours]   │
-│                                         │
-│ Earn points for every contribution!     │
-└─────────────────────────────────────────┘
+interface BrandLogoProps {
+  storeName: string | null;
+  storeType?: string | null;
+  variant: 'card' | 'detail' | 'hero';
+  className?: string;
+  fallbackElement?: React.ReactNode;
+}
 ```
 
-### 5.2 Show "Verified by Google" Badge
+**Behavior:**
+- `card` variant: 96x96px or 128x128px logo centered
+- `detail` variant: Larger logo for detail page header
+- `hero` variant: Large centered logo for StorePhotos hero section
 
-For stores with Google Places data, show a trust indicator.
+---
 
-**Files to Modify:**
-- `src/components/store-detail/EnhancedGooglePlacesInfo.tsx`
+## Phase 3: Update Store Photo Components
 
-**Add Badge:**
+### 3.1 Update `StorePhotoDisplay` (store/StorePhoto.tsx)
+
+**Current logic:**
+1. Try Google Photos → show image
+2. Fallback → MapPin icon placeholder
+
+**New logic:**
+1. Check if brand logo available → show `BrandLogo`
+2. Try Google Photos → show image
+3. Fallback → MapPin icon placeholder
+
+### 3.2 Update `StorePhoto` (StorePhoto.tsx)
+
+**Current logic:**
+1. Match store name to Unsplash photo
+2. Display with overlay
+
+**New logic:**
+1. Check if brand logo available → show `BrandLogo`
+2. Fallback to Unsplash-based image
+
+### 3.3 Update `StorePhotos` (store-detail/StorePhotos.tsx)
+
+**Current logic:**
+1. Show Google photos carousel
+2. Fallback to Unsplash background
+
+**New logic:**
+1. If no Google/user photos AND is known brand → display hero with brand logo
+2. Keep existing photo carousel behavior when photos exist
+3. Fallback to Unsplash for unknown stores without photos
+
+---
+
+## Phase 4: Update UnifiedStoreCard Integration
+
+### File: `src/components/UnifiedStoreCard.tsx`
+
+Update the photo section to prioritize brand logos:
+
 ```text
-"✓ Verified by Google" (with last updated date if available)
+Current (lines 82-96):
+- enhanced && photos → StorePhotoDisplay
+- else → StorePhoto (Unsplash fallback)
+
+New:
+- isKnownBrand(store.Store_Name) && !hasGooglePhotos → BrandLogo
+- enhanced && photos → StorePhotoDisplay  
+- else → StorePhoto (Unsplash fallback)
 ```
 
 ---
 
-## Implementation Summary
+## Visual Design
 
-| Phase | Component | Priority | Effort |
-|-------|-----------|----------|--------|
-| 1.1 | Hide empty data rows | High | Small |
-| 1.2 | Data quality badge | Medium | Small |
-| 2.1 | Quick action buttons | High | Medium |
-| 3.1 | Complete info filters | Medium | Medium |
-| 4.1 | Onboarding checklist | High | Medium |
-| 4.2 | Point prompts | Low | Small |
-| 5.1 | Contribution CTAs | Medium | Small |
-| 5.2 | Verified badge | Low | Small |
+### Store Card Layout (with brand logo)
+```text
+┌─────────────────────────────────────────────┐
+│ ┌─────────┐  Store Name          ★ 4.2     │
+│ │         │  Grocery Store • EBT  Verified │
+│ │ [LOGO]  │  📍 123 Main St • 2.3 mi       │
+│ │         │  ────────────────────────────  │
+│ └─────────┘  [📞 Call] [🧭 Directions] [❤️] │
+└─────────────────────────────────────────────┘
+```
+
+### Store Detail Hero (with brand logo)
+```text
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│              ┌─────────────────────────┐               │
+│              │                         │               │
+│              │      [BRAND LOGO]       │               │
+│              │                         │               │
+│              └─────────────────────────┘               │
+│                                                        │
+│                   Walmart Supercenter                  │
+│                                                        │
+│            [Add Photos]  [Share]                       │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Technical Notes
+## File Changes Summary
 
-**No Database Changes Required:**  
-All improvements use existing data from `snap_stores` table.
+| Action | File | Description |
+|--------|------|-------------|
+| Create | `src/utils/brandLogos.ts` | Brand name → logo URL mapping utility |
+| Create | `src/components/store/BrandLogo.tsx` | Reusable brand logo display component |
+| Update | `src/components/store/StorePhoto.tsx` | Prioritize brand logo in `StorePhotoDisplay` |
+| Update | `src/components/StorePhoto.tsx` | Add brand logo check before Unsplash fallback |
+| Update | `src/components/store-detail/StorePhotos.tsx` | Show brand logo in hero when no photos |
+| Update | `src/components/UnifiedStoreCard.tsx` | Integrate brand logo priority |
+| Update | `src/components/store/index.ts` | Export new `BrandLogo` component |
 
-**Backward Compatibility:**  
-- `UnifiedStoreCard` changes are additive
-- Filter additions don't affect existing search logic
-- Onboarding uses localStorage, no user table changes
+---
 
-**Performance:**  
-- Data quality calculation is client-side (minimal overhead)
-- No additional API calls needed
+## Technical Considerations
 
+### Logo Loading Strategy
+- Use `onError` handler to gracefully fall back if Clearbit logo unavailable
+- Cache logo availability check in component state
+- Preload logos for visible stores if performance needed
+
+### Brand Matching Logic
+- Case-insensitive matching
+- Handle variations: "McDonald's", "McDonalds", "MCDONALD'S"
+- Match partial names: "Walmart Supercenter" → "walmart"
+- Priority order: exact match → starts with → contains
+
+### Logo Presentation
+- White/light background container for dark logos
+- Consistent padding (12-16px)
+- Maintain aspect ratio, contain within bounds
+- Subtle border/shadow for visual definition
+
+---
+
+## Testing Considerations
+
+After implementation:
+1. Search for "Walmart" → verify logo displays on cards
+2. Open a McDonald's store detail → verify hero shows logo
+3. Test unknown store → verify fallback to Unsplash works
+4. Test store with Google photos → verify photos still prioritized
+5. Test on mobile viewport for sizing
