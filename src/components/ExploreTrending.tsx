@@ -69,7 +69,7 @@ export const ExploreTrending: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Mobile Layout */}
-      <div className="md:hidden bg-white flex max-w-[480px] w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
+      <div className="md:hidden bg-white flex w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
         <HeroSearch
           onZipSearch={handleZipSearch}
           onClearSearch={handleClearSearch}
@@ -97,7 +97,7 @@ export const ExploreTrending: React.FC = () => {
           <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
         </div>
 
-        <main ref={resultsRef} className="flex-1 self-center flex w-full max-w-[400px] flex-col items-center mt-2 px-3 pb-6">
+        <main ref={resultsRef} className="flex-1 self-center flex w-full flex-col items-center mt-2 px-4 pb-6">
           {/* Location accuracy banner - mobile */}
           {!showZipResults && (
             <div className="w-full mb-3">

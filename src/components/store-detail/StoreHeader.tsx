@@ -175,8 +175,8 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
 
     return (
     <Card className="overflow-hidden border-0 shadow-lg">
-      <CardContent className="p-4 sm:p-6 lg:p-8">
-        <div className="space-y-4 md:space-y-6">
+      <CardContent className="p-3 sm:p-5 lg:p-6">
+        <div className="space-y-3 sm:space-y-4 md:space-y-5">
           {/* Store Name, Rating, and Status */}
           <div className="space-y-3 md:space-y-4">
             {/* Mobile: Store name, then status, then actions in clean rows */}
@@ -270,23 +270,23 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance, r
               </DropdownMenu>
             </div>
 
-            {/* Primary Action Buttons - Grid on mobile for better fit */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3">
+            {/* Primary Action Buttons - Flex layout for consistent sizing */}
+            <div className="flex flex-wrap gap-2">
               {getDisplayPhone() && (
-                <Button onClick={callStore} size="default" className="sm:flex-1">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call Now
+                <Button onClick={callStore} size="sm" className="flex-1 min-w-[100px]">
+                  <Phone className="h-4 w-4 mr-1.5" />
+                  Call
                 </Button>
               )}
               
-              <Button onClick={openInMaps} variant="outline" size="default" className="sm:flex-1">
-                <Navigation className="h-4 w-4 mr-2" />
+              <Button onClick={openInMaps} variant="outline" size="sm" className="flex-1 min-w-[100px]">
+                <Navigation className="h-4 w-4 mr-1.5" />
                 Directions
               </Button>
               
               {store.google_website && (
-                <Button onClick={openWebsite} variant="outline" size="default" className="sm:flex-1 col-span-2 sm:col-span-1">
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                <Button onClick={openWebsite} variant="outline" size="sm" className="flex-1 min-w-[100px]">
+                  <ExternalLink className="h-4 w-4 mr-1.5" />
                   Website
                 </Button>
               )}
