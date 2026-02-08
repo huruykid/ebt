@@ -190,22 +190,22 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
 
   return (
     <div 
-      className={`relative h-64 md:h-80 overflow-hidden ${showBrandLogoHero ? 'bg-white' : 'bg-cover bg-center'}`}
+      className={`relative h-48 sm:h-64 md:h-80 overflow-hidden ${showBrandLogoHero ? 'bg-white' : 'bg-cover bg-center'}`}
       style={showBrandLogoHero ? undefined : { backgroundImage: `url(${getCurrentBackgroundImage()})` }}
     >
       {/* Show brand logo hero when no photos available for known brands */}
       {showBrandLogoHero ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/20 to-muted/40">
-          <div className="text-center">
-            <div className="bg-white rounded-2xl p-8 shadow-lg inline-block mb-4">
+          <div className="text-center px-4">
+            <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-lg inline-block mb-2 sm:mb-4">
               <img
                 src={brandLogoUrl}
                 alt={`${storeName} logo`}
-                className="max-h-24 md:max-h-32 max-w-48 md:max-w-64 object-contain"
+                className="max-h-16 sm:max-h-24 md:max-h-32 max-w-32 sm:max-w-48 md:max-w-64 object-contain"
                 onError={() => setLogoError(true)}
               />
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-foreground line-clamp-2">
               {storeName}
             </h1>
           </div>
@@ -294,14 +294,14 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
       {/* Content overlay - don't show when brand logo hero is active */}
       {!showBrandLogoHero && (
         <div className="absolute inset-0 flex items-center justify-center text-white">
-          <div className="text-center space-y-6 px-4 max-w-4xl">
-            <h1 className="text-2xl md:text-4xl font-bold drop-shadow-lg text-white [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
+          <div className="text-center space-y-3 sm:space-y-6 px-4 max-w-4xl">
+            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold drop-shadow-lg text-white [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)] line-clamp-2">
               {storeName}
             </h1>
             
-            {/* Photo Thumbnail Gallery */}
+            {/* Photo Thumbnail Gallery - Hidden on mobile for cleaner look */}
             {hasCurrentPhotos && currentPhotos.length > 1 && (
-              <div className="flex justify-center">
+              <div className="hidden sm:flex justify-center">
                 <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3">
                   <div className="flex gap-2 max-w-sm overflow-x-auto scrollbar-hide">
                     {currentPhotos.map((_, index) => {
@@ -339,19 +339,20 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
               </div>
             )}
             
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-row gap-2 sm:gap-3 justify-center">
               <Button 
                 onClick={() => setShowAddPhotoModal(true)}
                 variant="secondary"
-                className="bg-white/95 text-foreground hover:bg-white font-medium shadow-lg"
+                size="sm"
+                className="bg-white/95 text-foreground hover:bg-white font-medium shadow-lg text-xs sm:text-sm"
               >
-                <Camera className="h-4 w-4 mr-2" />
+                <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Add Photos
               </Button>
               <ShareStore 
                 store={store}
                 variant="button"
-                className="bg-white/20 text-white border-white/40 hover:bg-white/30 hover:text-white shadow-lg backdrop-blur-sm font-medium"
+                className="bg-white/20 text-white border-white/40 hover:bg-white/30 hover:text-white shadow-lg backdrop-blur-sm font-medium text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
               />
             </div>
           </div>
@@ -360,19 +361,20 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
 
       {/* Action buttons for brand logo hero */}
       {showBrandLogoHero && (
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3">
+        <div className="absolute bottom-4 sm:bottom-6 left-0 right-0 flex justify-center gap-2 sm:gap-3 px-4">
           <Button 
             onClick={() => setShowAddPhotoModal(true)}
             variant="secondary"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-lg"
+            size="sm"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-lg text-xs sm:text-sm"
           >
-            <Camera className="h-4 w-4 mr-2" />
+            <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             Add Photos
           </Button>
           <ShareStore 
             store={store}
             variant="button"
-            className="bg-muted text-foreground border-border hover:bg-muted/80 shadow-lg font-medium"
+            className="bg-muted text-foreground border-border hover:bg-muted/80 shadow-lg font-medium text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
           />
         </div>
       )}

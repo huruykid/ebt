@@ -165,42 +165,49 @@ export default function StoreDetailPage() {
           onHoursAdded={setStoreHours}
         />
         
-        <div className="relative -mt-8 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+          {/* Main Content */}
+          <div className="space-y-4 md:space-y-6">
+            {/* Store Header - Full width on mobile */}
+            <StoreHeader store={store} />
             
-            {/* Main Content */}
-            <div className="space-y-6">
-              {/* Store Header with Add to List action */}
-              <div className="flex items-start justify-between gap-4">
-                <StoreHeader store={store} />
-                <AddToListButton 
-                  storeId={store.id} 
-                  storeName={displayName || store.Store_Name || 'Store'} 
-                  variant="button"
-                />
+            {/* Add to List - Separate row on mobile for cleaner layout */}
+            <div className="flex justify-end md:hidden">
+              <AddToListButton 
+                storeId={store.id} 
+                storeName={displayName || store.Store_Name || 'Store'} 
+                variant="button"
+              />
+            </div>
+
+            {/* Content Grid - Mobile-first responsive layout */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
+              {/* Reviews Section - First on mobile, second column on desktop */}
+              <div className="xl:col-span-2 order-1 space-y-4 md:space-y-6">
+                <StorePricesList storeId={store.id} storeName={displayName || store.Store_Name || 'Store'} />
+                <GoogleReviewsSection store={store} />
+                <ReviewSection store={store} />
+                <StoreComments storeId={store.id} storeName={store.Store_Name} />
               </div>
 
-              {/* Content Grid - Mobile-first responsive layout */}
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Reviews Section - First on mobile, second column on desktop */}
-                <div className="xl:col-span-2 order-1 space-y-6">
-                  <StorePricesList storeId={store.id} storeName={displayName || store.Store_Name || 'Store'} />
-                  <GoogleReviewsSection store={store} />
-                  <ReviewSection store={store} />
-                  <StoreComments storeId={store.id} storeName={store.Store_Name} />
+              {/* Store Info and Hours - Second on mobile, third column on desktop */}
+              <div className="xl:col-span-1 order-2 space-y-4 md:space-y-6">
+                {/* Desktop: Add to List button */}
+                <div className="hidden md:block">
+                  <AddToListButton 
+                    storeId={store.id} 
+                    storeName={displayName || store.Store_Name || 'Store'} 
+                    variant="button"
+                  />
                 </div>
-
-                {/* Store Info and Hours - Second on mobile, third column on desktop */}
-                <div className="xl:col-span-1 order-2 space-y-6">
-                  <div className="xl:sticky xl:top-4 space-y-6">
-                    <EnhancedGooglePlacesInfo 
-                      googleData={googleData}
-                      storeName={store.Store_Name}
-                      fallbackAddress={`${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}
-                    />
-                    <EnhancedStoreInfo store={store} />
-                    {storeHours && <StoreHoursCard hours={storeHours} />}
-                  </div>
+                <div className="xl:sticky xl:top-4 space-y-4 md:space-y-6">
+                  <EnhancedGooglePlacesInfo 
+                    googleData={googleData}
+                    storeName={store.Store_Name}
+                    fallbackAddress={`${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}
+                  />
+                  <EnhancedStoreInfo store={store} />
+                  {storeHours && <StoreHoursCard hours={storeHours} />}
                 </div>
               </div>
             </div>
