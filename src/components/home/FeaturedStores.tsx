@@ -1,13 +1,15 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { MapPin, Star, ArrowRight } from 'lucide-react';
 import { StoreTypeBadge } from '@/components/store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { trackFeaturedStoreClick } from '@/utils/analytics';
+import { saveNavigationReferrer } from '@/hooks/useNavigationReferrer';
 
 export const FeaturedStores: React.FC = () => {
+  const location = useLocation();
   const { data: featuredStores, isLoading } = useQuery({
     queryKey: ['featured-stores'],
     queryFn: async () => {
@@ -41,6 +43,9 @@ export const FeaturedStores: React.FC = () => {
   if (!featuredStores?.length) return null;
 
   const handleStoreClick = (store: typeof featuredStores[0]) => {
+    // Save current location as referrer for back navigation
+    saveNavigationReferrer(location.pathname + location.search);
+    
     trackFeaturedStoreClick(
       store.id,
       store.Store_Name || 'Unknown',

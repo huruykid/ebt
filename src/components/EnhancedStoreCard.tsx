@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
 import { StoreTypeBadge, EbtAcceptedBadge, IncentiveProgramBadge, StoreContactInfo, StoreRating, StorePhotoDisplay } from './store';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
+import { saveNavigationReferrer } from '@/hooks/useNavigationReferrer';
 import { useStoredGooglePlaces } from '@/hooks/useStoredGooglePlaces';
 import { formatStoreAddress, getStorePhotos } from '@/utils/storeUtils';
 import type { StoreWithDistance } from '@/types/storeTypes';
@@ -18,8 +19,12 @@ export const EnhancedStoreCard: React.FC<EnhancedStoreCardProps> = ({ store }) =
   // Use cached location synchronously to avoid triggering additional API calls
   const cachedLocation = getCachedIPGeolocation();
   const googlePlacesData = useStoredGooglePlaces(store);
+  const location = useLocation();
 
   const handleStoreClick = () => {
+    // Save current location as referrer for back navigation
+    saveNavigationReferrer(location.pathname + location.search);
+    
     if (cachedLocation) {
       trackStoreClick(store.id, cachedLocation.latitude, cachedLocation.longitude);
     }
