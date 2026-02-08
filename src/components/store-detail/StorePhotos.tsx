@@ -190,7 +190,7 @@ export const StorePhotos: React.FC<StorePhotosProps> = ({ storeName, store, onHo
 
   return (
     <div 
-      className={`relative h-48 sm:h-64 md:h-80 overflow-hidden ${showBrandLogoHero ? 'bg-white' : 'bg-cover bg-center'}`}
+      className={`relative h-40 sm:h-52 md:h-64 lg:h-72 overflow-hidden ${showBrandLogoHero ? 'bg-white' : 'bg-cover bg-center'}`}
       style={showBrandLogoHero ? undefined : { backgroundImage: `url(${getCurrentBackgroundImage()})` }}
     >
       {/* Show brand logo hero when no photos available for known brands */}
