@@ -1,66 +1,51 @@
 
 
-## Padding Audit & Fixes
+## Store Detail Page Audit & Fixes
 
-After visually inspecting all pages on both mobile (390px) and desktop (1920px), here is a summary of findings and recommended fixes.
+### Issues Found
 
-### Pages That Look Good (No Changes Needed)
-- **Home (`/`)**: Good padding on both mobile (`px-3`/`px-4`) and desktop (`px-6`). Well balanced.
-- **Blog (`/blog`)**: Clean `container mx-auto px-4 py-8 max-w-4xl`. Looks great.
-- **SNAP Tips (`/snap-tips`)**: Uses `container mx-auto px-4 py-6 max-w-4xl`. Consistent.
-- **Benefits Calculator (`/benefits-calculator`)**: Uses `container mx-auto px-4 py-8 max-w-4xl`. Clean layout.
+**1. "OpenMaps Card" (OverpassDataCard) -- Remove**
+The `OverpassDataCard` component displays raw OpenStreetMap/Overpass API data (phone, website, hours, shop type, brand, address, OSM ID). This data is redundant -- the same info already appears in `StoreHeader` and `EnhancedGooglePlacesInfo`. It also exposes technical details users don't care about (OSM ID, confidence score). Yelp would never show this.
 
-- **Blog Post (`/blog/:slug`)**: Uses `container mx-auto px-4`. Looks good.
-- **Enhanced Search (`/search`)**: Uses `container mx-auto px-4 py-6`. Clean.
+**2. Duplicate "Add to List" Button**
+`AddToListButton` is rendered twice in the sidebar column:
+- Once at line 177-183 (hidden on mobile, visible on desktop)
+- Again at lines 198-204 (also hidden on mobile, visible on desktop)
 
-### Pages With Padding Inconsistencies
+This creates two identical buttons stacked in the right column on desktop.
 
-1A. Store Detail (/store/:id): Uses max-w-7xl mx-auto px-4 sm:px-6 lg:px-8. Responsive and well-spaced.
+**3. Layout: Yelp-Inspired Improvements**
+Yelp's store detail pattern is:
+- Header card with name, rating, badges, and action buttons (already good)
+- Right sidebar with contact/hours info (already good)
+- Left/main column with reviews (already good)
+- No redundant data cards or raw API dumps
 
-1. **Profile (`/profile`)** - Uses `bg-neutral-100` (hardcoded gray) instead of `bg-background`. The padding `p-4` is fine but doesn't match the theme system used everywhere else.
+The current layout is close to Yelp but the OverpassDataCard and duplicate button break the clean feel.
 
-2. **Favorites (`/favorites`)** - Same issue: `bg-neutral-100` instead of `bg-background`. Also uses `max-w-4xl` which may be too narrow for a 3-column grid on desktop.
+### Changes
 
-3. **Mission (`/mission`)** - Uses `p-6` directly on the content container, which is consistent but the `max-w-4xl` container uses `p-6` instead of the `px-4 py-6` or `px-4 py-8` pattern used by other pages. Minor inconsistency.
+**File 1: `src/components/store-detail/EnhancedStoreInfo.tsx`**
+- Remove the `OverpassDataCard` import and rendering. Since `EnhancedStoreInfo` only renders `OverpassDataCard`, this component becomes empty. We'll render nothing (return null) or remove its usage entirely from `StoreDetail.tsx`.
 
-4. **Support (`/support`)** - Uses `p-6` on `<main>`. Same pattern as Mission. Consistent between the two but differs from Blog/SnapTips which use `container mx-auto px-4 py-8`.
+**File 2: `src/pages/StoreDetail.tsx`**
+- Remove `EnhancedStoreInfo` import and usage (line 14, line 211) since it will be empty after removing OverpassDataCard.
+- Remove the duplicate `AddToListButton` block (lines 197-204) from the sidebar. Keep only the one at lines 177-183.
 
-5. **Privacy Policy (`/privacy-policy`)** - Uses `p-6` on `<main>`. Same as Support. Consistent between static pages.
+**File 3: `src/components/store-detail/cards/OverpassDataCard.tsx`** -- No deletion needed, just removing its usage. It can be cleaned up later if desired.
 
-### Recommended Changes
+### Summary of Removals
+| Item | Reason |
+|------|--------|
+| OverpassDataCard rendering | Redundant data, technical/raw feel, not Yelp-like |
+| Duplicate AddToListButton | UI bug -- two identical buttons on desktop |
+| EnhancedStoreInfo usage | Becomes empty wrapper after OverpassDataCard removal |
 
-The inconsistencies are minor. The two most impactful fixes are:
-
-| Page | Current | Proposed Fix |
-|------|---------|-------------|
-| Profile (auth screen) | `bg-neutral-100 p-4` | `bg-background p-4` |
-| Profile (logged in) | `bg-neutral-100 p-4` | `bg-background p-4` |
-| Favorites | `bg-neutral-100`, `max-w-4xl p-4` | `bg-background`, `max-w-6xl p-4` |
-| Mission | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
-| Support | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
-| Privacy Policy | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
-
-### Technical Details
-
-**Files to modify:**
-
-1. **`src/pages/Profile.tsx`**
-   - Line 87: Change `bg-neutral-100` to `bg-background` (auth interface)
-   - Line 196: Change `bg-neutral-100` to `bg-background` (loading state)
-   - Line 256: Change `bg-neutral-100` to `bg-background` (profile page)
-
-2. **`src/pages/Favorites.tsx`**
-   - Line 13: Change `bg-neutral-100` to `bg-background`
-   - Line 14: Change `max-w-4xl` to `max-w-6xl` for better use of desktop space with 3-column grid
-
-3. **`src/pages/Mission.tsx`**
-   - Line 152: Change `p-6` to `px-4 py-8` on the content container
-
-4. **`src/pages/Support.tsx`**
-   - Line 47: Change `p-6` to `px-4 py-8` on `<main>`
-
-5. **`src/pages/PrivacyPolicy.tsx`**
-   - Line 22: Change `p-6` to `px-4 py-8` on `<main>`
-
-These are small tweaks that align all pages to the same padding pattern (`px-4 py-8` with `container` or `max-w` + `mx-auto`) and use the theme-aware `bg-background` instead of hardcoded grays.
+### What Stays (Already Yelp-Like)
+- StoreHeader with name, rating, badges, Call/Directions buttons
+- EnhancedGooglePlacesInfo sidebar with verified contact info, hours, categories
+- StoreHoursCard for user-contributed hours
+- GoogleReviewsSection and ReviewSection in main column
+- StoreComments and StorePricesList
+- Responsive padding (`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`) is already correct
 
