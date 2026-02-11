@@ -104,7 +104,7 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
   );
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         {triggerButton}
       </DropdownMenuTrigger>
