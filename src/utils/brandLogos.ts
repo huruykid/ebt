@@ -30,6 +30,30 @@ const BRAND_DOMAINS: Record<string, string> = {
   'sprouts': 'sprouts.com',
   'natural grocers': 'naturalgrocers.com',
   
+  // Ethnic & Specialty Grocery
+  'patel brothers': 'patelbros.com',
+  'h mart': 'hmart.com',
+  'h-mart': 'hmart.com',
+  'super h mart': 'hmart.com',
+  'bravo supermarket': 'bravosupermarkets.com',
+  'compare foods': 'comparefoods.net',
+  'seafood city': 'seafoodcity.com',
+  'fiesta mart': 'fiestamart.com',
+  'fiesta market': 'fiestamart.com',
+  'supermercados morelos': 'morelos.com',
+  'la michoacana': 'lamichoacanameatmarket.com',
+  'food bazaar': 'foodbazaar.com',
+  
+  // Regional Grocery Chains
+  'key food': 'keyfood.com',
+  'c-town': 'ctownsupermarkets.com',
+  'c town': 'ctownsupermarkets.com',
+  'food city': 'foodcity.com',
+  'giant eagle': 'gianteagle.com',
+  'price chopper': 'pricechopper.com',
+  'market basket': 'shopmarketbasket.com',
+  'lidl': 'lidl.com',
+  
   // Dollar Stores
   'dollar general': 'dollargeneral.com',
   'dollar tree': 'dollartree.com',
@@ -52,6 +76,24 @@ const BRAND_DOMAINS: Record<string, string> = {
   'loves': 'loves.com',
   'cumberland farms': 'cumberlandfarms.com',
   'royal farms': 'royalfarms.com',
+  'kangaroo express': 'kangarooexpress.com',
+  'ez mart': 'ezmart.com',
+  'pantry 1': 'pantry1.com',
+  
+  // Gas Stations & Fuel
+  'chevron': 'chevron.com',
+  'shell': 'shell.com',
+  'marathon': 'marathon.com',
+  'sunoco': 'sunoco.com',
+  'citgo': 'citgo.com',
+  'exxon': 'exxon.com',
+  'bp': 'bp.com',
+  'mobil': 'mobil.com',
+  'valero': 'valero.com',
+  'texaco': 'texaco.com',
+  'phillips 66': 'phillips66.com',
+  'arco': 'arco.com',
+  'ampm': 'ampm.com',
   
   // Pharmacy & Drug Stores
   'cvs': 'cvs.com',
