@@ -620,7 +620,28 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication first
+    // --- Geo-blocking: reject non-US requests at the edge ---
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '';
+    if (clientIP && clientIP !== 'unknown') {
+      try {
+        const geoRes = await fetch(`http://ip-api.com/json/${clientIP}?fields=countryCode`);
+        if (geoRes.ok) {
+          const geo = await geoRes.json();
+          if (geo.countryCode && geo.countryCode !== 'US') {
+            console.log(`Blocked non-US places-proxy request from ${geo.countryCode} (${clientIP})`);
+            return new Response(
+              JSON.stringify({ error: 'Service available in the US only', from: 'error', budget_exceeded: false }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+      } catch (geoErr) {
+        // If geo check fails, allow the request through (fail open)
+        console.warn('Geo-check failed, allowing request:', geoErr);
+      }
+    }
+
+    // Validate authentication
     const { user, error: authError } = await validateAuth(req);
     if (authError || !user) {
       console.log('Authentication failed:', authError);
