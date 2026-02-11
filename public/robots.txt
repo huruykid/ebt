@@ -1,15 +1,16 @@
-# Advanced robots.txt for better SEO crawling
+# robots.txt for EBT Finder
 User-agent: *
 Allow: /
 
-# Prioritize important pages for crawling
+# Prioritize important pages
 Allow: /search
 Allow: /snap-tips
 Allow: /mission
-# Use /city/ prefix for city pages (canonical URLs)
+Allow: /blog
 Allow: /city/
 Allow: /state/
 Allow: /store/
+Allow: /benefits-calculator
 
 # Block legacy city URLs (they redirect to /city/ prefix)
 Disallow: /los-angeles
@@ -44,22 +45,16 @@ Disallow: /wp-content/
 Disallow: /wp-includes/
 Disallow: /cgi-bin/
 
-# Allow access to CSS and JS for proper rendering
+# Allow CSS and JS for rendering
 Allow: /src/*.css
 Allow: /src/*.js
 Allow: /*.css$
 Allow: /*.js$
 
-# Sitemap location
+# Sitemap
 Sitemap: https://ebtfinder.org/sitemap.xml
 
-# Crawl delay for different bots (optional)
-User-agent: Googlebot
-Crawl-delay: 1
-
-User-agent: Bingbot
-Crawl-delay: 2
-
+# Social media bots
 User-agent: facebookexternalhit
 Allow: /
 
