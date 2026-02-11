@@ -10,8 +10,8 @@ export default function Favorites() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-neutral-100">
-        <div className="max-w-4xl mx-auto p-4">
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-4">
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
               <Heart className="h-6 w-6 text-red-500" />

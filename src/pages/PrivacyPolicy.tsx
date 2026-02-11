@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
         canonicalUrl="https://ebtfinder.org/privacy-policy"
         structuredData={structuredData}
       />
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-4xl mx-auto px-4 py-8">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground">Privacy Policy</h1>
           <p className="text-muted-foreground mt-2">

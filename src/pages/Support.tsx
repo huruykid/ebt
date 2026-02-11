@@ -44,7 +44,7 @@ export default function Support() {
         canonicalUrl="https://ebtfinder.org/support"
         structuredData={structuredData}
       />
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-4xl mx-auto px-4 py-8">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground">Support</h1>
           <p className="text-muted-foreground mt-2">
