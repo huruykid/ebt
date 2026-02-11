@@ -10,6 +10,7 @@ interface AuthContextType {
   isGuest: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   continueAsGuest: () => void;
 }
@@ -105,6 +106,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    });
+    return { error };
+  };
+
   const signOut = async () => {
     setIsGuest(false);
     localStorage.removeItem('guest_mode');
@@ -124,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isGuest,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     continueAsGuest
   };
