@@ -1,98 +1,66 @@
 
 
-## Expand Brand Logo Coverage
+## Padding Audit & Fixes
 
-### Current State
-- **140+ brands** currently mapped in `brandLogos.ts`
-- **~89,100 stores (33.7%)** matched out of 264,290 total
-- **~175,000 stores** still showing generic placeholders
+After visually inspecting all pages on both mobile (390px) and desktop (1920px), here is a summary of findings and recommended fixes.
 
-### Top Unmatched Brands Found in Database
+### Pages That Look Good (No Changes Needed)
+- **Home (`/`)**: Good padding on both mobile (`px-3`/`px-4`) and desktop (`px-6`). Well balanced.
+- **Blog (`/blog`)**: Clean `container mx-auto px-4 py-8 max-w-4xl`. Looks great.
+- **SNAP Tips (`/snap-tips`)**: Uses `container mx-auto px-4 py-6 max-w-4xl`. Consistent.
+- **Benefits Calculator (`/benefits-calculator`)**: Uses `container mx-auto px-4 py-8 max-w-4xl`. Clean layout.
 
-Here are the most common store names NOT currently matched, grouped by category:
+- **Blog Post (`/blog/:slug`)**: Uses `container mx-auto px-4`. Looks good.
+- **Enhanced Search (`/search`)**: Uses `container mx-auto px-4 py-6`. Clean.
 
-**Gas Station / Fuel Brands (high volume)**
-| Brand | Store Count | Domain |
-|-------|-----------|--------|
-| Chevron (+ Food Mart) | ~177 | chevron.com |
-| Shell (+ Food Mart) | ~182 | shell.com |
-| Marathon (+ Food Mart/Gas) | ~141 | marathon.com |
-| Sunoco (+ Food Mart/A Plus) | ~115 | sunoco.com |
-| Citgo (+ Food Mart) | ~94 | citgo.com |
-| Exxon (+ Food Mart) | ~66 | exxon.com |
-| BP (+ Food Mart) | ~126 | bp.com |
-| Mobil (+ Mart) | ~58 | mobil.com |
-| Valero (+ Food Mart) | ~48 | valero.com |
-| Texaco Food Mart | 56 | texaco.com |
-| Phillips 66 | 14 | phillips66.com |
-| Arco / AMPM | 25 | arco.com |
+### Pages With Padding Inconsistencies
 
-**Ethnic & Specialty Grocery Chains**
-| Brand | Store Count | Domain |
-|-------|-----------|--------|
-| Patel Brothers | ~31 | patelbros.com |
-| H Mart / Super H Mart | ~22 | hmart.com |
-| Bravo Supermarket | ~27 | bravosupermarkets.com |
-| Compare Foods | ~16 | comparefoods.net |
-| Seafood City Supermarket | 17 | seafoodcity.com |
-| Fiesta (Market/Supermarket) | ~11 | fiestamart.com |
-| Supermercados Morelos | 4 | morelos.com |
-| La Michoacana Meat Market | ~11 | lamichoacanameatmarket.com |
-| Food Bazaar | 7 | foodbazaar.com |
+1A. Store Detail (/store/:id): Uses max-w-7xl mx-auto px-4 sm:px-6 lg:px-8. Responsive and well-spaced.
 
-**Regional Grocery Chains**
-| Brand | Store Count | Domain |
-|-------|-----------|--------|
-| Key Food | ~14 | keyfood.com |
-| C-Town Supermarket | ~6 | ctownsupermarkets.com |
-| Food City | 6 | foodcity.com |
-| Giant Eagle | ~4 | gianteagle.com |
-| Price Chopper | ~4 | pricechopper.com |
-| Market Basket | ~6 | shopmarketbasket.com |
-| Lidl | ~3 | lidl.com |
+1. **Profile (`/profile`)** - Uses `bg-neutral-100` (hardcoded gray) instead of `bg-background`. The padding `p-4` is fine but doesn't match the theme system used everywhere else.
 
-**Other Recognizable Chains**
-| Brand | Store Count | Domain |
-|-------|-----------|--------|
-| Kangaroo Express | 15 | kangarooexpress.com |
-| Pantry 1 Food Mart | 13 | pantry1.com |
-| Ez Mart | 26 | ezmart.com |
+2. **Favorites (`/favorites`)** - Same issue: `bg-neutral-100` instead of `bg-background`. Also uses `max-w-4xl` which may be too narrow for a 3-column grid on desktop.
 
-### Implementation Plan
+3. **Mission (`/mission`)** - Uses `p-6` directly on the content container, which is consistent but the `max-w-4xl` container uses `p-6` instead of the `px-4 py-6` or `px-4 py-8` pattern used by other pages. Minor inconsistency.
 
-**File to modify:** `src/utils/brandLogos.ts`
+4. **Support (`/support`)** - Uses `p-6` on `<main>`. Same pattern as Mission. Consistent between the two but differs from Blog/SnapTips which use `container mx-auto px-4 py-8`.
 
-Add the following new entries to the `BRAND_DOMAINS` mapping, organized into new sections:
+5. **Privacy Policy (`/privacy-policy`)** - Uses `p-6` on `<main>`. Same as Support. Consistent between static pages.
 
-1. **Gas Stations & Fuel (12 new brands, ~1,100+ stores)**
-   - chevron, shell, marathon, sunoco, citgo, exxon, bp, mobil, valero, texaco, phillips 66, arco/ampm
+### Recommended Changes
 
-2. **Ethnic & Specialty Grocery (9 new brands, ~140+ stores)**
-   - patel brothers, h mart, bravo supermarket, compare foods, seafood city, fiesta, supermercados morelos, la michoacana, food bazaar
+The inconsistencies are minor. The two most impactful fixes are:
 
-3. **Regional Grocery Chains (7 new brands, ~40+ stores)**
-   - key food, c-town, food city, giant eagle, price chopper, market basket, lidl
-
-4. **Other Chains (3 new brands, ~50+ stores)**
-   - kangaroo express, ez mart, pantry 1
-
-### Estimated Impact
-- **~31 new brand mappings** added
-- **~1,300+ additional stores** will display official logos
-- Total coverage increases from ~33.7% to ~34.2%
-- Gas station brands provide the biggest single improvement
+| Page | Current | Proposed Fix |
+|------|---------|-------------|
+| Profile (auth screen) | `bg-neutral-100 p-4` | `bg-background p-4` |
+| Profile (logged in) | `bg-neutral-100 p-4` | `bg-background p-4` |
+| Favorites | `bg-neutral-100`, `max-w-4xl p-4` | `bg-background`, `max-w-6xl p-4` |
+| Mission | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
+| Support | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
+| Privacy Policy | `max-w-4xl mx-auto p-6` | `max-w-4xl mx-auto px-4 py-8` |
 
 ### Technical Details
 
-Each entry follows the existing pattern in `brandLogos.ts`:
-```text
-'chevron': 'chevron.com',
-'shell': 'shell.com',
-'marathon': 'marathon.com',
-// etc.
-```
+**Files to modify:**
 
-The partial matching logic already handles variants like "Chevron Food Mart" matching the `chevron` key, so only one entry per brand is needed in most cases. A few brands need multiple keys for alternate spellings (e.g., `'h mart'` and `'h-mart'`).
+1. **`src/pages/Profile.tsx`**
+   - Line 87: Change `bg-neutral-100` to `bg-background` (auth interface)
+   - Line 196: Change `bg-neutral-100` to `bg-background` (loading state)
+   - Line 256: Change `bg-neutral-100` to `bg-background` (profile page)
 
-No other files need changes -- `StorePhoto.tsx` and `BrandLogo.tsx` already use `getBrandLogo()` from this utility.
+2. **`src/pages/Favorites.tsx`**
+   - Line 13: Change `bg-neutral-100` to `bg-background`
+   - Line 14: Change `max-w-4xl` to `max-w-6xl` for better use of desktop space with 3-column grid
+
+3. **`src/pages/Mission.tsx`**
+   - Line 152: Change `p-6` to `px-4 py-8` on the content container
+
+4. **`src/pages/Support.tsx`**
+   - Line 47: Change `p-6` to `px-4 py-8` on `<main>`
+
+5. **`src/pages/PrivacyPolicy.tsx`**
+   - Line 22: Change `p-6` to `px-4 py-8` on `<main>`
+
+These are small tweaks that align all pages to the same padding pattern (`px-4 py-8` with `container` or `max-w` + `mx-auto`) and use the theme-aware `bg-background` instead of hardcoded grays.
 
