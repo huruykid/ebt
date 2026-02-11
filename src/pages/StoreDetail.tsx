@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
-import { EnhancedStoreInfo } from '@/components/store-detail/EnhancedStoreInfo';
+
 import { StoreHoursCard } from '@/components/store-detail/cards/StoreHoursCard';
 import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
@@ -194,21 +194,12 @@ export default function StoreDetailPage() {
 
               {/* Store Info and Hours - Second on mobile, third column on desktop */}
               <div className="lg:col-span-1 xl:col-span-1 order-2 space-y-4 md:space-y-6">
-                {/* Desktop: Add to List button */}
-                <div className="hidden md:block">
-                  <AddToListButton 
-                    storeId={store.id} 
-                    storeName={displayName || store.Store_Name || 'Store'} 
-                    variant="button"
-                  />
-                </div>
                 <div className="lg:sticky lg:top-20 space-y-4 md:space-y-6">
                   <EnhancedGooglePlacesInfo 
                     googleData={googleData}
                     storeName={store.Store_Name}
                     fallbackAddress={`${store.Store_Street_Address}, ${store.City}, ${store.State} ${store.Zip_Code}`}
                   />
-                  <EnhancedStoreInfo store={store} />
                   {storeHours && <StoreHoursCard hours={storeHours} />}
                 </div>
               </div>
