@@ -134,10 +134,11 @@ export const ExploreTrending: React.FC = () => {
             />
           )}
           
-          {/* Mobile SNAP Tips & FAQ */}
+          {/* Mobile SNAP Tips, FAQ & SEO Footer */}
           <div className="w-full mt-6 space-y-4">
             <SnapTipsSection />
             <FAQSection />
+            <SEOFooter />
           </div>
         </main>
       </div>
