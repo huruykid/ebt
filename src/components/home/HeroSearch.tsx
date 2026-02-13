@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
 import { CheckBalanceModal } from '@/components/CheckBalanceModal';
-import { TrustSignals } from '@/components/home/TrustSignals';
-import { MapPin, Heart, Navigation, CreditCard, Calculator } from 'lucide-react';
+import { Navigation, CreditCard, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackLocationSearch } from '@/utils/analytics';
 
@@ -41,35 +40,25 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   if (isMobile) {
     return (
-      <div className="flex w-full flex-col items-stretch px-4 pt-4 pb-2">
-        {/* Compact mobile header - benefit focused */}
+      <div className="px-4 pt-5 pb-3 animate-fade-in">
         <h1 className="text-xl font-bold text-foreground text-center mb-1">
-          Find 300,000+ EBT Stores
+          Find EBT Stores Near You
         </h1>
         <p className="text-xs text-muted-foreground text-center mb-4">
-          Grocery stores, restaurants & markets accepting SNAP
+          300,000+ grocery stores, restaurants & markets
         </p>
         
-        {/* Prominent search box */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border">
-          <ZipCodeSearch
-            onZipSearch={onZipSearch}
-            onClearSearch={onClearSearch}
-            isSearchActive={isSearchActive}
-            activeZip={activeZip}
-            errorMessage={errorMessage}
-            noResultsMessage={noResultsMessage}
-          />
-        </div>
+        <ZipCodeSearch
+          onZipSearch={onZipSearch}
+          onClearSearch={onClearSearch}
+          isSearchActive={isSearchActive}
+          activeZip={activeZip}
+          errorMessage={errorMessage}
+          noResultsMessage={noResultsMessage}
+        />
         
-        {/* Trust signals - social proof */}
-        <div className="mt-3">
-          <TrustSignals />
-        </div>
-        
-        {/* Action buttons */}
         {!isSearchActive && (
-          <div className="flex flex-wrap justify-center gap-2 mt-3">
+          <div className="flex justify-center gap-2 mt-3">
             <Button
               onClick={() => {
                 trackLocationSearch(!latitude || !longitude);
@@ -78,22 +67,22 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
               variant="secondary"
               size="sm"
               disabled={loading}
-              className="text-sm"
+              className="text-xs"
             >
-              <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
-              {loading ? 'Getting location...' : 'Use current location'}
+              <Navigation className={cn("h-3.5 w-3.5 mr-1.5", loading && "animate-pulse")} />
+              {loading ? 'Locating...' : 'Use my location'}
             </Button>
             <CheckBalanceModal 
               trigger={
-                <Button variant="outline" size="sm" className="text-sm">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Check balance
+                <Button variant="ghost" size="sm" className="text-xs">
+                  <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+                  Balance
                 </Button>
               }
             />
-            <Button asChild variant="outline" size="sm" className="text-sm">
+            <Button asChild variant="ghost" size="sm" className="text-xs">
               <Link to="/benefits-calculator">
-                <Calculator className="h-4 w-4 mr-2" />
+                <Calculator className="h-3.5 w-3.5 mr-1.5" />
                 Calculator
               </Link>
             </Button>
@@ -103,24 +92,17 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
     );
   }
 
-  // Desktop layout (unchanged)
   return (
-    <div className="bg-background border-b">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center max-w-3xl mx-auto">
-          <h1 className="font-bold text-foreground text-4xl mb-4">
-            Find 300,000+ Stores That Accept Your EBT Card
-          </h1>
-          <p className="text-muted-foreground text-lg mb-8">
-            Instantly find grocery stores, restaurants, and farmers markets that accept SNAP/EBT benefits. Filter by store type, read community reviews, and get directions.
-          </p>
-        </div>
+    <div className="border-b border-border">
+      <div className="max-w-2xl mx-auto px-6 py-16 text-center animate-fade-in">
+        <h1 className="font-bold text-foreground text-3xl mb-3">
+          Find Stores That Accept EBT
+        </h1>
+        <p className="text-muted-foreground text-base mb-8 max-w-lg mx-auto">
+          Search 300,000+ grocery stores, restaurants, and markets that accept SNAP/EBT benefits.
+        </p>
         
-        {/* ZIP Code Search */}
-        <div className="mb-6">
-          <h2 className="font-medium text-foreground text-lg mb-3 text-center">
-            Enter your ZIP code or use your current location to find EBT-accepting businesses
-          </h2>
+        <div className="max-w-md mx-auto mb-6">
           <ZipCodeSearch
             onZipSearch={onZipSearch}
             onClearSearch={onClearSearch}
@@ -131,55 +113,30 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           />
         </div>
         
-        {/* Trust signals - social proof */}
-        <div className="max-w-2xl mx-auto mb-6">
-          <TrustSignals />
-        </div>
-        
-        {/* Current Location Search Button - always visible */}
         {!isSearchActive && (
-          <div className="max-w-2xl mx-auto flex justify-center">
+          <div className="flex justify-center gap-3">
             <Button
               onClick={() => {
                 trackLocationSearch(!latitude || !longitude);
                 onCurrentLocationSearch();
               }}
               variant="outline"
-              size="lg"
+              size="sm"
               disabled={loading}
             >
               <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
-              {loading ? 'Getting your location...' : 'Search near your current location'}
+              {loading ? 'Locating...' : 'Use current location'}
             </Button>
+            <CheckBalanceModal 
+              trigger={
+                <Button variant="ghost" size="sm">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Check balance
+                </Button>
+              }
+            />
           </div>
         )}
-
-        {/* Quick Stats & Actions */}
-        <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span>Location-based results</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            <span>Save your favorites</span>
-          </div>
-          <CheckBalanceModal 
-            trigger={
-              <button className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
-                <CreditCard className="h-4 w-4" />
-                <span>Check EBT balance</span>
-              </button>
-            }
-          />
-          <Link 
-            to="/benefits-calculator" 
-            className="flex items-center gap-2 hover:text-primary transition-colors"
-          >
-            <Calculator className="h-4 w-4" />
-            <span>Benefits calculator</span>
-          </Link>
-        </div>
       </div>
     </div>
   );
