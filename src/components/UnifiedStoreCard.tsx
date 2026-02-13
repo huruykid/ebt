@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
-import { StorePhoto } from './StorePhoto';
+import { StorePhotoDisplay as StorePhoto } from './store/StorePhoto';
 import { FavoriteButton } from './FavoriteButton';
 import { ShareStore } from './ShareStore';
 import { StoreRatingDisplay } from './reviews/StoreRatingDisplay';
@@ -94,7 +94,6 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({
           ) : (
             <StorePhoto 
               storeName={store.Store_Name || ''}
-              address={fullAddress}
               className="w-full h-full object-cover"
             />
           )}

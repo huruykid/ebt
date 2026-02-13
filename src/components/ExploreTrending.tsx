@@ -1,19 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { CategoryTabs } from './CategoryTabs';
-import { StoreList } from './StoreList';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useZipCodeSearch } from '@/hooks/useZipCodeSearch';
 import { useNavigate } from 'react-router-dom';
-import MobileNearbyStoresSection from './MobileNearbyStoresSection';
-import DesktopNearbyStoresSection from './DesktopNearbyStoresSection';
-import NoLocationExperience from './NoLocationExperience';
+import { UnifiedStoreCard } from './UnifiedStoreCard';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
 import { HeroSearch, SnapTipsSection, PersonalizedDashboard } from './home';
 import { useAuth } from '@/contexts/AuthContext';
-import { LocationAccuracyBanner } from './LocationAccuracyBanner';
-import { StoreUpdatesFeed } from './feed/StoreUpdatesFeed';
+import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
+import { MapPin } from 'lucide-react';
+import { Button } from './ui/button';
 
 export const ExploreTrending: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('trending');
@@ -40,15 +38,11 @@ export const ExploreTrending: React.FC = () => {
   });
 
   const handleCurrentLocationSearch = () => {
-    // If we don't have location yet, request it
     if (!latitude || !longitude) {
       requestBrowserLocation();
       return;
     }
-    
-    // Already have location - clear any active ZIP search to show nearby stores
     handleClearSearch();
-    // Smooth scroll to results
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -60,11 +54,30 @@ export const ExploreTrending: React.FC = () => {
   };
 
   const handleRequestLocation = () => {
-    // Request browser location - will fallback to IP if denied
     requestBrowserLocation();
   };
 
   const showZipResults = isSearchActive;
+
+  const StoreListSimple = ({ stores }: { stores: any[] }) => (
+    <div className="grid grid-cols-1 gap-4">
+      {stores.map((store) => (
+        <UnifiedStoreCard key={store.id} store={store} />
+      ))}
+    </div>
+  );
+
+  const NoLocationPrompt = () => (
+    <div className="text-center py-12">
+      <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+      <h3 className="text-lg font-semibold mb-2">Find stores near you</h3>
+      <p className="text-muted-foreground mb-4">Enable location or search by ZIP code to find nearby EBT stores.</p>
+      <Button onClick={handleRequestLocation}>
+        <MapPin className="h-4 w-4 mr-2" />
+        Use My Location
+      </Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -85,32 +98,17 @@ export const ExploreTrending: React.FC = () => {
           variant="mobile"
         />
 
-        {/* Personalized Dashboard - Mobile */}
         {user && !showZipResults && (
           <div className="px-3 mt-3">
             <PersonalizedDashboard latitude={latitude} longitude={longitude} />
           </div>
         )}
 
-        {/* Compact category tabs */}
         <div className="min-h-[100px]">
           <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
         </div>
 
         <main ref={resultsRef} className="flex-1 self-center flex w-full flex-col items-center mt-2 px-4 pb-6">
-          {/* Location accuracy banner - mobile */}
-          {!showZipResults && (
-            <div className="w-full mb-3">
-              <LocationAccuracyBanner
-                source={source}
-                loading={loading}
-                onUpgradeLocation={requestBrowserLocation}
-                city={city}
-                region={region}
-              />
-            </div>
-          )}
-          
           {showZipResults ? (
             <div className="w-full animate-fade-in">
               {zipLoading ? (
@@ -118,23 +116,20 @@ export const ExploreTrending: React.FC = () => {
                   <LoadingSpinner />
                 </div>
               ) : (
-                <StoreList stores={zipStores} />
+                <StoreListSimple stores={zipStores} />
               )}
             </div>
+          ) : latitude && longitude ? (
+            <div className="w-full">
+              <Button variant="ghost" size="sm" className="mb-3" onClick={() => navigate('/search')}>
+                <MapPin className="h-4 w-4 mr-1" />
+                View all nearby stores
+              </Button>
+            </div>
           ) : (
-            <MobileNearbyStoresSection
-              loading={loading}
-              latitude={latitude}
-              longitude={longitude}
-              activeCategory={activeCategory}
-              selectedStoreTypes={selectedStoreTypes}
-              onSmartSearch={() => {}}
-              onRequestLocation={handleRequestLocation}
-              locationSource={source}
-            />
+            <NoLocationPrompt />
           )}
           
-          {/* Mobile SNAP Tips, FAQ & SEO Footer */}
           <div className="w-full mt-6 space-y-4">
             <SnapTipsSection />
             <FAQSection />
@@ -159,35 +154,19 @@ export const ExploreTrending: React.FC = () => {
           variant="desktop"
         />
 
-        {/* Category Tabs - Desktop */}
         <div className="bg-background border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Personalized Dashboard - Desktop */}
           {user && !showZipResults && (
             <div className="mb-8">
               <PersonalizedDashboard latitude={latitude} longitude={longitude} />
             </div>
           )}
 
-          {/* Location accuracy banner - desktop */}
-          {!showZipResults && (
-            <div className="mb-6">
-              <LocationAccuracyBanner
-                source={source}
-                loading={loading}
-                onUpgradeLocation={requestBrowserLocation}
-                city={city}
-                region={region}
-              />
-            </div>
-          )}
-          
           {showZipResults ? (
             <div className="space-y-4">
               <div className="text-center">
@@ -203,31 +182,23 @@ export const ExploreTrending: React.FC = () => {
                   <LoadingSpinner />
                 </div>
               ) : (
-                <StoreList stores={zipStores} />
+                <StoreListSimple stores={zipStores} />
               )}
             </div>
+          ) : latitude && longitude ? (
+            <div className="text-center py-8">
+              <Button onClick={() => navigate('/search')}>
+                <MapPin className="h-4 w-4 mr-2" />
+                Search nearby stores
+              </Button>
+            </div>
           ) : (
-            <>
-              <DesktopNearbyStoresSection
-                loading={loading}
-                latitude={latitude}
-                longitude={longitude}
-                activeCategory={activeCategory}
-                selectedStoreTypes={selectedStoreTypes}
-                onRequestLocation={handleRequestLocation}
-                locationSource={source}
-              />
-            </>
+            <NoLocationPrompt />
           )}
         </div>
         
-        {/* SNAP Tips Section */}
         <SnapTipsSection />
-        
-        {/* FAQ Section */}
         <FAQSection />
-        
-        {/* SEO Footer */}
         <SEOFooter />
       </div>
     </div>
