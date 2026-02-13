@@ -5,7 +5,7 @@ import { FavoriteButton } from './FavoriteButton';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
 import { saveNavigationReferrer } from '@/hooks/useNavigationReferrer';
-import { formatStoreAddress } from '@/utils/storeUtils';
+import { formatStoreAddress, isRmpEnrolled } from '@/utils/storeUtils';
 import { getBrandLogo } from '@/utils/brandLogos';
 import type { StoreWithDistance } from '@/types/storeTypes';
 
@@ -35,6 +35,7 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({ store }) => 
   const ratingsTotal = store.google_user_ratings_total;
   const openingHours = store.google_opening_hours as { open_now?: boolean } | null;
   const isOpen = openingHours?.open_now;
+  const showRmp = isRmpEnrolled(store.Incentive_Program);
 
   return (
     <Link
@@ -80,6 +81,14 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({ store }) => 
             {isOpen !== undefined ? (
               <span className={`text-xs font-medium ${isOpen ? 'text-emerald-600' : 'text-muted-foreground'}`}>
                 · {isOpen ? 'Open' : 'Closed'}
+              </span>
+            ) : null}
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800">
+              EBT
+            </span>
+            {showRmp ? (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                RMP
               </span>
             ) : null}
           </div>
