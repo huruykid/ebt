@@ -39,7 +39,7 @@ const getIPLocationFromCache = (): GeolocationResult => {
 
 export const useGeolocation = () => {
   const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
-  const hasRequestedRef = useRef(false);
+  const browserRequestedRef = useRef(false);
   
   // Subscribe to the shared IP geolocation store
   const { data: ipData, loading: ipLoading } = useIPGeolocation();
@@ -56,6 +56,7 @@ export const useGeolocation = () => {
     const isNative = platform !== 'web';
     const isIOS = platform === 'ios';
 
+    browserRequestedRef.current = true;
     setLocation(prev => ({ ...prev, loading: true }));
 
     const handleSuccess = (position: any) => {
@@ -107,14 +108,16 @@ export const useGeolocation = () => {
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
   }, []);
 
-  // Use the shared IP geolocation data when it becomes available
+  // Sync IP geolocation data — only if browser GPS hasn't been requested
   useEffect(() => {
-    if (hasRequestedRef.current) return;
+    // Don't override browser GPS with IP data
+    if (browserRequestedRef.current) return;
     
-    // Wait for IP data to load
-    if (ipLoading) return;
-    
-    hasRequestedRef.current = true;
+    if (ipLoading) {
+      // Still loading IP data
+      setLocation(prev => prev.loading ? prev : { ...prev, loading: true });
+      return;
+    }
     
     if (ipData) {
       setLocation(convertIPDataToResult(ipData));
