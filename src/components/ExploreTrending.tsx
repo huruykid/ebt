@@ -9,7 +9,6 @@ import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
 import { HeroSearch, SnapTipsSection, PersonalizedDashboard } from './home';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
 import { MapPin } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -20,7 +19,7 @@ export const ExploreTrending: React.FC = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   
-  const { latitude, longitude, loading, source, city, region, requestBrowserLocation } = useGeolocation();
+  const { latitude, longitude, loading, requestBrowserLocation } = useGeolocation();
 
   const {
     activeZipCode,
@@ -53,14 +52,10 @@ export const ExploreTrending: React.FC = () => {
     setSelectedStoreTypes(storeTypes || []);
   };
 
-  const handleRequestLocation = () => {
-    requestBrowserLocation();
-  };
-
   const showZipResults = isSearchActive;
 
   const StoreListSimple = ({ stores }: { stores: any[] }) => (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 gap-3">
       {stores.map((store) => (
         <UnifiedStoreCard key={store.id} store={store} />
       ))}
@@ -68,11 +63,11 @@ export const ExploreTrending: React.FC = () => {
   );
 
   const NoLocationPrompt = () => (
-    <div className="text-center py-12">
-      <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-      <h3 className="text-lg font-semibold mb-2">Find stores near you</h3>
-      <p className="text-muted-foreground mb-4">Enable location or search by ZIP code to find nearby EBT stores.</p>
-      <Button onClick={handleRequestLocation}>
+    <div className="text-center py-16">
+      <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+      <h3 className="text-base font-semibold mb-1.5">Find stores near you</h3>
+      <p className="text-sm text-muted-foreground mb-4">Enable location or search by ZIP code</p>
+      <Button onClick={requestBrowserLocation} size="sm">
         <MapPin className="h-4 w-4 mr-2" />
         Use My Location
       </Button>
@@ -80,9 +75,9 @@ export const ExploreTrending: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Mobile Layout */}
-      <div className="md:hidden bg-white flex w-full flex-col overflow-hidden items-stretch mx-auto min-h-screen">
+      <div className="md:hidden flex flex-col min-h-screen">
         <HeroSearch
           onZipSearch={handleZipSearch}
           onClearSearch={handleClearSearch}
@@ -94,47 +89,37 @@ export const ExploreTrending: React.FC = () => {
           longitude={longitude}
           loading={loading}
           onCurrentLocationSearch={handleCurrentLocationSearch}
-          onRequestLocation={handleRequestLocation}
+          onRequestLocation={requestBrowserLocation}
           variant="mobile"
         />
 
         {user && !showZipResults && (
-          <div className="px-3 mt-3">
+          <div className="px-4 mt-2">
             <PersonalizedDashboard latitude={latitude} longitude={longitude} />
           </div>
         )}
 
-        <div className="min-h-[100px]">
-          <CategoryTabs onCategoryChange={handleCategoryChange} className="mt-2 px-3" />
+        <div className="px-4 mt-3">
+          <CategoryTabs onCategoryChange={handleCategoryChange} />
         </div>
 
-        <main ref={resultsRef} className="flex-1 self-center flex w-full flex-col items-center mt-2 px-4 pb-6">
+        <main ref={resultsRef} className="flex-1 px-4 py-4 space-y-6">
           {showZipResults ? (
-            <div className="w-full animate-fade-in">
-              {zipLoading ? (
-                <div className="flex justify-center py-6">
-                  <LoadingSpinner />
-                </div>
-              ) : (
-                <StoreListSimple stores={zipStores} />
-              )}
+            <div className="animate-fade-in">
+              {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : latitude && longitude ? (
-            <div className="w-full">
-              <Button variant="ghost" size="sm" className="mb-3" onClick={() => navigate('/search')}>
-                <MapPin className="h-4 w-4 mr-1" />
-                View all nearby stores
-              </Button>
-            </div>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/search')}>
+              <MapPin className="h-4 w-4 mr-1.5" />
+              View all nearby stores
+            </Button>
           ) : (
             <NoLocationPrompt />
           )}
           
-          <div className="w-full mt-6 space-y-4">
-            <SnapTipsSection />
-            <FAQSection />
-            <SEOFooter />
-          </div>
+          <SnapTipsSection />
+          <FAQSection />
+          <SEOFooter />
         </main>
       </div>
 
@@ -154,13 +139,13 @@ export const ExploreTrending: React.FC = () => {
           variant="desktop"
         />
 
-        <div className="bg-background border-b">
-          <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="border-b border-border">
+          <div className="max-w-3xl mx-auto px-6 py-3">
             <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-3xl mx-auto px-6 py-8">
           {user && !showZipResults && (
             <div className="mb-8">
               <PersonalizedDashboard latitude={latitude} longitude={longitude} />
@@ -168,26 +153,20 @@ export const ExploreTrending: React.FC = () => {
           )}
 
           {showZipResults ? (
-            <div className="space-y-4">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  EBT Stores in ZIP {activeZipCode}
+            <div className="space-y-4 animate-fade-in">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold text-foreground">
+                  EBT Stores in {activeZipCode}
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground mt-1">
                   {zipStores.length} store{zipStores.length !== 1 ? 's' : ''} found
                 </p>
               </div>
-              {zipLoading ? (
-                <div className="flex justify-center py-8">
-                  <LoadingSpinner />
-                </div>
-              ) : (
-                <StoreListSimple stores={zipStores} />
-              )}
+              {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : latitude && longitude ? (
             <div className="text-center py-8">
-              <Button onClick={() => navigate('/search')}>
+              <Button onClick={() => navigate('/search')} size="sm">
                 <MapPin className="h-4 w-4 mr-2" />
                 Search nearby stores
               </Button>
@@ -197,8 +176,10 @@ export const ExploreTrending: React.FC = () => {
           )}
         </div>
         
-        <SnapTipsSection />
-        <FAQSection />
+        <div className="max-w-3xl mx-auto px-6 space-y-8 pb-8">
+          <SnapTipsSection />
+          <FAQSection />
+        </div>
         <SEOFooter />
       </div>
     </div>
