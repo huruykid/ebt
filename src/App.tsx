@@ -33,7 +33,7 @@ const SnapTips = lazy(() => import("./pages/SnapTips"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BenefitsCalculator = lazy(() => import("./pages/BenefitsCalculator"));
-const TwitterCardPreview = lazy(() => import("./components/TwitterCardPreview"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -106,7 +106,7 @@ const AppContent = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/benefits-calculator" element={<BenefitsCalculator />} />
-              <Route path="/og-preview" element={<TwitterCardPreview />} />
+              
               
               {/* State Pages - All 50 states + DC */}
               <Route path="/state/:stateSlug" element={<StatePage />} />
