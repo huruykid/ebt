@@ -1,51 +1,63 @@
 
 
-## Store Detail Page Audit & Fixes
+# Enhanced Search Filters: Categories, Open Now, and Delivery
 
-### Issues Found
+## Goal
+Make the /search page filter-first so users can find the **right** EBT store for their needs -- not just any store. Categories and the "Open Now" toggle should be visible **before** searching, and two new categories (Bakery, Delivery) need to be added.
 
-**1. "OpenMaps Card" (OverpassDataCard) -- Remove**
-The `OverpassDataCard` component displays raw OpenStreetMap/Overpass API data (phone, website, hours, shop type, brand, address, OSM ID). This data is redundant -- the same info already appears in `StoreHeader` and `EnhancedGooglePlacesInfo`. It also exposes technical details users don't care about (OSM ID, confidence score). Yelp would never show this.
+---
 
-**2. Duplicate "Add to List" Button**
-`AddToListButton` is rendered twice in the sidebar column:
-- Once at line 177-183 (hidden on mobile, visible on desktop)
-- Again at lines 198-204 (also hidden on mobile, visible on desktop)
+## What Changes
 
-This creates two identical buttons stacked in the right column on desktop.
+### 1. Add Missing Categories to CategoryTabs
+Add **Bakery** and **Delivery** as new category tabs:
+- **Bakery** (icon: bread emoji): matches `Store_Name ILIKE '%bakery%'` or `'%bake%'` -- 1,571 stores in the database
+- **Delivery** (icon: truck emoji): matches stores known to offer delivery (Walmart, Instacart partners, etc.) via name patterns. This will filter for large chains that commonly offer SNAP Online delivery (Walmart, Amazon Fresh, Safeway, etc.)
 
-**3. Layout: Yelp-Inspired Improvements**
-Yelp's store detail pattern is:
-- Header card with name, rating, badges, and action buttons (already good)
-- Right sidebar with contact/hours info (already good)
-- Left/main column with reviews (already good)
-- No redundant data cards or raw API dumps
+Reorder tabs to match the requested priority:
+1. Trending
+2. Hot Food / Fast Food (rename from "Hot Meals (RMP)")  
+3. Grocery Stores
+4. Bakery
+5. Farmer's Markets
+6. Delivery
+7. Corner Stores
+8. Open Now (keep as separate toggle, not a tab)
 
-The current layout is close to Yelp but the OverpassDataCard and duplicate button break the clean feel.
+### 2. Show Categories Before Search Results
+Move the `CategoryTabs` component into `SearchContainer` so it appears **above the search form** or immediately below it, visible at all times -- not only after results load.
 
-### Changes
+### 3. Promote "Open Now" Toggle
+Move the `OpenNowFilter` toggle out of the results header and place it alongside the category tabs area so users can set it **before** searching.
 
-**File 1: `src/components/store-detail/EnhancedStoreInfo.tsx`**
-- Remove the `OverpassDataCard` import and rendering. Since `EnhancedStoreInfo` only renders `OverpassDataCard`, this component becomes empty. We'll render nothing (return null) or remove its usage entirely from `StoreDetail.tsx`.
+### 4. Rename "Hot Meals (RMP)" to "Fast Food"
+The current label "Hot Meals (RMP)" is confusing for users. Rename to "Fast Food" (or "Hot Food") to match the user's mental model. Keep the same underlying store type filters.
 
-**File 2: `src/pages/StoreDetail.tsx`**
-- Remove `EnhancedStoreInfo` import and usage (line 14, line 211) since it will be empty after removing OverpassDataCard.
-- Remove the duplicate `AddToListButton` block (lines 197-204) from the sidebar. Keep only the one at lines 177-183.
+---
 
-**File 3: `src/components/store-detail/cards/OverpassDataCard.tsx`** -- No deletion needed, just removing its usage. It can be cleaned up later if desired.
+## Technical Details
 
-### Summary of Removals
-| Item | Reason |
-|------|--------|
-| OverpassDataCard rendering | Redundant data, technical/raw feel, not Yelp-like |
-| Duplicate AddToListButton | UI bug -- two identical buttons on desktop |
-| EnhancedStoreInfo usage | Becomes empty wrapper after OverpassDataCard removal |
+### Files Modified
 
-### What Stays (Already Yelp-Like)
-- StoreHeader with name, rating, badges, Call/Directions buttons
-- EnhancedGooglePlacesInfo sidebar with verified contact info, hours, categories
-- StoreHoursCard for user-contributed hours
-- GoogleReviewsSection and ReviewSection in main column
-- StoreComments and StorePricesList
-- Responsive padding (`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`) is already correct
+**`src/components/CategoryTabs.tsx`**
+- Add `bakery` category: `{ id: 'bakery', name: 'Bakery', icon: 'bakery-emoji', storeTypes: [], namePatterns: ['Bakery', 'Bake', 'Bread', 'Pastry', 'Cake'] }`
+- Add `delivery` category: `{ id: 'delivery', name: 'Delivery', icon: 'truck-emoji', namePatterns: ['Walmart', 'Amazon Fresh', 'Safeway', 'Kroger', 'Instacart', 'Whole Foods', 'Target'] }` -- these are SNAP Online Purchasing Program retailers
+- Rename `hotmeals` display name from "Hot Meals (RMP)" to "Fast Food"
+- Reorder the categories array
+
+**`src/components/store-search/SearchContainer.tsx`**
+- Import `CategoryTabs` and `OpenNowFilter`
+- Render `CategoryTabs` below the search card (always visible)
+- Render `OpenNowFilter` toggle next to or below category tabs
+- Pass `openNowFilter` state down to `CategorySearchResults` / `SearchResults`
+
+**`src/components/store-search/CategorySearchResults.tsx`**
+- Remove the duplicate `CategoryTabs` rendering (it now lives in SearchContainer)
+- Accept and pass through `openNowFilter` props
+
+**`src/constants/searchConstants.ts`**
+- Add `bakery` and `delivery` entries to `CATEGORY_RADIUS` with appropriate defaults (bakery: 15 miles, delivery: 50 miles since delivery has wider reach)
+
+### No Database Changes Required
+All filtering is done via existing `Store_Type` and `Store_Name` columns using the existing `smart_store_search` and `get_nearby_stores` RPC functions.
 
