@@ -1,4 +1,4 @@
-// Search results with List/Map toggle and Open Now filtering
+// Search results with List/Map toggle, Open Now filtering, and plain Leaflet map
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -9,7 +9,10 @@ import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { filterOpenNowStores } from '@/utils/storeHoursUtils';
 import type { Tables } from '@/integrations/supabase/types';
 
-const StoreMapView = lazy(() => import('@/components/store-search/StoreMapView').then(m => ({ default: m.StoreMapView })));
+// Plain Leaflet map component (no react-leaflet dependency)
+const StoreMapView = lazy(() =>
+  import('@/components/store-search/StoreMapView').then(m => ({ default: m.StoreMapView }))
+);
 
 type Store = Tables<'snap_stores'>;
 
