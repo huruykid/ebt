@@ -49,6 +49,13 @@ const grayIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+const userIcon = new L.DivIcon({
+  html: '<div style="width:16px;height:16px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px #3b82f6,0 2px 6px rgba(0,0,0,0.3);"></div>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  className: '',
+});
+
 function isStoreOpenNow(store: Store): boolean | null {
   return isStoreOpen(store.google_opening_hours as any);
 }
@@ -102,6 +109,13 @@ export const StoreMapView: React.FC<StoreMapViewProps> = ({ stores, locationSear
 
     markerGroup.clearLayers();
 
+    // Add user location marker
+    if (locationSearch) {
+      const userMarker = L.marker([locationSearch.lat, locationSearch.lng], { icon: userIcon, zIndexOffset: 1000 });
+      userMarker.bindPopup('<div style="font-size:14px;font-weight:600;">📍 Your Location</div>');
+      markerGroup.addLayer(userMarker);
+    }
+
     validStores.forEach((store) => {
       const openStatus = isStoreOpenNow(store);
       const icon = openStatus === true ? greenIcon : grayIcon;
@@ -127,14 +141,13 @@ export const StoreMapView: React.FC<StoreMapViewProps> = ({ stores, locationSear
       markerGroup.addLayer(marker);
     });
 
-    // Fit bounds
-    if (validStores.length > 0) {
-      const bounds = L.latLngBounds(
-        validStores.map(s => [s.Latitude!, s.Longitude!] as [number, number])
-      );
+    // Fit bounds including user location
+    const allPoints: [number, number][] = validStores.map(s => [s.Latitude!, s.Longitude!] as [number, number]);
+    if (locationSearch) allPoints.push([locationSearch.lat, locationSearch.lng]);
+
+    if (allPoints.length > 0) {
+      const bounds = L.latLngBounds(allPoints);
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-    } else if (locationSearch) {
-      map.setView([locationSearch.lat, locationSearch.lng], 12);
     }
   }, [validStores, locationSearch]);
 
