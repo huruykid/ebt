@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
-import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 
 export const EnhancedSearch: React.FC = () => {
@@ -24,10 +23,7 @@ export const EnhancedSearch: React.FC = () => {
         keywords="EBT stores, SNAP benefits, food stamps, grocery stores, find EBT retailers"
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="hidden md:block container mx-auto px-4 pt-4">
-          <BreadcrumbNavigation items={breadcrumbs} />
-        </div>
+      <div className="min-h-screen bg-background">
         <SearchContainer initialLocation={initialLocation} />
       </div>
     </>

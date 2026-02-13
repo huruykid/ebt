@@ -8,7 +8,6 @@ import { MapPin, Search, Navigation } from 'lucide-react';
 import { sanitizeString } from '@/utils/security';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { isStoreOpen } from '@/utils/storeHoursUtils';
 
 interface SearchContainerProps {
@@ -170,104 +169,89 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   const isSearchDisabled = !storeNameInput.trim() && !locationInput.trim() && !locationSearch;
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8">
-      <div className="text-center mb-4 md:mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h2>
-        <p className="text-muted-foreground">
-          Search by store name and location to find stores that accept EBT/SNAP benefits
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-4 md:py-6 max-w-2xl">
+      {/* Search Form */}
+      <div className="space-y-3 mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search for stores like 'Walmart' or 'Pizza'..."
+            value={storeNameInput}
+            onChange={(e) => setStoreNameInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full h-11 pl-10 text-sm"
+          />
+        </div>
 
-      <Card className="p-4 md:p-6 mb-4 md:mb-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold mb-2 text-foreground">
-              Store Name (Optional)
-            </label>
+        <div className="flex gap-2 items-center">
+          <div className="relative flex-1">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="e.g., Walmart, McDonald's, Target..."
-              value={storeNameInput}
-              onChange={(e) => setStoreNameInput(e.target.value)}
+              placeholder="City, State or ZIP code"
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full h-12 text-base"
+              className="w-full h-11 pl-10 text-sm"
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-semibold mb-2 text-foreground">
-              Location
-            </label>
-            <div className="flex gap-3 items-center flex-wrap sm:flex-nowrap">
-              <Input
-                type="text"
-                placeholder="City, ST or ZIP (e.g., Fresno, CA or 90210)"
-                value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-1 h-12 text-base min-w-0"
-              />
-              {latitude && longitude && (
-                <Button 
-                  onClick={handleUseCurrentLocation} 
-                  variant="outline" 
-                  disabled={geoLoading} 
-                  className="h-12 px-4 shrink-0"
-                >
-                  <Navigation className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Use My Location</span>
-                  <span className="sm:hidden">My Location</span>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <Button 
-            onClick={handleBothFieldsSearch} 
-            disabled={isSearchDisabled}
-            className="w-full h-12 text-base font-semibold"
-            size="lg"
-          >
-            <Search className="h-5 w-5 mr-2" />
-            Search Stores
-          </Button>
+          {latitude && longitude && (
+            <Button 
+              onClick={handleUseCurrentLocation} 
+              variant="outline" 
+              disabled={geoLoading} 
+              size="sm"
+              className="h-11 px-3 shrink-0 text-xs"
+            >
+              <Navigation className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Use My Location</span>
+              <span className="sm:hidden">GPS</span>
+            </Button>
+          )}
         </div>
-      </Card>
 
-      {/* Category Tabs - always visible */}
-      <div className="mt-3 mb-3">
-        <div className="bg-card rounded-lg p-3 border border-accent/20">
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-sm font-semibold text-foreground">Filter by Category</span>
-            <OpenNowFilter 
-              isEnabled={openNowFilter} 
-              onToggle={setOpenNowFilter} 
-            />
-          </div>
-          <CategoryTabs onCategoryChange={handleCategoryChange} />
+        <Button 
+          onClick={handleBothFieldsSearch} 
+          disabled={isSearchDisabled}
+          className="w-full h-10 text-sm font-medium"
+        >
+          Search Stores
+        </Button>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Categories</span>
+          <OpenNowFilter 
+            isEnabled={openNowFilter} 
+            onToggle={setOpenNowFilter} 
+          />
         </div>
+        <CategoryTabs onCategoryChange={handleCategoryChange} />
       </div>
 
       {locationSearch && (
-        <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
-          <MapPin className="h-4 w-4" />
+        <div className="text-xs text-muted-foreground flex items-center gap-1 mb-3">
+          <MapPin className="h-3 w-3" />
           <span>
             {showingInitialLocation && initialCity 
               ? `Showing stores near ${initialCity}`
-              : 'Results near your current location'
+              : 'Near your location'
             }
           </span>
-          {userZipCode && <span className="ml-1">({userZipCode})</span>}
+          {userZipCode && <span>({userZipCode})</span>}
         </div>
       )}
 
       {searchQuery && !locationSearch && (
-        <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
-          <span>Search results for: "{searchQuery}"</span>
+        <div className="text-xs text-muted-foreground mb-3">
+          Results for "{searchQuery}"
         </div>
       )}
 
-      <div className="mt-4">
+      <div>
         <CategorySearchResults
           stores={openNowFilter ? stores.filter(store => {
             const openingHours = (store as any).google_opening_hours;
