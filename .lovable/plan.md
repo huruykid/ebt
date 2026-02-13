@@ -1,57 +1,51 @@
 
 
-# Fix Search Page Padding and Styling Issues
+# Fix Store Rendering Issues
+
+## Problems Identified
+
+1. **Store detail page crashes** due to a "Maximum update depth exceeded" error originating from the `ShareStore` dropdown component inside `StoreHeader`. This infinite render loop prevents the page from rendering.
+
+2. **Search result cards appear broken** -- showing empty cards with only "EBT Accepted" badges and no store names or addresses. This appears to be a stale build issue, but worth verifying the components are correct.
 
 ## Root Cause
-Several CSS classes used throughout the search page (`card-gradient`, `rounded-spotify-lg`, `rounded-spotify-xl`) are **not defined anywhere** in the project's CSS or Tailwind config. This means the category filters wrapper, results summary card, and error/empty states have no background, no border-radius, and no visual distinction -- making the layout look broken and "disjointed."
 
-## Changes
+The `ShareStore` component uses a Radix `DropdownMenu` that triggers an infinite state update loop. The console logs confirm this:
+```
+Maximum update depth exceeded... at ShareStore → StorePhotos → StoreDetailPage
+```
 
-### 1. Replace phantom CSS classes in `SearchResults.tsx`
-- Replace `card-gradient rounded-spotify-lg` with real Tailwind classes: `bg-card rounded-lg`
-- Replace `card-gradient rounded-spotify-xl` with `bg-card rounded-xl`
-- Reduce vertical gap between sections: `space-y-6` to `space-y-4`
-- Reduce grid gap between store cards: `gap-6` to `gap-4`
-- Remove `BudgetWarningBanner` from the results (it adds clutter and is not actionable by users)
+## Plan
 
-### 2. Replace phantom CSS classes in `SearchContainer.tsx`
-- Replace `card-gradient rounded-xl` wrapper around CategoryTabs with `bg-card rounded-lg`
-- Tighten spacing: reduce `mt-4 mb-2` to `mt-3 mb-3` around category section
-- Reduce `mt-6` before results to `mt-4`
+### Step 1: Fix the ShareStore render loop
 
-### 3. Fix CategoryTabs background for dark/light mode
-- Replace hardcoded `bg-gray-50` on the nav element with `bg-muted` so it adapts to the theme
-- This prevents the white-on-white appearance on the light background
+Update `src/components/ShareStore.tsx` to prevent the infinite re-render:
+- Add `modal={false}` (already present) and wrap the dropdown in a controlled `open`/`onOpenChange` state to stop Radix from triggering repeated state updates.
+- Move the `storeUrl` calculation into a `useMemo` to prevent re-computation on every render.
+- Ensure `navigator.share` check is done once (not inline in JSX) to avoid conditional rendering instability.
 
-### 4. Fix SmartSearchResults phantom classes
-- Same `card-gradient rounded-spotify-*` replacements
-- Fix the broken grid: `md:grid-cols-2 lg:grid-cols-1` to `grid-cols-1`
+### Step 2: Verify store detail page renders
 
-### What This Fixes
-- Category tabs section will have a visible card background and proper border radius
-- Results summary will be properly styled with card background
-- Consistent spacing between elements (no big gaps)
-- Store cards display in a clean single-column layout
-- Theme-aware backgrounds throughout
+After the ShareStore fix, confirm the `StoreDetail.tsx` page renders correctly with:
+- Store name, rating, address in `StoreHeader`
+- Photo hero in `StorePhotos`
+- Hours, prices, reviews, and comments sections
 
-### Technical Details
+### Step 3: Verify search result cards
 
-**`src/components/store-search/SearchResults.tsx`**
-- Line 106: `space-y-6` to `space-y-4`
-- Line 111: `card-gradient rounded-spotify-lg` to `bg-card rounded-lg`
-- Line 169: `gap-6` to `gap-4`
-- Lines 68, 78: Replace `card-gradient rounded-spotify-xl` with `bg-card rounded-xl`
-- Lines 107-108: Remove BudgetWarningBanner import and usage
+Confirm the `UnifiedStoreCard` component is rendering store names and addresses correctly on the search page. The current code looks correct (`store.Store_Name`, `formatStoreAddress(store)`) -- the empty cards in the screenshot are likely from the previous stale build.
 
-**`src/components/store-search/SearchContainer.tsx`**
-- Line 239: `card-gradient rounded-xl` to `bg-card rounded-lg`
-- Line 238: `mt-4 mb-2` to `mt-3 mb-3`
-- Line 270: `mt-6` to `mt-4`
+## Technical Details
 
-**`src/components/CategoryTabs.tsx`**
-- Line 177: `bg-gray-50` to `bg-muted`
+**File: `src/components/ShareStore.tsx`**
+- Add controlled `open` state with `useState(false)`
+- Pass `open` and `onOpenChange` to `DropdownMenu` 
+- Memoize `storeUrl` and `shareData` with `useMemo`
+- Cache `navigator.share` availability in a constant outside the render
 
-**`src/components/store-search/SmartSearchResults.tsx`**
-- Lines 43, 53, 70: Replace `card-gradient rounded-spotify-*` with real Tailwind classes
-- Line 86: Fix grid to `grid-cols-1`
+**File: `src/components/store-detail/StoreHeader.tsx`**
+- No changes needed -- the component is clean and uses `ShareStore` correctly
+
+**File: `src/components/store-detail/StorePhotos.tsx`**
+- No changes needed -- ShareStore was removed from this component in the last refactor
 
