@@ -1,4 +1,4 @@
-// Plain Leaflet map (no react-leaflet wrapper) - React 18 compatible
+// Plain Leaflet map (no react-leaflet wrapper) - React 18 compatible — build v2
 import React, { useEffect, useRef, useMemo } from 'react';
 import L from 'leaflet';
 import { isRmpEnrolled } from '@/utils/storeUtils';
