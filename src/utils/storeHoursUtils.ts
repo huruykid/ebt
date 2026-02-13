@@ -1,28 +1,79 @@
 /**
  * Utility functions for checking store opening hours
+ * Computes open/closed status LIVE from periods data, not from stale open_now snapshots.
  */
+
+interface Period {
+  open: { day: number; time: string };
+  close?: { day: number; time: string };
+}
 
 interface OpeningHours {
   open_now?: boolean;
   weekday_text?: string[];
-  periods?: Array<{
-    open: { day: number; time: string };
-    close?: { day: number; time: string };
-  }>;
+  periods?: Period[];
 }
 
 /**
- * Check if a store is currently open based on google_opening_hours data
+ * Convert HHMM string to minutes since midnight
+ */
+const timeToMinutes = (time: string): number => {
+  const h = parseInt(time.substring(0, 2), 10);
+  const m = parseInt(time.substring(2, 4), 10);
+  return h * 60 + m;
+};
+
+/**
+ * Check if a store is currently open based on google_opening_hours periods data.
+ * Computes live status from the periods array rather than relying on the stale open_now field.
  */
 export const isStoreOpen = (openingHours: OpeningHours | null | undefined): boolean | null => {
   if (!openingHours) return null;
-  
-  // Use the open_now field if available (most reliable)
-  if (typeof openingHours.open_now === 'boolean') {
-    return openingHours.open_now;
+
+  const periods = openingHours.periods;
+  if (!periods || periods.length === 0) return null;
+
+  // Special case: open 24/7 — single period with open day=0 time=0000 and no close
+  if (periods.length === 1 && periods[0].open.time === '0000' && !periods[0].close) {
+    return true;
   }
-  
-  return null;
+
+  const now = new Date();
+  const currentDay = now.getDay(); // 0=Sunday matches Google's format
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  for (const period of periods) {
+    const openDay = period.open.day;
+    const openMinutes = timeToMinutes(period.open.time);
+
+    if (!period.close) {
+      // No close time — treat as open all day on that day
+      if (currentDay === openDay) return true;
+      continue;
+    }
+
+    const closeDay = period.close.day;
+    const closeMinutes = timeToMinutes(period.close.time);
+
+    if (openDay === closeDay) {
+      // Same-day period (e.g., Mon 10:00-19:00)
+      if (currentDay === openDay && currentMinutes >= openMinutes && currentMinutes < closeMinutes) {
+        return true;
+      }
+    } else {
+      // Overnight period (e.g., Fri 06:00 - Sat 00:00)
+      // Check if we're in the opening day after open time
+      if (currentDay === openDay && currentMinutes >= openMinutes) {
+        return true;
+      }
+      // Check if we're in the closing day before close time
+      if (currentDay === closeDay && currentMinutes < closeMinutes) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 };
 
 /**
