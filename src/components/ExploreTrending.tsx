@@ -4,6 +4,8 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useZipCodeSearch } from '@/hooks/useZipCodeSearch';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { UnifiedStoreCard } from './UnifiedStoreCard';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
@@ -20,6 +22,45 @@ export const ExploreTrending: React.FC = () => {
   const { user } = useAuth();
   
   const { latitude, longitude, loading, requestBrowserLocation } = useGeolocation();
+
+  // Fetch nearby stores when location is available
+  const { data: nearbyStores = [], isLoading: nearbyLoading } = useQuery({
+    queryKey: ['home-nearby-stores', latitude, longitude, activeCategory, selectedStoreTypes],
+    queryFn: async () => {
+      if (!latitude || !longitude) return [];
+      
+      const storeTypesParam = selectedStoreTypes.length > 0 ? selectedStoreTypes : undefined;
+      
+      const { data, error } = await supabase.rpc('get_nearby_stores', {
+        user_lat: latitude,
+        user_lng: longitude,
+        radius_miles: 10,
+        result_limit: 20,
+        store_types: storeTypesParam,
+      });
+      
+      if (error) {
+        console.error('Error fetching nearby stores:', error);
+        return [];
+      }
+      
+      // Map RPC lowercase fields to PascalCase for UI components
+      return (data || []).map((s: any) => ({
+        id: s.id,
+        Store_Name: s.store_name,
+        Store_Street_Address: s.store_street_address,
+        City: s.city,
+        State: s.state,
+        Zip_Code: s.zip_code,
+        Store_Type: s.store_type,
+        Latitude: s.latitude,
+        Longitude: s.longitude,
+        distance: s.distance_miles,
+      }));
+    },
+    enabled: !!latitude && !!longitude,
+    staleTime: 5 * 60 * 1000,
+  });
 
   const {
     activeZipCode,
@@ -107,10 +148,19 @@ export const ExploreTrending: React.FC = () => {
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : latitude && longitude ? (
-            <Button variant="ghost" size="sm" onClick={() => navigate('/search')}>
-              <MapPin className="h-4 w-4 mr-1.5" />
-              View all nearby stores
-            </Button>
+            <div className="animate-fade-in">
+              {nearbyLoading ? <LoadingSpinner /> : (
+                <>
+                  <StoreListSimple stores={nearbyStores} />
+                  {nearbyStores.length >= 20 && (
+                    <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => navigate('/search')}>
+                      <MapPin className="h-4 w-4 mr-1.5" />
+                      View all nearby stores
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           ) : (
             <NoLocationPrompt />
           )}
@@ -163,11 +213,20 @@ export const ExploreTrending: React.FC = () => {
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : latitude && longitude ? (
-            <div className="text-center py-8">
-              <Button onClick={() => navigate('/search')} size="sm">
-                <MapPin className="h-4 w-4 mr-2" />
-                Search nearby stores
-              </Button>
+            <div className="space-y-4 animate-fade-in">
+              {nearbyLoading ? <LoadingSpinner /> : (
+                <>
+                  <StoreListSimple stores={nearbyStores} />
+                  {nearbyStores.length >= 20 && (
+                    <div className="text-center pt-2">
+                      <Button onClick={() => navigate('/search')} size="sm">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        View all nearby stores
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           ) : (
             <NoLocationPrompt />
