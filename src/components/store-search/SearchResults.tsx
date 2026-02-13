@@ -166,7 +166,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+      <div className="grid gap-6 grid-cols-1">
         {filteredStores.map((store) => (
           <UnifiedStoreCard 
             key={store.id}
