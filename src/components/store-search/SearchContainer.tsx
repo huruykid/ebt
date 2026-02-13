@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CategorySearchResults } from '@/components/store-search/CategorySearchResults';
+import { CategoryTabs } from '@/components/CategoryTabs';
+import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { MapPin, Search, Navigation } from 'lucide-react';
@@ -7,6 +9,7 @@ import { sanitizeString } from '@/utils/security';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { isStoreOpen } from '@/utils/storeHoursUtils';
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -41,6 +44,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   const [hasAutoSearched, setHasAutoSearched] = useState(false);
   const [storeNameInput, setStoreNameInput] = useState('');
   const [locationInput, setLocationInput] = useState('');
+  const [openNowFilter, setOpenNowFilter] = useState(false);
 
   // If initialLocation is provided, set it immediately for auto-search
   useEffect(() => {
@@ -230,6 +234,20 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         </div>
       </Card>
 
+      {/* Category Tabs - always visible */}
+      <div className="mt-4 mb-2">
+        <div className="card-gradient rounded-xl p-3 border border-accent/20">
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-sm font-semibold text-foreground">Filter by Category</span>
+            <OpenNowFilter 
+              isEnabled={openNowFilter} 
+              onToggle={setOpenNowFilter} 
+            />
+          </div>
+          <CategoryTabs onCategoryChange={handleCategoryChange} />
+        </div>
+      </div>
+
       {locationSearch && (
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-1">
           <MapPin className="h-4 w-4" />
@@ -251,7 +269,10 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
 
       <div className="mt-6">
         <CategorySearchResults
-          stores={stores}
+          stores={openNowFilter ? stores.filter(store => {
+            const openingHours = (store as any).google_opening_hours;
+            return isStoreOpen(openingHours) === true;
+          }) : stores}
           isLoading={isLoading}
           error={error}
           locationSearch={locationSearch}

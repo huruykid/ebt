@@ -48,10 +48,13 @@ export const SEARCH_DEFAULTS = {
 export const CATEGORY_RADIUS: Record<string, number> = {
   trending: 5,
   grocery: 10,
+  hotmeals: 5,
   fastfood: 5,
   restaurant: 7,
   convenience: 3,
   farmersmarket: 25,
+  bakery: 15,
+  delivery: 50,
   default: 10
 };
 

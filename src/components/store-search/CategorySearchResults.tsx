@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { CategoryTabs } from '@/components/CategoryTabs';
 import { SearchResults } from './SearchResults';
 import type { SortOption } from '@/components/SortDropdown';
 import type { StoreWithDistance } from '@/types/storeTypes';
@@ -30,32 +29,19 @@ export const CategorySearchResults: React.FC<CategorySearchResultsProps> = ({
   onSortChange,
   radius,
   onRadiusChange,
-  onCategoryChange
 }) => {
   return (
-    <>
-      {/* Enhanced Category Tabs */}
-      <div className="mb-8">
-        <div className="card-gradient rounded-spotify-xl p-4 border-2 border-accent/20">
-          <CategoryTabs 
-            onCategoryChange={onCategoryChange}
-          />
-        </div>
-      </div>
-
-      {/* Category Search Results */}
-      <SearchResults
-        stores={stores}
-        isLoading={isLoading}
-        error={error}
-        locationSearch={locationSearch}
-        activeCategory={activeCategory}
-        selectedStoreTypes={selectedStoreTypes}
-        sortBy={sortBy}
-        onSortChange={onSortChange}
-        radius={radius}
-        onRadiusChange={onRadiusChange}
-      />
-    </>
+    <SearchResults
+      stores={stores}
+      isLoading={isLoading}
+      error={error}
+      locationSearch={locationSearch}
+      activeCategory={activeCategory}
+      selectedStoreTypes={selectedStoreTypes}
+      sortBy={sortBy}
+      onSortChange={onSortChange}
+      radius={radius}
+      onRadiusChange={onRadiusChange}
+    />
   );
 };
