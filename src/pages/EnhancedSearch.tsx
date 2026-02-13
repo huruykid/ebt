@@ -10,10 +10,8 @@ export const EnhancedSearch: React.FC = () => {
   const lng = searchParams.get('lng');
   const initialLocation = lat && lng ? { lat: parseFloat(lat), lng: parseFloat(lng) } : undefined;
 
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Search Stores', href: '/search' }
-  ];
+
+
 
   return (
     <>
