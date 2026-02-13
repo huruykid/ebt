@@ -65,7 +65,7 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({ store }) => 
           </h3>
 
           {/* Rating + Status row */}
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             {rating ? (
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
