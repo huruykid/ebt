@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { Link } from 'react-router-dom';
 import { MapPin, Navigation, ExternalLink } from 'lucide-react';
 import { isRmpEnrolled } from '@/utils/storeUtils';
+import { isStoreOpen } from '@/utils/storeHoursUtils';
 import type { Tables } from '@/integrations/supabase/types';
 
 // Fix Leaflet default marker icons in bundled apps using CDN URLs
@@ -48,9 +49,7 @@ const grayIcon = new L.Icon({
 });
 
 function isStoreOpenNow(store: Store): boolean | null {
-  const hours = store.google_opening_hours as any;
-  if (!hours?.periods) return null;
-  return hours.open_now === true;
+  return isStoreOpen(store.google_opening_hours as any);
 }
 
 function FitBounds({ stores, locationSearch }: { stores: StoreWithDistance[]; locationSearch: { lat: number; lng: number } | null }) {
