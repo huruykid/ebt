@@ -235,8 +235,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
       </Card>
 
       {/* Category Tabs - always visible */}
-      <div className="mt-4 mb-2">
-        <div className="card-gradient rounded-xl p-3 border border-accent/20">
+      <div className="mt-3 mb-3">
+        <div className="bg-card rounded-lg p-3 border border-accent/20">
           <div className="flex items-center justify-between mb-2 px-1">
             <span className="text-sm font-semibold text-foreground">Filter by Category</span>
             <OpenNowFilter 
@@ -267,7 +267,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         </div>
       )}
 
-      <div className="mt-6">
+      <div className="mt-4">
         <CategorySearchResults
           stores={openNowFilter ? stores.filter(store => {
             const openingHours = (store as any).google_opening_hours;

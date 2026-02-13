@@ -3,7 +3,7 @@ import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { RadiusDropdown } from '@/components/RadiusDropdown';
-import { BudgetWarningBanner } from '@/components/BudgetWarningBanner';
+
 import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { filterOpenNowStores } from '@/utils/storeHoursUtils';
 import type { Tables } from '@/integrations/supabase/types';
@@ -65,7 +65,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   if (error) {
     return (
       <div className="text-center py-8">
-        <div className="card-gradient rounded-spotify-xl p-6 border-2 border-destructive/20">
+        <div className="bg-card rounded-xl p-6 border-2 border-destructive/20">
           <p className="text-destructive font-semibold">⚠️ Error loading stores. Please try again.</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   if (stores.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
+        <div className="bg-card rounded-xl p-8 border-2 border-muted/20">
           <div className="text-6xl mb-4">🔍</div>
           <h3 className="text-xl font-semibold mb-2">No stores found</h3>
           <p className="text-muted-foreground text-lg mb-4">
@@ -103,12 +103,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   const hasOpenNowData = openNowCount > 0 || stores.some(s => s.google_opening_hours);
 
   return (
-    <div className="space-y-6">
-      {/* Budget Warning */}
-      <BudgetWarningBanner />
-      
+    <div className="space-y-4">
       {/* Search Summary and Controls */}
-      <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
+      <div className="bg-card rounded-lg p-4 border-2 border-success/20">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <p className="text-sm text-muted-foreground">
@@ -150,7 +147,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       {/* No stores open message */}
       {openNowFilter && filteredStores.length === 0 && stores.length > 0 && (
         <div className="text-center py-6">
-          <div className="card-gradient rounded-spotify-lg p-6 border-2 border-warning/20">
+          <div className="bg-card rounded-lg p-6 border-2 border-warning/20">
             <div className="text-4xl mb-3">🕐</div>
             <h3 className="text-lg font-semibold mb-2">No stores currently open</h3>
             <p className="text-sm text-muted-foreground mb-3">
@@ -166,7 +163,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       )}
 
-      <div className="grid gap-6 grid-cols-1">
+      <div className="grid gap-4 grid-cols-1">
         {filteredStores.map((store) => (
           <UnifiedStoreCard 
             key={store.id}
