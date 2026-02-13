@@ -1,33 +1,55 @@
 
 
-# Add EBT and RMP Badges to Store Cards
+# Add Map View to Store Search Results
 
 ## Overview
 
-Add two small inline badges to the `UnifiedStoreCard`: a green "EBT" badge (always shown, since every store in the database accepts EBT) and an amber "RMP" badge (shown only when the store's `Incentive_Program` field contains "rmp" or "restaurant meals program").
+Add a toggle between List View and Map View on the search results page. The map shows all SNAP-accepting stores as markers on an interactive map powered by **Leaflet + OpenStreetMap** -- completely free, no API key required. Unlike Google Maps or Yelp, every pin on this map is a verified EBT-accepting location.
 
-## Changes
+## User Experience
 
-### 1. `src/components/UnifiedStoreCard.tsx`
+- A "List | Map" toggle appears in the search results toolbar (next to sort/radius controls)
+- Map View shows store markers clustered on an OpenStreetMap base layer
+- Clicking a marker shows a compact popup with store name, type, EBT/RMP badges, distance, and a "View Details" link
+- The map auto-centers on the user's search location or the bounding box of results
+- Switching back to List preserves all filters and sort state
 
-Add badges to the rating/status row (line ~73, after the existing store type and open/closed indicators):
+## What Changes
 
-- **EBT badge**: A small green pill (`bg-emerald-100 text-emerald-700 border border-emerald-200`) displaying "EBT". Always visible.
-- **RMP badge**: A small amber pill (`bg-amber-100 text-amber-700 border border-amber-200`) displaying "RMP". Only rendered when `store.Incentive_Program` matches the RMP pattern.
+### 1. Install Dependencies
 
-Use the existing `isRmpEnrolled` utility from `@/lib/core/store-utils` (already exported via `@/utils/storeUtils`) for the RMP check.
+- `leaflet` -- lightweight map library (free, OSM tiles)
+- `react-leaflet` -- React bindings for Leaflet
+- `@types/leaflet` -- TypeScript types
 
-### Visual placement
+### 2. New File: `src/components/store-search/StoreMapView.tsx`
 
-```text
-[Logo]  Store Name
-        *4.2 (120) . Supermarket . Open . [EBT] [RMP]*
-        123 Main St, City, ST              2.3 mi
-```
+A new component that renders:
+- A full-width Leaflet map with OpenStreetMap tiles
+- Custom markers for each store (green pin for open, gray for closed/unknown)
+- Popup on marker click with: store name, store type, EBT badge, RMP badge (if applicable), distance, and a link to the store detail page
+- Auto-fits bounds to show all visible stores
+- Falls back to user's search location center if no stores
 
-The badges sit inline in the metadata row as small rounded pills, consistent with the existing `StoreTypeBadge` styling pattern but smaller (text-[10px], px-1.5 py-0.5).
+### 3. Modified: `src/components/store-search/SearchResults.tsx`
 
-### Files modified: 1
+- Add a List/Map toggle button group in the toolbar row (alongside sort and radius dropdowns)
+- Conditionally render either the store card grid or the new `StoreMapView`
+- Pass the same filtered store list and location data to both views
 
-- `src/components/UnifiedStoreCard.tsx` -- import `isRmpEnrolled` and add two badge spans in the rating row
+### 4. New File: `src/index.css` (addition)
+
+- Import Leaflet's CSS: `@import 'leaflet/dist/leaflet.css';`
+- Add a small override to fix Leaflet's default icon path issue in bundled apps
+
+## Technical Details
+
+- **New dependencies**: `leaflet`, `react-leaflet`, `@types/leaflet` (3 packages)
+- **Files created**: 1 (`StoreMapView.tsx`)
+- **Files modified**: 2 (`SearchResults.tsx`, `index.css`)
+- **No API key needed** -- uses free OpenStreetMap tile server
+- **Performance**: Leaflet handles hundreds of markers efficiently; for 200+ results the map will remain smooth
+- **Mobile-friendly**: Leaflet supports touch/pinch-zoom natively
+- **Dark mode**: OSM tiles are light-only, but the UI chrome (toggle, popups) will respect the app's theme
+- **Marker icon fix**: Leaflet's default marker icons break in Vite/Webpack builds; we'll configure the icon paths explicitly using Leaflet's `Icon.Default` settings
 
