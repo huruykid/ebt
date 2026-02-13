@@ -16,6 +16,8 @@ interface CategorySearchResultsProps {
   radius: number;
   onRadiusChange: (radius: number) => void;
   onCategoryChange: (categoryId: string, storeTypes?: string[], namePatterns?: string[]) => void;
+  openNowFilter?: boolean;
+  onOpenNowChange?: (enabled: boolean) => void;
 }
 
 export const CategorySearchResults: React.FC<CategorySearchResultsProps> = ({
@@ -29,6 +31,8 @@ export const CategorySearchResults: React.FC<CategorySearchResultsProps> = ({
   onSortChange,
   radius,
   onRadiusChange,
+  openNowFilter,
+  onOpenNowChange,
 }) => {
   return (
     <SearchResults
@@ -42,6 +46,8 @@ export const CategorySearchResults: React.FC<CategorySearchResultsProps> = ({
       onSortChange={onSortChange}
       radius={radius}
       onRadiusChange={onRadiusChange}
+      openNowFilter={openNowFilter}
+      onOpenNowChange={onOpenNowChange}
     />
   );
 };

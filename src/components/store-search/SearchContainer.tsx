@@ -8,7 +8,7 @@ import { MapPin, Search, Navigation } from 'lucide-react';
 import { sanitizeString } from '@/utils/security';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { isStoreOpen } from '@/utils/storeHoursUtils';
+
 
 interface SearchContainerProps {
   initialCity?: string;
@@ -252,10 +252,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
 
       <div>
         <CategorySearchResults
-          stores={openNowFilter ? stores.filter(store => {
-            const openingHours = (store as any).google_opening_hours;
-            return isStoreOpen(openingHours) === true;
-          }) : stores}
+          stores={stores}
           isLoading={isLoading}
           error={error}
           locationSearch={locationSearch}
@@ -266,6 +263,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
           radius={radius}
           onRadiusChange={handleRadiusChange}
           onCategoryChange={handleCategoryChange}
+          openNowFilter={openNowFilter}
+          onOpenNowChange={setOpenNowFilter}
         />
       </div>
     </div>
