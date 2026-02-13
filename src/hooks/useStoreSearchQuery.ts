@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { buildLocationAwareQuery } from '@/utils/searchQueryBuilder';
 import { calculateDistance } from '@/utils/distanceCalculation';
 import { 
@@ -63,9 +64,24 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           }))
         });
 
+        // Enrich RPC results with google_opening_hours and Incentive_Program
+        const storeIds = data.map((s: any) => s.id);
+        const { data: enrichData } = await supabase
+          .from('snap_stores')
+          .select('id, google_opening_hours, Incentive_Program')
+          .in('id', storeIds);
+
+        const enrichMap = new Map<string, { google_opening_hours: any; Incentive_Program: string | null }>();
+        if (enrichData) {
+          for (const e of enrichData) {
+            enrichMap.set(e.id, { google_opening_hours: e.google_opening_hours, Incentive_Program: e.Incentive_Program });
+          }
+        }
+
         // Convert the RPC result format to our expected format
         results = (data.map(store => {
           const s = store as any;
+          const extra = enrichMap.get(s.id);
           return {
             ...s,
             id: s.id,
@@ -86,7 +102,8 @@ export const useStoreSearchQuery = (params: SearchParams) => {
             Grantee_Name: s.Grantee_Name || s.grantee_name || null,
             X: s.X || s.x || null,
             Y: s.Y || s.y || null,
-            Incentive_Program: s.Incentive_Program || s.incentive_program || null,
+            Incentive_Program: extra?.Incentive_Program || s.Incentive_Program || s.incentive_program || null,
+            google_opening_hours: extra?.google_opening_hours || s.google_opening_hours || null,
           };
         }) as StoreWithDistance[]);
 
