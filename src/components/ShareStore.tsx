@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Share, Copy, Check, Facebook, Twitter, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,21 +17,27 @@ interface ShareStoreProps {
   className?: string;
 }
 
+const supportsNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
+
 export const ShareStore: React.FC<ShareStoreProps> = ({ 
   store, 
   variant = 'button', 
   className = '' 
 }) => {
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const storeUrl = `${window.location.origin}/store/${store.id}`;
-  
-  const shareData = {
+  const storeUrl = useMemo(
+    () => `${window.location.origin}/store/${store.id}`,
+    [store.id]
+  );
+
+  const shareData = useMemo(() => ({
     title: `${store.Store_Name} - SNAP/EBT Store`,
     text: `Check out this SNAP/EBT store: ${store.Store_Name}${store.City ? ` in ${store.City}` : ''}`,
     url: storeUrl
-  };
+  }), [store.Store_Name, store.City, storeUrl]);
 
   const handleNativeShare = async () => {
     if (navigator.share) {
@@ -46,7 +51,6 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
         console.log('Error sharing:', error);
       }
     } else {
-      // Fallback to copy URL
       handleCopyUrl();
     }
   };
@@ -104,12 +108,12 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
   );
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         {triggerButton}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        {navigator.share && (
+        {supportsNativeShare && (
           <>
             <DropdownMenuItem onClick={handleNativeShare}>
               <Share className="h-4 w-4 mr-2" />
