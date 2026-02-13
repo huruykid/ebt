@@ -1,51 +1,52 @@
 
 
-# Fix Store Rendering Issues
-
-## Problems Identified
-
-1. **Store detail page crashes** due to a "Maximum update depth exceeded" error originating from the `ShareStore` dropdown component inside `StoreHeader`. This infinite render loop prevents the page from rendering.
-
-2. **Search result cards appear broken** -- showing empty cards with only "EBT Accepted" badges and no store names or addresses. This appears to be a stale build issue, but worth verifying the components are correct.
+# Fix: Stores Not Rendering (Field Name Mismatch)
 
 ## Root Cause
 
-The `ShareStore` component uses a Radix `DropdownMenu` that triggers an infinite state update loop. The console logs confirm this:
+The `get_nearby_stores` database RPC returns **lowercase** field names:
 ```
-Maximum update depth exceeded... at ShareStore → StorePhotos → StoreDetailPage
+store_name, store_street_address, city, state, zip_code, store_type, latitude, longitude, distance_miles
 ```
 
-## Plan
+But `UnifiedStoreCard` and `formatStoreAddress` expect **Pascal case** field names:
+```
+Store_Name, Store_Street_Address, City, State, Zip_Code, Store_Type, Latitude, Longitude
+```
 
-### Step 1: Fix the ShareStore render loop
+In `useStoreSearchQuery.ts`, the location-based search path (lines 67-73) just spreads the raw RPC result without mapping fields to the expected format. The non-location path (lines 94-123) correctly maps lowercase to Pascal case, but that code path is skipped when location data is present.
 
-Update `src/components/ShareStore.tsx` to prevent the infinite re-render:
-- Add `modal={false}` (already present) and wrap the dropdown in a controlled `open`/`onOpenChange` state to stop Radix from triggering repeated state updates.
-- Move the `storeUrl` calculation into a `useMemo` to prevent re-computation on every render.
-- Ensure `navigator.share` check is done once (not inline in JSX) to avoid conditional rendering instability.
+This means every location-based search produces store objects where `Store_Name`, `City`, `Store_Street_Address`, etc. are all `undefined` -- resulting in blank cards.
 
-### Step 2: Verify store detail page renders
+## Fix
 
-After the ShareStore fix, confirm the `StoreDetail.tsx` page renders correctly with:
-- Store name, rating, address in `StoreHeader`
-- Photo hero in `StorePhotos`
-- Hours, prices, reviews, and comments sections
+**File: `src/hooks/useStoreSearchQuery.ts` (lines 67-73)**
 
-### Step 3: Verify search result cards
+Add the same field mapping that already exists in the non-location path. Convert the RPC's lowercase field names to the Pascal case format that all UI components expect:
 
-Confirm the `UnifiedStoreCard` component is rendering store names and addresses correctly on the search page. The current code looks correct (`store.Store_Name`, `formatStoreAddress(store)`) -- the empty cards in the screenshot are likely from the previous stale build.
+```
+store_name       -> Store_Name
+store_street_address -> Store_Street_Address
+city             -> City
+state            -> State
+zip_code         -> Zip_Code
+store_type       -> Store_Type
+latitude         -> Latitude
+longitude        -> Longitude
+distance_miles   -> distance
+```
 
-## Technical Details
+The mapping will also preserve any additional fields from the spread (like `google_rating`, `google_opening_hours`, etc.) since those already use lowercase and are accessed as lowercase in the card component.
 
-**File: `src/components/ShareStore.tsx`**
-- Add controlled `open` state with `useState(false)`
-- Pass `open` and `onOpenChange` to `DropdownMenu` 
-- Memoize `storeUrl` and `shareData` with `useMemo`
-- Cache `navigator.share` availability in a constant outside the render
+## Why This Wasn't Caught Earlier
 
-**File: `src/components/store-detail/StoreHeader.tsx`**
-- No changes needed -- the component is clean and uses `ShareStore` correctly
+- The e2e test in the preview used the same code, but the preview build may have been stale or caching masked the issue.
+- The non-location search path had correct mapping, so searches without geolocation worked fine.
+- The published site always does location-based search (via IP geolocation), which hits the broken path.
 
-**File: `src/components/store-detail/StorePhotos.tsx`**
-- No changes needed -- ShareStore was removed from this component in the last refactor
+## Scope
+
+- **1 file changed**: `src/hooks/useStoreSearchQuery.ts`
+- **No database changes needed**
+- **No new dependencies**
 
