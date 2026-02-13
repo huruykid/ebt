@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
@@ -6,8 +6,9 @@ import { RadiusDropdown } from '@/components/RadiusDropdown';
 import { List, Map } from 'lucide-react';
 import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { filterOpenNowStores } from '@/utils/storeHoursUtils';
-import { StoreMapView } from '@/components/store-search/StoreMapView';
 import type { Tables } from '@/integrations/supabase/types';
+
+const StoreMapView = lazy(() => import('@/components/store-search/StoreMapView').then(m => ({ default: m.StoreMapView })));
 
 type Store = Tables<'snap_stores'>;
 
@@ -192,7 +193,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       )}
 
       {viewMode === 'map' ? (
-        <StoreMapView stores={filteredStores} locationSearch={locationSearch} />
+        <Suspense fallback={<div className="flex justify-center py-8"><LoadingSpinner /></div>}>
+          <StoreMapView stores={filteredStores} locationSearch={locationSearch} />
+        </Suspense>
       ) : (
         <div className="grid gap-4 grid-cols-1">
           {filteredStores.map((store) => (
