@@ -169,31 +169,31 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   const isSearchDisabled = !storeNameInput.trim() && !locationInput.trim() && !locationSearch;
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-2xl">
+    <div className="container mx-auto px-4 py-4 md:py-6 max-w-2xl animate-fade-in">
       {/* Search Form */}
       <div className="space-y-3 mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             type="text"
             placeholder="Search for stores like 'Walmart' or 'Pizza'..."
             value={storeNameInput}
             onChange={(e) => setStoreNameInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-11 pl-10 text-sm"
+            className="w-full h-11 pl-10 text-sm transition-shadow focus:shadow-md"
           />
         </div>
 
         <div className="flex gap-2 items-center">
-          <div className="relative flex-1">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="relative flex-1 group">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input
               type="text"
               placeholder="City, State or ZIP code"
               value={locationInput}
               onChange={(e) => setLocationInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full h-11 pl-10 text-sm"
+              className="w-full h-11 pl-10 text-sm transition-shadow focus:shadow-md"
             />
           </div>
           {latitude && longitude && (
@@ -214,14 +214,14 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
         <Button 
           onClick={handleBothFieldsSearch} 
           disabled={isSearchDisabled}
-          className="w-full h-10 text-sm font-medium"
+          className="w-full h-10 text-sm font-medium transition-all active:scale-[0.98]"
         >
           Search Stores
         </Button>
       </div>
 
       {/* Category Tabs */}
-      <div className="mb-4">
+      <div className="mb-4" style={{ animationDelay: '0.1s', animationFillMode: 'both' }} >
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Categories</span>
           <OpenNowFilter 
@@ -233,7 +233,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
       </div>
 
       {locationSearch && (
-        <div className="text-xs text-muted-foreground flex items-center gap-1 mb-3">
+        <div className="text-xs text-muted-foreground flex items-center gap-1 mb-3 animate-fade-in">
           <MapPin className="h-3 w-3" />
           <span>
             {showingInitialLocation && initialCity 
