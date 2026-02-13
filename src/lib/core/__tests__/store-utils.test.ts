@@ -112,6 +112,11 @@ describe('store utils', () => {
       expect(isRmpEnrolled('SNAP')).toBe(false);
       expect(isRmpEnrolled('WIC')).toBe(false);
     });
+
+    it('returns true for Waiver (Restaurant Meals Program)', () => {
+      expect(isRmpEnrolled('Waiver')).toBe(true);
+      expect(isRmpEnrolled('waiver')).toBe(true);
+    });
   });
 
   describe('getOpeningStatus', () => {

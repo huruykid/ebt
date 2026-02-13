@@ -41,7 +41,7 @@ export const formatFullAddress = (store: {
 export const isRmpEnrolled = (incentiveProgram: string | null | undefined): boolean => {
   if (!incentiveProgram) return false;
   const program = incentiveProgram.toLowerCase();
-  return program.includes('rmp') || program.includes('restaurant meals program');
+  return program.includes('rmp') || program.includes('restaurant meals') || program.includes('waiver');
 };
 
 /**
