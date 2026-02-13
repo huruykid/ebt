@@ -1,6 +1,6 @@
 /**
  * Brand logo utility for national chains
- * Uses Clearbit Logo API to fetch official brand logos
+ * Uses Google Favicon API to fetch brand icons
  */
 
 // Map of brand name patterns to their official domains
@@ -181,9 +181,9 @@ const BRAND_DOMAINS: Record<string, string> = {
   'advance auto': 'advanceautoparts.com',
 };
 
-// Generate Clearbit logo URL
-const getClearbitLogoUrl = (domain: string, size: number = 128): string => {
-  return `https://logo.clearbit.com/${domain}?size=${size}`;
+// Generate Google Favicon URL
+const getLogoUrl = (domain: string, size: number = 128): string => {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
 };
 
 /**
@@ -234,7 +234,7 @@ export const getBrandLogo = (storeName: string | null): {
   if (!match) return null;
   
   return {
-    logoUrl: getClearbitLogoUrl(match.domain),
+    logoUrl: getLogoUrl(match.domain, 64),
     brandName: match.brandKey,
     domain: match.domain,
   };
@@ -264,5 +264,5 @@ export const getBrandLogoHighRes = (storeName: string | null): string | null => 
   if (!storeName) return null;
   const match = matchBrandDomain(storeName);
   if (!match) return null;
-  return getClearbitLogoUrl(match.domain, 256);
+  return getLogoUrl(match.domain, 128);
 };
