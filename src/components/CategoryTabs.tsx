@@ -36,6 +36,16 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       activeIcon: '🔥'
     },
     { 
+      id: 'hotmeals', 
+      name: 'Fast Food', 
+      icon: '🍟',
+      activeIcon: '🍟',
+      storeTypes: ['Restaurant Meals Program', 'Restaurant'],
+      namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill', 'McDonald\'s', 'Burger King', 'Wendy\'s', 'Taco Bell', 'KFC', 'Subway', 'Pizza Hut', 'Domino\'s'],
+      excludePatterns: ['CVS', 'Walgreens', 'Dollar', 'Market'],
+      showStateWarning: true
+    },
+    { 
       id: 'grocery', 
       name: 'Grocery Store', 
       icon: '🏪',
@@ -45,23 +55,13 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       excludePatterns: ['Farmers Market', 'Farm Market', 'Flea Market', 'Farmer\'s Market', 'CVS', 'Walgreens', 'Rite Aid', 'Dollar']
     },
     { 
-      id: 'convenience', 
-      name: 'Corner Stores', 
-      icon: '🏬',
-      activeIcon: '🏬',
-      storeTypes: ['Convenience Store', 'Corner Store'],
-      namePatterns: ['7-Eleven', '7 Eleven', 'Circle K', 'Wawa', 'Sheetz', 'QuikTrip', 'Casey\'s', 'Cumberland Farms'],
-      excludePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Dollar']
-    },
-    { 
-      id: 'hotmeals', 
-      name: 'Hot Meals (RMP)', 
-      icon: '🍽️',
-      activeIcon: '🍽️',
-      storeTypes: ['Restaurant Meals Program', 'Restaurant'],
-      namePatterns: ['Restaurant', 'Diner', 'Cafe', 'Grill'],
-      excludePatterns: ['CVS', 'Walgreens', 'Dollar', 'Market'],
-      showStateWarning: true
+      id: 'bakery', 
+      name: 'Bakery', 
+      icon: '🍞',
+      activeIcon: '🍞',
+      storeTypes: [],
+      namePatterns: ['Bakery', 'Bake', 'Bread', 'Pastry', 'Cake', 'Donut', 'Doughnut', 'Bagel'],
+      excludePatterns: []
     },
     { 
       id: 'farmersmarket', 
@@ -71,6 +71,24 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       storeTypes: ['Farmers and Markets', 'Farmers Market'],
       namePatterns: ['Farmers Market', 'Farm Market', 'Farmer\'s Market', 'Farmstand', 'Farmers and Markets'],
       excludePatterns: []
+    },
+    { 
+      id: 'delivery', 
+      name: 'Delivery', 
+      icon: '🚚',
+      activeIcon: '🚚',
+      storeTypes: [],
+      namePatterns: ['Walmart', 'Amazon Fresh', 'Safeway', 'Kroger', 'Instacart', 'Whole Foods', 'Target', 'ALDI', 'ShopRite', 'Stop & Shop', 'Giant', 'Meijer', 'H-E-B'],
+      excludePatterns: []
+    },
+    { 
+      id: 'convenience', 
+      name: 'Corner Stores', 
+      icon: '🏬',
+      activeIcon: '🏬',
+      storeTypes: ['Convenience Store', 'Corner Store'],
+      namePatterns: ['7-Eleven', '7 Eleven', 'Circle K', 'Wawa', 'Sheetz', 'QuikTrip', 'Casey\'s', 'Cumberland Farms'],
+      excludePatterns: ['CVS', 'Walgreens', 'Rite Aid', 'Dollar']
     }
   ];
 
