@@ -92,12 +92,13 @@ export const buildLocationAwareQuery = (
       });
     }
 
-    // Coordinates only → proximity-based function
+    // Coordinates only → proximity-based function with category filtering
+    const categoryStoreTypes = getCategoryStoreTypes(activeCategory);
     return supabase.rpc('get_nearby_stores', {
       user_lat: locationSearch.lat,
       user_lng: locationSearch.lng,
       radius_miles: radius,
-      store_types: null,
+      store_types: categoryStoreTypes,
       result_limit: 200
     });
   }
@@ -254,6 +255,19 @@ export const buildLocationAwareQuery = (
   // Fallback to original query for non-location searches
   return buildBaseQuery(searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, excludePatterns);
 };
+
+/**
+ * Map activeCategory to store_types for the get_nearby_stores RPC
+ */
+function getCategoryStoreTypes(activeCategory: string): string[] | null {
+  switch (activeCategory) {
+    case 'grocery': return ['Supermarket', 'Grocery Store', 'Supercenter'];
+    case 'convenience': return ['Convenience Store'];
+    case 'hotmeals': return ['Restaurant Meals Program', 'Restaurant'];
+    case 'farmersmarket': return ['Farmers Market', 'Farm Market'];
+    default: return null;
+  }
+}
 
 // Helper function to calculate distance inline
 const calculateDistanceInline = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
