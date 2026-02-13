@@ -65,10 +65,28 @@ export const useStoreSearchQuery = (params: SearchParams) => {
 
         // Convert the RPC result format to our expected format
         results = (data.map(store => {
-          const storeData = store as any; // Type assertion to handle the RPC result format
+          const s = store as any;
           return {
-            ...storeData, // This spreads all fields including new Google Places fields
-            distance_miles: storeData.distance_miles,
+            ...s,
+            id: s.id,
+            Store_Name: s.Store_Name || s.store_name,
+            Store_Street_Address: s.Store_Street_Address || s.store_street_address,
+            City: s.City || s.city,
+            State: s.State || s.state,
+            Zip_Code: s.Zip_Code || s.zip_code,
+            Store_Type: s.Store_Type || s.store_type,
+            Latitude: s.Latitude ?? s.latitude,
+            Longitude: s.Longitude ?? s.longitude,
+            distance: s.distance_miles ?? s.distance,
+            Additional_Address: s.Additional_Address || s.additional_address || null,
+            Zip4: s.Zip4 || s.zip4 || null,
+            County: s.County || s.county || null,
+            Record_ID: s.Record_ID || s.record_id || null,
+            ObjectId: s.ObjectId || s.object_id || null,
+            Grantee_Name: s.Grantee_Name || s.grantee_name || null,
+            X: s.X || s.x || null,
+            Y: s.Y || s.y || null,
+            Incentive_Program: s.Incentive_Program || s.incentive_program || null,
           };
         }) as StoreWithDistance[]);
 
