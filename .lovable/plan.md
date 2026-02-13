@@ -1,33 +1,32 @@
 
 
-# Fix Category Indicator Dots and Improve Mobile UX
+# Add "Use Exact Location" Button
 
-## Problem
+## What and Why
 
-The scroll indicator dots below the category tabs are broken. The logic tries to match `activeCategory` against each index but produces incorrect results -- only the first dot or the active category's dot lights up, and it doesn't reflect scroll position at all.
+When the home page loads, stores are shown based on **approximate IP geolocation** (can be off by several miles). There's currently no way for the user to refine this to GPS-precise results without leaving the page. Adding a small, non-intrusive button lets users opt into precise location when they want better results.
 
-## Recommended Approach: Remove Dots, Auto-Scroll Active Tab Into View
+## Design
 
-Scroll indicator dots are the wrong pattern here. They suggest pagination (like a carousel), but this is a horizontally scrollable tab bar. The best UX (used by Airbnb, DoorDash, etc.) is:
-
-1. **Remove the dots entirely** -- they add visual clutter and don't help navigation
-2. **Auto-scroll the active tab into view** when a category is selected, so the user always sees their selection centered
-3. **Keep the fade gradients and chevron arrows** as scroll affordances
-
-This is simpler, more intuitive, and eliminates the broken dot state.
+- A compact inline prompt appears **above the store list** when the location source is `ip` or `fallback` (not `browser`)
+- Shows something like: "Showing stores near [City] -- Use exact location" with a small location icon
+- Tapping it calls `requestBrowserLocation()` (triggers the browser GPS permission prompt)
+- Once GPS resolves, the button disappears since the source becomes `browser`
+- On desktop, same behavior but styled as a subtle banner
 
 ## Technical Changes
 
-### File: `src/components/CategoryTabs.tsx`
+### File: `src/components/ExploreTrending.tsx`
 
-1. **Delete the dots section** (the "Small scroll indicator dots for mobile" block, approximately lines 214-227)
-
-2. **Add auto-scroll on category change**: When `activeCategory` changes, find the active button element and call `scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })` on it. This can be done with a `useEffect` watching `activeCategory`, using a data attribute like `data-category-id` on each button to locate it.
-
-3. **Add refs**: Add `data-category-id={category.id}` to each category button element, then in the effect, query the scroll container for the matching element and scroll it into view.
+1. Destructure `source` from the `useGeolocation()` hook (it's already returned as part of `GeolocationResult`)
+2. Add a small inline component (or JSX block) that renders when `source !== 'browser'` and `latitude/longitude` exist:
+   - Text: "Showing approximate results -- Use exact location"
+   - Button calls `requestBrowserLocation()`
+3. Place it just above `<StoreListSimple>` in both mobile and desktop layouts
+4. After the user grants GPS, `source` changes to `'browser'`, and the prompt auto-hides
 
 ### Summary
 
-- 1 file modified (`CategoryTabs.tsx`)
-- Remove ~15 lines (dots), add ~10 lines (auto-scroll effect)
+- 1 file modified
+- ~15 lines added
 - No new dependencies
