@@ -110,6 +110,16 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Auto-scroll active tab into view
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const activeEl = scrollContainerRef.current.querySelector(`[data-category-id="${activeCategory}"]`);
+      if (activeEl) {
+        (activeEl as HTMLElement).scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [activeCategory]);
+
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
     const category = categories.find(c => c.id === categoryId);
@@ -184,6 +194,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
             return (
               <button
                 key={category.id}
+                data-category-id={category.id}
                 onClick={() => handleCategoryClick(category.id)}
                 className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[80px] px-2 md:px-4 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
                   isActive 
@@ -217,21 +228,6 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         </nav>
       </div>
       
-      {/* Small scroll indicator dots for mobile */}
-      <div className="flex justify-center mt-2 md:hidden">
-        <div className="flex gap-1">
-          {categories.map((_, index) => (
-            <div
-              key={index}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                Math.floor((activeCategory === categories[index]?.id ? index : 0)) === index
-                  ? 'bg-primary' 
-                  : 'bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
       
       {/* Mobile RMP Explanation Toggle - only show on mobile */}
       {activeCategory === 'hotmeals' && (
