@@ -1,50 +1,33 @@
 
 
-# Replace Clearbit Logo API (Discontinued)
+# Add EBT and RMP Badges to Store Cards
 
-## Problem
+## Overview
 
-The Clearbit Logo API (`logo.clearbit.com`) was officially shut down in December 2025. All brand logos throughout the app -- on store cards, store detail pages, and search results -- are currently broken and falling back to generic store icons.
+Add two small inline badges to the `UnifiedStoreCard`: a green "EBT" badge (always shown, since every store in the database accepts EBT) and an amber "RMP" badge (shown only when the store's `Incentive_Program` field contains "rmp" or "restaurant meals program").
 
-## Solution
+## Changes
 
-Switch to **Google's Favicon API** (`google.com/s2/favicons`) as the logo source. It's free, requires no API key, and supports sizes up to 128px. While favicons are smaller than dedicated logo images, they provide recognizable brand icons for national chains, which is far better than the current broken state.
+### 1. `src/components/UnifiedStoreCard.tsx`
 
-The existing brand-to-domain mapping in `brandLogos.ts` stays exactly the same -- only the URL generation function changes.
+Add badges to the rating/status row (line ~73, after the existing store type and open/closed indicators):
 
-## What Changes
+- **EBT badge**: A small green pill (`bg-emerald-100 text-emerald-700 border border-emerald-200`) displaying "EBT". Always visible.
+- **RMP badge**: A small amber pill (`bg-amber-100 text-amber-700 border border-amber-200`) displaying "RMP". Only rendered when `store.Incentive_Program` matches the RMP pattern.
 
-### 1. `src/utils/brandLogos.ts` -- Swap the URL generator
+Use the existing `isRmpEnrolled` utility from `@/lib/core/store-utils` (already exported via `@/utils/storeUtils`) for the RMP check.
 
-Replace the `getClearbitLogoUrl` function:
+### Visual placement
 
 ```text
-Before: https://logo.clearbit.com/walmart.com?size=128
-After:  https://www.google.com/s2/favicons?domain=walmart.com&sz=128
+[Logo]  Store Name
+        *4.2 (120) . Supermarket . Open . [EBT] [RMP]*
+        123 Main St, City, ST              2.3 mi
 ```
 
-- Update `getClearbitLogoUrl` (rename to `getLogoUrl`) to use Google's favicon endpoint
-- For high-res (detail/hero pages), use `sz=128` (max supported)
-- For card views, use `sz=64`
-- The full brand domain mapping (100+ brands) is untouched
+The badges sit inline in the metadata row as small rounded pills, consistent with the existing `StoreTypeBadge` styling pattern but smaller (text-[10px], px-1.5 py-0.5).
 
-### 2. `src/components/store/BrandLogo.tsx` -- No changes needed
+### Files modified: 1
 
-The component already handles errors with `onError` fallback. The new URLs will just work.
-
-### 3. `src/components/UnifiedStoreCard.tsx` -- No changes needed
-
-Same pattern -- already handles `logoError` state.
-
-### 4. `src/components/store-detail/StorePhotos.tsx` -- No changes needed
-
-Already has `logoError` fallback logic.
-
-## Technical Details
-
-- **Files modified**: 1 (`src/utils/brandLogos.ts`)
-- **No new dependencies**
-- **No API key required** -- Google's favicon API is free and unauthenticated
-- **Limitation**: Favicons max out at 128px, so they'll be smaller than the old Clearbit logos. For hero sections this may look slightly less polished, but it's functional.
-- **Future upgrade path**: If higher-quality logos are needed later, Logo.dev (the official Clearbit successor) can be integrated with an API key stored as a Supabase secret.
+- `src/components/UnifiedStoreCard.tsx` -- import `isRmpEnrolled` and add two badge spans in the rating row
 
