@@ -3,9 +3,10 @@ import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SortDropdown, type SortOption } from '@/components/SortDropdown';
 import { RadiusDropdown } from '@/components/RadiusDropdown';
-
+import { List, Map } from 'lucide-react';
 import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { filterOpenNowStores } from '@/utils/storeHoursUtils';
+import { StoreMapView } from '@/components/store-search/StoreMapView';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -45,6 +46,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
 }) => {
   // Use internal state if external props not provided
   const [internalOpenNowFilter, setInternalOpenNowFilter] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const openNowFilter = externalOpenNowFilter ?? internalOpenNowFilter;
   const onOpenNowChange = externalOnOpenNowChange ?? setInternalOpenNowFilter;
@@ -121,7 +123,33 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
             </p>
           </div>
           
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* View Mode Toggle */}
+            <div className="flex items-center rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <List className="h-3.5 w-3.5" />
+                List
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                  viewMode === 'map'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Map className="h-3.5 w-3.5" />
+                Map
+              </button>
+            </div>
+
             {/* Open Now Filter */}
             {hasOpenNowData && (
               <OpenNowFilter
@@ -163,15 +191,19 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
         </div>
       )}
 
-      <div className="grid gap-4 grid-cols-1">
-        {filteredStores.map((store) => (
-          <UnifiedStoreCard 
-            key={store.id}
-            store={store}
-            enhanced
-          />
-        ))}
-      </div>
+      {viewMode === 'map' ? (
+        <StoreMapView stores={filteredStores} locationSearch={locationSearch} />
+      ) : (
+        <div className="grid gap-4 grid-cols-1">
+          {filteredStores.map((store) => (
+            <UnifiedStoreCard 
+              key={store.id}
+              store={store}
+              enhanced
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
