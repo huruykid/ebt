@@ -1,39 +1,44 @@
 
 
-# Map View Investigation: Root Cause and Fix
+# Fix: Map View Not Appearing for Users
 
-## What I Found
+## Investigation Results
 
-I tested the live preview by navigating to the search page with location parameters. The search results load correctly (200 stores within 5 miles), but the **List/Map toggle buttons are completely absent from the DOM**. This is despite the source code in `SearchResults.tsx` clearly containing them (lines 129-152).
+I tested the map view directly and it **is rendering correctly** in the latest build:
+- Map tiles load from OpenStreetMap
+- Green markers appear for open stores, gray for closed/unknown
+- Popups display store info (name, type, address, distance, EBT badge)
+- List/Map toggle works
+- Open Now filter works in both views
 
-This means the **current preview build is stale** -- it has not yet compiled and deployed the latest code changes that added the map view toggle. The code in the repository is correct, but the running application is serving an older build.
-
-## What Needs to Happen
-
-Since the code is already correct in the source files, the fix is straightforward: **trigger a fresh build** by making a small, harmless change to force recompilation and deployment. I will also add a minor robustness improvement to the Leaflet CSS import to prevent potential styling issues on fresh loads.
+The root cause of the user-facing issue is likely **browser cache serving a stale build** combined with **unused `react-leaflet` packages** still in `package.json` that can cause bundling confusion.
 
 ## Changes
 
-### 1. Force rebuild of SearchResults.tsx
-Add a small code comment or minor cleanup to ensure the build system picks up the latest version with the List/Map toggle, Open Now filter integration, and lazy-loaded StoreMapView.
+### 1. Remove unused `react-leaflet` packages from `package.json`
 
-### 2. Verify Leaflet CSS loading
-Confirm that `@import 'leaflet/dist/leaflet.css'` in `src/index.css` is being processed correctly by the build. If Leaflet styles fail to load, the map container may render with zero height or broken tiles.
+The project still lists `react-leaflet` (v4.2.1) and `@react-leaflet/core` (v2.1.0) as dependencies even though the map now uses plain Leaflet. These packages are incompatible with React 18 and, while not imported, add unnecessary weight and potential build confusion.
 
-### 3. Ensure StoreMapView lazy import path is correct
-The current lazy import uses:
-```typescript
-const StoreMapView = lazy(() => 
-  import('@/components/store-search/StoreMapView')
-    .then(m => ({ default: m.StoreMapView }))
-);
-```
-This is correct since `StoreMapView` is a named export. No changes needed here.
+**Remove from `package.json`:**
+- `"react-leaflet": "^4.2.1"`
+- `"@react-leaflet/core": "^2.1.0"`
+- `"@types/leaflet": "^1.9.21"` (keep this one -- it provides types for the `leaflet` import we use)
 
-## Technical Summary
+### 2. Add a cache-busting comment to `StoreMapView.tsx`
 
-- The source code for the map view, List/Map toggle, Open Now filter sync, RMP badges, and marker color logic is all correct and complete
-- The deployed build has not picked up these changes yet
-- A fresh build/deploy will resolve the issue for both the preview and published sites
-- No logic bugs remain -- this is purely a build propagation issue
+Force the bundler to treat this as a changed module, ensuring any cached chunks are invalidated.
+
+### 3. No logic changes needed
+
+The map rendering code, marker coloring, popup content, Open Now filtering, and data enrichment pipeline are all working correctly. This was verified by:
+- Navigating to `/search?lat=36.7851&lng=-119.825&q=Fresno`
+- Clicking the Map toggle button
+- Seeing 19 stores with green (open) and gray (closed) markers
+- Clicking a marker to verify popup content (store name, address, distance, EBT badge)
+
+## Technical Details
+
+**Files to modify:**
+- `package.json` -- remove `react-leaflet` and `@react-leaflet/core` dependencies
+- `src/components/store-search/StoreMapView.tsx` -- add build version comment for cache busting
 
