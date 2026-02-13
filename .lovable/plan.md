@@ -1,63 +1,46 @@
 
+# Fix Disjointed Search Page Layout
 
-# Enhanced Search Filters: Categories, Open Now, and Delivery
+## Problem
+The `/search` route renders `EnhancedSearch.tsx`, which uses two completely different UIs:
+- **Mobile**: `MobileSearchInterface` with a confusing bottom-sheet overlay pattern, no category tabs, no Open Now filter
+- **Desktop/Tablet**: `EnhancedSearchBar` with vertically stacked buttons, no categories
 
-## Goal
-Make the /search page filter-first so users can find the **right** EBT store for their needs -- not just any store. Categories and the "Open Now" toggle should be visible **before** searching, and two new categories (Bakery, Delivery) need to be added.
+Meanwhile, `SearchContainer` (which has the newly added category tabs, Open Now toggle, Bakery/Delivery filters) is **not connected to the `/search` route at all** -- it sits unused in `StoreSearch.tsx`.
 
----
+## Solution
+Replace the `EnhancedSearch` page with a unified layout that uses `SearchContainer` for all screen sizes. This gives every user the same clean, consistent experience with category filtering built in.
 
-## What Changes
+### Changes
 
-### 1. Add Missing Categories to CategoryTabs
-Add **Bakery** and **Delivery** as new category tabs:
-- **Bakery** (icon: bread emoji): matches `Store_Name ILIKE '%bakery%'` or `'%bake%'` -- 1,571 stores in the database
-- **Delivery** (icon: truck emoji): matches stores known to offer delivery (Walmart, Instacart partners, etc.) via name patterns. This will filter for large chains that commonly offer SNAP Online delivery (Walmart, Amazon Fresh, Safeway, etc.)
+**`src/pages/EnhancedSearch.tsx`** -- Complete rewrite
+- Remove the `isMobile` branching that splits into two different UIs
+- Remove imports of `MobileSearchInterface`, `EnhancedSearchBar`, `EnhancedSearchResults`
+- Import and render `SearchContainer` (from `store-search/SearchContainer`) for all viewports
+- Keep the SEO head and breadcrumbs (breadcrumbs hidden on mobile via responsive class)
+- Parse URL `lat`/`lng` params (like `StoreSearch.tsx` does) so deep links work
 
-Reorder tabs to match the requested priority:
-1. Trending
-2. Hot Food / Fast Food (rename from "Hot Meals (RMP)")  
-3. Grocery Stores
-4. Bakery
-5. Farmer's Markets
-6. Delivery
-7. Corner Stores
-8. Open Now (keep as separate toggle, not a tab)
+**`src/components/store-search/SearchContainer.tsx`** -- Mobile spacing fixes
+- Reduce top padding on mobile: `py-8` to `py-4 md:py-8`
+- Reduce heading size on mobile: `text-3xl` to `text-2xl md:text-3xl`
+- Reduce bottom margin on heading block: `mb-8` to `mb-4 md:mb-8`
+- Reduce card padding on mobile: `p-6` to `p-4 md:p-6`
+- Make the search card margin tighter: `mb-6` to `mb-4 md:mb-6`
+- Remove `min-h-screen` wrapper (the page component handles that)
+- Tighten category tabs section spacing on mobile
 
-### 2. Show Categories Before Search Results
-Move the `CategoryTabs` component into `SearchContainer` so it appears **above the search form** or immediately below it, visible at all times -- not only after results load.
+**`src/components/store-search/SearchResults.tsx`** -- Grid fix
+- Change `md:grid-cols-2 lg:grid-cols-1` (broken -- goes 1 col then 2 then back to 1) to just single column `grid-cols-1` for consistent card layout
 
-### 3. Promote "Open Now" Toggle
-Move the `OpenNowFilter` toggle out of the results header and place it alongside the category tabs area so users can set it **before** searching.
+### What This Achieves
+- Single, consistent search UI across mobile, tablet, and desktop
+- Category tabs (Fast Food, Grocery, Bakery, Farmer's Market, Delivery, Corner Stores) visible on all devices
+- Open Now toggle always accessible
+- No more bottom-sheet overlay on mobile
+- Proper responsive spacing so nothing feels "disjointed"
+- Store name + location two-field search form on all breakpoints
 
-### 4. Rename "Hot Meals (RMP)" to "Fast Food"
-The current label "Hot Meals (RMP)" is confusing for users. Rename to "Fast Food" (or "Hot Food") to match the user's mental model. Keep the same underlying store type filters.
-
----
-
-## Technical Details
-
-### Files Modified
-
-**`src/components/CategoryTabs.tsx`**
-- Add `bakery` category: `{ id: 'bakery', name: 'Bakery', icon: 'bakery-emoji', storeTypes: [], namePatterns: ['Bakery', 'Bake', 'Bread', 'Pastry', 'Cake'] }`
-- Add `delivery` category: `{ id: 'delivery', name: 'Delivery', icon: 'truck-emoji', namePatterns: ['Walmart', 'Amazon Fresh', 'Safeway', 'Kroger', 'Instacart', 'Whole Foods', 'Target'] }` -- these are SNAP Online Purchasing Program retailers
-- Rename `hotmeals` display name from "Hot Meals (RMP)" to "Fast Food"
-- Reorder the categories array
-
-**`src/components/store-search/SearchContainer.tsx`**
-- Import `CategoryTabs` and `OpenNowFilter`
-- Render `CategoryTabs` below the search card (always visible)
-- Render `OpenNowFilter` toggle next to or below category tabs
-- Pass `openNowFilter` state down to `CategorySearchResults` / `SearchResults`
-
-**`src/components/store-search/CategorySearchResults.tsx`**
-- Remove the duplicate `CategoryTabs` rendering (it now lives in SearchContainer)
-- Accept and pass through `openNowFilter` props
-
-**`src/constants/searchConstants.ts`**
-- Add `bakery` and `delivery` entries to `CATEGORY_RADIUS` with appropriate defaults (bakery: 15 miles, delivery: 50 miles since delivery has wider reach)
-
-### No Database Changes Required
-All filtering is done via existing `Store_Type` and `Store_Name` columns using the existing `smart_store_search` and `get_nearby_stores` RPC functions.
-
+### Technical Details
+- `MobileSearchInterface` component is no longer imported (can be cleaned up later)
+- `EnhancedSearchBar` and `EnhancedSearchResults` are no longer used on this page
+- The `SearchContainer` already handles geolocation, geocoding, category filtering, and Open Now -- no new logic needed
