@@ -21,7 +21,7 @@ export const ExploreTrending: React.FC = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   
-  const { latitude, longitude, loading, requestBrowserLocation } = useGeolocation();
+  const { latitude, longitude, loading, source, city, requestBrowserLocation } = useGeolocation();
 
   // Fetch nearby stores when location is available
   const { data: nearbyStores = [], isLoading: nearbyLoading } = useQuery({
@@ -101,6 +101,21 @@ export const ExploreTrending: React.FC = () => {
     </div>
   );
 
+  const ExactLocationPrompt = () => {
+    if (source === 'browser' || !latitude || !longitude) return null;
+    return (
+      <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 mb-3">
+        <p className="text-xs text-muted-foreground">
+          Showing stores near {city || 'your area'} (approximate)
+        </p>
+        <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={requestBrowserLocation}>
+          <MapPin className="h-3 w-3 mr-1" />
+          Use exact location
+        </Button>
+      </div>
+    );
+  };
+
   const NoLocationPrompt = () => (
     <div className="text-center py-16">
       <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
@@ -149,6 +164,7 @@ export const ExploreTrending: React.FC = () => {
             </div>
           ) : latitude && longitude ? (
             <div className="animate-fade-in">
+              <ExactLocationPrompt />
               {nearbyLoading ? <LoadingSpinner /> : (
                 <>
                   <StoreListSimple stores={nearbyStores} />
@@ -214,6 +230,7 @@ export const ExploreTrending: React.FC = () => {
             </div>
           ) : latitude && longitude ? (
             <div className="space-y-4 animate-fade-in">
+              <ExactLocationPrompt />
               {nearbyLoading ? <LoadingSpinner /> : (
                 <>
                   <StoreListSimple stores={nearbyStores} />
