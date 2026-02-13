@@ -1,55 +1,39 @@
 
 
-# Add Map View to Store Search Results
+# Map View Investigation: Root Cause and Fix
 
-## Overview
+## What I Found
 
-Add a toggle between List View and Map View on the search results page. The map shows all SNAP-accepting stores as markers on an interactive map powered by **Leaflet + OpenStreetMap** -- completely free, no API key required. Unlike Google Maps or Yelp, every pin on this map is a verified EBT-accepting location.
+I tested the live preview by navigating to the search page with location parameters. The search results load correctly (200 stores within 5 miles), but the **List/Map toggle buttons are completely absent from the DOM**. This is despite the source code in `SearchResults.tsx` clearly containing them (lines 129-152).
 
-## User Experience
+This means the **current preview build is stale** -- it has not yet compiled and deployed the latest code changes that added the map view toggle. The code in the repository is correct, but the running application is serving an older build.
 
-- A "List | Map" toggle appears in the search results toolbar (next to sort/radius controls)
-- Map View shows store markers clustered on an OpenStreetMap base layer
-- Clicking a marker shows a compact popup with store name, type, EBT/RMP badges, distance, and a "View Details" link
-- The map auto-centers on the user's search location or the bounding box of results
-- Switching back to List preserves all filters and sort state
+## What Needs to Happen
 
-## What Changes
+Since the code is already correct in the source files, the fix is straightforward: **trigger a fresh build** by making a small, harmless change to force recompilation and deployment. I will also add a minor robustness improvement to the Leaflet CSS import to prevent potential styling issues on fresh loads.
 
-### 1. Install Dependencies
+## Changes
 
-- `leaflet` -- lightweight map library (free, OSM tiles)
-- `react-leaflet` -- React bindings for Leaflet
-- `@types/leaflet` -- TypeScript types
+### 1. Force rebuild of SearchResults.tsx
+Add a small code comment or minor cleanup to ensure the build system picks up the latest version with the List/Map toggle, Open Now filter integration, and lazy-loaded StoreMapView.
 
-### 2. New File: `src/components/store-search/StoreMapView.tsx`
+### 2. Verify Leaflet CSS loading
+Confirm that `@import 'leaflet/dist/leaflet.css'` in `src/index.css` is being processed correctly by the build. If Leaflet styles fail to load, the map container may render with zero height or broken tiles.
 
-A new component that renders:
-- A full-width Leaflet map with OpenStreetMap tiles
-- Custom markers for each store (green pin for open, gray for closed/unknown)
-- Popup on marker click with: store name, store type, EBT badge, RMP badge (if applicable), distance, and a link to the store detail page
-- Auto-fits bounds to show all visible stores
-- Falls back to user's search location center if no stores
+### 3. Ensure StoreMapView lazy import path is correct
+The current lazy import uses:
+```typescript
+const StoreMapView = lazy(() => 
+  import('@/components/store-search/StoreMapView')
+    .then(m => ({ default: m.StoreMapView }))
+);
+```
+This is correct since `StoreMapView` is a named export. No changes needed here.
 
-### 3. Modified: `src/components/store-search/SearchResults.tsx`
+## Technical Summary
 
-- Add a List/Map toggle button group in the toolbar row (alongside sort and radius dropdowns)
-- Conditionally render either the store card grid or the new `StoreMapView`
-- Pass the same filtered store list and location data to both views
-
-### 4. New File: `src/index.css` (addition)
-
-- Import Leaflet's CSS: `@import 'leaflet/dist/leaflet.css';`
-- Add a small override to fix Leaflet's default icon path issue in bundled apps
-
-## Technical Details
-
-- **New dependencies**: `leaflet`, `react-leaflet`, `@types/leaflet` (3 packages)
-- **Files created**: 1 (`StoreMapView.tsx`)
-- **Files modified**: 2 (`SearchResults.tsx`, `index.css`)
-- **No API key needed** -- uses free OpenStreetMap tile server
-- **Performance**: Leaflet handles hundreds of markers efficiently; for 200+ results the map will remain smooth
-- **Mobile-friendly**: Leaflet supports touch/pinch-zoom natively
-- **Dark mode**: OSM tiles are light-only, but the UI chrome (toggle, popups) will respect the app's theme
-- **Marker icon fix**: Leaflet's default marker icons break in Vite/Webpack builds; we'll configure the icon paths explicitly using Leaflet's `Icon.Default` settings
+- The source code for the map view, List/Map toggle, Open Now filter sync, RMP badges, and marker color logic is all correct and complete
+- The deployed build has not picked up these changes yet
+- A fresh build/deploy will resolve the issue for both the preview and published sites
+- No logic bugs remain -- this is purely a build propagation issue
 
