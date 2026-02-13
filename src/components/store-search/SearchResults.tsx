@@ -1,3 +1,4 @@
+// Search results with List/Map toggle and Open Now filtering
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { UnifiedStoreCard } from '@/components/UnifiedStoreCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
