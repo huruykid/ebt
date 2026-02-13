@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Link } from 'react-router-dom';
 import { MapPin, Navigation, ExternalLink } from 'lucide-react';
+import { isRmpEnrolled } from '@/utils/storeUtils';
 import type { Tables } from '@/integrations/supabase/types';
 
 // Fix Leaflet default marker icons in bundled apps using CDN URLs
@@ -99,8 +100,7 @@ export const StoreMapView: React.FC<StoreMapViewProps> = ({ stores, locationSear
         {validStores.map((store) => {
           const openStatus = isStoreOpenNow(store);
           const icon = openStatus === true ? greenIcon : grayIcon;
-          const isRmp = store.Incentive_Program?.toLowerCase().includes('rmp') ||
-            store.Incentive_Program?.toLowerCase().includes('restaurant meals');
+          const isRmp = isRmpEnrolled(store.Incentive_Program);
 
           return (
             <Marker
