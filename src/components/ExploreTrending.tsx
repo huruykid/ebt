@@ -23,6 +23,7 @@ export const ExploreTrending: React.FC = () => {
   
   const { latitude, longitude, loading, source, city, requestBrowserLocation } = useGeolocation();
 
+
   // Fetch nearby stores when location is available
   const { data: nearbyStores = [], isLoading: nearbyLoading } = useQuery({
     queryKey: ['home-nearby-stores', latitude, longitude, activeCategory, selectedStoreTypes],
