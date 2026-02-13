@@ -37,7 +37,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
     clearLocationSelection,
   } = useLocationBasedSearch();
 
-  const { latitude, longitude, loading: geoLoading } = useGeolocation();
+  const { latitude, longitude, loading: geoLoading, requestBrowserLocation } = useGeolocation();
   
   // Track if we've auto-searched with initial location
   const [hasAutoSearched, setHasAutoSearched] = useState(false);
@@ -140,20 +140,19 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   }, [storeNameInput, locationInput, setSelectedZip, clearLocationSelection, geocode, setLocationSearch, setSearchQuery, handleLocationSelect]);
 
   const handleUseCurrentLocation = useCallback(() => {
-    if (latitude && longitude) {
-      setLocationSearch({ lat: latitude, lng: longitude });
-      setLocationInput('');
-      setSelectedZip('');
-      clearLocationSelection();
-      
-      if (storeNameInput.trim()) {
-        const sanitizedStoreName = sanitizeString(storeNameInput);
-        setSearchQuery(sanitizedStoreName);
-      } else {
-        setSearchQuery('');
-      }
+    // Always request browser GPS for precise location
+    requestBrowserLocation();
+    setLocationInput('');
+    setSelectedZip('');
+    clearLocationSelection();
+    
+    if (storeNameInput.trim()) {
+      const sanitizedStoreName = sanitizeString(storeNameInput);
+      setSearchQuery(sanitizedStoreName);
+    } else {
+      setSearchQuery('');
     }
-  }, [latitude, longitude, setLocationSearch, setSelectedZip, clearLocationSelection, storeNameInput, setSearchQuery]);
+  }, [requestBrowserLocation, setLocationSearch, setSelectedZip, clearLocationSelection, storeNameInput, setSearchQuery]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -196,7 +195,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
               className="w-full h-11 pl-10 text-sm transition-shadow focus:shadow-md"
             />
           </div>
-          {latitude && longitude && (
+          {(latitude && longitude) && (
             <Button 
               onClick={handleUseCurrentLocation} 
               variant="outline" 

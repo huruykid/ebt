@@ -90,6 +90,19 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           };
         }) as StoreWithDistance[]);
 
+        // Apply name-pattern-based filtering (for categories like bakery, delivery)
+        if (selectedNamePatterns.length > 0 && results.length > 0) {
+          const beforeNameFilter = results.length;
+          results = results.filter(store => {
+            const name = (store.Store_Name || '').toLowerCase();
+            const type = (store.Store_Type || '').toLowerCase();
+            return selectedNamePatterns.some(p => 
+              name.includes(p.toLowerCase()) || type.includes(p.toLowerCase())
+            );
+          });
+          console.log(`🔤 Name pattern filtering: ${beforeNameFilter} → ${results.length} stores`);
+        }
+
         // Apply category-specific filtering for location-based searches
         if (activeCategory === 'grocery' && results.length > 0) {
           console.log('🏪 Applying grocery exclusions to location results...');

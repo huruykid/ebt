@@ -37,10 +37,8 @@ export const ExploreTrending: React.FC = () => {
   });
 
   const handleCurrentLocationSearch = () => {
-    if (!latitude || !longitude) {
-      requestBrowserLocation();
-      return;
-    }
+    // Always request browser GPS for precise location
+    requestBrowserLocation();
     handleClearSearch();
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
