@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MapPin, Star, ChevronRight } from 'lucide-react';
+import { MapPin, Star, ChevronRight, Store } from 'lucide-react';
 import { FavoriteButton } from './FavoriteButton';
 import { useStoreClickTracking } from '@/hooks/useStoreClickTracking';
 import { getCachedIPGeolocation } from '@/hooks/useIPGeolocation';
 import { saveNavigationReferrer } from '@/hooks/useNavigationReferrer';
 import { formatStoreAddress } from '@/utils/storeUtils';
+import { getBrandLogo } from '@/utils/brandLogos';
 import type { StoreWithDistance } from '@/types/storeTypes';
 
 interface UnifiedStoreCardProps {
@@ -18,6 +19,9 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({ store }) => 
   const { trackStoreClick } = useStoreClickTracking();
   const cachedLocation = getCachedIPGeolocation();
   const location = useLocation();
+  const [logoError, setLogoError] = useState(false);
+
+  const brandInfo = getBrandLogo(store.Store_Name);
 
   const handleStoreClick = () => {
     saveNavigationReferrer(location.pathname + location.search);
@@ -39,6 +43,20 @@ export const UnifiedStoreCard: React.FC<UnifiedStoreCardProps> = ({ store }) => 
       className="group block bg-card border border-border rounded-xl p-4 hover:border-primary/20 transition-colors duration-150"
     >
       <div className="flex items-start justify-between gap-3">
+        {/* Brand logo or fallback icon */}
+        <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+          {brandInfo && !logoError ? (
+            <img
+              src={brandInfo.logoUrl}
+              alt={`${store.Store_Name} logo`}
+              className="w-10 h-10 object-contain"
+              onError={() => setLogoError(true)}
+              loading="lazy"
+            />
+          ) : (
+            <Store className="h-5 w-5 text-muted-foreground" />
+          )}
+        </div>
         <div className="flex-1 min-w-0">
           {/* Name */}
           <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
