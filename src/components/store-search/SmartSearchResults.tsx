@@ -40,7 +40,7 @@ export const SmartSearchResults: React.FC<SmartSearchResultsProps> = ({
   if (error) {
     return (
       <div className="text-center py-8">
-        <div className="card-gradient rounded-spotify-xl p-6 border-2 border-destructive/20">
+        <div className="bg-card rounded-xl p-6 border-2 border-destructive/20">
           <p className="text-destructive font-semibold">⚠️ Error loading stores. Please try again.</p>
         </div>
       </div>
@@ -50,7 +50,7 @@ export const SmartSearchResults: React.FC<SmartSearchResultsProps> = ({
   if (stores.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="card-gradient rounded-spotify-xl p-8 border-2 border-muted/20">
+        <div className="bg-card rounded-xl p-8 border-2 border-muted/20">
           <div className="text-6xl mb-4">🔍</div>
           <p className="text-muted-foreground text-lg">
             No stores found for "{searchParams.searchText}"
@@ -67,7 +67,7 @@ export const SmartSearchResults: React.FC<SmartSearchResultsProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="card-gradient rounded-spotify-lg p-4 border-2 border-success/20">
+      <div className="bg-card rounded-lg p-4 border-2 border-success/20">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             Found {stores.length} stores
@@ -83,7 +83,7 @@ export const SmartSearchResults: React.FC<SmartSearchResultsProps> = ({
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+      <div className="grid gap-4 grid-cols-1">
         {stores.map((store) => (
           <UnifiedStoreCard 
             key={store.id}
