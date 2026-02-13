@@ -170,15 +170,15 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   const isSearchDisabled = !storeNameInput.trim() && !locationInput.trim() && !locationSearch;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h2>
+    <div className="container mx-auto px-4 py-4 md:py-8">
+      <div className="text-center mb-4 md:mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Find SNAP/EBT Stores</h2>
         <p className="text-muted-foreground">
           Search by store name and location to find stores that accept EBT/SNAP benefits
         </p>
       </div>
 
-      <Card className="p-6 mb-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20">
+      <Card className="p-4 md:p-6 mb-4 md:mb-6 bg-gradient-to-r from-primary/5 to-secondary/5 border-2 border-primary/20">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold mb-2 text-foreground">
