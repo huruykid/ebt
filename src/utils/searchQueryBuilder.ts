@@ -1,5 +1,34 @@
-
 import { supabase } from '@/integrations/supabase/client';
+
+/** Default result limit for all search paths */
+const RESULT_LIMIT = 200;
+
+/**
+ * Unified category → store type configuration.
+ * Used by getCategoryStoreTypes, buildLocationAwareQuery inline filters,
+ * and buildBaseQuery .or() filters – single source of truth.
+ */
+export const CATEGORY_STORE_TYPES: Record<string, {
+  rpcTypes: string[];
+  orFilter: string;
+}> = {
+  grocery: {
+    rpcTypes: ['Supermarket', 'Grocery Store', 'Supercenter', 'Convenience Store', 'Specialty Store'],
+    orFilter: 'Store_Type.ilike.%supermarket%,Store_Type.ilike.%grocery%,Store_Type.ilike.%supercenter%,Store_Type.ilike.%market%,Store_Name.ilike.%market%,Store_Name.ilike.%food%',
+  },
+  convenience: {
+    rpcTypes: ['Convenience Store', 'Gas Station', 'Specialty Store'],
+    orFilter: 'Store_Type.ilike.%convenience%,Store_Name.ilike.%7-eleven%,Store_Name.ilike.%circle k%,Store_Name.ilike.%wawa%',
+  },
+  hotmeals: {
+    rpcTypes: ['Restaurant Meals Program', 'Restaurant', 'Fast Food'],
+    orFilter: 'Store_Type.ilike.%restaurant%,Store_Name.ilike.%restaurant%,Store_Name.ilike.%cafe%,Store_Name.ilike.%diner%',
+  },
+  farmersmarket: {
+    rpcTypes: ['Farmers Market', 'Farm Market', 'Specialty Store'],
+    orFilter: "Store_Type.ilike.%farmers%,Store_Type.ilike.%market%,Store_Name.ilike.%farmers market%,Store_Name.ilike.%farm market%,Store_Name.ilike.%farmstand%",
+  },
+};
 
 /**
  * Build search filters for store types
@@ -18,9 +47,7 @@ export const buildStoreTypeFilters = (selectedStoreTypes: string[]): string[] =>
 export const buildNamePatternFilters = (selectedNamePatterns: string[]): string[] => {
   const filters: string[] = [];
   
-  console.log('Applying name patterns:', selectedNamePatterns);
   selectedNamePatterns.forEach(pattern => {
-    // For other patterns, use the original logic
     const words = pattern.split(' ');
     if (words.length > 1) {
       words.forEach(word => {
@@ -55,8 +82,6 @@ export const buildLocationAwareQuery = (
 ) => {
   // First priority: If coordinates are available, prefer location-aware search
   if (locationSearch) {
-    console.log('🎯 Using location-aware search with radius:', radius);
-
     if (searchQuery.trim()) {
       // Name + coordinates → smart search + distance/radius
       const query = searchQuery.trim();
@@ -66,7 +91,7 @@ export const buildLocationAwareQuery = (
         search_state: '',
         search_zip: '',
         similarity_threshold: 0.2,
-        result_limit: 200
+        result_limit: RESULT_LIMIT
       }).then(async (result) => {
         if (result.data) {
           const resultsWithDistance = result.data
@@ -85,7 +110,6 @@ export const buildLocationAwareQuery = (
               if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
               return (a.distance_miles ?? 0) - (b.distance_miles ?? 0);
             });
-          console.log(`🎯 Smart search (coords) found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
           return { data: resultsWithDistance, error: result.error };
         }
         return result;
@@ -93,40 +117,38 @@ export const buildLocationAwareQuery = (
     }
 
     // Coordinates only → proximity-based function with category filtering
-    const categoryStoreTypes = getCategoryStoreTypes(activeCategory);
+    const categoryConfig = CATEGORY_STORE_TYPES[activeCategory];
     return supabase.rpc('get_nearby_stores', {
       user_lat: locationSearch.lat,
       user_lng: locationSearch.lng,
       radius_miles: radius,
-      store_types: categoryStoreTypes,
-      result_limit: 200
+      store_types: categoryConfig?.rpcTypes ?? null,
+      result_limit: RESULT_LIMIT
     });
   }
   
   // Next: Use selectedCity and selectedState from LocationSelector, if provided
   if (selectedCity && selectedState) {
-    console.log(`🎯 Using LocationSelector: business="${searchQuery}", city="${selectedCity}", state="${selectedState}"`);
     return supabase.rpc('smart_store_search', {
       search_text: searchQuery.trim() || '',
       search_city: selectedCity,
       search_state: selectedState,
       search_zip: '',
       similarity_threshold: 0.2,
-      result_limit: 200
+      result_limit: RESULT_LIMIT
     });
   }
   
   // Second priority: If explicit ZIP is selected, use it
   if (selectedZip && selectedZip.trim().match(/^\d{5}$/)) {
     const nameOnly = (searchQuery || '').trim();
-    console.log(`🎯 Using ZIP filter: zip="${selectedZip}", name="${nameOnly}"`);
     return supabase.rpc('smart_store_search', {
       search_text: nameOnly,
       search_city: '',
       search_state: '',
       search_zip: selectedZip.trim(),
       similarity_threshold: 0.2,
-      result_limit: 200
+      result_limit: RESULT_LIMIT
     });
   }
   
@@ -135,13 +157,12 @@ export const buildLocationAwareQuery = (
     const query = searchQuery.trim();
     
     // Check if the search contains common city name patterns
+    // Import city names from cityData would bloat the bundle; keep a lean inline list
     const cityWords = ['fresno', 'sacramento', 'los angeles', 'san francisco', 'san diego', 'oakland', 'bakersfield', 'stockton', 'modesto', 'riverside'];
     const foundCity = cityWords.find(city => query.toLowerCase().includes(city.toLowerCase()));
     
     if (foundCity) {
-      // Extract business name and city
       const businessName = query.toLowerCase().replace(foundCity.toLowerCase(), '').trim();
-      console.log(`🎯 Parsed search: business="${businessName}", city="${foundCity}"`);
       
       return supabase.rpc('smart_store_search', {
         search_text: businessName || query,
@@ -149,24 +170,21 @@ export const buildLocationAwareQuery = (
         search_state: '',
         search_zip: '',
         similarity_threshold: 0.2,
-        result_limit: 200
+        result_limit: RESULT_LIMIT
       });
     }
     
     // If we have both location AND a search query, use smart_store_search for best results
     if (locationSearch) {
-      console.log('🎯 Using smart search combining name and location for:', searchQuery);
-      
       return supabase.rpc('smart_store_search', {
         search_text: query,
         search_city: '',
         search_state: '',
         search_zip: '',
-        similarity_threshold: 0.2, // Lower threshold for more matches
-        result_limit: 200
+        similarity_threshold: 0.2,
+        result_limit: RESULT_LIMIT
       }).then(async (result) => {
         if (result.data) {
-          // Calculate distances and filter by radius for the smart search results
           const resultsWithDistance = result.data
             .map(store => ({
               ...store,
@@ -179,15 +197,11 @@ export const buildLocationAwareQuery = (
             }))
             .filter(store => store.distance_miles <= radius)
             .sort((a, b) => {
-              // Primary sort: similarity score (higher is better)
               const scoreDiff = b.similarity_score - a.similarity_score;
               if (Math.abs(scoreDiff) > 0.1) return scoreDiff;
-              
-              // Secondary sort: distance (closer is better)
               return a.distance_miles - b.distance_miles;
             });
           
-          console.log(`🎯 Smart search found ${resultsWithDistance.length} results within ${radius} miles for "${searchQuery}"`);
           return { data: resultsWithDistance, error: result.error };
         }
         return result;
@@ -195,60 +209,26 @@ export const buildLocationAwareQuery = (
     }
     
     // For search queries without location, still use smart_store_search
-    console.log('🎯 Using smart search for general query:', searchQuery);
     return supabase.rpc('smart_store_search', {
       search_text: query,
       search_city: '',
       search_state: '',
       search_zip: '',
       similarity_threshold: 0.2,
-      result_limit: 200
+      result_limit: RESULT_LIMIT
     });
   }
   
   // If we have location but no search query, use the proximity-based function
   if (locationSearch) {
-    console.log('🎯 Using location-aware search with radius:', radius);
+    const categoryConfig = CATEGORY_STORE_TYPES[activeCategory];
     
-    // For location-based searches, use broader category filters to get more results
-    let storeTypeFilters: string[] = [];
-    
-    if (activeCategory === 'grocery') {
-      // More inclusive grocery store types
-      storeTypeFilters = [
-        'Supermarket',
-        'Grocery Store', 
-        'Supercenter',
-        'Convenience Store', // Include convenience stores that might sell groceries
-        'Specialty Store'
-      ];
-    } else if (activeCategory === 'convenience') {
-      storeTypeFilters = [
-        'Convenience Store',
-        'Gas Station',
-        'Specialty Store'
-      ];
-    } else if (activeCategory === 'hotmeals') {
-      storeTypeFilters = [
-        'Restaurant Meals Program',
-        'Restaurant',
-        'Fast Food'
-      ];
-    } else if (activeCategory === 'farmersmarket') {
-      storeTypeFilters = [
-        'Farmers Market',
-        'Farm Market',
-        'Specialty Store'
-      ];
-    }
-    
-    // Use the optimized nearby stores function
     return supabase.rpc('get_nearby_stores', {
       user_lat: locationSearch.lat,
       user_lng: locationSearch.lng,
       radius_miles: radius,
-      store_types: storeTypeFilters.length > 0 ? storeTypeFilters : null,
-      result_limit: 200 // Increased limit for better results
+      store_types: categoryConfig?.rpcTypes ?? null,
+      result_limit: RESULT_LIMIT
     });
   }
   
@@ -260,13 +240,7 @@ export const buildLocationAwareQuery = (
  * Map activeCategory to store_types for the get_nearby_stores RPC
  */
 function getCategoryStoreTypes(activeCategory: string): string[] | null {
-  switch (activeCategory) {
-    case 'grocery': return ['Supermarket', 'Grocery Store', 'Supercenter'];
-    case 'convenience': return ['Convenience Store'];
-    case 'hotmeals': return ['Restaurant Meals Program', 'Restaurant'];
-    case 'farmersmarket': return ['Farmers Market', 'Farm Market'];
-    default: return null;
-  }
+  return CATEGORY_STORE_TYPES[activeCategory]?.rpcTypes ?? null;
 }
 
 // Helper function to calculate distance inline
@@ -297,37 +271,15 @@ export const buildBaseQuery = (
     .select('*')
     .order('Store_Name');
 
-  console.log('Query parameters:', {
-    searchQuery,
-    activeCategory,
-    selectedStoreTypes,
-    selectedNamePatterns,
-    excludePatterns,
-    locationSearch
-  });
-
   // Apply search query first if provided
   if (searchQuery.trim()) {
     query = query.or(`Store_Name.ilike.%${searchQuery}%,City.ilike.%${searchQuery}%,Zip_Code.ilike.%${searchQuery}%,State.ilike.%${searchQuery}%`);
   }
 
-  // Apply category filters with simplified logic
-  if (activeCategory === 'grocery') {
-    console.log('🏪 Applying grocery filters');
-    // More inclusive grocery search
-    query = query.or(`Store_Type.ilike.%supermarket%,Store_Type.ilike.%grocery%,Store_Type.ilike.%supercenter%,Store_Type.ilike.%market%,Store_Name.ilike.%market%,Store_Name.ilike.%food%`);
-  } else if (activeCategory === 'convenience') {
-    console.log('🏬 Applying convenience store filters');
-    // Search for convenience stores
-    query = query.or(`Store_Type.ilike.%convenience%,Store_Name.ilike.%7-eleven%,Store_Name.ilike.%circle k%,Store_Name.ilike.%wawa%`);
-  } else if (activeCategory === 'hotmeals') {
-    console.log('🍽️ Applying hot meals (RMP) filters');
-    // Search for restaurants and places that might serve hot meals
-    query = query.or(`Store_Type.ilike.%restaurant%,Store_Name.ilike.%restaurant%,Store_Name.ilike.%cafe%,Store_Name.ilike.%diner%`);
-  } else if (activeCategory === 'farmersmarket') {
-    console.log('🥕 Applying farmer\'s market filters');
-    // Search for farmers markets and farm stands
-    query = query.or(`Store_Type.ilike.%farmers%,Store_Type.ilike.%market%,Store_Name.ilike.%farmers market%,Store_Name.ilike.%farm market%,Store_Name.ilike.%farmstand%`);
+  // Apply category filters using the unified config
+  const categoryConfig = CATEGORY_STORE_TYPES[activeCategory];
+  if (categoryConfig) {
+    query = query.or(categoryConfig.orFilter);
   } else if (activeCategory !== 'trending' && (selectedStoreTypes.length > 0 || selectedNamePatterns.length > 0)) {
     const filters = [
       ...buildStoreTypeFilters(selectedStoreTypes),
@@ -335,7 +287,6 @@ export const buildBaseQuery = (
     ];
     
     if (filters.length > 0) {
-      console.log('Applied filters:', filters);
       query = query.or(filters.join(','));
     }
   }
@@ -347,7 +298,7 @@ export const buildBaseQuery = (
     .not('Store_Name', 'is', null)
     .neq('Store_Name', '');
 
-  query = query.limit(2000);
+  query = query.limit(RESULT_LIMIT);
 
   return query;
 };

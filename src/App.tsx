@@ -50,7 +50,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const GA_MEASUREMENT_ID = "G-W8FZZ54CKR";
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-W8FZZ54CKR";
 
 // Loading fallback component
 const PageLoader = () => (
@@ -114,19 +114,6 @@ const AppContent = () => {
               {/* City Pages - Single dynamic route */}
               <Route path="/city/:citySlug" element={<CityPage />} />
               
-              {/* Legacy city routes - CityPage handles redirect to /city/ prefix */}
-              <Route path="/los-angeles" element={<CityPage />} />
-              <Route path="/new-york" element={<CityPage />} />
-              <Route path="/brooklyn" element={<CityPage />} />
-              <Route path="/chicago" element={<CityPage />} />
-              <Route path="/houston" element={<CityPage />} />
-              <Route path="/miami" element={<CityPage />} />
-              <Route path="/atlanta" element={<CityPage />} />
-              <Route path="/phoenix" element={<CityPage />} />
-              <Route path="/philadelphia" element={<CityPage />} />
-              <Route path="/san-antonio" element={<CityPage />} />
-              <Route path="/san-diego" element={<CityPage />} />
-              <Route path="/dallas" element={<CityPage />} />
               
               {/* Explicit 404 route for SEO (returns proper 404 page) */}
               <Route path="/not-found" element={<NotFound />} />

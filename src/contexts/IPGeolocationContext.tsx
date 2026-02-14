@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface IPGeolocationData {
@@ -20,7 +20,7 @@ interface IPGeolocationContextValue {
 const US_CENTER_FALLBACK: IPGeolocationData = {
   latitude: 39.8283,
   longitude: -98.5795,
-  city: 'United States',
+  city: '',
   region: '',
   country: 'US',
   countryCode: 'US',
@@ -29,7 +29,6 @@ const US_CENTER_FALLBACK: IPGeolocationData = {
 
 const STORAGE_KEY = 'ip-geolocation-cache';
 
-// Session storage helpers
 const getFromSession = (): IPGeolocationData | null => {
   try {
     const cached = sessionStorage.getItem(STORAGE_KEY);
@@ -62,7 +61,6 @@ export const IPGeolocationProvider = ({ children }: { children: ReactNode }) => 
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // If we already have cached data, don't fetch again
     const cached = getFromSession();
     if (cached) {
       setData(cached);
@@ -70,10 +68,8 @@ export const IPGeolocationProvider = ({ children }: { children: ReactNode }) => 
       return;
     }
 
-    // Fetch IP geolocation once
     const fetchIPGeolocation = async () => {
       try {
-        console.log('IPGeolocationProvider: Fetching IP geolocation...');
         const { data: result, error: fetchError } = await supabase.functions.invoke('ip-geolocation');
         
         if (fetchError) {
@@ -94,7 +90,6 @@ export const IPGeolocationProvider = ({ children }: { children: ReactNode }) => 
           source: result.source === 'fallback' ? 'fallback' : 'ip',
         };
 
-        console.log('IPGeolocationProvider: Got IP location', ipData.city, ipData.region);
         saveToSession(ipData);
         setData(ipData);
         setLoading(false);
@@ -110,8 +105,10 @@ export const IPGeolocationProvider = ({ children }: { children: ReactNode }) => 
     fetchIPGeolocation();
   }, []);
 
+  const value = useMemo(() => ({ data, loading, error }), [data, loading, error]);
+
   return (
-    <IPGeolocationContext.Provider value={{ data, loading, error }}>
+    <IPGeolocationContext.Provider value={value}>
       {children}
     </IPGeolocationContext.Provider>
   );

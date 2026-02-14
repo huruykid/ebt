@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import type { Store } from '@/types/storeTypes';
+import type { GooglePlacesBusiness } from '@/hooks/useGooglePlaces';
 
+/** Typed representation of Google Places data stored in the database */
 export interface StoredGooglePlacesData {
-  // Business info
   place_id?: string;
   name?: string;
   formatted_address?: string;
@@ -11,31 +12,13 @@ export interface StoredGooglePlacesData {
   rating?: number;
   user_ratings_total?: number;
   price_level?: number;
-  
-  // Hours and status
-  opening_hours?: {
-    open_now?: boolean;
-    weekday_text?: string[];
-  };
+  opening_hours?: GooglePlacesBusiness['opening_hours'];
   business_status?: string;
-  
-  // Photos and reviews
-  photos?: Array<{
-    photo_reference: string;
-    photo_url?: string;
-    width: number;
-    height: number;
-  }>;
-  reviews?: any[];
-  
-  // Location and metadata
-  geometry?: {
-    location: { lat: number; lng: number };
-  };
+  photos?: GooglePlacesBusiness['photos'];
+  reviews?: GooglePlacesBusiness['reviews'];
+  geometry?: GooglePlacesBusiness['geometry'];
   vicinity?: string;
   types?: string[];
-  
-  // Cache metadata
   cached: boolean;
   data_source: 'database';
   last_updated?: string;
@@ -49,7 +32,6 @@ export const useStoredGooglePlaces = (
   store: Store | null | undefined
 ): StoredGooglePlacesData | null => {
   return useMemo(() => {
-    // If no store or no Google Place ID, we have no Google data
     if (!store || !store.google_place_id) {
       return null;
     }
@@ -63,13 +45,13 @@ export const useStoredGooglePlaces = (
       rating: store.google_rating ? Number(store.google_rating) : undefined,
       user_ratings_total: store.google_user_ratings_total || undefined,
       price_level: store.google_price_level || undefined,
-      opening_hours: store.google_opening_hours as any || undefined,
+      opening_hours: store.google_opening_hours as StoredGooglePlacesData['opening_hours'] || undefined,
       business_status: store.google_business_status || undefined,
-      photos: store.google_photos as any || undefined,
-      reviews: store.google_reviews as any || undefined,
-      geometry: store.google_geometry as any || undefined,
+      photos: store.google_photos as StoredGooglePlacesData['photos'] || undefined,
+      reviews: store.google_reviews as StoredGooglePlacesData['reviews'] || undefined,
+      geometry: store.google_geometry as StoredGooglePlacesData['geometry'] || undefined,
       vicinity: store.google_vicinity || undefined,
-      types: store.google_types as any || undefined,
+      types: store.google_types as string[] || undefined,
       cached: true,
       data_source: 'database',
       last_updated: store.google_last_updated || undefined

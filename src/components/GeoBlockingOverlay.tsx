@@ -6,7 +6,7 @@ import { useIPGeolocation } from '@/hooks/useIPGeolocation';
 const BYPASS_ROUTES = ['/og-preview'];
 
 // Set to true to disable geo-blocking during development
-const DEV_BYPASS_GEO_BLOCK = false;
+const DEV_BYPASS_GEO_BLOCK = import.meta.env.VITE_DEV_BYPASS_GEO_BLOCK === 'true';
 
 export const GeoBlockingOverlay = () => {
   const location = useLocation();

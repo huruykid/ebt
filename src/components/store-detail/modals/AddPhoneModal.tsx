@@ -46,7 +46,6 @@ export const AddPhoneModal: React.FC<AddPhoneModalProps> = ({ store, onPhoneAdde
 
     try {
       // TODO: Save phone number to database when backend is ready
-      console.log('Adding phone number:', phoneNumber, 'for store:', store.id);
       
       // Update the frontend immediately
       if (onPhoneAdded) {

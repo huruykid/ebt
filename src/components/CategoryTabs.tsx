@@ -126,7 +126,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     
     // Show RMP state warning if applicable
     if (category?.showStateWarning) {
-      console.log('RMP category selected - may need state warning');
+      // RMP category selected - state warning may be shown
     }
     
     if (onCategoryChange) {
