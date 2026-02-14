@@ -175,10 +175,6 @@ export const trackSEOPerformance = async () => {
   try {
     const metrics = await measureSEOMetrics();
     
-    // Log to console in development
-    if (import.meta.env.DEV) {
-      console.log('SEO Performance Metrics:', metrics);
-    }
     
     // You could send this to analytics service
     // analytics.track('seo_metrics', metrics);

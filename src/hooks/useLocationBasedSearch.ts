@@ -16,7 +16,6 @@ export const useLocationBasedSearch = () => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedZip, setSelectedZip] = useState('');
 
-  // Update search query when URL parameter changes
   useEffect(() => {
     const queryParam = searchParams.get('q') || '';
     if (queryParam !== searchQuery) {
@@ -24,7 +23,6 @@ export const useLocationBasedSearch = () => {
     }
   }, [searchParams]);
 
-  // Use custom hooks for location and category management
   const { locationSearch, setLocationSearch, userZipCode } = useLocationSearch();
   const {
     activeCategory,
@@ -35,7 +33,6 @@ export const useLocationBasedSearch = () => {
     handleCategoryChange
   } = useCategoryManagement();
 
-  // Use the search query hook with city/state parameters
   const { data: stores, isLoading, error } = useStoreSearchQuery({
     searchQuery,
     activeCategory,
@@ -49,20 +46,16 @@ export const useLocationBasedSearch = () => {
     selectedZip,
   });
 
-  // Sort the stores based on the selected option
   const sortedStores = stores ? sortStores(stores, sortBy) : [];
 
   const wrappedHandleCategoryChange = (categoryId: string, storeTypes: string[] = [], namePatterns: string[] = []) => {
     handleCategoryChange(categoryId, storeTypes, namePatterns);
-    
-    // Force a fresh search by clearing the search query for category-based searches
     if (categoryId !== 'trending') {
       setSearchQuery('');
     }
   };
 
   const wrappedSetSearchQuery = (query: string) => {
-    console.log('useLocationBasedSearch: Setting search query to:', query);
     setSearchQuery(query);
   };
 

@@ -3,7 +3,7 @@ import ExploreTrending from "@/components/ExploreTrending";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SEOHead } from "@/components/SEOHead";
 import { FAQSchema } from "@/components/FAQSchema";
-import { useEffect } from "react";
+import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export default function Index() {
   const structuredData = {
@@ -45,18 +45,9 @@ export default function Index() {
     }
   };
 
-  const breadcrumbData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://ebtfinder.org/"
-      }
-    ]
-  };
+  const breadcrumbItems = [
+    { name: "Home", url: "/" }
+  ];
 
   const faqs = [
     {
@@ -89,18 +80,6 @@ export default function Index() {
     }
   ];
 
-  // Add breadcrumb structured data
-  useEffect(() => {
-    const existingScript = document.querySelector('#breadcrumb-data');
-    if (existingScript) existingScript.remove();
-    const script = document.createElement('script');
-    script.id = 'breadcrumb-data';
-    script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(breadcrumbData);
-    document.head.appendChild(script);
-    return () => { script.remove(); };
-  }, []);
-
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
@@ -112,6 +91,7 @@ export default function Index() {
         structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
+      <BreadcrumbSchema items={breadcrumbItems} />
       <ExploreTrending />
     </ProtectedRoute>
   );

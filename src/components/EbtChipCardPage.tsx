@@ -16,7 +16,7 @@ export const EbtChipCardPage: React.FC = () => {
   const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   const handleZipSearch = (zipCode: string) => {
-    console.log('ZIP search:', zipCode);
+    
     setZipCode(zipCode);
     setIsSearchActive(true);
     // This will integrate with your existing search functionality

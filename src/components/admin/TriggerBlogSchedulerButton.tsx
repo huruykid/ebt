@@ -30,7 +30,7 @@ export const TriggerBlogSchedulerButton: React.FC = () => {
         toast.error(`Failed to trigger blog scheduler: ${response.error.message}`);
         setResult('error');
       } else {
-        console.log('Blog scheduler result:', response.data);
+        
         toast.success('Blog scheduler triggered successfully!');
         setResult('success');
       }

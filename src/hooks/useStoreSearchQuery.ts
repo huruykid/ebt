@@ -24,9 +24,6 @@ export const useStoreSearchQuery = (params: SearchParams) => {
   return useQuery({
     queryKey: ['stores', searchQuery, activeCategory, selectedStoreTypes, selectedNamePatterns, locationSearch, radius, userZipCode, params.selectedCity, params.selectedState, params.selectedZip],
     queryFn: async (): Promise<StoreWithDistance[]> => {
-      console.log('🔍 Starting store search with params:', params);
-
-      // Use the new location-aware query builder
       const query = buildLocationAwareQuery(
         searchQuery,
         activeCategory,
@@ -34,7 +31,7 @@ export const useStoreSearchQuery = (params: SearchParams) => {
         selectedNamePatterns,
         locationSearch,
         radius,
-        [], // excludePatterns - not used currently
+        [],
         params.selectedCity,
         params.selectedState,
         params.selectedZip
@@ -51,19 +48,6 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       
       // For location-aware queries, the results already include distance and are pre-filtered
       if (locationSearch && data && data.length > 0 && 'distance_miles' in data[0]) {
-        console.log('📊 Location-aware results received:', {
-          totalResults: data.length,
-          category: activeCategory,
-          radius: radius,
-          searchQuery: searchQuery,
-          sampleResults: data.slice(0, 3).map(r => ({ 
-            name: (r as any).store_name, 
-            type: (r as any).store_type,
-            distance: (r as any).distance_miles ? (r as any).distance_miles.toFixed(1) + ' miles' : 'unknown',
-            similarity: (r as any).similarity_score ? (r as any).similarity_score.toFixed(2) : 'n/a'
-          }))
-        });
-
         // Enrich RPC results with google_opening_hours and Incentive_Program
         const storeIds = data.map((s: any) => s.id);
         const { data: enrichData } = await supabase
@@ -107,9 +91,8 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           };
         }) as StoreWithDistance[]);
 
-        // Apply name-pattern-based filtering (for categories like bakery, delivery)
+        // Apply name-pattern-based filtering
         if (selectedNamePatterns.length > 0 && results.length > 0) {
-          const beforeNameFilter = results.length;
           results = results.filter(store => {
             const name = (store.Store_Name || '').toLowerCase();
             const type = (store.Store_Type || '').toLowerCase();
@@ -117,34 +100,24 @@ export const useStoreSearchQuery = (params: SearchParams) => {
               name.includes(p.toLowerCase()) || type.includes(p.toLowerCase())
             );
           });
-          console.log(`🔤 Name pattern filtering: ${beforeNameFilter} → ${results.length} stores`);
         }
 
         // Apply category-specific filtering for location-based searches
         if (activeCategory === 'grocery' && results.length > 0) {
-          console.log('🏪 Applying grocery exclusions to location results...');
-          const beforeExclusion = results.length;
           results = applyGroceryExclusion(results);
-          console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
         } else if (activeCategory === 'farmersmarket' && results.length > 0) {
-          console.log('🥕 Applying farmers market filtering to location results...');
-          const beforeFiltering = results.length;
           results = applyFarmersMarketFiltering(results);
-          console.log(`🥕 Farmers market filtering: ${beforeFiltering} → ${results.length} stores`);
         }
 
         return results;
       }
 
       // Fallback to original logic for non-location searches
-      // Transform the data to match StoreWithDistance type
       if (data && Array.isArray(data)) {
         results = data.map(store => {
-          // Handle both formats - some queries return the correct format already
           if ('Store_Name' in store) {
             return store as StoreWithDistance;
           } else {
-            // Transform from database format to StoreWithDistance format
             const storeData = store as any;
             return {
               id: storeData.id,
@@ -172,39 +145,16 @@ export const useStoreSearchQuery = (params: SearchParams) => {
       } else {
         results = [];
       }
-      
-      console.log('📊 Non-location search results:', {
-        totalResults: results.length,
-        category: activeCategory,
-        radius: radius,
-        locationActive: !!locationSearch,
-        sampleResults: results.slice(0, 3).map(r => ({ 
-          name: r.Store_Name, 
-          type: r.Store_Type,
-          coordinates: { lat: r.Latitude, lng: r.Longitude }
-        }))
-      });
 
       // Apply category-specific exclusions for non-location searches
-      const excludePatterns = activeCategory === 'trending' ? CATEGORY_EXCLUSIONS[activeCategory] || [] : [];
-      
       if (activeCategory === 'grocery' && results.length > 0) {
-        console.log('🏪 Applying grocery exclusions...');
-        const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
-        console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
       } else if (activeCategory === 'farmersmarket' && results.length > 0) {
-        console.log('🥕 Applying farmers market filtering...');
-        const beforeFiltering = results.length;
         results = applyFarmersMarketFiltering(results);
-        console.log(`🥕 Farmers market filtering: ${beforeFiltering} → ${results.length} stores`);
       }
 
       // Apply location filtering for non-location searches if location is provided
       if (locationSearch && results.length > 0) {
-        console.log(`📍 Applying fallback location filtering with ${radius} mile radius...`);
-        const beforeLocationFilter = results.length;
-        
         results = results
           .filter(store => store.Latitude && store.Longitude)
           .map(store => {
@@ -218,23 +168,7 @@ export const useStoreSearchQuery = (params: SearchParams) => {
           })
           .filter(store => store.distance! <= radius)
           .sort((a, b) => a.distance! - b.distance!);
-          
-        console.log(`📍 Fallback location filtering: ${beforeLocationFilter} → ${results.length} stores within ${radius} miles`);
       }
-
-      console.log('✅ Final search results:', {
-        category: activeCategory,
-        storeTypes: selectedStoreTypes,
-        namePatterns: selectedNamePatterns,
-        locationActive: !!locationSearch,
-        radius: radius,
-        totalResults: results.length,
-        sampleResults: results.slice(0, 3).map(r => ({ 
-          name: r.Store_Name, 
-          type: r.Store_Type,
-          distance: r.distance ? r.distance.toFixed(1) + ' miles' : 'no distance calculated'
-        }))
-      });
 
       return results;
     },

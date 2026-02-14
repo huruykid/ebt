@@ -28,13 +28,6 @@ export const useZipCodeSearch = (props: UseZipCodeSearchProps = {}) => {
     queryFn: async (): Promise<StoreWithDistance[]> => {
       if (!activeZipCode) return [];
 
-      console.log('🔍 ZIP search with filters:', {
-        zipCode: activeZipCode,
-        category: activeCategory,
-        storeTypes: selectedStoreTypes,
-        namePatterns: selectedNamePatterns
-      });
-
       let query = supabase
         .from('snap_stores')
         .select('*')
@@ -42,7 +35,6 @@ export const useZipCodeSearch = (props: UseZipCodeSearchProps = {}) => {
         .not('Store_Name', 'is', null)
         .not('Store_Name', 'eq', '');
 
-      // Apply store type filters if specified
       if (selectedStoreTypes && selectedStoreTypes.length > 0) {
         query = query.in('Store_Type', selectedStoreTypes);
       }
@@ -56,7 +48,6 @@ export const useZipCodeSearch = (props: UseZipCodeSearchProps = {}) => {
 
       let results: StoreWithDistance[] = data || [];
 
-      // Apply name pattern filters
       if (selectedNamePatterns && selectedNamePatterns.length > 0) {
         results = results.filter(store => {
           const storeName = store.Store_Name?.toLowerCase() || '';
@@ -66,15 +57,10 @@ export const useZipCodeSearch = (props: UseZipCodeSearchProps = {}) => {
         });
       }
 
-      // Apply category-specific exclusions
       if (activeCategory === 'grocery') {
-        console.log('🏪 Applying grocery exclusions to ZIP results...');
-        const beforeExclusion = results.length;
         results = applyGroceryExclusion(results);
-        console.log(`🏪 Grocery filtering: ${beforeExclusion} → ${results.length} stores`);
       }
 
-      // Apply general exclusions for trending category
       const excludePatterns = CATEGORY_EXCLUSIONS[activeCategory] || [];
       if (excludePatterns.length > 0) {
         results = results.filter(store => {
@@ -88,19 +74,10 @@ export const useZipCodeSearch = (props: UseZipCodeSearchProps = {}) => {
         });
       }
 
-      console.log('✅ Final ZIP search results:', {
-        category: activeCategory,
-        totalResults: results.length,
-        sampleResults: results.slice(0, 3).map(r => ({ 
-          name: r.Store_Name, 
-          type: r.Store_Type
-        }))
-      });
-
       return results;
     },
     enabled: !!activeZipCode,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   const handleZipSearch = (zipCode: string) => {

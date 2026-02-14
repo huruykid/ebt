@@ -41,11 +41,9 @@ export const useGeolocation = () => {
   const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
   const browserRequestedRef = useRef(false);
   
-  // Subscribe to the shared IP geolocation store
   const { data: ipData, loading: ipLoading } = useIPGeolocation();
 
   const tryIPFallback = useCallback(() => {
-    console.log('Trying IP geolocation fallback...');
     setLocation(prev => ({ ...prev, loading: true }));
     const ipLocation = getIPLocationFromCache();
     setLocation(ipLocation);
@@ -67,13 +65,10 @@ export const useGeolocation = () => {
     };
 
     const handleError = () => {
-      // Permission denied or error - silently use IP fallback from cache
-      console.log('Browser location denied/failed, using IP fallback');
       const ipLocation = getIPLocationFromCache();
       setLocation(ipLocation);
     };
 
-    // Native platform handling (excluding iOS)
     if (isNative && !isIOS) {
       (async () => {
         try {
@@ -98,7 +93,6 @@ export const useGeolocation = () => {
       return;
     }
 
-    // Web platform handling
     if (!('geolocation' in navigator)) {
       setLocation(getIPLocationFromCache());
       return;
@@ -110,11 +104,9 @@ export const useGeolocation = () => {
 
   // Sync IP geolocation data — only if browser GPS hasn't been requested
   useEffect(() => {
-    // Don't override browser GPS with IP data
     if (browserRequestedRef.current) return;
     
     if (ipLoading) {
-      // Still loading IP data
       setLocation(prev => prev.loading ? prev : { ...prev, loading: true });
       return;
     }

@@ -2,6 +2,7 @@
 import React from 'react';
 import { useOverpassData } from './useOverpassData';
 import { useGooglePlacesBusiness } from './useGooglePlaces';
+import type { GooglePlacesBusiness } from './useGooglePlaces';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -53,20 +54,17 @@ export const useEnhancedStoreData = (store: Store) => {
     // Prefer Google Places data for business info (usually more accurate)
     if (googlePlacesData) {
       sources.push('Google Places');
-      combinedScore += 0.8; // Google Places generally has good accuracy
+      combinedScore += 0.8;
       sourceCount++;
 
       result.phone = googlePlacesData.formatted_phone_number;
       result.website = googlePlacesData.website;
       result.rating = googlePlacesData.rating;
       result.review_count = googlePlacesData.user_ratings_total;
-      // Use cached photo URL from database (Google Places API is disabled)
-      // Photos are now stored in snap_stores.google_photos from previous syncs
       result.image_url = undefined;
       result.price_level = googlePlacesData.price_level?.toString();
       result.categories = googlePlacesData.types?.map(type => type.replace(/_/g, ' ')) || [];
       
-      // Convert Google Places opening hours to simple format if available
       if (googlePlacesData.opening_hours?.weekday_text?.[new Date().getDay()]) {
         result.hours = googlePlacesData.opening_hours.weekday_text[new Date().getDay()];
       }
@@ -78,7 +76,6 @@ export const useEnhancedStoreData = (store: Store) => {
       combinedScore += overpassData.confidence_score;
       sourceCount++;
 
-      // Use OSM data if Google Places doesn't have it
       if (!result.phone && overpassData.phone) {
         result.phone = overpassData.phone;
       }
@@ -89,7 +86,6 @@ export const useEnhancedStoreData = (store: Store) => {
         result.hours = overpassData.opening_hours;
       }
       
-      // Add OSM categories if available
       if (overpassData.shop_type) {
         result.categories = result.categories || [];
         if (!result.categories.includes(overpassData.shop_type)) {

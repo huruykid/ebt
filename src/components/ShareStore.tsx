@@ -48,7 +48,7 @@ export const ShareStore: React.FC<ShareStoreProps> = ({
           description: "Store details have been shared."
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        // User cancelled or share failed — no action needed
       }
     } else {
       handleCopyUrl();

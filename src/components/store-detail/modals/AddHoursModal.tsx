@@ -70,7 +70,6 @@ export const AddHoursModal: React.FC<AddHoursModalProps> = ({ store, onHoursAdde
     
     try {
       // TODO: Save hours to database when backend is ready
-      console.log('Adding hours:', hours, 'for store:', store.id);
       
       // Update the frontend immediately
       if (onHoursAdded) {
