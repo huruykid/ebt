@@ -69,6 +69,7 @@ const AppContent = () => {
       'mission': '/mission',
       'snap-tips': '/snap-tips',
       'blog': '/blog',
+      'benefits-calculator': '/benefits-calculator',
       'profile': '/profile',
     };
     if (routes[itemId]) navigate(routes[itemId]);
