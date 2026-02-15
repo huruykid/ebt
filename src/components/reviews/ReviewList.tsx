@@ -38,7 +38,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({ storeId }) => {
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <LoadingSpinner />
+        <LoadingSpinner message="Loading reviews..." />
       </div>
     );
   }
