@@ -19,6 +19,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ onNavigate }
     if (path === '/blog') return 'blog';
     if (path === '/mission') return 'mission';
     if (path === '/snap-tips') return 'snap-tips';
+    if (path === '/benefits-calculator') return 'benefits-calculator';
     if (path === '/profile') return 'profile';
     return 'home';
   };
@@ -31,6 +32,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ onNavigate }
     { id: 'blog', label: 'Blog' },
     { id: 'mission', label: 'Mission' },
     { id: 'snap-tips', label: 'SNAP Tips' },
+    { id: 'benefits-calculator', label: 'Calculator' },
     { id: 'profile', label: 'Profile', requiresAuth: true },
   ];
 
