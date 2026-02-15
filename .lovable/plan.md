@@ -1,32 +1,38 @@
 
-# Add Benefits Calculator to Desktop Header Navigation
+
+# Fix Generic "Loading stores..." Message Across All Loading States
+
+## Problem
+Every `<LoadingSpinner />` usage defaults to "Loading stores..." even when loading blogs, reviews, favorites, or lazy-loaded pages.
+
+## Solution
+Pass contextually appropriate `message` props to each `<LoadingSpinner />` instance.
 
 ## Changes
 
-Two files need small updates:
+### 1. `src/App.tsx` (line 58) -- PageLoader for lazy-loaded routes
+Change to: `<LoadingSpinner message="Loading..." />`
 
-### 1. `src/components/HeaderNavigation.tsx`
-- Add `benefits-calculator` to `getActiveItem()` path detection
-- Add `{ id: 'benefits-calculator', label: 'Calculator' }` to the `navItems` array (placed after "SNAP Tips" and before "Profile")
+### 2. `src/components/profile/UserReviews.tsx` (line 106)
+Change to: `<LoadingSpinner message="Loading reviews..." />`
 
-### 2. `src/App.tsx`
-- Add `'benefits-calculator': '/benefits-calculator'` to the `routes` map inside `handleNavigate` (line 66-73)
+### 3. `src/components/reviews/ReviewList.tsx` (line 41)
+Change to: `<LoadingSpinner message="Loading reviews..." />`
 
-No other files need changes. The route itself (`/benefits-calculator`) and the `BenefitsCalculator` page already exist.
+### 4. `src/pages/Favorites.tsx` (line 27)
+Change to: `<LoadingSpinner message="Loading favorites..." />`
 
-## Technical Details
+### 5. `src/components/store-search/SmartSearchResults.tsx` (line 35)
+Keep as-is (this one actually loads stores).
 
-**HeaderNavigation.tsx -- `getActiveItem()`:** Add:
-```typescript
-if (path === '/benefits-calculator') return 'benefits-calculator';
-```
+### 6. `src/components/store-search/SearchResults.tsx`
+Keep as-is (loads stores).
 
-**HeaderNavigation.tsx -- `navItems`:** Add before Profile:
-```typescript
-{ id: 'benefits-calculator', label: 'Calculator' },
-```
+### 7. `src/components/ExploreTrending.tsx` (lines 164, 169, 230, 235)
+Keep as-is (loads stores).
 
-**App.tsx -- `routes` map:** Add:
-```typescript
-'benefits-calculator': '/benefits-calculator',
-```
+### 8. `src/pages/StoreDetail.tsx` (line 58)
+Change to: `<LoadingSpinner message="Loading store details..." />`
+
+## Summary
+4 files modified, ~1 line each. No structural changes.
