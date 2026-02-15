@@ -55,7 +55,7 @@ export default function StoreDetailPage() {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-background flex items-center justify-center">
-          <LoadingSpinner />
+          <LoadingSpinner message="Loading store details..." />
         </div>
       </ProtectedRoute>
     );

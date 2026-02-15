@@ -55,7 +55,7 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "G-W8FZZ54CK
 // Loading fallback component
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
-    <LoadingSpinner />
+    <LoadingSpinner message="Loading..." />
   </div>
 );
 

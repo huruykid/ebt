@@ -24,7 +24,7 @@ export default function Favorites() {
 
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <LoadingSpinner />
+              <LoadingSpinner message="Loading favorites..." />
             </div>
           ) : favorites.length === 0 ? (
             <div className="text-center py-12">

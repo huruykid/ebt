@@ -103,7 +103,7 @@ export const UserReviews: React.FC = () => {
     return (
       <Card>
         <CardContent className="p-8 flex justify-center">
-          <LoadingSpinner />
+          <LoadingSpinner message="Loading reviews..." />
         </CardContent>
       </Card>
     );
