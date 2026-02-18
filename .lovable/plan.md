@@ -1,73 +1,61 @@
 
+# Fix Bounce Rate: Two-Pronged Attack
 
-# Add RMP Advocacy Section for Non-Participating States
+## Diagnosis Summary
 
-## Overview
-For states that don't participate in the Restaurant Meals Program (RMP), replace the empty space with an advocacy call-to-action. Users will see who to contact and get a pre-filled email template they can send with one click.
+The analytics show two distinct problems:
 
-## Approach
-Since individual state SNAP agency email addresses change frequently and are hard to maintain, the design will:
-1. Link users to the official USDA SNAP State Directory (https://www.fns.usda.gov/snap/state-directory) to find their state's contact
-2. Provide a pre-filled `mailto:` link with subject and body so users just paste in the email address and hit send
-3. Also include a "Copy template" button for flexibility
+**Problem 1 (Bot traffic — ~60% of all bounces):** Chinese bot traffic (749 CN visits vs 461 US visits) hits the page and immediately bounces. The geo-block overlay fires client-side after the page loads, so the bounce is already counted. These sessions average 3–18 seconds and drag the overall bounce rate to 95%+.
 
-## UI Design
-For non-RMP states, a styled banner will appear in the same location as the green RMP info box, with:
-- A clear message: "{State} does not yet participate in the Restaurant Meals Program"
-- Brief explanation of what RMP is and who benefits
-- A "Find Your State SNAP Office" link to the USDA directory
-- A "Send Email to Your Rep" button that opens a `mailto:` with a pre-filled template
-- A "Copy Email Template" fallback button
+**Problem 2 (US user friction — real bounce rate ~40–55%):** US visitors land on a blank homepage with nothing pre-loaded. They see a search box and a "No location prompt" with zero content until they interact. No immediate value = bounce.
 
-## Changes
+## Solution
 
-### 1. `src/pages/StatePage.tsx`
-- Replace the conditional `{state.rmpParticipating && (...)}` block (lines 124-133) with a conditional that shows **either** the existing green RMP banner **or** a new amber/orange advocacy banner for non-RMP states
-- The advocacy banner includes:
-  - Icon and heading explaining RMP is not available
-  - Link to USDA SNAP State Directory
-  - `mailto:` button with pre-filled subject: "Request for Restaurant Meals Program (RMP) in {State}" and body with a polite template letter
-  - Copy template button using `navigator.clipboard`
+### Part 1 — Pre-load content on the homepage so US users see value immediately
 
-### 2. No other files need changes
-The state data already has `rmpParticipating` boolean. No new dependencies needed.
+Currently, non-logged-in desktop users with no location see:
+- A search bar
+- "Enable location or search by ZIP code" with a blank area below
 
-## Technical Details
+The fix: Show a **"Popular Cities"** or **"Featured Stores"** grid below the hero immediately on page load, before the user does anything. This gives them something to engage with.
 
-### Email Template Content
-```
-Subject: Request for Restaurant Meals Program (RMP) Participation in {State}
+Changes to `src/components/ExploreTrending.tsx`:
+- The `NoLocationPrompt` renders when `!latitude && !longitude`. Replace this with a two-column layout: the `NoLocationPrompt` on top + a **pre-loaded featured stores section** below it (fetched without any location).
+- Add a new query using `supabase` to fetch 6–12 "featured" stores (e.g., well-known national chains: Walmart, Kroger, Aldi) sorted by store count, or the `PopularCities` component which already exists at `src/components/home/PopularCities.tsx`.
 
-Body:
-Dear {State} SNAP Program Administrator,
+Changes to `src/components/home/HeroSearch.tsx` (desktop):
+- Reduce `py-16` to `py-10` on desktop so more content is visible above the fold on shorter screens.
 
-I am writing to request that {State} consider participating in the USDA Restaurant Meals Program (RMP). 
+### Part 2 — Add a "popular near you" pre-load using IP-based city
 
-RMP allows eligible SNAP recipients -- including elderly, disabled, and homeless individuals -- to use their EBT benefits to purchase hot prepared meals at participating restaurants. Currently, only 8 states participate in this program.
+The app already has `useIPGeolocation` which detects the user's approximate city from their IP. This is already cached. When no GPS/ZIP is active, use the IP-detected city to silently pre-load nearby stores without prompting the user — so they immediately see relevant content.
 
-Many {State} residents who qualify for SNAP benefits face barriers to preparing meals at home and would greatly benefit from RMP access. I urge you to explore bringing this program to our state.
+Changes to `src/components/ExploreTrending.tsx`:
+- Import `useIPGeolocation` 
+- When `!latitude && !longitude`, check if IP geolocation has a `lat`/`lng` (it returns coordinates). Use those to silently fetch nearby stores with a note "Showing stores near {city} — enter your ZIP for precise results"
+- This converts the dead "No location" state into an immediately useful page.
 
-Thank you for your consideration.
+### Part 3 — Show the Popular Cities component when no location/search is active
 
-A Concerned {State} Resident
-```
+`src/components/home/PopularCities.tsx` already exists but is never shown on the homepage. Render it in the no-location state on both mobile and desktop as a fallback engagement layer.
 
-### mailto Link
-```typescript
-const subject = encodeURIComponent(`Request for Restaurant Meals Program (RMP) Participation in ${state.name}`);
-const body = encodeURIComponent(`Dear ${state.name} SNAP Program Administrator,...`);
-const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-```
+## Files to Modify
 
-The `mailto:` uses an empty `to:` field so the user pastes in the correct address from the USDA directory. The copy button copies just the template text to clipboard.
+1. **`src/components/ExploreTrending.tsx`**
+   - Import `useIPGeolocation`
+   - Add IP-based approximate location as fallback coordinates when GPS/ZIP not active
+   - Replace blank `NoLocationPrompt`-only state with `NoLocationPrompt` + `PopularCities` below it
+   - Reduce desktop hero vertical padding (pass `compact` prop or adjust directly)
 
-### StatePage.tsx Change (lines 124-133)
-Replace the RMP-only conditional with:
-```tsx
-{state.rmpParticipating ? (
-  // existing green RMP banner
-) : (
-  // new amber advocacy banner with email template
-)}
-```
+2. **`src/components/home/HeroSearch.tsx`**
+   - Desktop: change `py-16` → `py-10` to reduce above-fold dead space
 
+3. **`src/components/home/PopularCities.tsx`** (read-only check first to confirm it's self-contained)
+   - No changes needed — just wire it into ExploreTrending
+
+## Expected Impact
+
+- Users with no GPS/ZIP see **popular cities grid** immediately instead of a blank prompt → more scrolling, more clicks → lower bounce rate
+- Users whose IP resolves to a US city see **pre-loaded nearby stores** automatically → immediate value
+- Reducing hero padding means **more content visible above fold** on 768–900px height desktops
+- Bot/CN traffic bounce rate cannot be fixed client-side without server-side geo-blocking (that's a Cloudflare/CDN-level fix), but these changes will improve the real US user bounce rate which is the metric that matters for conversions
