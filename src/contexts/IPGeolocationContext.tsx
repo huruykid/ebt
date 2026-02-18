@@ -2,13 +2,14 @@ import { createContext, useContext, useState, useEffect, useMemo, ReactNode } fr
 import { supabase } from '@/integrations/supabase/client';
 
 interface IPGeolocationData {
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   city: string;
   region: string;
   country: string;
   countryCode: string;
-  source: 'ip' | 'fallback';
+  source: 'ip' | 'fallback' | 'blocked';
+  blocked?: boolean;
 }
 
 interface IPGeolocationContextValue {
@@ -81,13 +82,15 @@ export const IPGeolocationProvider = ({ children }: { children: ReactNode }) => 
         }
 
         const ipData: IPGeolocationData = {
-          latitude: result.latitude,
-          longitude: result.longitude,
+          latitude: result.latitude ?? null,
+          longitude: result.longitude ?? null,
           city: result.city || '',
           region: result.region || '',
           country: result.country || '',
           countryCode: result.countryCode || '',
-          source: result.source === 'fallback' ? 'fallback' : 'ip',
+          // Preserve 'blocked' source so GeoBlockingOverlay and useGeolocation handle it correctly
+          source: result.blocked ? 'blocked' : (result.source === 'fallback' ? 'fallback' : 'ip'),
+          blocked: result.blocked ?? false,
         };
 
         saveToSession(ipData);

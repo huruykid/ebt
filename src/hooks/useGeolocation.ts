@@ -13,18 +13,22 @@ import { useIPGeolocation, getCachedIPGeolocation } from './useIPGeolocation';
 
 // Convert IP geolocation data to GeolocationResult format
 const convertIPDataToResult = (data: {
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   city: string;
   region: string;
-  source: 'ip' | 'fallback';
+  source: 'ip' | 'fallback' | 'blocked';
 }): GeolocationResult => {
+  // Blocked/non-US traffic: treat as fallback with no coordinates
+  if (data.source === 'blocked' || data.latitude == null || data.longitude == null) {
+    return createFallbackLocationResult();
+  }
   return createIPLocationResult({
     latitude: data.latitude,
     longitude: data.longitude,
     city: data.city,
     region: data.region,
-    source: data.source,
+    source: data.source as 'ip' | 'fallback',
   });
 };
 

@@ -5,6 +5,46 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// In-memory cache of blocked IPs for this instance
+const blockedIPs = new Set<string>();
+// Rate limit map
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 30; // photos/minute per IP
+const RATE_WINDOW_MS = 60 * 1000;
+
+function getClientIP(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('x-real-ip')
+    || 'unknown';
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW_MS });
+    return false;
+  }
+  if (record.count >= RATE_LIMIT) return true;
+  record.count++;
+  return false;
+}
+
+async function isUSTraffic(ip: string): Promise<boolean> {
+  // Skip geo-check for private/local IPs (development)
+  if (!ip || ip === 'unknown' || ip.startsWith('127.') || ip.startsWith('10.') || ip.startsWith('192.168.')) {
+    return true;
+  }
+  try {
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode`, { signal: AbortSignal.timeout(2000) });
+    if (!res.ok) return true; // Fail open
+    const data = await res.json();
+    return !data.countryCode || data.countryCode === 'US';
+  } catch {
+    return true; // Fail open on timeout/error
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -12,6 +52,35 @@ serve(async (req) => {
   }
 
   try {
+    const clientIP = getClientIP(req);
+
+    // Fast-block previously identified non-US IPs
+    if (blockedIPs.has(clientIP)) {
+      return new Response(JSON.stringify({ error: 'Service not available in your region' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Rate limit check
+    if (isRateLimited(clientIP)) {
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Geo-block non-US traffic (runs async, ~10ms with 2s timeout, fail-open)
+    const usOnly = await isUSTraffic(clientIP);
+    if (!usOnly) {
+      blockedIPs.add(clientIP);
+      console.log(`Blocked non-US photo request from IP: ${clientIP}`);
+      return new Response(JSON.stringify({ error: 'Service available in the US only' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const url = new URL(req.url);
     const photoReference = url.searchParams.get('photo_reference');
     const maxWidth = url.searchParams.get('maxwidth') || '800';
@@ -44,7 +113,6 @@ serve(async (req) => {
 
     console.log('📸 Fetching photo from Google Places Photo API...');
 
-    // Fetch the photo from Google Places API
     const photoResponse = await fetch(googlePhotoUrl);
 
     if (!photoResponse.ok) {
@@ -58,16 +126,14 @@ serve(async (req) => {
       );
     }
 
-    // Get the photo data
     const photoData = await photoResponse.arrayBuffer();
     const contentType = photoResponse.headers.get('content-type') || 'image/jpeg';
 
-    // Return the photo with appropriate headers
     return new Response(photoData, {
       headers: {
         ...corsHeaders,
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+        'Cache-Control': 'public, max-age=86400',
       },
     });
 
