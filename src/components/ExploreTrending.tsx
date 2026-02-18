@@ -10,7 +10,9 @@ import { UnifiedStoreCard } from './UnifiedStoreCard';
 import { SEOFooter } from './SEOFooter';
 import { FAQSection } from './FAQSection';
 import { HeroSearch, SnapTipsSection, PersonalizedDashboard } from './home';
+import { PopularCities } from './home/PopularCities';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIPGeolocation } from '@/hooks/useIPGeolocation';
 import { MapPin } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -22,19 +24,26 @@ export const ExploreTrending: React.FC = () => {
   const { user } = useAuth();
   
   const { latitude, longitude, loading, source, city, requestBrowserLocation } = useGeolocation();
+  const { data: ipGeo } = useIPGeolocation();
+
+  // Use GPS/ZIP if available, fall back to IP geolocation for a content pre-load
+  const effectiveLat = latitude ?? ipGeo?.latitude ?? null;
+  const effectiveLng = longitude ?? ipGeo?.longitude ?? null;
+  const isIPFallback = !latitude && !longitude && !!ipGeo?.latitude;
+  const ipCity = ipGeo?.city || ipGeo?.region || 'your area';
 
 
-  // Fetch nearby stores when location is available
+  // Fetch nearby stores when location is available (GPS, ZIP, or IP fallback)
   const { data: nearbyStores = [], isLoading: nearbyLoading } = useQuery({
-    queryKey: ['home-nearby-stores', latitude, longitude, activeCategory, selectedStoreTypes],
+    queryKey: ['home-nearby-stores', effectiveLat, effectiveLng, activeCategory, selectedStoreTypes],
     queryFn: async () => {
-      if (!latitude || !longitude) return [];
+      if (!effectiveLat || !effectiveLng) return [];
       
       const storeTypesParam = selectedStoreTypes.length > 0 ? selectedStoreTypes : undefined;
       
       const { data, error } = await supabase.rpc('get_nearby_stores', {
-        user_lat: latitude,
-        user_lng: longitude,
+        user_lat: effectiveLat,
+        user_lng: effectiveLng,
         radius_miles: 10,
         result_limit: 20,
         store_types: storeTypesParam,
@@ -59,7 +68,7 @@ export const ExploreTrending: React.FC = () => {
         distance: s.distance_miles,
       }));
     },
-    enabled: !!latitude && !!longitude,
+    enabled: !!effectiveLat && !!effectiveLng,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -103,11 +112,14 @@ export const ExploreTrending: React.FC = () => {
   );
 
   const ExactLocationPrompt = () => {
-    if (source === 'browser' || !latitude || !longitude) return null;
+    // Show "approximate" nudge when using GPS non-browser or IP fallback
+    const showNudge = isIPFallback || (source !== 'browser' && !!latitude && !!longitude);
+    if (!showNudge) return null;
+    const displayCity = isIPFallback ? ipCity : (city || 'your area');
     return (
       <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 mb-3">
         <p className="text-xs text-muted-foreground">
-          Showing stores near {city || 'your area'} (approximate)
+          Showing stores near {displayCity} (approximate)
         </p>
         <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={requestBrowserLocation}>
           <MapPin className="h-3 w-3 mr-1" />
@@ -118,14 +130,17 @@ export const ExploreTrending: React.FC = () => {
   };
 
   const NoLocationPrompt = () => (
-    <div className="text-center py-16">
-      <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-      <h3 className="text-base font-semibold mb-1.5">Find stores near you</h3>
-      <p className="text-sm text-muted-foreground mb-4">Enable location or search by ZIP code</p>
-      <Button onClick={requestBrowserLocation} size="sm">
-        <MapPin className="h-4 w-4 mr-2" />
-        Use My Location
-      </Button>
+    <div className="space-y-6">
+      <div className="text-center py-8">
+        <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+        <h3 className="text-base font-semibold mb-1.5">Find stores near you</h3>
+        <p className="text-sm text-muted-foreground mb-4">Enable location or search by ZIP code</p>
+        <Button onClick={requestBrowserLocation} size="sm">
+          <MapPin className="h-4 w-4 mr-2" />
+          Use My Location
+        </Button>
+      </div>
+      <PopularCities variant="full" />
     </div>
   );
 
@@ -163,7 +178,7 @@ export const ExploreTrending: React.FC = () => {
             <div className="animate-fade-in">
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
-          ) : latitude && longitude ? (
+          ) : effectiveLat && effectiveLng ? (
             <div className="animate-fade-in">
               <ExactLocationPrompt />
               {nearbyLoading ? <LoadingSpinner /> : (
@@ -229,7 +244,7 @@ export const ExploreTrending: React.FC = () => {
               </div>
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
-          ) : latitude && longitude ? (
+          ) : effectiveLat && effectiveLng ? (
             <div className="space-y-4 animate-fade-in">
               <ExactLocationPrompt />
               {nearbyLoading ? <LoadingSpinner /> : (
