@@ -94,7 +94,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
 
   return (
     <div className="border-b border-border">
-      <div className="max-w-2xl mx-auto px-6 py-16 text-center animate-fade-in">
+      <div className="max-w-2xl mx-auto px-6 py-10 text-center animate-fade-in">
         <h1 className="font-bold text-foreground text-3xl mb-3">
           Find Stores That Accept EBT
         </h1>
