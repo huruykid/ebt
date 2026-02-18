@@ -27,9 +27,10 @@ export const ExploreTrending: React.FC = () => {
   const { data: ipGeo } = useIPGeolocation();
 
   // Use GPS/ZIP if available, fall back to IP geolocation for a content pre-load
-  const effectiveLat = latitude ?? ipGeo?.latitude ?? null;
-  const effectiveLng = longitude ?? ipGeo?.longitude ?? null;
-  const isIPFallback = !latitude && !longitude && !!ipGeo?.latitude;
+  // Don't use IP coords if blocked (non-US traffic)
+  const effectiveLat = latitude ?? (ipGeo?.blocked ? null : (ipGeo?.latitude ?? null));
+  const effectiveLng = longitude ?? (ipGeo?.blocked ? null : (ipGeo?.longitude ?? null));
+  const isIPFallback = !latitude && !longitude && !!ipGeo?.latitude && !ipGeo?.blocked;
   const ipCity = ipGeo?.city || ipGeo?.region || 'your area';
 
 
