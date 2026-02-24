@@ -4,7 +4,7 @@ import { useParams, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { SearchContainer } from '@/components/store-search/SearchContainer';
 import { SEOFooter } from '@/components/SEOFooter';
-import { FAQSection } from '@/components/FAQSection';
+import { CityFAQSection } from '@/components/CityFAQSection';
 import { SEOHead } from '@/components/SEOHead';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
@@ -153,8 +153,8 @@ const CityPage: React.FC = () => {
           />
         </div>
 
-        {/* FAQ Section */}
-        <FAQSection />
+        {/* City-Specific FAQ Section with Schema */}
+        <CityFAQSection cityName={city.name} stateName={city.state} />
 
         {/* SEO Footer */}
         <SEOFooter />
