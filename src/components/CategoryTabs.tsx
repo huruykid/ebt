@@ -147,15 +147,15 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   return (
     <div className={`relative ${className}`}>
       {/* Left fade indicator */}
-      <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none md:hidden transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none transition-opacity ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`} />
       
       {/* Right fade indicator */}
-      <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none md:hidden transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
+      <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none transition-opacity ${canScrollRight ? 'opacity-100' : 'opacity-0'}`} />
 
       {/* Left scroll button - visible on mobile */}
       <button
         onClick={() => scroll('left')}
-        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 md:hidden ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll left"
       >
         <ChevronLeft className="h-4 w-4 text-gray-600" />
@@ -164,7 +164,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       {/* Right scroll button - visible on mobile */}
       <button
         onClick={() => scroll('right')}
-        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 md:hidden ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll right"
       >
         <ChevronRight className="h-4 w-4 text-gray-600" />
