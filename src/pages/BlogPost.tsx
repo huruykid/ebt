@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import type { BlogPostWithCategory } from '@/types/blogTypes';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ArticleSchema } from '@/components/blog/ArticleSchema';
 import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import { TableOfContents } from '@/components/blog/TableOfContents';
@@ -52,6 +52,22 @@ export default function BlogPost() {
       ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'id']
     });
   }, [post?.body]);
+
+  // Set real last-modified meta tag from post data
+  useEffect(() => {
+    if (post?.updated_at) {
+      let meta = document.querySelector('meta[name="last-modified"]') as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'last-modified';
+        document.head.appendChild(meta);
+      }
+      meta.content = new Date(post.updated_at).toISOString();
+    }
+    return () => {
+      document.querySelector('meta[name="last-modified"]')?.remove();
+    };
+  }, [post?.updated_at]);
 
   if (isLoading) {
     return (
