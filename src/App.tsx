@@ -118,6 +118,10 @@ const AppContent = () => {
               
               {/* Explicit 404 route for SEO (returns proper 404 page) */}
               <Route path="/not-found" element={<NotFound />} />
+              
+              {/* Legacy city routes (e.g., /los-angeles) — CityPage handles redirect to /city/los-angeles */}
+              <Route path="/:citySlug" element={<CityPage />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
