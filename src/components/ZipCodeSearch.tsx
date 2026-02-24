@@ -60,18 +60,20 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Enter ZIP code (e.g., 90210)"
+            inputMode="numeric"
+            placeholder="Enter ZIP code"
             value={zipInput}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            className="pl-12 pr-4 h-12 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base rounded-none"
+            className="pl-12 pr-4 h-12 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm rounded-none"
             maxLength={5}
+            aria-label="ZIP code"
           />
         </div>
         <Button 
           onClick={handleSearch}
           disabled={!validateZipCode(zipInput)}
-          className="h-12 px-8 rounded-none text-base font-semibold bg-primary hover:bg-primary/90 transition-all"
+          className="h-12 px-5 rounded-none text-sm font-semibold bg-primary hover:bg-primary/90 transition-all"
         >
           <Search className="h-5 w-5 mr-2" />
           Search

@@ -135,7 +135,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
                 </Button>
               }
             />
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="outline" size="sm">
               <Link to="/benefits-calculator">
                 <Calculator className="h-4 w-4 mr-2" />
                 Calculator
