@@ -1,6 +1,7 @@
 // Plain Leaflet map (no react-leaflet wrapper) - React 18 compatible — build v3
 import React, { useEffect, useRef, useMemo } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import DOMPurify from 'dompurify';
 import { isRmpEnrolled } from '@/utils/storeUtils';
 import { isStoreOpen } from '@/utils/storeHoursUtils';
