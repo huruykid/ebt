@@ -9,7 +9,9 @@ import { SEOHead } from '@/components/SEOHead';
 import { BreadcrumbSchema } from '@/components/BreadcrumbSchema';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { MapPin, Store } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cityData, getCityBySlug } from '@/constants/cityData';
+import { stateData } from '@/constants/stateData';
 
 const CityPage: React.FC = () => {
   const { citySlug } = useParams<{ citySlug: string }>();
@@ -37,9 +39,14 @@ const CityPage: React.FC = () => {
   const seoKeywords = `EBT stores ${city.name}, places that accept EBT ${city.name}, EBT near me ${city.name}, SNAP stores ${city.state}, ${city.name} grocery stores EBT, restaurants accept EBT ${city.name}, ${city.zipCodes.slice(0, 3).join(' ')}`;
   const canonicalUrl = `https://ebtfinder.org/city/${actualCitySlug}`;
 
-  // Breadcrumb data for SEO
+  // Resolve state slug for internal linking
+  const stateSlug = Object.keys(stateData).find(k => stateData[k].abbr === city.state);
+  const stateName = stateSlug ? stateData[stateSlug].name : city.state;
+
+  // Breadcrumb data for SEO: Home > State > City
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
+    ...(stateSlug ? [{ name: stateName, url: `/state/${stateSlug}` }] : []),
     { name: city.name, url: `/city/${actualCitySlug}` }
   ];
 
@@ -106,7 +113,12 @@ const CityPage: React.FC = () => {
               {/* Location indicator */}
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full mb-6">
                 <MapPin className="h-4 w-4" />
-                <span className="font-medium">{city.name}, {city.state}</span>
+                <span className="font-medium">
+                  {city.name},{' '}
+                  {stateSlug ? (
+                    <Link to={`/state/${stateSlug}`} className="hover:underline">{city.state}</Link>
+                  ) : city.state}
+                </span>
               </div>
               
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">

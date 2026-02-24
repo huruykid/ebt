@@ -1,8 +1,11 @@
 import React from 'react';
-import { Star, MapPin, Phone, Navigation, ExternalLink, Clock } from 'lucide-react';
+import { Star, MapPin, Phone, Navigation, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/FavoriteButton';
 import { ShareStore } from '@/components/ShareStore';
+import { stateData } from '@/constants/stateData';
+import { cityData } from '@/constants/cityData';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Store = Tables<'snap_stores'>;
@@ -45,6 +48,18 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance })
   const phone = store.google_formatted_phone_number;
   const website = store.google_website;
 
+  // Internal linking: resolve city and state slugs
+  const citySlug = store.City
+    ? Object.keys(cityData).find(slug => {
+        const c = cityData[slug];
+        return c.name.toLowerCase() === store.City!.toLowerCase() && c.state === store.State;
+      })
+    : undefined;
+
+  const stateSlug = store.State
+    ? Object.keys(stateData).find(k => stateData[k].abbr === store.State)
+    : undefined;
+
   return (
     <div className="space-y-4">
       {/* Name + actions */}
@@ -82,10 +97,24 @@ export const StoreHeader: React.FC<StoreHeaderProps> = ({ store, userDistance })
         </div>
       </div>
 
-      {/* Address */}
+      {/* Address with internal links */}
       <div className="flex items-start gap-2 text-muted-foreground">
         <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-        <span className="text-sm">{formatAddress()}</span>
+        <span className="text-sm">
+          {store.Store_Street_Address && <>{store.Store_Street_Address}, </>}
+          {store.City && citySlug ? (
+            <Link to={`/city/${citySlug}`} className="text-primary hover:underline">{store.City}</Link>
+          ) : store.City ? (
+            <>{store.City}</>
+          ) : null}
+          {store.City && store.State ? ', ' : ''}
+          {store.State && stateSlug ? (
+            <Link to={`/state/${stateSlug}`} className="text-primary hover:underline">{store.State}</Link>
+          ) : store.State ? (
+            <>{store.State}</>
+          ) : null}
+          {store.Zip_Code ? ` ${store.Zip_Code}` : ''}
+        </span>
         {userDistance !== undefined ? (
           <span className="text-sm font-medium text-foreground whitespace-nowrap ml-auto">
             {userDistance.toFixed(1)} mi

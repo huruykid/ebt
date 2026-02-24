@@ -5,15 +5,28 @@ export const SearchEngineOptimizer = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Add last modified meta tag
-    const addLastModified = () => {
-      let meta = document.querySelector('meta[name="last-modified"]') as HTMLMetaElement;
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = 'last-modified';
-        document.head.appendChild(meta);
+    // Add prefetch hints for likely next navigations
+    const addPrefetchHints = () => {
+      // Clean up old prefetch links
+      document.querySelectorAll('link[data-prefetch]').forEach(el => el.remove());
+
+      const routePrefetchMap: Record<string, string[]> = {
+        '/': ['/search', '/blog', '/benefits-calculator'],
+        '/search': ['/'],
+      };
+
+      const hints = [...(routePrefetchMap[location.pathname] || [])];
+      if (location.pathname.startsWith('/city/') || location.pathname.startsWith('/state/')) {
+        hints.push('/search');
       }
-      meta.content = new Date().toISOString();
+
+      hints.forEach(href => {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = href;
+        link.setAttribute('data-prefetch', 'true');
+        document.head.appendChild(link);
+      });
     };
 
     // Add author and publisher for E-A-T
@@ -143,7 +156,7 @@ export const SearchEngineOptimizer = () => {
       }
     };
 
-    addLastModified();
+    addPrefetchHints();
     addEATSignals();
     optimizeCoreWebVitals();
     addSitelinksSearchBox();
