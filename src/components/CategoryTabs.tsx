@@ -176,7 +176,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
         onScroll={checkScrollButtons}
       >
         <nav 
-          className="rounded-xl bg-muted flex items-center justify-start md:justify-center gap-2 md:gap-6 px-3 md:px-6 py-2 md:py-4 min-w-max"
+          className="rounded-xl bg-muted flex items-center justify-start md:justify-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-4 min-w-max"
           role="tablist"
           aria-label="Food categories"
         >
@@ -188,7 +188,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                 key={category.id}
                 data-category-id={category.id}
                 onClick={() => handleCategoryClick(category.id)}
-                className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[80px] px-2 md:px-4 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
+                className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[72px] px-2 md:px-3 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
                   isActive 
                     ? 'bg-gradient-to-br from-white to-gray-50 shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
                     : 'hover:bg-white/70 hover:shadow-md md:hover:shadow-lg'
