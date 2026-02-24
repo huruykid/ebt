@@ -22,8 +22,8 @@ export const CityPageSEO: React.FC<CityPageSEOProps> = ({
   const formattedCityName = cityName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   const locationString = stateAbbr ? `${formattedCityName}, ${stateAbbr.toUpperCase()}` : formattedCityName;
   
-  const title = `EBT Stores in ${locationString} | Find SNAP-Approved Locations`;
-  const description = `Find ${storeCount || 'hundreds of'} EBT and SNAP-approved stores in ${locationString}. Search grocery stores, restaurants, farmers markets, and more accepting food stamps.`;
+  const title = `EBT Stores in ${locationString} — Find Places That Accept EBT Near You`;
+  const description = `Find ${storeCount ? storeCount.toLocaleString() + '+' : 'hundreds of'} stores and restaurants that accept EBT in ${locationString}. Search by ZIP code, see hours, get directions. Free and updated daily.`;
   const canonicalUrl = `https://ebtfinder.org/city/${cityName.toLowerCase().replace(/\s+/g, '-')}`;
 
   const structuredData = {
