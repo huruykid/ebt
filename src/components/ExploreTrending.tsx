@@ -105,7 +105,7 @@ export const ExploreTrending: React.FC = () => {
   const showZipResults = isSearchActive;
 
   const StoreListSimple = ({ stores }: { stores: any[] }) => (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {stores.map((store) => (
         <UnifiedStoreCard key={store.id} store={store} />
       ))}
@@ -115,10 +115,9 @@ export const ExploreTrending: React.FC = () => {
   const ExactLocationPrompt = () => {
     // Show "approximate" nudge when using GPS non-browser or IP fallback
     const showNudge = isIPFallback || (source !== 'browser' && !!latitude && !!longitude);
-    if (!showNudge) return null;
     const displayCity = isIPFallback ? ipCity : (city || 'your area');
     return (
-      <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 mb-3">
+      <div className={`flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 mb-3 min-h-[40px] transition-opacity ${showNudge ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <p className="text-xs text-muted-foreground">
           Showing stores near {displayCity} (approximate)
         </p>
@@ -221,12 +220,12 @@ export const ExploreTrending: React.FC = () => {
         />
 
         <div className="border-b border-border">
-          <div className="max-w-3xl mx-auto px-6 py-3">
+          <div className="max-w-5xl mx-auto px-6 py-3">
             <CategoryTabs onCategoryChange={handleCategoryChange} className="flex justify-center" />
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-6 py-8">
+        <div className="max-w-5xl mx-auto px-6 py-8">
           {user && !showZipResults && (
             <div className="mb-8">
               <PersonalizedDashboard latitude={latitude} longitude={longitude} />
@@ -267,7 +266,7 @@ export const ExploreTrending: React.FC = () => {
           )}
         </div>
         
-        <div className="max-w-3xl mx-auto px-6 space-y-8 pb-8">
+        <div className="max-w-5xl mx-auto px-6 space-y-8 pb-8">
           <SnapTipsSection />
           <FAQSection />
         </div>
