@@ -1,50 +1,58 @@
 
 
-## Add City-Specific FAQ Schema to City Pages
+## Fix Desktop Ranking Penalty
 
-### Goal
-Add targeted, city-localized FAQ content and structured data (FAQPage schema) to each city page, answering the exact high-impression queries from Google Search Console that currently get 0 clicks. This targets featured snippet eligibility for queries like "places that take ebt near me," "what restaurants accept ebt near me," and "ebt food near me."
+The desktop experience currently ranks at position 24 vs mobile at 8.6. After auditing the codebase and taking screenshots, here are the root causes and fixes:
 
-### What Changes
+### Problems Identified
 
-**1. New component: `src/components/CityFAQSection.tsx`**
+1. **Narrow content width on desktop** -- The homepage desktop layout constrains everything to `max-w-3xl` (768px) on a 1920px screen, wasting 60% of the viewport. Google sees this as a poor desktop experience (essentially a mobile layout centered on a wide screen).
 
-A city-aware FAQ section that dynamically injects the city name into each question and answer. It will:
-- Accept `cityName` and `stateName` props
-- Generate 5-6 FAQs targeting the exact 0-click queries from GSC data
-- Render a visible accordion (important for Google to index the content)
-- Include `FAQSchema` for structured data markup
+2. **Single-column store cards on desktop** -- Store results use `grid-cols-1` on all viewports. Desktop users see one narrow card per row with massive empty space on both sides.
 
-Example FAQs (with city name injected):
+3. **Layout Shift (CLS) from Header images** -- The `Header.tsx` component loads two logo images from an external CDN (`cdn.builder.io`) with no explicit `width`/`height` attributes, causing layout shifts as they load.
 
-| Target Query | FAQ Question |
-|---|---|
-| places that take ebt near me | "What places accept EBT in Los Angeles, CA?" |
-| what restaurants accept ebt near me | "What restaurants accept EBT in Los Angeles, CA?" |
-| ebt food near me | "Where can I buy food with EBT in Los Angeles, CA?" |
-| ebt near me | "How do I find EBT stores near me in Los Angeles, CA?" |
-| grocery stores that accept ebt | "Which grocery stores accept EBT in Los Angeles, CA?" |
-| farmers market ebt | "Can I use EBT at farmers markets in Los Angeles, CA?" |
+4. **Layout Shift from conditional UI elements** -- The "approximate location" prompt, search active state, and category scroll indicators render conditionally, pushing content down and causing CLS.
 
-Each answer will include the city name, practical guidance, and a natural call to action ("Search above to find...").
+5. **No `font-display: swap`** -- Google Fonts loaded without `&display=swap` can block text rendering on slower desktop connections.
 
-**2. Update `src/pages/CityPage.tsx`**
+6. **Desktop hero section underutilizes space** -- The hero uses `max-w-2xl` (672px) for the search area, making the desktop feel cramped and unpolished.
 
-- Import and render `CityFAQSection` instead of the generic `FAQSection`
-- Pass `city.name` and `city.state` as props
-- The generic FAQSection (which has no schema markup and no city context) will be replaced
+### Changes
 
-### Why This Works
+**1. Widen desktop content areas**
 
-- Google favors FAQ schema for featured snippet boxes on "near me" queries
-- City-localized content creates unique, non-duplicate pages (avoids thin content penalties)
-- Visible accordion content matches Google's requirement that FAQ schema content be visible on page
-- Directly targets the 0-click queries identified in GSC data
+- `ExploreTrending.tsx`: Change desktop store results from `max-w-3xl` to `max-w-5xl`
+- `ExploreTrending.tsx`: Change desktop hero wrapper from `max-w-2xl` to `max-w-3xl`
+- Use 2-column grid for store cards on desktop (`grid-cols-1 md:grid-cols-2`)
+
+**2. Fix CLS from Header images**
+
+- `Header.tsx`: Add explicit `width` and `height` attributes to both logo `<img>` tags
+- Add `fetchpriority="high"` to the primary logo since it's above the fold
+
+**3. Fix CLS from conditional elements**
+
+- `ExploreTrending.tsx`: Reserve space for the "approximate location" prompt using `min-h` so content doesn't jump when it appears/disappears
+- `CategoryTabs.tsx`: Use `opacity-0` instead of conditional rendering for scroll indicators to prevent layout shifts
+
+**4. Fix font loading**
+
+- `index.css`: Add `&display=swap` to the Google Fonts import URL to prevent invisible text flash on desktop
+
+**5. Optimize desktop hero**
+
+- `HeroSearch.tsx`: Widen the desktop search input area from `max-w-md` to `max-w-lg`
+- Add the "Calculator" quick action to desktop (currently mobile-only) for feature parity
 
 ### Technical Details
 
-- Reuses the existing `FAQSchema` component for JSON-LD injection
-- Uses the same `Accordion` UI components as the current `FAQSection`
-- Schema ID uses `#city-faq-schema` to avoid conflicts with the global `#faq-schema`
-- No new dependencies required
+Files to modify:
+- `src/index.css` -- Add `&display=swap` to font import
+- `src/components/Header.tsx` -- Add width/height to images
+- `src/components/ExploreTrending.tsx` -- Widen desktop layout, 2-col grid
+- `src/components/home/HeroSearch.tsx` -- Widen search, add Calculator button
+- `src/components/CategoryTabs.tsx` -- Fix CLS from scroll indicators
+
+No new dependencies needed. All changes are CSS/layout adjustments and HTML attribute additions.
 
