@@ -83,9 +83,9 @@ export default function Index() {
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
-        title="Find EBT & SNAP Stores Near You — 300,000+ Locations | EBT Finder"
-        description="Find 300,000+ grocery stores, restaurants, and farmers markets that accept EBT and SNAP benefits near you. Search by ZIP code, filter by store type, read community reviews. Free and updated daily."
-        keywords="EBT stores near me, SNAP benefits, food stamps, EBT accepted here, grocery stores EBT, RMP restaurants, farmers markets EBT, food assistance, SNAP store locator, EBT balance"
+        title="EBT Finder — Find 300,000+ Stores & Restaurants That Accept EBT Near You"
+        description="Instantly find grocery stores, restaurants, and farmers markets that accept EBT near you. Search 300,000+ SNAP-approved locations by ZIP code. Free, fast, and updated daily — see what's open now."
+        keywords="EBT finder, EBT near me, EBT stores near me, places that accept EBT near me, EBT accepted near me, SNAP store locator, restaurants that accept EBT, grocery stores EBT, food stamps near me, EBT locator"
         canonicalUrl="https://ebtfinder.org"
         ogImage="https://ebtfinder.org/og-image.png"
         structuredData={structuredData}
