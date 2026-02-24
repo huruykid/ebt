@@ -11,22 +11,22 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
 
-interface BreadcrumbItem {
+interface BreadcrumbNavItem {
   label: string;
   href?: string;
 }
 
 interface BreadcrumbNavigationProps {
-  items?: BreadcrumbItem[];
+  items?: BreadcrumbNavItem[];
 }
 
 export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ items }) => {
   const location = useLocation();
   
   // Generate breadcrumbs based on current path if no items provided
-  const generateBreadcrumbs = (): BreadcrumbItem[] => {
+  const generateBreadcrumbs = (): BreadcrumbNavItem[] => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs: BreadcrumbItem[] = [];
+    const breadcrumbs: BreadcrumbNavItem[] = [];
 
     // Add home
     breadcrumbs.push({ label: 'Home', href: '/' });
