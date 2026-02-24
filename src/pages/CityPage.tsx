@@ -100,7 +100,11 @@ const CityPage: React.FC = () => {
       
       <div className="min-h-screen bg-background">
         {/* Breadcrumb Navigation */}
-        <BreadcrumbNavigation />
+        <BreadcrumbNavigation items={[
+          { label: 'Home', href: '/' },
+          ...(stateSlug ? [{ label: stateName, href: `/state/${stateSlug}` }] : []),
+          { label: city.name, href: `/city/${actualCitySlug}` }
+        ]} />
 
         {/* City Hero Section */}
         <div className="bg-gradient-to-br from-primary/5 to-secondary/10 border-b">
