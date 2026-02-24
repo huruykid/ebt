@@ -102,7 +102,7 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           Search 300,000+ grocery stores, restaurants, and markets that accept SNAP/EBT benefits.
         </p>
         
-        <div className="max-w-md mx-auto mb-6">
+        <div className="max-w-lg mx-auto mb-6">
           <ZipCodeSearch
             onZipSearch={onZipSearch}
             onClearSearch={onClearSearch}
@@ -135,6 +135,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
                 </Button>
               }
             />
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/benefits-calculator">
+                <Calculator className="h-4 w-4 mr-2" />
+                Calculator
+              </Link>
+            </Button>
           </div>
         )}
       </div>
