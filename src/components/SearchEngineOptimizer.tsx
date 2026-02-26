@@ -55,39 +55,6 @@ export const SearchEngineOptimizer = () => {
       });
     };
 
-    // Optimize for Core Web Vitals
-    const optimizeCoreWebVitals = () => {
-      // Preload critical fonts
-      const fontPreload = document.createElement('link');
-      fontPreload.rel = 'preload';
-      fontPreload.as = 'font';
-      fontPreload.type = 'font/woff2';
-      fontPreload.crossOrigin = 'anonymous';
-      fontPreload.href = '/fonts/inter-var.woff2';
-      
-      if (!document.querySelector(`link[href="${fontPreload.href}"]`)) {
-        document.head.appendChild(fontPreload);
-      }
-
-      // Add resource hints for critical domains
-      const domains = [
-        'https://fonts.googleapis.com',
-        'https://fonts.gstatic.com',
-        'https://www.googletagmanager.com'
-      ];
-
-      domains.forEach(domain => {
-        const preconnect = document.createElement('link');
-        preconnect.rel = 'preconnect';
-        preconnect.href = domain;
-        preconnect.crossOrigin = 'anonymous';
-        
-        if (!document.querySelector(`link[rel="preconnect"][href="${domain}"]`)) {
-          document.head.appendChild(preconnect);
-        }
-      });
-    };
-
     // Add structured data for sitelinks search box
     const addSitelinksSearchBox = () => {
       const existingScript = document.querySelector('#sitelinks-searchbox');
@@ -158,7 +125,6 @@ export const SearchEngineOptimizer = () => {
 
     addPrefetchHints();
     addEATSignals();
-    optimizeCoreWebVitals();
     addSitelinksSearchBox();
     
     // Delay image optimization to not block initial render

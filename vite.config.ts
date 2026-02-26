@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-popover'],
-          icons: ['lucide-react'],
+          
           supabase: ['@supabase/supabase-js'],
           query: ['@tanstack/react-query'],
         },
