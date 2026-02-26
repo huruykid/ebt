@@ -5,7 +5,7 @@ import { Star, ArrowRight, Utensils } from 'lucide-react';
 
 export const SnapTipsSection: React.FC = () => {
   return (
-    <section className="bg-white py-16 border-t" itemScope itemType="https://schema.org/Article">
+    <section className="bg-white py-16 border-t min-h-[420px] md:min-h-[350px]" itemScope itemType="https://schema.org/Article">
       <div className="max-w-4xl mx-auto px-6">
         <Card className="bg-white border-primary/20 shadow-lg">
           <CardContent className="p-8">

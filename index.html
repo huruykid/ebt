@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" type="image/png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -17,22 +17,22 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="google" content="notranslate" />
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googlesyndication.com *.googletagmanager.com *.google-analytics.com *.googleapis.com *.supabase.co pagead2.googlesyndication.com www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' fonts.gstatic.com data:; img-src 'self' data: blob: *.google.com *.googleapis.com *.supabase.co *.gstatic.com; connect-src 'self' *.supabase.co *.google-analytics.com *.googleapis.com *.googlesyndication.com analytics.google.com overpass-api.de; frame-src 'self' *.googlesyndication.com *.google.com; media-src 'self'">
     
     <!-- Resource hints for better performance -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/lovable-uploads/e67ca403-7d95-4937-99e0-b6a0c646f9cb.png" />
-    <!-- Performance optimizations for Core Web Vitals -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect to critical origins only -->
     <link rel="preconnect" href="https://vpnaaaocqqmkslwqrkyd.supabase.co">
-    <link rel="preconnect" href="https://maps.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical CSS -->
-    <link rel="preload" href="/src/index.css" as="style">
-    
-    <!-- DNS prefetch for external domains -->
+    <!-- DNS prefetch for deferred external domains -->
     <link rel="dns-prefetch" href="https://analytics.google.com">
     <link rel="dns-prefetch" href="https://overpass-api.de">
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
 
     <!-- Language targeting -->
     <link rel="alternate" hreflang="en-us" href="https://ebtfinder.org/" />
@@ -61,10 +61,6 @@
     <meta name="twitter:description" content="Instantly find grocery stores, restaurants, and farmers markets that accept EBT near you. Search by ZIP code. Free and updated daily." />
     <meta name="twitter:image" content="https://ebtfinder.org/og-image.png" />
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2620004731463756"
-     crossorigin="anonymous"></script>
-
     <!-- Structured Data -->
     <script type="application/ld+json">
     {
@@ -87,9 +83,6 @@
       }
     }
     </script>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/og-image.png" as="image" />
     
     <!-- JSON-LD for Organization -->
     <script type="application/ld+json">

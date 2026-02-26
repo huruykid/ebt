@@ -90,7 +90,7 @@ const AppContent = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 pb-28 md:pb-0 pt-[env(safe-area-inset-top)] md:pt-0">
+        <div id="main-content" className="flex-1 pb-32 md:pb-0 pt-[env(safe-area-inset-top)] md:pt-0">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />

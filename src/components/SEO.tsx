@@ -68,9 +68,7 @@ export const SEO = memo<SEOProps>(({ children }) => {
       elementsToAdd.push(link);
     };
 
-    // Preconnect to critical origins
-    addResourceHint('preconnect', 'https://fonts.googleapis.com');
-    addResourceHint('preconnect', 'https://fonts.gstatic.com', { crossorigin: 'anonymous' });
+    // DNS prefetch for deferred domains
     addResourceHint('dns-prefetch', 'https://www.google-analytics.com');
 
     // === SKIP LINK FOR ACCESSIBILITY ===

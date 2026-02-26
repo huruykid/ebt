@@ -174,12 +174,13 @@ export const ExploreTrending: React.FC = () => {
         </div>
 
         <main ref={resultsRef} className="flex-1 px-4 py-4 space-y-6">
+          <h2 className="text-lg font-semibold text-foreground">Nearby EBT Stores</h2>
           {showZipResults ? (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in min-h-[400px]">
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : effectiveLat && effectiveLng ? (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in min-h-[400px]">
               <ExactLocationPrompt />
               {nearbyLoading ? <LoadingSpinner /> : (
                 <>
@@ -232,12 +233,13 @@ export const ExploreTrending: React.FC = () => {
             </div>
           )}
 
+          <h2 className="text-xl font-semibold text-foreground mb-4">Nearby EBT Stores</h2>
           {showZipResults ? (
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-4 animate-fade-in min-h-[400px]">
               <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-foreground">
                   EBT Stores in {activeZipCode}
-                </h2>
+                </h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {zipStores.length} store{zipStores.length !== 1 ? 's' : ''} found
                 </p>
