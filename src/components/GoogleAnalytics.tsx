@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useIPGeolocation } from '@/hooks/useIPGeolocation';
 
 declare global {
   interface Window {
@@ -27,9 +28,18 @@ const deferUntilIdle = (fn: () => void) => {
 export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId }) => {
   const location = useLocation();
   const initialized = useRef(false);
+  const { data: ipGeo, loading: ipLoading } = useIPGeolocation();
 
   useEffect(() => {
-    if (initialized.current) return;
+    if (initialized.current || ipLoading) return;
+
+    // Block analytics for non-US visitors to filter bot traffic
+    const countryCode = ipGeo?.countryCode || '';
+    if (countryCode && countryCode !== 'US') {
+      console.debug('[Analytics] Skipping GA/AdSense for non-US visitor:', countryCode);
+      return;
+    }
+
     initialized.current = true;
 
     // Validate measurementId
@@ -63,9 +73,9 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId 
       adsenseScript.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`;
       document.head.appendChild(adsenseScript);
     });
-  }, [measurementId]);
+  }, [measurementId, ipGeo, ipLoading]);
 
-  // Track page views when route changes
+  // Track page views when route changes (only if GA was initialized)
   useEffect(() => {
     if (typeof window.gtag !== 'undefined') {
       const sanitizedId = measurementId.replace(/[^A-Z0-9-]/gi, '');
