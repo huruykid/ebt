@@ -88,7 +88,6 @@ export default function Index() {
         keywords="EBT finder, EBT near me, EBT stores near me, places that accept EBT near me, EBT accepted near me, SNAP store locator, restaurants that accept EBT, grocery stores EBT, food stamps near me, EBT locator"
         canonicalUrl="https://ebtfinder.org"
         ogImage="https://ebtfinder.org/og-image.png"
-        structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
       <BreadcrumbSchema items={breadcrumbItems} />

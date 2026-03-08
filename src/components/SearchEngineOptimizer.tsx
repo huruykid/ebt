@@ -1,13 +1,20 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
+/**
+ * Handles dynamic SEO optimizations:
+ * - Prefetch hints for likely next navigations
+ * - Lazy image optimization (alt text, loading attributes)
+ * 
+ * Static schemas and meta tags are in index.html.
+ * E-A-T signals and sitelinks searchbox removed (duplicated index.html).
+ */
 export const SearchEngineOptimizer = () => {
   const location = useLocation();
 
   useEffect(() => {
     // Add prefetch hints for likely next navigations
     const addPrefetchHints = () => {
-      // Clean up old prefetch links
       document.querySelectorAll('link[data-prefetch]').forEach(el => el.remove());
 
       const routePrefetchMap: Record<string, string[]> = {
@@ -27,58 +34,6 @@ export const SearchEngineOptimizer = () => {
         link.setAttribute('data-prefetch', 'true');
         document.head.appendChild(link);
       });
-    };
-
-    // Add author and publisher for E-A-T
-    const addEATSignals = () => {
-      const signals = [
-        { name: 'author', content: 'EBT Finder Team' },
-        { name: 'publisher', content: 'EBT Finder' },
-        { name: 'copyright', content: `${new Date().getFullYear()} EBT Finder` },
-        { name: 'content-language', content: 'en-US' },
-        { property: 'article:publisher', content: 'https://ebtfinder.org' }
-      ];
-
-      signals.forEach(({ name, property, content }) => {
-        const selector = property ? `meta[property="${property}"]` : `meta[name="${name}"]`;
-        let meta = document.querySelector(selector) as HTMLMetaElement;
-        if (!meta) {
-          meta = document.createElement('meta');
-          if (property) {
-            meta.setAttribute('property', property);
-          } else {
-            meta.name = name!;
-          }
-          document.head.appendChild(meta);
-        }
-        meta.content = content;
-      });
-    };
-
-    // Add structured data for sitelinks search box
-    const addSitelinksSearchBox = () => {
-      const existingScript = document.querySelector('#sitelinks-searchbox');
-      if (!existingScript) {
-        const schema = {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "url": "https://ebtfinder.org",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": {
-              "@type": "EntryPoint",
-              "urlTemplate": "https://ebtfinder.org/search?q={search_term_string}"
-            },
-            "query-input": "required name=search_term_string"
-          }
-        };
-
-        const script = document.createElement('script');
-        script.id = 'sitelinks-searchbox';
-        script.type = 'application/ld+json';
-        script.textContent = JSON.stringify(schema);
-        document.head.appendChild(script);
-      }
     };
 
     // Optimize images for SEO using IntersectionObserver to avoid forced reflow
@@ -102,7 +57,6 @@ export const SearchEngineOptimizer = () => {
           const element = img as HTMLImageElement;
           observer.observe(element);
           
-          // Ensure all images have alt text
           if (!element.alt) {
             const src = element.src;
             const filename = src.split('/').pop()?.split('.')[0] || '';
@@ -110,7 +64,6 @@ export const SearchEngineOptimizer = () => {
           }
         });
       } else {
-        // Fallback for older browsers - set lazy loading for all
         images.forEach((img) => {
           const element = img as HTMLImageElement;
           element.loading = 'lazy';
@@ -124,10 +77,6 @@ export const SearchEngineOptimizer = () => {
     };
 
     addPrefetchHints();
-    addEATSignals();
-    addSitelinksSearchBox();
-    
-    // Delay image optimization to not block initial render
     setTimeout(optimizeImages, 100);
 
   }, [location.pathname]);
