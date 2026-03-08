@@ -6,45 +6,6 @@ import { FAQSchema } from "@/components/FAQSchema";
 import { BreadcrumbSchema } from "@/components/BreadcrumbSchema";
 
 export default function Index() {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "EBT Finder",
-    "url": "https://ebtfinder.org",
-    "description": "Find 300,000+ stores, restaurants, and markets that accept EBT and SNAP benefits near you",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Web Browser",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "potentialAction": [
-      {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://ebtfinder.org/search?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    ],
-    "audience": {
-      "@type": "Audience",
-      "audienceType": "SNAP/EBT Recipients"
-    },
-    "serviceArea": {
-      "@type": "Country",
-      "name": "United States"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "15000",
-      "bestRating": "5"
-    }
-  };
-
   const breadcrumbItems = [
     { name: "Home", url: "/" }
   ];
@@ -88,7 +49,6 @@ export default function Index() {
         keywords="EBT finder, EBT near me, EBT stores near me, places that accept EBT near me, EBT accepted near me, SNAP store locator, restaurants that accept EBT, grocery stores EBT, food stamps near me, EBT locator"
         canonicalUrl="https://ebtfinder.org"
         ogImage="https://ebtfinder.org/og-image.png"
-        structuredData={structuredData}
       />
       <FAQSchema faqs={faqs} />
       <BreadcrumbSchema items={breadcrumbItems} />
