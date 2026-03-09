@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, X } from 'lucide-react';
+import { Search, MapPin, X, Navigation } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { trackZipCodeSearch } from '@/utils/analytics';
+import { cn } from '@/lib/utils';
 
 interface ZipCodeSearchProps {
   onZipSearch: (zipCode: string) => void;
@@ -12,6 +13,8 @@ interface ZipCodeSearchProps {
   activeZip?: string;
   errorMessage?: string;
   noResultsMessage?: string;
+  onLocationRequest?: () => void;
+  locationLoading?: boolean;
 }
 
 export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
@@ -20,7 +23,9 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
   isSearchActive,
   activeZip,
   errorMessage,
-  noResultsMessage
+  noResultsMessage,
+  onLocationRequest,
+  locationLoading,
 }) => {
   const [zipInput, setZipInput] = useState('');
 
@@ -54,7 +59,7 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto space-y-3">
+    <div className="w-full max-w-lg mx-auto space-y-2">
       <div className="flex shadow-md rounded-lg overflow-hidden border border-border">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -70,6 +75,17 @@ export const ZipCodeSearch: React.FC<ZipCodeSearchProps> = ({
             aria-label="ZIP code"
           />
         </div>
+        {onLocationRequest && (
+          <button
+            onClick={onLocationRequest}
+            disabled={locationLoading}
+            className="flex items-center justify-center w-11 border-l border-border bg-muted/30 hover:bg-muted transition-colors"
+            aria-label="Use my location"
+            title="Use my location"
+          >
+            <Navigation className={cn("h-4 w-4 text-muted-foreground", locationLoading && "animate-pulse text-primary")} />
+          </button>
+        )}
         <Button 
           onClick={handleSearch}
           disabled={!validateZipCode(zipInput)}
