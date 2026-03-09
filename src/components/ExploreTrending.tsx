@@ -171,7 +171,20 @@ export const ExploreTrending: React.FC = () => {
         </div>
 
         <main ref={resultsRef} className="flex-1 px-4 py-4 space-y-6">
-          <h2 className="text-lg font-semibold text-foreground">Nearby EBT Stores</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Nearby EBT Stores</h2>
+              {nearbyStores.length > 0 && !showZipResults && (
+                <p className="text-xs text-muted-foreground">Found {nearbyStores.length} store{nearbyStores.length !== 1 ? 's' : ''} near you</p>
+              )}
+            </div>
+            {source !== 'browser' && !showZipResults && effectiveLat && effectiveLng && (
+              <Button variant="outline" size="sm" onClick={requestBrowserLocation}>
+                <MapPin className="h-3.5 w-3.5 mr-1" />
+                Use my location
+              </Button>
+            )}
+          </div>
           {showZipResults ? (
             <div className="animate-fade-in min-h-[400px]">
               {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
@@ -230,7 +243,20 @@ export const ExploreTrending: React.FC = () => {
             </div>
           )}
 
-          <h2 className="text-xl font-semibold text-foreground mb-4">Nearby EBT Stores</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Nearby EBT Stores</h2>
+              {nearbyStores.length > 0 && !showZipResults && (
+                <p className="text-sm text-muted-foreground">Found {nearbyStores.length} store{nearbyStores.length !== 1 ? 's' : ''} near you</p>
+              )}
+            </div>
+            {source !== 'browser' && !showZipResults && effectiveLat && effectiveLng && (
+              <Button variant="outline" size="sm" onClick={requestBrowserLocation}>
+                <MapPin className="h-3.5 w-3.5 mr-1" />
+                Use my location
+              </Button>
+            )}
+          </div>
           {showZipResults ? (
             <div className="space-y-4 animate-fade-in min-h-[400px]">
               <div className="text-center mb-6">
