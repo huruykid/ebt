@@ -71,16 +71,15 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     updateMetaTag('twitter:image', ogImage);
     updatePropertyTag('og:url', canonicalUrl || window.location.href);
 
-    // Update canonical URL
-    if (canonicalUrl) {
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.rel = 'canonical';
-        document.head.appendChild(canonical);
-      }
-      canonical.href = canonicalUrl;
+    // Always update canonical URL — default to current path (no query params) to prevent duplicates
+    const effectiveCanonical = canonicalUrl || `https://ebtfinder.org${window.location.pathname}`;
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
     }
+    canonical.href = effectiveCanonical;
 
     // Add structured data
     if (structuredData) {
