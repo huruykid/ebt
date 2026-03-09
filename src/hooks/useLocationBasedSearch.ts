@@ -33,7 +33,7 @@ export const useLocationBasedSearch = () => {
     handleCategoryChange
   } = useCategoryManagement();
 
-  const { data: stores, isLoading, error } = useStoreSearchQuery({
+  const { data: stores, isLoading, error, refetch } = useStoreSearchQuery({
     searchQuery,
     activeCategory,
     selectedStoreTypes,
@@ -93,5 +93,6 @@ export const useLocationBasedSearch = () => {
     setSelectedZip,
     handleLocationSelect,
     clearLocationSelection,
+    refetch,
   };
 };

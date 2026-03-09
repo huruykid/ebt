@@ -4,6 +4,9 @@ import { CategoryTabs } from '@/components/CategoryTabs';
 import { OpenNowFilter } from '@/components/OpenNowFilter';
 import { useLocationBasedSearch } from '@/hooks/useLocationBasedSearch';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 import { MapPin, Search, Navigation } from 'lucide-react';
 import { sanitizeString } from '@/utils/security';
 import { Input } from '@/components/ui/input';
@@ -35,9 +38,20 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
     setSelectedZip,
     handleLocationSelect,
     clearLocationSelection,
+    refetch,
   } = useLocationBasedSearch();
 
   const { latitude, longitude, loading: geoLoading, requestBrowserLocation } = useGeolocation();
+  const isMobile = useIsMobile();
+
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
+  const { containerRef, pullDistance, isRefreshing } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    enabled: isMobile,
+  });
   
   // Track if we've auto-searched with initial location
   const [hasAutoSearched, setHasAutoSearched] = useState(false);
@@ -168,7 +182,8 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({ initialCity, i
   const isSearchDisabled = !storeNameInput.trim() && !locationInput.trim() && !locationSearch;
 
   return (
-    <div className="container mx-auto px-4 py-4 md:py-6 max-w-2xl animate-fade-in">
+    <div ref={containerRef} className="container mx-auto px-4 py-4 md:py-6 max-w-2xl animate-fade-in">
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       {/* Search Form */}
       <div className="space-y-3 mb-4">
         <div className="relative group">
