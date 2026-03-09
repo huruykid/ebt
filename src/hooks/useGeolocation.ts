@@ -91,10 +91,10 @@ export const useGeolocation = () => {
     setLocation(prev => ({ ...prev, loading: true }));
 
     const handleSuccess = (position: any) => {
-      setLocation(createBrowserLocationResult(
-        position.coords.latitude,
-        position.coords.longitude
-      ));
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      saveBrowserLocation(lat, lng);
+      setLocation(createBrowserLocationResult(lat, lng));
     };
 
     const handleError = () => {
