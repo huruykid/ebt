@@ -69,6 +69,7 @@ export default function StoreDetailPage() {
           description="This store doesn't exist or may have been removed. Find EBT and SNAP-accepting stores with EBT Finder."
           keywords="EBT store, SNAP benefits, store not found"
           canonicalUrl={`https://ebtfinder.org/store/${id}`}
+          noindex
         />
         <div className="min-h-screen bg-background p-4">
           <div className="max-w-2xl mx-auto pt-8 text-center">
