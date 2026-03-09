@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ZipCodeSearch } from '@/components/ZipCodeSearch';
 import { CheckBalanceModal } from '@/components/CheckBalanceModal';
-import { Navigation, CreditCard, Calculator } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { CreditCard, Calculator } from 'lucide-react';
 import { trackLocationSearch } from '@/utils/analytics';
 
 interface HeroSearchProps {
@@ -33,10 +32,14 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
   longitude,
   loading,
   onCurrentLocationSearch,
-  onRequestLocation,
   variant = 'desktop'
 }) => {
   const isMobile = variant === 'mobile';
+
+  const handleLocationRequest = () => {
+    trackLocationSearch(!latitude || !longitude);
+    onCurrentLocationSearch();
+  };
 
   if (isMobile) {
     return (
@@ -55,23 +58,12 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
           activeZip={activeZip}
           errorMessage={errorMessage}
           noResultsMessage={noResultsMessage}
+          onLocationRequest={handleLocationRequest}
+          locationLoading={loading}
         />
         
         {!isSearchActive && (
           <div className="flex justify-center gap-2 mt-3">
-            <Button
-              onClick={() => {
-                trackLocationSearch(!latitude || !longitude);
-                onCurrentLocationSearch();
-              }}
-              variant="secondary"
-              size="sm"
-              disabled={loading}
-              className="text-xs"
-            >
-              <Navigation className={cn("h-3.5 w-3.5 mr-1.5", loading && "animate-pulse")} />
-              {loading ? 'Locating...' : 'Use my location'}
-            </Button>
             <CheckBalanceModal 
               trigger={
                 <Button variant="ghost" size="sm" className="text-xs">
@@ -110,23 +102,13 @@ export const HeroSearch: React.FC<HeroSearchProps> = ({
             activeZip={activeZip}
             errorMessage={errorMessage}
             noResultsMessage={noResultsMessage}
+            onLocationRequest={handleLocationRequest}
+            locationLoading={loading}
           />
         </div>
         
         {!isSearchActive && (
           <div className="flex justify-center gap-3">
-            <Button
-              onClick={() => {
-                trackLocationSearch(!latitude || !longitude);
-                onCurrentLocationSearch();
-              }}
-              variant="outline"
-              size="sm"
-              disabled={loading}
-            >
-              <Navigation className={cn("h-4 w-4 mr-2", loading && "animate-pulse")} />
-              {loading ? 'Locating...' : 'Use current location'}
-            </Button>
             <CheckBalanceModal 
               trigger={
                 <Button variant="ghost" size="sm">
