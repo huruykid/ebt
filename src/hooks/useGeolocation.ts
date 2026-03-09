@@ -41,9 +41,38 @@ const getIPLocationFromCache = (): GeolocationResult => {
   return createFallbackLocationResult();
 };
 
+const SESSION_KEY = 'ebt-browser-location';
+const SESSION_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+
+const saveBrowserLocation = (lat: number, lng: number) => {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ latitude: lat, longitude: lng, timestamp: Date.now() }));
+  } catch {}
+};
+
+const loadBrowserLocation = (): { latitude: number; longitude: number } | null => {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp > SESSION_MAX_AGE_MS) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return { latitude: parsed.latitude, longitude: parsed.longitude };
+  } catch {
+    return null;
+  }
+};
+
 export const useGeolocation = () => {
-  const [location, setLocation] = useState<GeolocationResult>(createInitialGeolocationState());
-  const browserRequestedRef = useRef(false);
+  const cached = loadBrowserLocation();
+  const [location, setLocation] = useState<GeolocationResult>(
+    cached
+      ? createBrowserLocationResult(cached.latitude, cached.longitude)
+      : createInitialGeolocationState()
+  );
+  const browserRequestedRef = useRef(!!cached);
   
   const { data: ipData, loading: ipLoading } = useIPGeolocation();
 
