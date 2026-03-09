@@ -22,6 +22,7 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const startOffset = parseInt(url.searchParams.get('offset') || '0');
     const shouldClear = url.searchParams.get('clear') !== 'false';
+    const autoChain = url.searchParams.get('auto_chain') !== 'false'; // enabled by default
 
     // Clear existing data only if this is a fresh start
     if (shouldClear && startOffset === 0) {
@@ -96,6 +97,24 @@ Deno.serve(async (req) => {
     
     // Determine if more data is available
     const needsContinuation = grandTotal < 264290 && consecutiveEmptyChunks < maxEmptyChunks && totalProcessed === MAX_RECORDS_PER_INVOCATION;
+
+    // Auto-chain: trigger the next invocation if there's more data
+    if (needsContinuation && autoChain) {
+      console.log(`Auto-chaining: triggering continuation at offset ${finalOffset}...`);
+      try {
+        const continuationUrl = `${supabaseUrl}/functions/v1/sync-snap-stores?offset=${finalOffset}&clear=false&auto_chain=true`;
+        const chainResponse = await fetch(continuationUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+        });
+        console.log(`Continuation triggered, status: ${chainResponse.status}`);
+      } catch (chainError) {
+        console.error('Failed to auto-chain continuation:', chainError);
+      }
+    }
     
     return new Response(
       JSON.stringify({
@@ -107,6 +126,7 @@ Deno.serve(async (req) => {
         coveragePercent: Math.round((grandTotal / 264290) * 100),
         nextOffset: finalOffset,
         needsContinuation,
+        autoChained: needsContinuation && autoChain,
         continuationUrl: needsContinuation ? `${url.origin}${url.pathname}?offset=${finalOffset}&clear=false` : null
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
