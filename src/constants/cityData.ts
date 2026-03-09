@@ -44,6 +44,14 @@ export const cityData: Record<string, CityData> = {
     zipCodes: ['60601', '60602', '60603', '60604', '60605', '60606', '60607', '60608', '60609', '60610'],
     description: 'Chicago EBT users can find thousands of SNAP-accepting locations across the Windy City. Illinois participates in RMP, making Chicago excellent for EBT hot meal purchases.'
   },
+  'chicago-ebt': {
+    name: 'Chicago',
+    state: 'IL',
+    lat: 41.8781,
+    lng: -87.6298,
+    zipCodes: ['60601', '60602', '60603', '60604', '60605', '60606', '60607', '60608', '60609', '60610'],
+    description: 'Chicago EBT users can find thousands of SNAP-accepting locations across the Windy City. Illinois participates in RMP, making Chicago excellent for EBT hot meal purchases.'
+  },
   'houston': {
     name: 'Houston',
     state: 'TX',
