@@ -10,6 +10,7 @@ interface SEOHeadProps {
   ogImage?: string;
   ogType?: string;
   twitterCard?: string;
+  noindex?: boolean;
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
@@ -20,7 +21,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   structuredData,
   ogImage = "https://ebtfinder.org/og-image.png",
   ogType = "website",
-  twitterCard = "summary_large_image"
+  twitterCard = "summary_large_image",
+  noindex = false
 }) => {
   useEffect(() => {
     // Update title
