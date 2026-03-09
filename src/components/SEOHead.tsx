@@ -66,6 +66,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       updateMetaTag('robots', 'noindex, nofollow');
     }
 
+    if (title) {
       updatePropertyTag('og:title', title);
       updateMetaTag('twitter:title', title);
     }
