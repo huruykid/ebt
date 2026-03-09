@@ -12,19 +12,7 @@ Allow: /state/
 Allow: /store/
 Allow: /benefits-calculator
 
-# Block legacy city URLs (they redirect to /city/ prefix)
-Disallow: /los-angeles
-Disallow: /new-york
-Disallow: /brooklyn
-Disallow: /chicago
-Disallow: /houston
-Disallow: /miami
-Disallow: /atlanta
-Disallow: /phoenix
-Disallow: /philadelphia
-Disallow: /san-antonio
-Disallow: /san-diego
-Disallow: /dallas
+# Legacy city URLs now redirect to /city/ prefix - allow crawling so bots follow the redirect
 
 # Block unnecessary crawling to save crawl budget
 Disallow: /auth
