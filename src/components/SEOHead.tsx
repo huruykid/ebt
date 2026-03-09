@@ -61,7 +61,11 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       updateMetaTag('keywords', keywords);
     }
 
-    if (title) {
+    // Set robots meta tag for noindex pages (404s, dead store pages)
+    if (noindex) {
+      updateMetaTag('robots', 'noindex, nofollow');
+    }
+
       updatePropertyTag('og:title', title);
       updateMetaTag('twitter:title', title);
     }
