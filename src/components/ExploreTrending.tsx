@@ -134,11 +134,9 @@ export const ExploreTrending: React.FC = () => {
       <div className="text-center py-8">
         <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
         <h3 className="text-base font-semibold mb-1.5">Find stores near you</h3>
-        <p className="text-sm text-muted-foreground mb-4">Enable location or search by ZIP code</p>
-        <Button onClick={requestBrowserLocation} size="sm">
-          <MapPin className="h-4 w-4 mr-2" />
-          Use My Location
-        </Button>
+        <p className="text-sm text-muted-foreground mb-4">
+          Search by ZIP code or tap the location icon in the search bar above
+        </p>
       </div>
       <PopularCities variant="full" />
     </div>
@@ -159,7 +157,6 @@ export const ExploreTrending: React.FC = () => {
           longitude={longitude}
           loading={loading}
           onCurrentLocationSearch={handleCurrentLocationSearch}
-          onRequestLocation={requestBrowserLocation}
           variant="mobile"
         />
 
