@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { IPGeolocationProvider } from "@/contexts/IPGeolocationContext";
 import { BottomNavigation } from "@/components/BottomNavigation";
@@ -96,6 +96,8 @@ const AppContent = () => {
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<EnhancedSearch />} />
+              <Route path="/index.html" element={<Navigate to="/" replace />} />
+              <Route path="/store/:id/*" element={<StoreDetail />} />
               <Route path="/store/:id" element={<StoreDetail />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/favorites" element={<Favorites />} />

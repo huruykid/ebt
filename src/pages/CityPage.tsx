@@ -24,8 +24,19 @@ const CityPage: React.FC = () => {
   const city = actualCitySlug && cityData[actualCitySlug] ? cityData[actualCitySlug] : null;
 
   // Redirect legacy routes to canonical /city/ URLs (fixes "Alternate page with proper canonical tag")
+  // Add meta refresh as fallback for crawlers that don't execute JS (fixes "Soft 404")
   if (isLegacyRoute && city) {
-    return <Navigate to={`/city/${actualCitySlug}`} replace />;
+    const canonicalCitySlug = actualCitySlug === 'chicago-ebt' ? 'chicago' : actualCitySlug;
+    return (
+      <>
+        <SEOHead
+          title={`Redirecting to ${city.name} EBT Stores | EBT Finder`}
+          description={`Find EBT stores in ${city.name}, ${city.state}.`}
+          canonicalUrl={`https://ebtfinder.org/city/${canonicalCitySlug}`}
+        />
+        <Navigate to={`/city/${canonicalCitySlug}`} replace />
+      </>
+    );
   }
 
   // If city not found, redirect to 404 (fixes "Soft 404" issue)
