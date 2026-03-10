@@ -28,7 +28,7 @@ export const SnapTipsSection: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-foreground mb-3 text-xl" itemProp="name">
-                    Complete 2025 SNAP Tips & Tricks Guide
+                    Complete 2026 SNAP Tips & Tricks Guide
                   </h3>
                   <div className="text-muted-foreground mb-4 space-y-2" itemProp="description">
                     <p itemProp="step" itemScope itemType="https://schema.org/HowToStep">
