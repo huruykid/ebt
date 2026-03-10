@@ -17,7 +17,7 @@ export const SnapTipsSection: React.FC = () => {
                 </h2>
               </div>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6" itemProp="description">
-                Discover money-saving programs, eligible items, and insider tips to get the most out of your EBT benefits. Learn about Double Up Food Bucks, Restaurant Meals Program, and 2025 policy updates.
+                Discover money-saving programs, eligible items, and insider tips to get the most out of your EBT benefits. Learn about Double Up Food Bucks, Restaurant Meals Program, and 2026 policy updates.
               </p>
             </header>
             
