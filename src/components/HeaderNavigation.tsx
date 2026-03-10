@@ -66,7 +66,8 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ onNavigate }
             })}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {!user && !isGuest ? (
               <Button onClick={handleAuthClick} variant="ghost" size="sm">Sign In</Button>
             ) : user ? (
