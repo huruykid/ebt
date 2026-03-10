@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CategoryTabs } from './CategoryTabs';
-import { LoadingSpinner } from './LoadingSpinner';
+import { StoreCardSkeletonGrid } from './StoreCardSkeleton';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useZipCodeSearch } from '@/hooks/useZipCodeSearch';
 import { useNavigate } from 'react-router-dom';
@@ -131,12 +131,18 @@ export const ExploreTrending: React.FC = () => {
 
   const NoLocationPrompt = () => (
     <div className="space-y-6">
-      <div className="text-center py-8">
-        <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-        <h3 className="text-base font-semibold mb-1.5">Find stores near you</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Search by ZIP code or tap the location icon in the search bar above
+      <div className="text-center py-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+          <MapPin className="h-8 w-8 text-primary" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">Find EBT stores near you</h3>
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-5">
+          Enable location access or search by ZIP code to discover nearby SNAP-accepting stores
         </p>
+        <Button onClick={requestBrowserLocation} size="lg" className="shadow-md">
+          <MapPin className="h-4 w-4 mr-2" />
+          Enable Location
+        </Button>
       </div>
       <PopularCities variant="full" />
     </div>
@@ -187,12 +193,12 @@ export const ExploreTrending: React.FC = () => {
           </div>
           {showZipResults ? (
             <div className="animate-fade-in min-h-[400px]">
-              {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
+              {zipLoading ? <StoreCardSkeletonGrid count={4} /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : effectiveLat && effectiveLng ? (
             <div className="animate-fade-in min-h-[400px]">
               <ExactLocationPrompt />
-              {nearbyLoading ? <LoadingSpinner /> : (
+              {nearbyLoading ? <StoreCardSkeletonGrid count={6} /> : (
                 <>
                   <StoreListSimple stores={nearbyStores} />
                   {nearbyStores.length >= 20 && (
@@ -267,12 +273,12 @@ export const ExploreTrending: React.FC = () => {
                   {zipStores.length} store{zipStores.length !== 1 ? 's' : ''} found
                 </p>
               </div>
-              {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
+              {zipLoading ? <StoreCardSkeletonGrid count={4} /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : effectiveLat && effectiveLng ? (
             <div className="space-y-4 animate-fade-in">
               <ExactLocationPrompt />
-              {nearbyLoading ? <LoadingSpinner /> : (
+              {nearbyLoading ? <StoreCardSkeletonGrid count={6} /> : (
                 <>
                   <StoreListSimple stores={nearbyStores} />
                   {nearbyStores.length >= 20 && (

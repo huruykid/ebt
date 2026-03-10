@@ -73,9 +73,9 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
           <CardTitle>Location</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Location coordinates not available</p>
+          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+            <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Location coordinates not available</p>
           </div>
         </CardContent>
       </Card>
@@ -123,28 +123,28 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
       </CardHeader>
       <CardContent>
         {/* Enhanced location info */}
-        <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg p-6 mb-4">
+        <div className="bg-primary/5 rounded-lg p-6 mb-4">
           <div className="flex items-start gap-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <MapPin className="h-6 w-6 text-blue-600" />
+            <div className="bg-primary/10 p-3 rounded-full">
+              <MapPin className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-2">Store Address</h3>
-              <p className="text-gray-700 mb-3">{formatAddress()}</p>
+              <h3 className="font-semibold text-foreground mb-2">Store Address</h3>
+              <p className="text-muted-foreground mb-3">{formatAddress()}</p>
               
               {/* Distance and travel time info */}
               {distance && travelTime && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm">
                     <Navigation className="h-4 w-4 text-green-600" />
-                    <span className="text-gray-600">
-                      <span className="font-medium text-gray-900">{distance.toFixed(1)} mi</span> away
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{distance.toFixed(1)} mi</span> away
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-orange-600" />
-                    <span className="text-gray-600">
-                      <span className="font-medium text-gray-900">{travelTime}</span> drive
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{travelTime}</span> drive
                     </span>
                   </div>
                 </div>
@@ -172,8 +172,8 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
         </div>
         
         {/* Coordinates for reference */}
-        <div className="pt-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500">
+        <div className="pt-4 border-t border-border">
+          <div className="text-xs text-muted-foreground">
             <strong>Coordinates:</strong> {store.Latitude}, {store.Longitude}
           </div>
         </div>

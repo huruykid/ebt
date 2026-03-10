@@ -76,7 +76,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Geo-blocking overlay for non-US visitors */}
       <GeoBlockingOverlay />
       
@@ -130,7 +130,7 @@ const AppContent = () => {
         </div>
         
         {/* Bottom navigation - mobile only */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background border-t border-border" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
           <BottomNavigation onNavigate={handleNavigate} />
         </div>
       </SEO>

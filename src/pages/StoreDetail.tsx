@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { StoreHeader } from '@/components/store-detail/StoreHeader';
 import { ReviewSection } from '@/components/store-detail/ReviewSection';
+import { StoreMap } from '@/components/store-detail/StoreMap';
 import { StorePhotos } from '@/components/store-detail/StorePhotos';
 import { StoreComments } from '@/components/StoreComments';
 import { SEOHead } from '@/components/SEOHead';
@@ -135,6 +136,9 @@ export default function StoreDetailPage() {
         {/* Content */}
         <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
           <StoreHeader store={store} />
+
+          {/* Map & Directions */}
+          <StoreMap store={store} />
 
           {/* Hours */}
           <EnhancedGooglePlacesInfo
