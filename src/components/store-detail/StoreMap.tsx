@@ -143,8 +143,8 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-orange-600" />
-                    <span className="text-gray-600">
-                      <span className="font-medium text-gray-900">{travelTime}</span> drive
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{travelTime}</span> drive
                     </span>
                   </div>
                 </div>
