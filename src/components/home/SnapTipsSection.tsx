@@ -7,7 +7,7 @@ export const SnapTipsSection: React.FC = () => {
   return (
     <section className="bg-background py-16 border-t min-h-[420px] md:min-h-[350px]" itemScope itemType="https://schema.org/Article">
       <div className="max-w-4xl mx-auto px-6">
-        <Card className="bg-white border-primary/20 shadow-lg">
+        <Card className="bg-card border-primary/20 shadow-lg">
           <CardContent className="p-8">
             <header className="text-center mb-6">
               <div className="flex items-center justify-center gap-3 mb-4">
