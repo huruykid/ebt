@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CategoryTabs } from './CategoryTabs';
-import { LoadingSpinner } from './LoadingSpinner';
+import { StoreCardSkeletonGrid } from './StoreCardSkeleton';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useZipCodeSearch } from '@/hooks/useZipCodeSearch';
 import { useNavigate } from 'react-router-dom';
