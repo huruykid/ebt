@@ -41,7 +41,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
             className={`${sizeClasses[size]} ${
               star <= rating
                 ? 'fill-yellow-400 text-yellow-400'
-                : 'fill-muted text-muted'
+                : 'fill-gray-200 text-gray-200'
             }`}
           />
         </button>

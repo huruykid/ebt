@@ -155,19 +155,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       {/* Left scroll button - visible on mobile */}
       <button
         onClick={() => scroll('left')}
-        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-background/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-background transition-all duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll left"
       >
-        <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        <ChevronLeft className="h-4 w-4 text-gray-600" />
       </button>
 
       {/* Right scroll button - visible on mobile */}
       <button
         onClick={() => scroll('right')}
-        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-background/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-background transition-all duration-200 ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll right"
       >
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <ChevronRight className="h-4 w-4 text-gray-600" />
       </button>
 
       <div 
@@ -190,8 +190,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                 onClick={() => handleCategoryClick(category.id)}
                 className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[72px] px-2 md:px-3 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
                   isActive 
-                    ? 'bg-gradient-to-br from-card to-muted shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
-                    : 'hover:bg-card/70 hover:shadow-md md:hover:shadow-lg'
+                    ? 'bg-gradient-to-br from-white to-gray-50 shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
+                    : 'hover:bg-white/70 hover:shadow-md md:hover:shadow-lg'
                 }`}
                 role="tab"
                 aria-selected={isActive}
