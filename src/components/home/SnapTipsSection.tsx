@@ -41,7 +41,7 @@ export const SnapTipsSection: React.FC = () => {
                       • <strong>Restaurant Meals Program:</strong> <span itemProp="text">Use EBT at participating restaurants in select states for prepared meals</span>
                     </p>
                     <p itemProp="step" itemScope itemType="https://schema.org/HowToStep">
-                      • <strong>2025 policy updates:</strong> <span itemProp="text">New work requirements and benefit changes affecting eligibility</span>
+                      • <strong>2026 policy updates:</strong> <span itemProp="text">New work requirements and benefit changes affecting eligibility</span>
                     </p>
                   </div>
                   <Button 
