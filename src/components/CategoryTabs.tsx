@@ -155,19 +155,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
       {/* Left scroll button - visible on mobile */}
       <button
         onClick={() => scroll('left')}
-        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute left-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-background/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-background transition-all duration-200 ${canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll left"
       >
-        <ChevronLeft className="h-4 w-4 text-gray-600" />
+        <ChevronLeft className="h-4 w-4 text-muted-foreground" />
       </button>
 
       {/* Right scroll button - visible on mobile */}
       <button
         onClick={() => scroll('right')}
-        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute right-1 top-1/2 -translate-y-1/2 z-20 p-1.5 bg-background/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-background transition-all duration-200 ${canScrollRight ? 'opacity-100 animate-pulse' : 'opacity-0 pointer-events-none'}`}
         aria-label="Scroll right"
       >
-        <ChevronRight className="h-4 w-4 text-gray-600" />
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </button>
 
       <div 
