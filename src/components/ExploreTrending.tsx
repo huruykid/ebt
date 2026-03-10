@@ -272,7 +272,7 @@ export const ExploreTrending: React.FC = () => {
           ) : effectiveLat && effectiveLng ? (
             <div className="space-y-4 animate-fade-in">
               <ExactLocationPrompt />
-              {nearbyLoading ? <LoadingSpinner /> : (
+              {nearbyLoading ? <StoreCardSkeletonGrid count={6} /> : (
                 <>
                   <StoreListSimple stores={nearbyStores} />
                   {nearbyStores.length >= 20 && (
