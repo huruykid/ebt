@@ -137,6 +137,9 @@ export default function StoreDetailPage() {
         <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
           <StoreHeader store={store} />
 
+          {/* Map & Directions */}
+          <StoreMap store={store} />
+
           {/* Hours */}
           <EnhancedGooglePlacesInfo
             googleData={googleData}
