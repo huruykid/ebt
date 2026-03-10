@@ -53,7 +53,7 @@ export const SnapTipsSection: React.FC = () => {
                       href="/snap-tips" 
                       className="flex items-center gap-2"
                       aria-label="View complete SNAP benefits guide and money-saving tips"
-                      title="Complete 2025 SNAP Tips Guide - Double Up Food Bucks & More"
+                      title="Complete 2026 SNAP Tips Guide - Double Up Food Bucks & More"
                     >
                       View Complete Guide
                       <ArrowRight className="h-5 w-5" aria-hidden="true" />
