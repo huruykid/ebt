@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface HeaderNavigationProps {
   onNavigate?: (itemId: string) => void;
@@ -65,7 +66,8 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ onNavigate }
             })}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {!user && !isGuest ? (
               <Button onClick={handleAuthClick} variant="ghost" size="sm">Sign In</Button>
             ) : user ? (

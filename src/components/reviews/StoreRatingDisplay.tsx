@@ -29,7 +29,7 @@ export const StoreRatingDisplay: React.FC<StoreRatingDisplayProps> = ({
 
   if (!stats || stats.review_count === 0) {
     return (
-      <div className={`flex items-center gap-2 text-gray-500 ${className}`}>
+      <div className={`flex items-center gap-2 text-muted-foreground ${className}`}>
         <StarRating rating={0} readonly size="sm" />
       </div>
     );
@@ -39,7 +39,7 @@ export const StoreRatingDisplay: React.FC<StoreRatingDisplayProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       <StarRating rating={stats.average_rating} readonly size="sm" />
       <span className="text-sm font-medium">{stats.average_rating}</span>
-      <span className="text-sm text-gray-500">
+      <span className="text-sm text-muted-foreground">
         ({stats.review_count} {stats.review_count === 1 ? 'review' : 'reviews'})
       </span>
     </div>
