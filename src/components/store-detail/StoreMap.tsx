@@ -172,8 +172,8 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
         </div>
         
         {/* Coordinates for reference */}
-        <div className="pt-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500">
+        <div className="pt-4 border-t border-border">
+          <div className="text-xs text-muted-foreground">
             <strong>Coordinates:</strong> {store.Latitude}, {store.Longitude}
           </div>
         </div>
