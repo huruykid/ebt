@@ -76,7 +76,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Geo-blocking overlay for non-US visitors */}
       <GeoBlockingOverlay />
       
