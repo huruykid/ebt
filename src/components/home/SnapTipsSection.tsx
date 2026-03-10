@@ -72,8 +72,8 @@ export const SnapTipsSection: React.FC = () => {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "HowTo",
-              "name": "How to Maximize Your SNAP Benefits in 2025",
-              "description": "Complete guide to getting the most out of your EBT benefits including Double Up Food Bucks, eligible items, and policy updates",
+              "name": "How to Maximize Your SNAP Benefits in 2026",
+              "description": "Complete guide to getting the most out of your EBT benefits including Double Up Food Bucks, eligible items, and 2026 policy updates",
               "image": "https://ebtfinder.org/ebt-logo.png",
               "totalTime": "PT10M",
               "supply": [{ "@type": "HowToSupply", "name": "EBT Card" }],
