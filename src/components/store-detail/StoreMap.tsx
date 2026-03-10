@@ -73,9 +73,9 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
           <CardTitle>Location</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Location coordinates not available</p>
+          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+            <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Location coordinates not available</p>
           </div>
         </CardContent>
       </Card>
