@@ -137,8 +137,8 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-2 text-sm">
                     <Navigation className="h-4 w-4 text-green-600" />
-                    <span className="text-gray-600">
-                      <span className="font-medium text-gray-900">{distance.toFixed(1)} mi</span> away
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{distance.toFixed(1)} mi</span> away
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
