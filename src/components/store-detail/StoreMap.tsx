@@ -123,14 +123,14 @@ export const StoreMap: React.FC<StoreMapProps> = ({ store }) => {
       </CardHeader>
       <CardContent>
         {/* Enhanced location info */}
-        <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-lg p-6 mb-4">
+        <div className="bg-primary/5 rounded-lg p-6 mb-4">
           <div className="flex items-start gap-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <MapPin className="h-6 w-6 text-blue-600" />
+            <div className="bg-primary/10 p-3 rounded-full">
+              <MapPin className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-2">Store Address</h3>
-              <p className="text-gray-700 mb-3">{formatAddress()}</p>
+              <h3 className="font-semibold text-foreground mb-2">Store Address</h3>
+              <p className="text-muted-foreground mb-3">{formatAddress()}</p>
               
               {/* Distance and travel time info */}
               {distance && travelTime && (
