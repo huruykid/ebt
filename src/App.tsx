@@ -11,6 +11,7 @@ import { HeaderNavigation } from "@/components/HeaderNavigation";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { SearchEngineOptimizer } from "@/components/SearchEngineOptimizer";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ThemeProvider } from "next-themes";
 import { SEO } from "@/components/SEO";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { GeoBlockingOverlay } from "@/components/GeoBlockingOverlay";
