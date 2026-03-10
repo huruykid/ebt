@@ -81,7 +81,7 @@ export const SnapTipsSection: React.FC = () => {
                 { "@type": "HowToStep", "name": "Use Double Up Food Bucks Programs", "text": "Match your SNAP dollars on fresh produce up to $30 per day at participating farmers markets." },
                 { "@type": "HowToStep", "name": "Know What You Can Buy", "text": "Purchase surprising eligible items like birthday cakes, coffee, seeds, plants with your EBT card." },
                 { "@type": "HowToStep", "name": "Access Restaurant Meals Program", "text": "Use EBT at participating restaurants in select states if you qualify." },
-                { "@type": "HowToStep", "name": "Stay Updated on Policy Changes", "text": "Be aware of 2025 policy updates including new work requirements." }
+                { "@type": "HowToStep", "name": "Stay Updated on Policy Changes", "text": "Be aware of 2026 policy updates including new work requirements." }
               ],
               "url": "https://ebtfinder.org/snap-tips"
             })
