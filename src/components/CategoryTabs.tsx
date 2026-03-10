@@ -190,8 +190,8 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                 onClick={() => handleCategoryClick(category.id)}
                 className={`flex flex-col items-center justify-center min-w-[60px] md:min-w-[72px] px-2 md:px-3 py-2 md:py-4 transition-all duration-300 hover:opacity-80 rounded-xl md:rounded-2xl hover:scale-105 md:hover:scale-110 ${
                   isActive 
-                    ? 'bg-gradient-to-br from-white to-gray-50 shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
-                    : 'hover:bg-white/70 hover:shadow-md md:hover:shadow-lg'
+                    ? 'bg-gradient-to-br from-card to-muted shadow-lg md:shadow-xl border border-primary/30 md:border-2 scale-105 md:scale-110 transform' 
+                    : 'hover:bg-card/70 hover:shadow-md md:hover:shadow-lg'
                 }`}
                 role="tab"
                 aria-selected={isActive}

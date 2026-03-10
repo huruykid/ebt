@@ -40,13 +40,13 @@ export const UserMenu: React.FC = () => {
       </button>
 
       {showMenu && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-50">
-          <div className="px-4 py-2 border-b text-sm text-gray-600">
+        <div className="absolute right-0 mt-2 w-64 bg-popover rounded-md shadow-lg py-2 z-50 border border-border">
+          <div className="px-4 py-2 border-b text-sm text-muted-foreground">
             <span dangerouslySetInnerHTML={{ __html: safeEmail }} />
           </div>
           <button
             onClick={handleSignOut}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
           >
             Sign Out
           </button>
