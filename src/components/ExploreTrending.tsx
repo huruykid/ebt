@@ -187,7 +187,7 @@ export const ExploreTrending: React.FC = () => {
           </div>
           {showZipResults ? (
             <div className="animate-fade-in min-h-[400px]">
-              {zipLoading ? <LoadingSpinner /> : <StoreListSimple stores={zipStores} />}
+              {zipLoading ? <StoreCardSkeletonGrid count={4} /> : <StoreListSimple stores={zipStores} />}
             </div>
           ) : effectiveLat && effectiveLng ? (
             <div className="animate-fade-in min-h-[400px]">
