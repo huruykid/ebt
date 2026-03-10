@@ -13,7 +13,7 @@ export const SnapTipsSection: React.FC = () => {
               <div className="flex items-center justify-center gap-3 mb-4">
                 <Utensils className="h-8 w-8 text-primary" aria-hidden="true" />
                 <h2 className="text-3xl font-bold text-foreground" itemProp="headline">
-                  Maximize Your SNAP Benefits in 2025
+                  Maximize Your SNAP Benefits in 2026
                 </h2>
               </div>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6" itemProp="description">
