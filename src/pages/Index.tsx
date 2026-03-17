@@ -41,6 +41,20 @@ export default function Index() {
     }
   ];
 
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "EBT Finder",
+    "url": "https://ebtfinder.org",
+    "logo": "https://ebtfinder.org/primary-logo.png",
+    "founder": {
+      "@type": "Person",
+      "name": "Huruy Kidanemariam",
+      "url": "https://ebtfinder.org/about-huruy-kidanemariam"
+    },
+    "description": "EBT Finder is a free tool that helps families find SNAP-accepting stores and restaurants across the United States."
+  };
+
   return (
     <ProtectedRoute requireAuth={false}>
       <SEOHead
@@ -49,6 +63,7 @@ export default function Index() {
         keywords="EBT finder, EBT near me, EBT stores near me, places that accept EBT near me, EBT accepted near me, SNAP store locator, restaurants that accept EBT, grocery stores EBT, food stamps near me, EBT locator"
         canonicalUrl="https://ebtfinder.org"
         ogImage="https://ebtfinder.org/og-image.png"
+        structuredData={organizationSchema}
       />
       <FAQSchema faqs={faqs} />
       <BreadcrumbSchema items={breadcrumbItems} />

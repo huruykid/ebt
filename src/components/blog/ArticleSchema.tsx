@@ -16,8 +16,9 @@ export function ArticleSchema({ post }: ArticleSchemaProps) {
       "datePublished": post.published_at || post.created_at,
       "dateModified": post.updated_at,
       "author": {
-        "@type": "Organization",
-        "name": post.author
+        "@type": "Person",
+        "name": post.author || "Huruy Kidanemariam",
+        "url": "https://ebtfinder.org/about-huruy-kidanemariam"
       },
       "publisher": {
         "@type": "Organization",

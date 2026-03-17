@@ -110,6 +110,7 @@ const AppContent = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/benefits-calculator" element={<BenefitsCalculator />} />
+              <Route path="/about-huruy-kidanemariam" element={<AboutFounder />} />
               
               
               {/* State Pages - All 50 states + DC */}
