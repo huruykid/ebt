@@ -33,6 +33,7 @@ const SnapTips = lazy(() => import("./pages/SnapTips"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const BenefitsCalculator = lazy(() => import("./pages/BenefitsCalculator"));
+const AboutFounder = lazy(() => import("./pages/AboutFounder"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 
