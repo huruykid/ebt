@@ -138,6 +138,12 @@ export const SEOFooter: React.FC = () => {
             Data sourced from USDA SNAP Retailer Locator. Store information updated regularly for accuracy.
           </p>
           <p className="mt-2">
+            Designed and Built by{' '}
+            <Link to="/about-huruy-kidanemariam" className="text-primary hover:text-primary/80 font-medium">
+              Huruy Kidanemariam
+            </Link>
+          </p>
+          <p className="mt-2">
             <Link to="/" className="text-primary hover:text-primary/80 font-medium">
               https://ebtfinder.org
             </Link>
