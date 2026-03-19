@@ -103,7 +103,11 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       script.textContent = JSON.stringify(structuredData);
       document.head.appendChild(script);
     }
-  }, [title, description, keywords, canonicalUrl, structuredData, ogImage, ogType, twitterCard]);
+    // Cleanup: reset robots on unmount to prevent noindex leaking to next route
+    return () => {
+      updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    };
+  }, [title, description, keywords, canonicalUrl, structuredData, ogImage, ogType, twitterCard, noindex]);
 
   return null;
 };
