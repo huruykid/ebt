@@ -1,130 +1,76 @@
 
 
-## Comprehensive Performance, Accessibility & Best Practices Overhaul
+## Search Console Issues — Diagnosis and Fix Plan
 
-This is a large set of changes across 9 areas. Here is the implementation plan organized by priority.
+### The Data at a Glance
 
----
-
-### Prompt 1: Fix og-image.png preload (quick win)
-
-**Problem:** `index.html` line 92 has `<link rel="preload" href="/og-image.png" as="image" />` which forces the browser to download the 860KB image on every page load. The og-image is only needed by social crawlers reading `<meta>` tags -- never by the browser.
-
-**Fix:**
-- **`index.html`**: Remove line 92 (`<link rel="preload" href="/og-image.png" as="image" />`). The `<meta property="og:image">` tags remain -- those are only read by crawlers, not downloaded by browsers.
-
-*Note: Image compression to WebP and CDN cache headers cannot be configured from application code on Lovable's hosting. The preload removal alone eliminates the 860KB download for real users.*
+Your impressions crashed from ~826/day (Feb 4) to single digits by mid-February. The "Not indexed" count keeps climbing (175 → 1,009). Here's why:
 
 ---
 
-### Prompt 2: Fix render-blocking CSS & self-host Inter font
+### Root Cause Analysis
 
-**Problems:**
-1. `src/index.css` line 1 has `@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap")` which is render-blocking (adds ~450ms).
-2. `SearchEngineOptimizer.tsx` references `/fonts/inter-var.woff2` which returns 404 (the directory doesn't exist).
-3. `index.html` has preconnects to `fonts.googleapis.com` and `fonts.gstatic.com` that would become unnecessary.
+**CRITICAL BUG: `noindex` is never reset during SPA navigation**
 
-**Fix:**
-- **`src/index.css`**: Remove the Google Fonts `@import` on line 1. Add `@font-face` declarations for Inter using the system font stack as fallback with `font-display: swap`. Use the Google Fonts CDN URL directly in the `@font-face src` (this avoids the render-blocking stylesheet while still using Google's CDN for the actual woff2 file -- a known optimization pattern).
-- **`src/components/SearchEngineOptimizer.tsx`**: Remove the `optimizeCoreWebVitals` function entirely (lines 58-89). It tries to preload a nonexistent font file and adds redundant preconnects already in `index.html` / `SEO.tsx`.
-- **`index.html`**: Remove preconnects for `fonts.googleapis.com` and `fonts.gstatic.com` (lines 25-26) since we'll reference the font file directly in CSS. Remove the broken `<link rel="preload" href="/src/index.css" as="style">` on line 31 (Vite transforms CSS paths at build time, so this preload targets a dev-only path).
+In `SEOHead.tsx` (line 65), when `noindex` is true, the robots meta tag is set to `noindex, nofollow`. But when navigating to a normal page, the tag is **never reset back to `index, follow`**. In a single-page app, the meta tag persists across route changes. This means: if a user (or Googlebot) visits a dead store page → then navigates to the homepage, the homepage **inherits the noindex tag**. This alone could explain the impressions collapse.
 
----
+**439 "Duplicate without user-selected canonical"**
 
-### Prompt 3: Fix CLS (0.429 -> target < 0.1)
+The `/store/:id/*` wildcard route (App.tsx line 101) means URLs like `/store/abc/extra/path` all render the same page as `/store/abc`. Google sees these as duplicates. Additionally, `index.html` has a hardcoded `<link rel="canonical" href="https://ebtfinder.org/">` that competes with the JS-injected canonical on every page.
 
-**Problems:**
-1. `SnapTipsSection` (the "Maximize Your SNAP Benefits" card) has no minimum height, causing a 0.341 layout shift when it renders.
-2. Bottom navigation wrapper in `App.tsx` lacks reserved space.
-3. Store cards grid has no skeleton placeholder.
+**13 Soft 404s**
 
-**Fix:**
-- **`src/components/home/SnapTipsSection.tsx`**: Add `min-h-[420px] md:min-h-[350px]` to the outer `<section>` element to reserve space.
-- **`src/App.tsx`**: The main content area already has `pb-28 md:pb-0` (line 93) which reserves bottom nav space. Verify the bottom nav wrapper height matches. The bottom nav div (line 131) has extra padding. Ensure the `pb-28` is sufficient by changing to `pb-32` to account for the safe-area padding.
-- **`src/components/ExploreTrending.tsx`**: Add a skeleton placeholder for the store cards grid while `nearbyLoading` is true -- use a fixed-height container (`min-h-[400px]`) around the loading state.
+The `NotFound` page does NOT pass `noindex={true}` to `SEOHead`, so Google may index 404 pages. It also sets a canonical to `/404` which is confusing.
+
+**325 "Crawled - currently not indexed"**
+
+Store detail pages are behind JS rendering with no SSR. Combined with the noindex leak, Google is deprioritizing the entire domain.
 
 ---
 
-### Prompt 4: Defer AdSense & Google Tag Manager
+### Implementation Plan
 
-**Problems:**
-1. `index.html` line 65: AdSense `<script async>` loads immediately (~265KB).
-2. `GoogleAnalytics.tsx` appends GTM script immediately on mount.
+#### 1. Fix the noindex leak in SEOHead (CRITICAL)
 
-**Fix:**
-- **`index.html`**: Remove the AdSense script tag entirely (lines 64-66). It will be loaded dynamically instead.
-- **`src/components/GoogleAnalytics.tsx`**: Wrap both the GTM and AdSense script loading in a deferred loader that waits for either `requestIdleCallback` or a 3-second timeout (whichever comes first). Load AdSense here too, since it's the centralized script-loading component.
+**File:** `src/components/SEOHead.tsx`
 
----
+Add an `else` branch: when `noindex` is false, explicitly reset the robots meta tag to `index, follow`. Also add cleanup logic in the useEffect return to reset robots when the component unmounts (SPA navigation).
 
-### Prompt 5: Code-split & reduce unused JS
+#### 2. Remove the wildcard store route
 
-**Current state:** Routes are already lazy-loaded via `React.lazy()` in `App.tsx`. Supabase is already in its own chunk via `vite.config.ts` `manualChunks`. The main remaining opportunity is ensuring the `icons` chunk is tree-shaken.
+**File:** `src/App.tsx`
 
-**Fix:**
-- **`vite.config.ts`**: Remove `icons: ['lucide-react']` from `manualChunks`. Lucide-react already tree-shakes individual icons, but forcing it into one chunk defeats that. Let Vite's default chunking handle it per-route.
-- No other changes needed -- the existing lazy-loading and chunking strategy is already good.
+Delete line 101: `<Route path="/store/:id/*" element={<StoreDetail />} />`. Keep only the exact `/store/:id` route. Any `/store/id/extra` URLs will correctly hit the 404 page instead of creating duplicates.
 
----
+#### 3. Fix the NotFound page
 
-### Prompt 6: Reduce unused CSS
+**File:** `src/pages/NotFound.tsx`
 
-**Current state:** Tailwind config `content` array (lines 5-10 in `tailwind.config.ts`) already points to `./src/**/*.{ts,tsx}`. The unused CSS is likely from component styles loaded globally that are only used on specific routes.
+- Add `noindex={true}` to the SEOHead component
+- Remove the `canonicalUrl="/404"` prop (noindex pages shouldn't declare canonicals)
 
-**Fix:** No code changes needed. Tailwind's purge is already correctly configured. The 82% unused CSS reported by Lighthouse is measured against the *home page* -- those classes are used on other routes. CSS code-splitting per route is not supported by Vite's CSS pipeline without significant architectural changes. The 16.5KB total CSS size is already small.
+#### 4. Remove the competing static canonical from index.html
 
----
+**File:** `index.html`
 
-### Prompt 7: Fix Accessibility
+Remove `<link rel="canonical" href="https://ebtfinder.org/" />` (line 40). The SEOHead component already manages canonical tags dynamically per page. Having a static one in index.html means Google sees two conflicting canonical signals on every page.
 
-**7a. ARIA roles on CategoryTabs:**
-- **`src/components/CategoryTabs.tsx`**: Change `role="button"` and `aria-pressed` (line 196-197) to `role="tab"` and `aria-selected={isActive}`. The parent `<nav>` already has `role="tablist"`.
+#### 5. Add useEffect cleanup to SEOHead
 
-**7b. Viewport meta tag:**
-- **`index.html`**: Change line 7 from `width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no` to `width=device-width, initial-scale=1.0, viewport-fit=cover`. Remove `user-scalable=no`.
+**File:** `src/components/SEOHead.tsx`
 
-**7c. Color contrast (text-primary on light bg):**
-- **`src/index.css`**: Darken `--primary` from `217 91% 60%` to `217 91% 45%` for better contrast ratio against white backgrounds. This is the blue used for links.
-
-**7d. Heading hierarchy (add h2 before store cards):**
-- **`src/components/ExploreTrending.tsx`**: Add an `<h2>` heading like "Nearby EBT Stores" above the store cards grid in both mobile and desktop layouts.
-
-**7e. Skip link target:**
-- **`src/App.tsx`**: Add `id="main-content"` to the main content `<div>` (line 93).
+Add a cleanup function in the useEffect that resets the robots meta tag when the component unmounts, preventing stale `noindex` from leaking to the next route.
 
 ---
 
-### Prompt 8: Fix 404 font error & add CSP
+### Expected Impact
 
-**8a. Font 404:**
-- Already handled in Prompt 2 (removing the `/fonts/inter-var.woff2` preload reference from `SearchEngineOptimizer.tsx`).
+| Fix | Resolves | Pages affected |
+|-----|----------|----------------|
+| noindex reset | Impressions crash, crawled-not-indexed | All pages |
+| Remove wildcard route | 439 duplicates | Store pages |
+| NotFound noindex | Soft 404s | 13+ pages |
+| Remove static canonical | Duplicate canonicals | All pages |
 
-**8b. Content Security Policy:**
-- **`index.html`**: Add a `<meta http-equiv="Content-Security-Policy">` tag with a policy allowing self, Google Ads, GTM, GA, Supabase, and inline styles/scripts.
-
----
-
-### Prompt 9: Clean up unused preconnects
-
-- **`index.html`**: Remove `<link rel="preconnect" href="https://maps.googleapis.com">` (line 28) -- maps are lazy-loaded.
-- **`index.html`**: Keep Supabase preconnect (line 27) -- it's needed for initial data fetch.
-- **`src/components/SEO.tsx`**: Remove the `addResourceHint` calls for `fonts.googleapis.com` and `fonts.gstatic.com` (lines 72-73) since we're self-hosting the font reference in CSS.
-- **`src/components/SearchEngineOptimizer.tsx`**: The `optimizeCoreWebVitals` function that adds preconnects for `fonts.googleapis.com`, `fonts.gstatic.com`, and `www.googletagmanager.com` is removed entirely (covered in Prompt 2).
-
----
-
-### Summary of All File Changes
-
-| File | Changes |
-|------|---------|
-| `index.html` | Remove og-image preload, remove Google Fonts preconnects, remove maps preconnect, remove broken CSS preload, remove AdSense script, remove `user-scalable=no`, add CSP meta tag |
-| `src/index.css` | Replace Google Fonts `@import` with inline `@font-face` declaration; darken `--primary` for contrast |
-| `src/components/SearchEngineOptimizer.tsx` | Remove `optimizeCoreWebVitals` function entirely |
-| `src/components/GoogleAnalytics.tsx` | Defer GTM loading with `requestIdleCallback`/3s timeout; add deferred AdSense loading |
-| `src/components/home/SnapTipsSection.tsx` | Add `min-h` to prevent CLS |
-| `src/components/ExploreTrending.tsx` | Add `<h2>` heading above store cards; add min-height to loading containers |
-| `src/components/CategoryTabs.tsx` | Fix ARIA: `role="tab"` + `aria-selected` |
-| `src/App.tsx` | Add `id="main-content"` to content div; adjust bottom padding |
-| `src/components/SEO.tsx` | Remove redundant font preconnects |
-| `vite.config.ts` | Remove `icons` from `manualChunks` |
+After deploying, request re-indexing of the homepage and top city pages in Search Console.
 
