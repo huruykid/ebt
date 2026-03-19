@@ -98,7 +98,6 @@ const AppContent = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<EnhancedSearch />} />
               <Route path="/index.html" element={<Navigate to="/" replace />} />
-              <Route path="/store/:id/*" element={<StoreDetail />} />
               <Route path="/store/:id" element={<StoreDetail />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/favorites" element={<Favorites />} />

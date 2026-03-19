@@ -25,8 +25,7 @@ const NotFound = () => {
       <SEOHead
         title="Page Not Found | EBT Finder"
         description="The page you're looking for doesn't exist. Find EBT and SNAP-accepting stores with EBT Finder."
-        keywords="404, page not found, EBT stores, SNAP benefits"
-        canonicalUrl="https://ebtfinder.org/404"
+        noindex={true}
       />
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">404</h1>
