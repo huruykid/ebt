@@ -61,9 +61,11 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       updateMetaTag('keywords', keywords);
     }
 
-    // Set robots meta tag for noindex pages (404s, dead store pages)
+    // Set robots meta tag — explicitly reset on every render to prevent SPA leaks
     if (noindex) {
       updateMetaTag('robots', 'noindex, nofollow');
+    } else {
+      updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     }
 
     if (title) {
